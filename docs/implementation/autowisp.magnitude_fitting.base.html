@@ -1,0 +1,620 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.magnitude_fitting.base module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.magnitude_fitting.iterative_refit module" href="autowisp.magnitude_fitting.iterative_refit.html" />
+    <link rel="prev" title="autowisp.magnitude_fitting.tests.test_mphotref_collector module" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.magnitude_fitting.html">autowisp.magnitude_fitting package</a></li>
+      <li class="breadcrumb-item active">autowisp.magnitude_fitting.base module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.magnitude_fitting.base.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.magnitude_fitting.base">
+<span id="autowisp-magnitude-fitting-base-module"></span><h1>autowisp.magnitude_fitting.base module<a class="headerlink" href="#module-autowisp.magnitude_fitting.base" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-88f4b11a011dae7d16dab73f8e790d6bcb3144af.png" alt="Inheritance diagram of ABC, DataReductionFile, Evaluator, MagnitudeFit" usemap="#inheritanced8262d6f87" class="inheritance graphviz" /></div>
+<map id="inheritanced8262d6f87" name="inheritanced8262d6f87">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="395,453,470,480"/>
+<area shape="rect" id="node5" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="147,528,334,555"/>
+<area shape="rect" id="node8" href="#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="358,528,645,555"/>
+<area shape="rect" id="node6" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="756,80,946,107"/>
+<area shape="rect" id="node3" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="47,677,434,704"/>
+<area shape="rect" id="node4" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="35,603,446,629"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
+</map><p>Magnitude fitting interface.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.base.</span></span><span class="sig-name descname"><span class="pre">MagnitudeFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_collector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_name_format</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-468eb8b0ab01f46f382b70c733d26cd4c16d24c8.png" alt="Inheritance diagram of autowisp.magnitude_fitting.base.MagnitudeFit" usemap="#inheritanced80d72b8d2" class="inheritance graphviz" /></div>
+<map id="inheritanced80d72b8d2" name="inheritanced80d72b8d2">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,5,186,32"/>
+<area shape="rect" id="node2" href="#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="5,80,293,107"/>
+</map><p>A base class for all classes doing magnitude fitting.</p>
+<p>Takes care of adding fitted magnitudes to data reduction files and updating
+the database.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit.config" title="Link to this definition"></a></dt>
+<dd><p>See <cite>config</cite> argument to __init__().</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit.logger">
+<span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit.logger" title="Link to this definition"></a></dt>
+<dd><p>A python logging logger for emitting messages on the progress
+and status of magnitude fitting.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._dr_fname">
+<span class="sig-name descname"><span class="pre">_dr_fname</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._dr_fname" title="Link to this definition"></a></dt>
+<dd><p>The name of the data reduction file currently undergoing
+magnitude fitting.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._magfit_collector">
+<span class="sig-name descname"><span class="pre">_magfit_collector</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._magfit_collector" title="Link to this definition"></a></dt>
+<dd><p>See <cite>magfit_collector</cite> argument to __init__().</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._reference">
+<span class="sig-name descname"><span class="pre">_reference</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._reference" title="Link to this definition"></a></dt>
+<dd><p>See <cite>reference</cite> argument to __init__().</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._catalogue">
+<span class="sig-name descname"><span class="pre">_catalogue</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._catalogue" title="Link to this definition"></a></dt>
+<dd><p>See <cite>master_catalogue</cite> argument to __init__().</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._source_name_format">
+<span class="sig-name descname"><span class="pre">_source_name_format</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._source_name_format" title="Link to this definition"></a></dt>
+<dd><p>See <cite>source_name_format</cite> argument to __init__().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dr_path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit.__call__" title="Link to this definition"></a></dt>
+<dd><p>Performs the fit for the latest magfit iteration for a single frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dr_fname</strong> – The name of the data reductio file to fit.</p></li>
+<li><p><strong>dr_path_substitutions</strong> – See path_substitutions argument
+to DataReduction.get_source_data().</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>The non-rejected photometry for the frame.</p>
+<dl class="simple">
+<dt>array:</dt><dd><p>The magfit corrected non-rejected photometry for the frame.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magfit_collector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_name_format</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes a magnditude fitting object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – the reference against which fitting is done.
+Should be indexed by source and contain entries implementing
+the dict interface with keys ‘mag’, ‘mag_err’ and optionally
+‘x’ and ‘y’ if the sub-pixel position of the source in the
+reference is to be used in magnitude fitting.</p></li>
+<li><p><strong>#master_catalogue</strong> (<em>pandas.DataFrame</em>) – should be indexed by source</p></li>
+<li><p><strong>information.</strong> (<em>#    id and contain relevant catalog</em>)</p></li>
+<li><p><strong>config</strong> – <p>An object with attributes configuring how to
+perform magnitude fitting. It should provide at least the
+following attributes:</p>
+<blockquote>
+<div><ul>
+<li><p>fit_source_condition: An expression involving catalogue,
+reference and/or photometry variables which evaluates to
+zero if a source should be excluded and any non-zero value
+if it should be included in the magnitude fit.</p></li>
+<li><p>reference_subpix: Should the magnitude fitting correction
+depend on the sub-pixel position of the source in the
+reference frame.</p></li>
+<li><p>grouping: An expressions using catalogue, and/or
+photometry variables which evaluates to a tuple of boolean
+values. Each distinct tuple defines a separate fitting
+group (i.e. a group of sources which participate in
+magnitude fitting together, excluding sources belonging to
+other groups).</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>magfit_collector</strong> (<a class="reference internal" href="autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector" title="autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector"><em>MasterPhotrefCollector</em></a>) – Object collecting
+fitted magnitedes for generating statistics of the scatter after
+magnitude fitting.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db">
+<span class="sig-name descname"><span class="pre">_add_fit_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fit_diagnostics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._add_fit_to_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Record the given best fit coefficient and diagnostics in the database.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>coefficients (iterable of values):    The best fit coefficients for</dt><dd><p>the magnitude fitting of the current data reduction file.</p>
+</dd>
+<dt>fit_diagnostics:    Any information about the fit that should be</dt><dd><p>recorded in the database. The names of the arguments are assumed
+to correspond to column names in the magnitude fitting table.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+</dl>
+<p>For now disabled.</p>
+<p>Code from HATpipe:</p>
+<dl>
+<dt>def _update_db(self,</dt><dd><blockquote>
+<div><p>values,
+apind,
+fit_res,
+start_src_count,
+final_src_count):</p>
+</div></blockquote>
+<p>if self.database is None : return
+args=((self._header[‘STID’],</p>
+<blockquote>
+<div><blockquote>
+<div><p>self._header[‘FNUM’],
+self._header[‘CMPOS’],
+self._header[‘PROJID’],
+self._header[‘SPRID’],
+apind,
+self.config.version,
+start_src_count,
+final_src_count,
+(None if fit_res is None else float(fit_res)))</p>
+</div></blockquote>
+<ul class="simple">
+<li></li>
+</ul>
+<p>tuple((None if v is None else float(v)) for v in values))</p>
+</div></blockquote>
+<dl class="simple">
+<dt>statement=(‘REPLACE INTO <a href="#id1"><span class="problematic" id="id2">`</span></a>’+self.config.dest_table+</dt><dd><p>‘` (<cite>station_id</cite>, <cite>fnum</cite>, <cite>cmpos</cite>, <cite>project_id</cite>, ‘
+‘<cite>sphotref_id</cite>, <cite>aperture</cite>, <cite>magfit_version</cite>, ‘
+‘<cite>input_src</cite>, <cite>non_rej_src</cite>, <cite>rms_residuals</cite>, <cite>‘+
+‘</cite>, <cite>‘.join(self._db_columns)+’</cite>) VALUES (%s’+
+‘, %s’<a href="#id3"><span class="problematic" id="id4">*</span></a>(len(args)-1)+’)’)</p>
+</dd>
+<dt>self._log_to_file(</dt><dd><p>‘Inserting into DB:</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>‘</dt><dd><ul class="simple">
+<li></li>
+</ul>
+<p>‘       ‘ + statement + ‘</p>
+</dd>
+</dl>
+<dl>
+<dt>‘</dt><dd><ul class="simple">
+<li></li>
+</ul>
+<p>‘       args: ‘ + repr(args) + ‘</p>
+</dd>
+</dl>
+<dl>
+<dt>‘</dt><dd><ul class="simple">
+<li></li>
+</ul>
+<p>‘       arg types: ‘ + repr([type(v) for v in args]) + ‘</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>‘</dt><dd><p>)
+self.database(statement, args)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._apply_fit">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_apply_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._apply_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._apply_fit" title="Link to this definition"></a></dt>
+<dd><p>Return corrected magnitudes using best fit magfit coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phot</strong> – The current photometry being fit, including catalogue
+information.</p></li>
+<li><p><strong>fit_results</strong> – The best fit parameters derived using _fit().</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The magnitude fit corrected magnitudes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array (number sources x number photometry methods)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._combine_fit_statistics">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_combine_fit_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._combine_fit_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._combine_fit_statistics" title="Link to this definition"></a></dt>
+<dd><p>Combine the statistics summarizing how the fit went from all groups.</p>
+<p>Properly combines values from the individual group fits into single
+numbers for each photometry method. The quantities processed are:
+residual, initial_src_count, final_src_count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fit_results</strong> – The best fit results for this photometry.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The derived fit statistics. Keys are residual,
+initial_src_count, and final_src_count, with one entry for
+each input photometry method.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._downgrade_calib_status">
+<span class="sig-name descname"><span class="pre">_downgrade_calib_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._downgrade_calib_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._downgrade_calib_status" title="Link to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Deal with bad photometry for a frame.</p>
+<p>Decrements the calibration status of the given file to astrometry
+and deletes the raw photometry file.</p>
+<p>For now disabled.</p>
+<p>Code from HATpipe:</p>
+<dl class="simple">
+<dt>sys.stderr.write(‘bad photometry encountered:’+str(self._header)+</dt><dd><p>‘</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>‘)</dt><dd><p>if(self.database is None) : return
+self._log_to_file(</p>
+<blockquote>
+<div><p>‘Downgrading status of header: ‘ + str(self._header) + ‘</p>
+</div></blockquote>
+</dd>
+</dl>
+<dl>
+<dt>‘</dt><dd><p>)
+sys.stderr.write(‘downgrading calibration status of’+</p>
+<blockquote>
+<div><p>str(self._header)+’</p>
+</div></blockquote>
+</dd>
+<dt>‘)</dt><dd><dl>
+<dt>self.database(‘UPDATE <cite>‘+raw_db_table(self._header[‘IMAGETYP’])+’</cite> SET ‘</dt><dd><p>‘<a href="#id5"><span class="problematic" id="id6">`</span></a>calib_status`=%s WHERE <a href="#id7"><span class="problematic" id="id8">`</span></a>station_id`=%s AND <a href="#id9"><span class="problematic" id="id10">`</span></a>fnum`=%s AND ‘
+‘<a href="#id11"><span class="problematic" id="id12">`</span></a>cmpos`=%s’, (object_status[‘good_astrometry’],</p>
+<blockquote>
+<div><p>self._header[‘STID’], self._header[‘FNUM’],
+self._header[‘CMPOS’]))</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>sys.stderr.write(‘removing:’+self._fit_file+’</p>
+</dd>
+<dt>‘)</dt><dd><p>os.remove(self._fit_file)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._fit">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._fit" title="Link to this definition"></a></dt>
+<dd><p>Perform a fit for the magfit correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fit_data</strong> (<em>numpy structured array</em>) – The current photometry being
+fitted. It should contain the source information from the frame
+being fit, the photometry from the reference (and optionally
+reference position if used) and catalogue information for each
+source.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>For each photometry (i.e. different aperture of PSF fitting)
+a list of dictionaries is returned containing a fit result
+dictionary for each group of sources with the following entries:</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">coefficients<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The best fit coefficients after the rejection
+iterations of the fit has converged.</p>
+</dd>
+<dt class="field-even">residual<span class="colon">:</span></dt>
+<dd class="field-even"><p>The residual of the latest iteration of the fit,</p>
+</dd>
+<dt class="field-odd">initial_src_count<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of stars the fit started with
+before any rejections,</p>
+</dd>
+<dt class="field-even">final_src_count<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of stars left in the fit after
+the final rejection iteration,</p>
+</dd>
+<dt class="field-odd">group_id<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ID of the group of sources this fit result
+corresponds to.</p>
+</dd>
+</dl>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._get_fit_indices">
+<span class="sig-name descname"><span class="pre">_get_fit_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_catalogue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._get_fit_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._get_fit_indices" title="Link to this definition"></a></dt>
+<dd><p>Return a list of the indices within phot of sources to use for mag fit.</p>
+<p>Exclude sources based on their catalague information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phot</strong> – See return of DataReductionFile.get_photometry().</p></li>
+<li><p><strong>evaluator</strong> (<a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" title="autowisp.evaluator.Evaluator"><em>Evaluator</em></a>) – An object capable of evaluating expressions
+involving fields from phot.</p></li>
+<li><p><strong>no_catalogue</strong> – The list of source indices for which no catalogue
+information is available (all are rejected).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of the indices within phot of the sources which pass all</dt><dd><p>catalogue requirements for inclusion in the magnitude fit.</p>
+</dd>
+<dt>int:</dt><dd><p>The number of dropped sources.</p>
+</dd>
+<dt>tuple:</dt><dd><p>The ID of one of the sources dropped, None if no sources were
+dropped.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._match_to_reference">
+<span class="sig-name descname"><span class="pre">_match_to_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_catalogue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._match_to_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._match_to_reference" title="Link to this definition"></a></dt>
+<dd><p>Add photometric reference information, and filter per self.config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phot</strong> – See return of add_catalogue_info()</p></li>
+<li><p><strong>no_catalogue</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – The source indices from phot for which
+no catalogue information was available, so default values were
+used. All identified sources are omitted from the result.</p></li>
+<li><p><strong>evaluator</strong> (<a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" title="autowisp.evaluator.Evaluator"><em>Evaluator</em></a>) – An object capable of evaluating
+expressions involving photometry and catalogue columns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a photometry structure like phot but for each aperture ‘ref mag’ is
+added - the magnitude the source has in the reference - and sources
+that should not be used in the fit because they are not in the
+reference or do not satisfy the criteria based on catalogue
+quantities are removed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._set_group">
+<span class="sig-name descname"><span class="pre">_set_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._set_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._set_group" title="Link to this definition"></a></dt>
+<dd><p>Set the fit_group column in result per grouping configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._solved">
+<span class="sig-name descname"><span class="pre">_solved</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_reduction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deleted_phot_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_phot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._solved"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._solved" title="Link to this definition"></a></dt>
+<dd><p>Return fitted mags if fit is already in DR, None otherwise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._update_calib_status">
+<span class="sig-name descname"><span class="pre">_update_calib_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._update_calib_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._update_calib_status" title="Link to this definition"></a></dt>
+<dd><p>Record in the database that the current header has been magfitted.</p>
+<p>For now disabled.</p>
+<p>Code from HATpipe:</p>
+<dl>
+<dt>self.database(</dt><dd><p>‘UPDATE <cite>‘ + raw_db_table(self._header[‘IMAGETYP’])
++ ‘</cite> SET <a href="#id13"><span class="problematic" id="id14">`</span></a>calib_status`=%s WHERE <a href="#id15"><span class="problematic" id="id16">`</span></a>station_id`=%s AND <a href="#id17"><span class="problematic" id="id18">`</span></a>fnum`=%s ‘
+‘AND <a href="#id19"><span class="problematic" id="id20">`</span></a>cmpos`=%s’,
+(</p>
+<blockquote>
+<div><p>self.config.calib_status,
+self._header[‘STID’],
+self._header[‘FNUM’],
+self._header[‘CMPOS’]</p>
+</div></blockquote>
+<p>)</p>
+</dd>
+</dl>
+<p>)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html" class="btn btn-neutral float-left" title="autowisp.magnitude_fitting.tests.test_mphotref_collector module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.magnitude_fitting.iterative_refit.html" class="btn btn-neutral float-right" title="autowisp.magnitude_fitting.iterative_refit module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

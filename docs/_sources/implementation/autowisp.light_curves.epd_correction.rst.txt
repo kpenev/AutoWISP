@@ -1,0 +1,7 @@
+autowisp.light\_curves.epd\_correction module
+=============================================
+
+.. automodule:: autowisp.light_curves.epd_correction
+   :members:
+   :show-inheritance:
+   :undoc-members:

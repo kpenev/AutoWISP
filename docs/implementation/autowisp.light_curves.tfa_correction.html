@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.light_curves.tfa_correction module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.light_curves.transit_model module" href="autowisp.light_curves.transit_model.html" />
+    <link rel="prev" title="autowisp.light_curves.reconstructive_correction_transit module" href="autowisp.light_curves.reconstructive_correction_transit.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.light_curves.html">autowisp.light_curves package</a></li>
+      <li class="breadcrumb-item active">autowisp.light_curves.tfa_correction module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.light_curves.tfa_correction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.light_curves.tfa_correction">
+<span id="autowisp-light-curves-tfa-correction-module"></span><h1>autowisp.light_curves.tfa_correction module<a class="headerlink" href="#module-autowisp.light_curves.tfa_correction" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-71c30a8c9cdd3ffec7ff8e4de090aff25017df15.png" alt="Inheritance diagram of Correction, LightCurveFile, TFACorrection, cKDTree" usemap="#inheritance618eda1507" class="inheritance graphviz" /></div>
+<map id="inheritance618eda1507" name="inheritance618eda1507">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
+<area shape="rect" id="node3" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
+<area shape="rect" id="node2" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
+<area shape="rect" id="node6" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="47,677,374,704"/>
+<area shape="rect" id="node5" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="796,5,1068,32"/>
+<area shape="rect" id="node7" href="#autowisp.light_curves.tfa_correction.TFACorrection" target="_top" title="Class for performing TFA corrections to a set of lightcurves." alt="" coords="773,80,1091,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+</map><p>Define aclass for applying TFA corrections to lightcurves.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.tfa_correction.</span></span><span class="sig-name descname"><span class="pre">TFACorrection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epd_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_template_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">iterative_fit_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" title="autowisp.light_curves.correction.Correction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Correction</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-e977aa2fe9cfaf677c4c200d955a4340878005d4.png" alt="Inheritance diagram of autowisp.light_curves.tfa_correction.TFACorrection" usemap="#inheritanceb5d5ddce15" class="inheritance graphviz" /></div>
+<map id="inheritanceb5d5ddce15" name="inheritanceb5d5ddce15">
+<area shape="rect" id="node1" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="28,5,301,32"/>
+<area shape="rect" id="node2" href="#autowisp.light_curves.tfa_correction.TFACorrection" target="_top" title="Class for performing TFA corrections to a set of lightcurves." alt="" coords="5,80,324,107"/>
+</map><p>Class for performing TFA corrections to a set of lightcurves.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._configuration">
+<span class="sig-name descname"><span class="pre">_configuration</span></span><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._configuration" title="Link to this definition"></a></dt>
+<dd><p>An object with attributes configuring how TFA is to
+be done (see <cite>configuration</cite> argument to __init__()).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._template_qr">
+<span class="sig-name descname"><span class="pre">_template_qr</span></span><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._template_qr" title="Link to this definition"></a></dt>
+<dd><p>The QR decomposition of the template lightcurves.
+Each entry is the value returned by scipy.linalg.qr for one of the
+fit datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_fit_dataset=&lt;function</span> <span class="pre">HDF5File.get_dataset&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_predictors=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection.__call__" title="Link to this definition"></a></dt>
+<dd><p>Apply TFA to the given LC, optionally protecting an expected signal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epd_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_template_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">iterative_fit_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection.__init__" title="Link to this definition"></a></dt>
+<dd><p>Get ready to apply TFA corrections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epd_statistics</strong> (<em>scipy structured array</em>) – <p>An array containing
+information about the input sources and summary statistics for
+their EPD fit. The array must contain the following fields:</p>
+<dl class="simple">
+<dt>ID ((numpy.uint, #)):</dt><dd><p>Array if integers uniquely identifying the source (see
+DataReductionFile.get_source_data for more info.</p>
+</dd>
+<dt>mag (numpy.float64):</dt><dd><p>The magnitude of the source per the catalogue in the band
+most approximating the observations.</p>
+</dd>
+<dt>xi(numpy.float64):</dt><dd><p>The pre-projected <cite>xi</cite> coordinate of the source from the
+catalogue.</p>
+</dd>
+<dt>eta(numpy.float64):</dt><dd><p>The pre-projected <cite>eta</cite> coordinate of the source from the
+catalogue.</p>
+</dd>
+<dt>rms ((numpy.float64, #)):</dt><dd><p>Array of the RMS residuals of the EPD fit for each source
+for each photometry method.</p>
+</dd>
+<dt>num_finite((numpy.uint, #)):</dt><dd><p>Array of the number of finite observations with EPD
+corrections.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>configuration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – <p>Configuration specifying how TFA
+should be done. At least the following keys must be
+defined (extra ones are ignored):</p>
+<dl>
+<dt>saturation_magnitude</dt><dd><p>The magnitude at which sources start to saturate. See
+_select_template_stars()</p>
+</dd>
+<dt>allow_saturated_templates</dt><dd><p>Whether saturated stars should be represented in the
+templates.</p>
+</dd>
+<dt>mag_rms_dependence_order</dt><dd><p>The maximum order of magnitude to include in the fit for
+typical rms vs magnitude.</p>
+</dd>
+<dt>mag_rms_outlier_threshold</dt><dd><p>Stars are not allowed to be in the template if their RMS is
+more than this many sigma away from the mag-rms fit. This is
+also the threshold used for rejecting outliers when doing
+the iterative fit for the rms as a function of magnutude.</p>
+</dd>
+<dt>mag_rms_max_rej_iter</dt><dd><p>The maximum number of rejection fit iterations to do when
+deriving the rms(mag) dependence.</p>
+</dd>
+<dt>max_rms</dt><dd><p>Stars are allowed to be in the template only if their RMS is
+no larger than this.</p>
+</dd>
+<dt>faint_mag_limit</dt><dd><p>Stars fainter than this cannot be template stars.</p>
+</dd>
+<dt>min_observations_quantile, min_observations_fraction</dt><dd><p>The minimum number of observations required of template
+stars is the smaller of:</p>
+<blockquote>
+<div><ul>
+<li><p>this quantile among the input collection of stars</p></li>
+<li><p>this fraction of the star with most observations</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>sqrt_num_templates</dt><dd><p>The number of template stars is the square of this number.</p>
+</dd>
+<dt>observation_id</dt><dd><p>The datasets to use for matching observations across light
+curves. For example, the following works for HAT:
+<a href="#id1"><span class="problematic" id="id2">``</span></a>`
+(</p>
+<blockquote>
+<div><p>’fitseader.cfg.stid’,
+‘fitsheader.cfg.cmpos’,
+‘fitsheader.fnum’</p>
+</div></blockquote>
+<p>)
+<a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a>.</p>
+</dd>
+<dt>lc_fname</dt><dd><p>A format string that expands to the filename of a
+lightcurve given a source ID.</p>
+</dd>
+<dt>fit_datasets</dt><dd><p>See same name argument to EPDCorrection.__init__().</p>
+</dd>
+<dt>fit_points_filter_varibales</dt><dd><p>See used_variables argument to EPDCorrection.__init__(). In
+this case only required to evaluate
+fit_points_filter_expression.</p>
+</dd>
+<dt>fit_points_filter_expression</dt><dd><p>See same name argument to EPDCorrection.__init__().</p>
+</dd>
+<dt>[selected_plots] (str):    Optional template for naming plots</dt><dd><p>showing the template selection in action. If not specified,
+no such plots are generated. Should include %(plot_id)s and
+%(phot_index)d substitutions.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>verify_template_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True a series of assert statements
+are issued to check that the photometry data is correctly
+matched to observation IDs. Only useful for debugging.</p></li>
+<li><p><strong>iterative_fit_config</strong> – Any other arguments to pass directly to
+iterative_fit_qr().</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations">
+<span class="sig-name descname"><span class="pre">_get_io_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._get_io_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._get_io_configurations" title="Link to this definition"></a></dt>
+<dd><p>Return properly formatted configuration to pass to <code class="xref py py-func docutils literal notranslate"><span class="pre">_save_result()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids">
+<span class="sig-name descname"><span class="pre">_get_observation_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._get_observation_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids" title="Link to this definition"></a></dt>
+<dd><p>Return the observation IDs from the given light curve.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._plot_template_selection">
+<span class="sig-name descname"><span class="pre">_plot_template_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epd_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_stars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_fname_pattern</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._plot_template_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._plot_template_selection" title="Link to this definition"></a></dt>
+<dd><p>Create plots showing the stars selected as template (1 plot/phot).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epd_statistics</strong> – See __init__().</p></li>
+<li><p><strong>template_indices</strong> – The return value of _select_template_stars().</p></li>
+<li><p><strong>plot_fname_pattern</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A %(phot_index)??d and %(plot_id)??s
+substitutions expanding to a unique filename to save the
+collection of plots for each given photometry index. The plot_id
+substitution will be one of: <cite>‘xi_eta’</cite>, <cite>‘mag_rms’</cite>, and
+<cite>‘mag_nobs’</cite> each containing a plot of the associated
+quantities as x and y coordinates respectively.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._prepare_template_data">
+<span class="sig-name descname"><span class="pre">_prepare_template_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epd_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_padding_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._prepare_template_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._prepare_template_data" title="Link to this definition"></a></dt>
+<dd><p>Organize the template star data into predictors and observation IDs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epd_statistics</strong> – See __init__().</p></li>
+<li><p><strong>max_padding_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Because light curves are read
+sequentially, at early times the ultimate number of observations
+is unknown. Any time observations exceed the size of the
+currently allocated array for the result, the result is resized
+to to accomodate this factor times the newly required length of
+observations, hopefully avoiding too many resize operations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl>
+<dt>The source IDs of the stars selected to serve as templates for</dt><dd><p>each photometry method.</p>
+</dd>
+<dt>[numpy.array]:</dt><dd><p>The brightness measurements from all the templates for all the
+photometry methods at all observation points where at least one
+template has a measurement. Entries at observation points not
+represented in a template are zero. The shape of each array is:
+(</p>
+<blockquote>
+<div><p>number template stars
+number observations</p>
+</div></blockquote>
+<p>), and there are number of photemetry methods arrays in the
+list.</p>
+</dd>
+<dt>[numpy.array]:</dt><dd><p>The sorted observation IDs for which at least one template has a
+measurement for each photometry method.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[numpy.array]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._select_template_stars">
+<span class="sig-name descname"><span class="pre">_select_template_stars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epd_statistics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._select_template_stars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._select_template_stars" title="Link to this definition"></a></dt>
+<dd><p>Select the stars tha will be used as TFA templates.</p>
+<p>The algorithm is as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Select all stars that are either saturated (see
+<cite>saturation_magnitude</cite> configuration) or are close to the typical
+RMS vs magnitude dependence (see <cite>mag_rms_outlier_threshold</cite>
+configuration).</p></li>
+<li><p>Remove all stars with RMS exceeding a specified values (see
+<cite>max_rms</cite> configuration) or fanter than a specified magnitude
+(see <cite>faint_mag_limit</cite> configuration) or do not containing
+sufficient number of data points in their LC (see
+<cite>min_observation_factor</cite> configuration).</p></li>
+<li><p>Create a uniform grid of points spanning the xi and eta region
+covered by the stars selected by steps 1 and 2 above and select
+the closest star to each point (see <cite>sqrt_num_templates</cite>
+configuration).</p></li>
+</ol>
+</div></blockquote>
+<dl class="simple">
+<dt>The HATSouth TFA uses the following values:</dt><dd><p>saturation_magnitude: 8
+mag_rms_outlier_threshold: 6
+max_rms: 0.15
+faint_mag_limit: 11.5
+min_observations: median of the number of observations for all LCs</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>epd_statistics</strong> – See __init__().</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of sorted 1-D arrays of indices within epd_statistics
+identifying stars selected to serve as templates for each
+photometry method.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[numpy.array(shape=(num_template_stars,), dtype=numpy.uint)]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection._verify_template_data">
+<span class="sig-name descname"><span class="pre">_verify_template_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection._verify_template_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection._verify_template_data" title="Link to this definition"></a></dt>
+<dd><p>Assert that template data is correctly organized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection.get_lc_fname">
+<span class="sig-name descname"><span class="pre">get_lc_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection.get_lc_fname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection.get_lc_fname" title="Link to this definition"></a></dt>
+<dd><p>Return the file name of the lightcurve for the given source ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection.get_xi_eta_grid">
+<span class="sig-name descname"><span class="pre">get_xi_eta_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epd_statistics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection.get_xi_eta_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection.get_xi_eta_grid" title="Link to this definition"></a></dt>
+<dd><p>Return a grid of (xi, eta) values to select closest templates to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.tfa_correction.TFACorrection.read_template_data">
+<span class="sig-name descname"><span class="pre">read_template_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phot_dset_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/tfa_correction.html#TFACorrection.read_template_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.tfa_correction.TFACorrection.read_template_data" title="Link to this definition"></a></dt>
+<dd><p>Read the data for a single photometry method in a template LC.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.light_curves.reconstructive_correction_transit.html" class="btn btn-neutral float-left" title="autowisp.light_curves.reconstructive_correction_transit module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.light_curves.transit_model.html" class="btn btn-neutral float-right" title="autowisp.light_curves.transit_model module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.calibrate &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.calibrate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.calibrate</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Calibrate image(s).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">_StoreAction</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Action</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_fits_fnames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibrator</span><span class="p">,</span> <span class="n">overscan_methods</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ManualStepArgumentParser</span><span class="p">,</span>
+    <span class="n">ignore_progress</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.fits_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_raw_header</span><span class="p">,</span>
+    <span class="n">add_channel_keywords</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_area_str">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.parse_area_str">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_area_str</span><span class="p">(</span><span class="n">area_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a string formatted as &lt;xmin&gt;,&lt;xmax&gt;,&lt;ymin&gt;,&lt;ymax&gt; to dict.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">,</span> <span class="s2">&quot;xmax&quot;</span><span class="p">,</span> <span class="s2">&quot;ymin&quot;</span><span class="p">,</span> <span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">area_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># Interface defined by argparse</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="ParseChannelsAction">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.ParseChannelsAction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParseChannelsAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse chanel command line arguments as described in the help.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ParseChannelsAction.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.ParseChannelsAction.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse all channels into a dictionary as required by Calibrator.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;(?P&lt;name&gt;\w+)\(&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;(?P&lt;x_start&gt;\d+)(,(?P&lt;x_step&gt;\d+))?;&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;(?P&lt;y_start&gt;\d+)(,(?P&lt;y_step&gt;\d+))?\)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">channel_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+        <span class="k">while</span> <span class="n">channel_str</span><span class="p">:</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="n">rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">channel_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span> <span class="ow">or</span> <span class="n">parsed</span><span class="o">.</span><span class="n">span</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Malformatted channel specification: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">channel_str</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">channel_str</span> <span class="o">=</span> <span class="n">channel_str</span><span class="p">[</span><span class="n">parsed</span><span class="o">.</span><span class="n">span</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:]</span>
+
+            <span class="n">parsed</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="s2">&quot;xy&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parsed</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">&quot;_step&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">parsed</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">&quot;_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="nb">slice</span><span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">parsed</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">&quot;_start&quot;</span><span class="p">]),</span>
+                    <span class="kc">None</span><span class="p">,</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">parsed</span><span class="p">[</span><span class="n">direction</span> <span class="o">+</span> <span class="s2">&quot;_step&quot;</span><span class="p">]),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="s2">&quot;yx&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ParseChannelDependentAction">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.ParseChannelDependentAction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParseChannelDependentAction</span><span class="p">(</span><span class="n">_StoreAction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse command line arguments with channel dependent values.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ParseChannelDependentAction._format_result">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.ParseChannelDependentAction._format_result">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">option_string</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the parsed result per the option being parsed.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">option_string</span> <span class="o">==</span> <span class="s2">&quot;--raw-hdu&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">hdu_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hdu_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">hdu_set</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="ParseChannelDependentAction.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.ParseChannelDependentAction.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse a channel dependent option.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_value</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">channel_name</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">channel_name</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel_value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="n">channel_name</span><span class="p">],</span> <span class="n">channel_value</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_value</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Per channel </span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">) = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="n">option_string</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span>
+            <span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">option_string</span><span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="parse_overscan">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.parse_overscan">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_overscan</span><span class="p">(</span><span class="n">overscan_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the --overscans argument to dict as required by Calibrator.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">method</span><span class="p">,</span> <span class="n">areas_str</span> <span class="o">=</span> <span class="n">overscan_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="kc">None</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span>
+                <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">overscan_methods</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="kc">None</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">areas_str</span>
+                <span class="k">else</span> <span class="p">[</span><span class="n">parse_area_str</span><span class="p">(</span><span class="n">area</span><span class="p">)</span> <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">areas_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)]</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">orig_exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Malformatted overscan specification: </span><span class="si">{</span><span class="n">overscan_str</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">orig_exception</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">,</span>
+        <span class="n">add_exposure_timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--calibrate-only-if&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expression involving the header of the input images that &quot;</span>
+        <span class="s2">&quot;evaluates to True/False if a particular image from the specified &quot;</span>
+        <span class="s2">&quot;image collection should/should not be processed.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--raw-hdu&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">ParseChannelDependentAction</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Which hdu(s) of the raw frames contains the (channels of the) &quot;</span>
+        <span class="s2">&quot;image to calibrate. If not specified, the first HDU with non-zero &quot;</span>
+        <span class="s2">&quot;NAXIS value is used. If channels are already split, define the HDU &quot;</span>
+        <span class="s2">&quot;containing the pixels of each channel by supplying multiple values &quot;</span>
+        <span class="s2">&quot;of the form CHANNEL_NAME:HDU. If the same hdu is specified for all &quot;</span>
+        <span class="s2">&quot;channels, or only a single integer is specified, that HDU is assumed &quot;</span>
+        <span class="s2">&quot;to contain the staggered pixels of all channels (see &quot;</span>
+        <span class="s2">&quot;--split-channels).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--split-channels&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">ParseChannelsAction</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Allows processing images from color detectors which have pixels &quot;</span>
+        <span class="s2">&quot;sensitive to different colors staggered on the image. Each entry &quot;</span>
+        <span class="s2">&quot;specifies a sub-set of pixels that together form an image of just one &quot;</span>
+        <span class="s2">&quot;color. If at least one channel is specified, any pixels not assigned &quot;</span>
+        <span class="s2">&quot;to a channel are ignored. The format of each entry is: &quot;</span>
+        <span class="s2">&quot;&lt;channel name&gt;(&lt;x start&gt;[,&lt;x step&gt;=2]];&lt;y start&gt;[,&lt;y step&gt;=2])&quot;</span>
+        <span class="s2">&quot;[&lt;channel name&gt;(&lt;x start&gt;[,&lt;x step&gt;=2]];&lt;y start&gt;[,&lt;y step&gt;=2]).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--saturation-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A value above which a pixel is considered saturated. If &quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;uspecified, the value is set to 80</span><span class="si">%%</span><span class="s2"> of the highest pixel value in &quot;</span>
+        <span class="s2">&quot;EACH image.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--overscans&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">parse_overscan</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overscan correction to apply. The format is: &quot;</span>
+        <span class="s2">&quot;&lt;method&gt;:&lt;xmin1&gt;,&lt;xmax1&gt;,&lt;ymin1&gt;,&lt;ymax1&gt;&quot;</span>
+        <span class="s2">&quot;[;&lt;xmin2&gt;,&lt;xmax2&gt;,&lt;ymin2&gt;,&lt;ymax2&gt;;...].&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--fnum&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;int(1e6 * (JD_OBS - 2.4e6))&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to calculate a frame number from the header. Should be &quot;</span>
+        <span class="s1">&#39;expression involving header keywords (with &quot;-&quot; replaced by &quot;_&quot;) or &#39;</span>
+        <span class="s2">&quot;`RAWFNAME` which takes the raw frame name without extension or path &quot;</span>
+        <span class="s2">&quot;and should return an integer.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--image-area&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">parse_area_str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The area of the image to process (the rest is discarded). The &quot;</span>
+        <span class="s2">&quot;format is &lt;xmin&gt;,&lt;xmax&gt;,&lt;ymin&gt;,&lt;ymax&gt;. Think of these as python array &quot;</span>
+        <span class="s2">&quot;slices in each direction.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--gain&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The gain to assume for the input image (electrons/ADU). If not &quot;</span>
+        <span class="s2">&quot;specified, it must be defined in the header as GAIN keyword.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bias-level-adu&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Most detectors add an offset to the quantized pixel values, this &quot;</span>
+        <span class="s2">&quot;defines that offset (affects estimated variances).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--read-noise-electrons&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The read noise in electrons (assumed the same for all pixels).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--compress-calibrated&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify a quantization level for compressing the calibrated &quot;</span>
+        <span class="s2">&quot;image.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">master</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">]:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--master-&quot;</span> <span class="o">+</span> <span class="n">master</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">ParseChannelDependentAction</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The master &quot;</span>
+            <span class="o">+</span> <span class="n">master</span>
+            <span class="o">+</span> <span class="s2">&quot; to apply. No &quot;</span>
+            <span class="o">+</span> <span class="n">master</span>
+            <span class="o">+</span> <span class="s2">&quot; correction is applied of not specified. Each master filename &quot;</span>
+            <span class="s2">&quot;should be preceeded by ``&lt;channel name&gt;:`` identifying which &quot;</span>
+            <span class="s2">&quot;channel it applies to. All channels must have a masters specified &quot;</span>
+            <span class="s2">&quot;and no channel should have multpiple.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--master-mask&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">ParseChannelDependentAction</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Mask(s) to apply, indicating pixel quality. All pixels are &quot;</span>
+        <span class="s1">&#39;considered &quot;good&quot; if no mask is specified. If multiple channel images &#39;</span>
+        <span class="s2">&quot;are being processed each master filename should be preceeded by &quot;</span>
+        <span class="s2">&quot;``&lt;channel name&gt;:`` identifying which channel it applies to. Unlike &quot;</span>
+        <span class="s2">&quot;other masters, channels without mask are allowed and multiple masks &quot;</span>
+        <span class="s2">&quot;may be used for each channel.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--calibrated-fname&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;CAL/</span><span class="si">{RAWFNAME}</span><span class="s2">.fits.fz&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Format string to generate the filenames for saving the &quot;</span>
+        <span class="s2">&quot;calibrated images. Replacement fields can be anything from the header &quot;</span>
+        <span class="s2">&quot;of the generated image (including </span><span class="si">{CLRCHNL}</span><span class="s2"> - name of channel if &quot;</span>
+        <span class="s2">&quot;channel splitting is done, and </span><span class="si">{RAWFNAME}</span><span class="s2"> - the name of the &quot;</span>
+        <span class="s2">&quot;corresponding input FITS file without directories or `.fits` and &quot;</span>
+        <span class="s2">&quot;`.fits.fz` extension).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calibrate">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.calibrate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span>
+    <span class="n">image_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calibrate the images from the specified collection.&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Image collection: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">image_collection</span><span class="p">))</span>
+    <span class="n">calibrate_image</span> <span class="o">=</span> <span class="n">Calibrator</span><span class="p">(</span><span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calibrating: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">image_fname</span><span class="p">))</span>
+        <span class="n">mark_start</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
+        <span class="n">calibrate_image</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
+        <span class="n">mark_end</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cleanup_interrupted">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.cleanup_interrupted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup file system after partially calibrated images.&quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Cleaning up: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">interrupted</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">raw_fname</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">get_raw_header</span><span class="p">(</span><span class="n">raw_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span>
+            <span class="s2">&quot;split_channels&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">add_channel_keywords</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span><span class="p">)</span>
+
+            <span class="n">calibrated_fname</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;calibrated_fname&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+                <span class="n">header</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">calibrated_fname</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">calibrated_fname</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
+
+    <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">calibrate</span><span class="p">(</span>
+        <span class="n">find_fits_fnames</span><span class="p">(</span>
+            <span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;raw_images&quot;</span><span class="p">),</span>
+            <span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;calibrate_only_if&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmdline_config</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

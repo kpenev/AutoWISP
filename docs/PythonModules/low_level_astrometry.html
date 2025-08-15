@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Level Astrometry Interface &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Low Level Astrometry Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/PythonModules/low_level_astrometry.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="low-level-astrometry-interface">
+<h1>Low Level Astrometry Interface<a class="headerlink" href="#low-level-astrometry-interface" title="Link to this heading"></a></h1>
+<p>Given calibrated FITS frames of the night sky produced as described in
+<a class="reference internal" href="low_level_image_calibration.html"><span class="doc">Low Level Image Calibration Interface</span></a>, this module finds an astrometric solution
+defining how (RA, Dec) coordinates on the sky are mapped to image (x, y). The
+transformations are done in two steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Using some pre-defined projection (e.g. one of the well know cartograhpic
+projections) to convert (RA, Dec) to a new set of coordinates
+(<span class="math notranslate nohighlight">\(\xi\)</span>, <span class="math notranslate nohighlight">\(\eta\)</span>) around the (RA, Dec) position corresponding
+to the center of the frame. <strong>This transformatino has no free
+parameters.</strong></p></li>
+<li><p>Using a low-order polynomial to transform (<span class="math notranslate nohighlight">\(\xi\)</span>, <span class="math notranslate nohighlight">\(\eta\)</span>) to
+(x, y). The polynomial coefficients are determined using least squares
+fitting between extracted source positions and projected catalogue
+positions.</p></li>
+</ol>
+</div></blockquote>
+<p>The procedure involves the following steps:</p>
+<section id="source-extraction">
+<h2>Source Extraction<a class="headerlink" href="#source-extraction" title="Link to this heading"></a></h2>
+<p>Identify sources in the image. This is done by invoking an external source
+extractor (e.g. fistar, hatphot or sextractor) as a subprocess, then parsing and
+filtering the result to produce as clean and as complete as possible list of
+stars contained in the frame.</p>
+<dl class="simple">
+<dt>fistar</dt><dd><p>This tool provides (x, y), estimate of the flux, an elliptical Gaussian fit
+for the shape of the source and a signal to noise estimate. Filtering is
+done based on signal to noise and shape parameters to remove outliers.</p>
+</dd>
+<dt>hatphot:</dt><dd><p>Similarly to fistar, this tools also provides estimates of the source shape
+which is used to filter strange looking sources.</p>
+</dd>
+<dt>sextractor</dt><dd><p>This tool is currently not supported but should be.</p>
+</dd>
+</dl>
+<p>Currently, source extraction can use fiphot or hatphot. Both of these are
+supported along with a clear scheme for adding support for other source
+extraction tools. In order to accomplish this, all source extraction inherints
+from an abstract base class, which enforces e a common interface. The scheme to
+followed is similar to the low level image calibration module, where all
+configuration of the source extractor can be specified through __init__,
+modified later through calling configuratino methods and overwritten for for a
+single frame only through additional arguments when invoking source extraction.
+Extracting the sources from a single frame is done through the __call__ method.</p>
+<p>When source extraction is performed, extracted sources can be stored in a human
+readable ASCII file, added as a dataset within an HDF5 file, and/or returned as
+a structured numpy array. The array has at least the following fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> - A unique integer identifier of the source</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> - The x coordinate of the souce in units of pixels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> - The x coordinate of the souce in units of pixels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">signal_to_noise</span></code> - The combined signal to noise of all the pixels
+assigned to the source.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">flux</span></code> - Some estimate of the flux of the souce (as calculated by the
+source extractor used).</p></li>
+</ul>
+</div></blockquote>
+<p>In addition, depending on the source extractor used, more columns are available.</p>
+<p>HDF5 datasets follow the same structure as the numpy array, but in addition
+define attributes documenting how source extraction was performed. The following
+attributes are defined:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Tool</span></code> - The source extraction tool used (e.g. fistar).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommandLine</span></code> - The full command line used to invoke the tool</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Version</span></code> - The self reported version of the command line tool invoked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Filter</span></code> - Any filters applied to the output list of sources: a valid
+python expression involving the input columns as variables returning either
+True (source is kept) or False (source is rejected).</p></li>
+</ul>
+</div></blockquote>
+<p>ASCII files generated contain a header (denoted by lines starting with the <code class="docutils literal notranslate"><span class="pre">#</span></code>
+character) providing the full information on how this catalogue query was
+generated. The format is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># &lt;key&gt; = &lt;value&gt;</span>
+</pre></div>
+</div>
+<p>With keys and corresponding values the same as the HDF5 attributes listed above.</p>
+<p>After the header, a line defining the the column name follows, marked as a
+comment by a leading <code class="docutils literal notranslate"><span class="pre">#</span></code>. To ensure readability by humans, all columns values
+are aligned to a common left boundary, which is also the left boundary for the
+column name in the header. All output columns are numeric.</p>
+</section>
+<section id="catalogue-query">
+<h2>Catalogue query<a class="headerlink" href="#catalogue-query" title="Link to this heading"></a></h2>
+<p>For the moment, only the UCAC4 catalogue is supported, and work is in progress
+to implement support for GAIA. Just like source extraction configuration can be
+specified in three stages. The output can be as a structured numpy array and/or
+an ASCII file.  In this case however, not all columns are numeric. Since
+catalogue queries are usually shared between multiple frames, adding as HDF5
+datasets makes little sense and is not supported.</p>
+<p>The catalogue file format and the return nmupy array contain the following
+columns for UCAC4:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">2MASS_ID</span></code>: unique 2MASS identifier of the object</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RA</span></code> The right ascention of the object, optionally corrected for proper
+motion</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dec</span></code>: The declination of the object, optionally corrected for proper
+motion</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eRA</span></code>: Estimated uncertainty in RA</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eDec</span></code>: Estemiated uncertainty in Dec</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PM_RA</span></code>: The RA proper motion in units of milli arcsec / yr</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PM_Dec</span></code>: The Dec proper motion in units of milli arcsec / yr</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ePM_RA</span></code>: Estimated uncertainty in PM_RA</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ePM_Dec</span></code>: Estimated uncertainty in PM_Dec</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epochRA</span></code>: central epoch for RA entry, before any proper motion correction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epochDec</span></code>: central epoch for Dec entry, before any proper motion
+correction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">J</span></code>, <code class="docutils literal notranslate"><span class="pre">H</span></code>, <code class="docutils literal notranslate"><span class="pre">K</span></code>: J-, H-, K- band magnitude</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eJ</span></code>, <code class="docutils literal notranslate"><span class="pre">eH</span></code>, <code class="docutils literal notranslate"><span class="pre">eK</span></code>: Estimated uncertainty in J, H, K respectively</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PH_QUALITY</span></code>: Photometric quality flag (see
+<a class="reference external" href="https://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec2_2a.html">2MASS documentation</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B</span></code>, <code class="docutils literal notranslate"><span class="pre">V</span></code>, <code class="docutils literal notranslate"><span class="pre">R</span></code>, <code class="docutils literal notranslate"><span class="pre">I</span></code>, <code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">g</span></code>, <code class="docutils literal notranslate"><span class="pre">r</span></code>, <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code>: Estimated
+magnitude in the corresponding band.</p></li>
+</ul>
+</div></blockquote>
+<p>Sources can be filtered based on the various quality flags available in the
+corresponding catalogue used. For UCAC4, this means the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>object type</p></li>
+<li><p>double star flag</p></li>
+<li><p>2MASS photometric quality flag</p></li>
+</ul>
+</div></blockquote>
+<p>Filtering can also be done on any of the numeric output columns listed above,
+enforcing that only values in a specific interval are allowed.</p>
+<p>In addition to the list of sources, ASCII files produced again contain a header
+identical to the one described for the source extraction step above and an
+additional key called <code class="docutils literal notranslate"><span class="pre">Catalogue</span></code> specifying which catalogue was queried (e.g.
+‘UCAC4’ or ‘GAIA’).</p>
+</section>
+<section id="approximate-solution">
+<h2>Approximate solution<a class="headerlink" href="#approximate-solution" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="http://astrometry.net/">astromtery.net</a> code is used to derive a very
+good first guess for the transformation. Experience shows that this is an
+extremely robust tool, probably sufficient for all our needs.</p>
+</section>
+<section id="refining-the-solution">
+<h2>Refining the solution<a class="headerlink" href="#refining-the-solution" title="Link to this heading"></a></h2>
+<p>This is done through the following steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Once an approximate solution is known, it is used to match catalogue
+sources to extracted sources by building a <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.cKDTree.html">cKDtree</a>
+from the projected catalogue sources and querying it for the closest
+match to all extracted sources, with matches only considered
+successful if they are within some pre-determined radius.</p></li>
+<li><p>Matched catalogue (RA, Dec) coordinates are then projected to
+(<span class="math notranslate nohighlight">\(\xi\)</span>, <span class="math notranslate nohighlight">\(\eta\)</span>) around the best guess for the (RA, Dec)
+corresponding to the frame center. These then are used to derive a
+refined transformation between (<span class="math notranslate nohighlight">\(\xi\)</span>, <span class="math notranslate nohighlight">\(\eta\)</span>) and (x, y)
+using least squares fitting.</p></li>
+<li><p>This transformation is then inverted to find a new best guess for the
+(RA, Dec) of the center of the frame.</p></li>
+</ol>
+</div></blockquote>
+<p>Steps 2 and 3 are iterated until the central (RA, Dec) remains within some
+tolerance.</p>
+<p>As with source extraction and catalogue querrying configuration for this step
+can be specified in three stages: construction of the solver, after construction
+and as one-time overwrites during individual solver invocations.</p>
+<p>Successfully extracted solutions are saved as group containing a collection of
+datasets in an HDF5 file associated with the frame:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The initial approximate transformation returned by astrometry.net</p></li>
+<li><p>The sky-to-frame transformation found</p></li>
+<li><p>The match between the extracted and catalogue sources, containing the source
+ID from  the source extraction result and all columns from the catalogue
+query.</p></li>
+<li><p>The extracted sources for which no catalogue match was found</p></li>
+<li><p>The catalogue sources which transform to a position included in the frame
+per the transformation found, but for which no extracted source was found.</p></li>
+</ul>
+</div></blockquote>
+<p>The inclusion of any of these data sets can be turned on or off separately, with
+exact layout within the file configured separately by a base class for HDF5 I/O,
+which uses either an XML file or the database.</p>
+<p>A set of attributes is added to the relevant datasets or to the overarching
+group documenting how the solution was extracted. At least the following
+attributes are defined:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AstrometryNetCommandLine</span></code>: The command line with which the
+<code class="docutils literal notranslate"><span class="pre">solve-field</span></code> executable from astrometry.net was invoked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AstrometryNetVersion</span></code>: The the self reported version of <code class="docutils literal notranslate"><span class="pre">solve-field</span></code>
+used (the line starting with ‘Revision’ in the help message).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Catalogue</span></code>: Which catalogue was used to refine the transformation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CatalogueFilter</span></code>: What filter was applied to catalogue sources before
+using them for astrometry.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CatalogueEpoch</span></code>: The epoch for which the RA and Dec coordinates of the
+catalogue entries were estimated (could include proper motion correction to
+a specified date or just be the epoch given in the catalogue itself).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CatalogueQueryTool</span></code>: What tool was used to query tha catalogue (e.g.
+python module implementing the queries or an external executable).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CatalogueQueryVersion</span></code>: The version of the <code class="docutils literal notranslate"><span class="pre">CatalogueQueryTool</span></code> used
+(e.g. git hash for module or self reported version for executable).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SkyProjection</span></code>: The name of the transformation mapping (RA, Dec) to
+(<span class="math notranslate nohighlight">\(\xi\)</span>, <span class="math notranslate nohighlight">\(\eta\)</span>) (e.g. tan, arc, …).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RefinementTool</span></code>: What tool was used to refine the initial astrometry.net
+solution. Similar to <code class="docutils literal notranslate"><span class="pre">CatalogueQueryTool</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RefinementVersion</span></code>: Analogous to <code class="docutils literal notranslate"><span class="pre">CatalogueQueryVersion</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RefinementMatchRadius</span></code>: The maximum distance allowed between
+corresponding projected and extracted sources in order for the match to be
+considered valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RefinementMatchMagnitudeTolerance</span></code>:  The largest difference between
+source magnitudes estimated by source extraction and the catalogue entry for
+a match to be considered valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RefinementCenterTolerance</span></code>: The maximum change (in arcseconds) between
+the estimate for the (RA, Dec) position corresponding to the frame center
+used in deriving the last transformation and the one implied by the derived
+transfomation, in order to consider the re-centering/re-fitting iterations
+converged.</p></li>
+</ul>
+</div></blockquote>
+<p>Additional attributes may be added to document the full configuration used for
+any of the astrometry steps.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

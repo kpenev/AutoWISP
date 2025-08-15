@@ -1,0 +1,1058 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.fit_star_shape &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.fit_star_shape</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.fit_star_shape</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Fit a model for the shape of stars (PSF or PRF) in images.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">Manager</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">nullcontext</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Evaluator</span><span class="p">,</span>
+    <span class="n">PiecewiseBicubicPSFMap</span><span class="p">,</span>
+    <span class="n">DataReductionFile</span><span class="p">,</span>
+    <span class="n">init_dr_process</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_fits_with_dr_fnames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_primary_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ManualStepArgumentParser</span><span class="p">,</span>
+    <span class="n">add_image_options</span><span class="p">,</span>
+    <span class="n">read_subpixmap</span><span class="p">,</span>
+    <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="n">get_catalog_config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_catalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.split_sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SplitSources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">delete_star_shape_fit</span>
+
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;calibrated + dr&quot;</span>
+
+
+<div class="viewcode-block" id="parse_grid_arg">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.parse_grid_arg">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_grid_arg</span><span class="p">(</span><span class="n">grid_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the string specifying the grid on which to model PSF/PRF.&quot;&quot;&quot;</span>
+
+    <span class="n">grid_str</span> <span class="o">=</span> <span class="n">grid_str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;;&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid_str</span><span class="p">:</span>
+        <span class="n">grid_str</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">grid_str</span><span class="p">,</span> <span class="n">grid_str</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sub_grid</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">sub_grid</span> <span class="ow">in</span> <span class="n">grid_str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="add_background_options">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_background_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_background_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add options configuring the background extraction.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--background-annulus&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The annulus to use when estimating the background under &quot;</span>
+        <span class="s2">&quot;sources. The first number is the inner radius and should be large &quot;</span>
+        <span class="s2">&quot;enough to avoid picking up light from the brightest stars from which &quot;</span>
+        <span class="s2">&quot;reliable photometry is desired. The second number is the width of the &quot;</span>
+        <span class="s2">&quot;annulus (i.e inner radius + width is the outer radius). It should be &quot;</span>
+        <span class="s2">&quot;large enough to contain many tens of pixels.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_source_selction_options">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_source_selction_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_source_selction_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add options configuring the selection of sources for fitting.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-disable-cover-grid&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;shapefit_src_cover_grid&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Should pixels be selected to cover the full PSF/PRF grid.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-src-min-bg-pix&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The minimum number of pixels background should be based on if&quot;</span>
+        <span class="s2">&quot; the source is to be used for shape fitting.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-src-max-sat-frac&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum fraction of saturated pixels of a source before &quot;</span>
+        <span class="s2">&quot;it is discarded from shape fitting.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-src-min-signal-to-noise&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The S/N threshold when selecting pixels around sources.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-src-max-aperture&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The largest distance from the source center before pixel &quot;</span>
+        <span class="s2">&quot;selection causes an error.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-src-min-pix&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The smallest number of pixels to require be assigned for a &quot;</span>
+        <span class="s2">&quot;source if it is to be included in the shape fit.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-src-max-pix&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The largest number of pixels to require be assigned for a &quot;</span>
+        <span class="s2">&quot;source if it is to be included in the shape fit.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-max-sources&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of sources to include in the fit. Excess &quot;</span>
+        <span class="s2">&quot;sources (those with lowest signal to noise) are not included in &quot;</span>
+        <span class="s2">&quot;the shape fit, though still get photometry measured. The only &quot;</span>
+        <span class="s2">&quot;exception is if zero PSF model is used, in which case the fluxes of &quot;</span>
+        <span class="s2">&quot;discarded sources are set to NaN. Set to zero to disable trimming the &quot;</span>
+        <span class="s2">&quot;source list.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--discard-faint&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If used, should indicate a faint magnitude limit in some &quot;</span>
+        <span class="s2">&quot;band-pass, e.g. B&gt;14.0. Sources fainter than the specified limit &quot;</span>
+        <span class="s2">&quot;will not be included in the input source lists for PRF fitting at &quot;</span>
+        <span class="s2">&quot;all.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_fitting_options">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_fitting_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_fitting_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add options controlling the fitting process.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-smoothing&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Parameter controlling the smoothing penalty of the PSF fit. See &quot;</span>
+        <span class="s2">&quot;Larger values result in smoother PSF/PRF models. Too small, and the &quot;</span>
+        <span class="s2">&quot;model will contain oscillations fitting noise. Too large, and the &quot;</span>
+        <span class="s2">&quot;model will begin chopping off sharp peaks and troughs.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-max-chi2&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the chi squared value of a source during flux fitting exceeds &quot;</span>
+        <span class="s2">&quot;this value, the source is excluded from shape fitting.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-pixel-rejection-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Pixels away from best fit values by more than this many &quot;</span>
+        <span class="s2">&quot;sigma are discarded from the fit.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-max-abs-amplitude-change&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the absolute sum square change in amplitudes falls below &quot;</span>
+        <span class="s2">&quot;this, the fit is declared converged.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-max-rel-amplitude-change&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the relative sum square change in amplitudes falls below &quot;</span>
+        <span class="s2">&quot;this, the fit is declared converged.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-min-convergence-rate&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the rate of convergence of the amplitudes falls below &quot;</span>
+        <span class="s2">&quot;this, an error is thrown.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-max-iterations&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of shape-amplitude fitting iterations to &quot;</span>
+        <span class="s2">&quot;allow.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-initial-aperture&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The aperture to use when estimating the initial flux of &quot;</span>
+        <span class="s2">&quot;sources to start the first shape-amplitude fitting iteration.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--num-simultaneous&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of frames to fit simultaneously, with a unified &quot;</span>
+        <span class="s2">&quot;PSF/PRF model. Each simultaneous group consists of consecutive &quot;</span>
+        <span class="s2">&quot;entries in the input list of frames.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_shape_options">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_shape_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_shape_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add options defining how the PSF/PRF shape will be modeled.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shape-mode&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;psf&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Is the mode representing PSF or PRF?&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shape-grid&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;-5,5&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">parse_grid_arg</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The grid to use for representing the PSF/PRF. If only outer &quot;</span>
+        <span class="s2">&quot;boundaries are specified (like in the default), PSF is assumed not to &quot;</span>
+        <span class="s2">&quot;vary accross the star. The outer boundaries should be far enough away &quot;</span>
+        <span class="s2">&quot;from zero to accommodate the largest aperture used for aperture &quot;</span>
+        <span class="s2">&quot;photometry. The placement of inner boundaries is dictated by the PSF &quot;</span>
+        <span class="s2">&quot;being fit. Generally, more boundaries are needed in regions where the &quot;</span>
+        <span class="s2">&quot;PSF/PRF varies more rapidly.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shape-terms-expression&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--shape-terms&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;O0{(x-1991.5)/1991.5, (y-1329.5)/1329.5}&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The term in the PSF shape parameter dependence. The expression is&quot;</span>
+        <span class="s2">&quot; a product of polynomials. For example ``O2(x, y}`` would result in &quot;</span>
+        <span class="s2">&quot;terms ``1, x, y, x^2, xy, y^2`` (i.e. combined total power of 2 or &quot;</span>
+        <span class="s2">&quot;less). In contrast ``O2</span><span class="si">{x}</span><span class="s2"> * O2</span><span class="si">{y}</span><span class="s2">`` will include all terms of up to &quot;</span>
+        <span class="s2">&quot;second order in x and up to second order in y, including all &quot;</span>
+        <span class="s2">&quot;cross-terms (total of 9 terms).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--map-variables&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;&lt;varname&gt;, &lt;expression&gt;&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Extra variables to allow the PRF to depend on in addition to &quot;</span>
+        <span class="s2">&quot;(x and y). The &lt;expression&gt; can involve any catologue column , &quot;</span>
+        <span class="s2">&quot;header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables &quot;</span>
+        <span class="s2">&quot;are added as extra columns after ID, x, y to the source list &quot;</span>
+        <span class="s2">&quot;passed to fitpsf/fitprf in the order specified on the command &quot;</span>
+        <span class="s2">&quot;line.&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_grouping_options">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_grouping_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_grouping_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add options controlling splitting of sources into fitting groups.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--split-magnitude-column&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The catalog column to use as the brightness indicator of &quot;</span>
+        <span class="s2">&quot;the sources when splitting into groups.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--radius-splits&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The threshold radius values where to split sources into &quot;</span>
+        <span class="s2">&quot;groups. By default, no splitting by radius is done.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--mag-split-source-count&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If passed, after spltting by radius (if any), sources are &quot;</span>
+        <span class="s2">&quot;further split into groups by magnitude such that each group &quot;</span>
+        <span class="s2">&quot;contains at least this many sources. By default, no splitting by &quot;</span>
+        <span class="s2">&quot;magnitude is done.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--grouping-frame&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If sources are being split per any of the above arguments, &quot;</span>
+        <span class="s2">&quot;specifying a frame here results in the split being done based on &quot;</span>
+        <span class="s2">&quot;the locations of sources in this frame and thus does not change &quot;</span>
+        <span class="s2">&quot;from frame to frame. If not specified, grouping is done &quot;</span>
+        <span class="s2">&quot;independently for each frame.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--remove-group-id&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If passed, this will remove the groups to fit in an indexable&quot;</span>
+        <span class="s2">&quot; fashion. Multiple values may be passed e.g. 0 1 5 where each is &quot;</span>
+        <span class="s2">&quot;the index corresponding to the group_id&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;+dr&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
+        <span class="n">inputs_help_extra</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding DR files must alread contain an &quot;</span>
+            <span class="s2">&quot;astrometric transformation.&quot;</span>
+        <span class="p">),</span>
+        <span class="n">add_catalog</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;photometry&quot;</span><span class="p">},</span>
+        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;srcproj&quot;</span><span class="p">,</span> <span class="s2">&quot;background&quot;</span><span class="p">,</span> <span class="s2">&quot;shapefit&quot;</span><span class="p">),</span>
+        <span class="n">allow_parallel_processing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--shapefit-only-if&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expression involving the header of the input images that &quot;</span>
+        <span class="s2">&quot;evaluates to True/False if a particular image from the specified &quot;</span>
+        <span class="s2">&quot;image collection should/should not be processed.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--skytoframe-version&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The version of the sky -&gt; frame transformation to use for &quot;</span>
+        <span class="s2">&quot;projecting the photometry catalog.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">add_image_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_background_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_source_selction_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_fitting_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_shape_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">add_grouping_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Goal is to provide callable</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<div class="viewcode-block" id="SourceListCreator">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.SourceListCreator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SourceListCreator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for creating PRF fitting source lists for a single frame.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SourceListCreator._project_sources">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.SourceListCreator._project_sources">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_project_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add to `self._sources` the projected positions and extra fit variables.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            header:    The header of the FITS frame currently being processed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Transformation</span><span class="p">(</span>
+            <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">get_fname_from_header</span><span class="p">(</span><span class="n">header</span><span class="p">),</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_dr_path_substitutions</span><span class="p">,</span>
+        <span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">eval_var</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">var_expression</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_variables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_var</span><span class="p">(</span><span class="n">var_expression</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SourceListCreator._group_and_flag_in_frame">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.SourceListCreator._group_and_flag_in_frame">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_group_and_flag_in_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the group each source belongs to and flag for is source in frame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            header:    The FITS header of the frame being fit.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array(int):</span>
+<span class="sd">                The group index for each source</span>
+
+<span class="sd">            numpy.array(bool):</span>
+<span class="sd">                True iff the source center is inside the frame boundaries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Projecting sources&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_project_sources</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Projected sources:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Grouping&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grouping</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouping</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">,</span> <span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">],</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grouping</span><span class="p">,</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">],</span>
+                <span class="p">),</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">],</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SourceListCreator.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.SourceListCreator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">catalog_sources</span><span class="p">,</span>
+        <span class="n">fit_variables</span><span class="p">,</span>
+        <span class="n">grouping</span><span class="p">,</span>
+        <span class="n">grouping_frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">discard_faint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">remove_group_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up to create source lists for PSF/PRF fitting.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            catalog_fname:    The filename containing a list of catalog</span>
+<span class="sd">                sources to fit the shape and measure the brightness of.</span>
+
+<span class="sd">            extra_fit_variables:    See --map-variables command line argument.</span>
+
+<span class="sd">            grouping:    A splitting of the input sources in groups, each of</span>
+<span class="sd">                which is enabled separately during PRF fitting. Should be a</span>
+<span class="sd">                callable taking the input projected sources, catalog</span>
+<span class="sd">                information, frame header and extra fit variables and returning</span>
+<span class="sd">                A numpy integer array indicating for each source the PRF fitting</span>
+<span class="sd">                group it is in. Sources assigned to negative group IDs are never</span>
+<span class="sd">                enabled.</span>
+
+<span class="sd">            grouping_frame:    If None, grouping is derived for each input</span>
+<span class="sd">                frames separately, potentially resulting in a different set of</span>
+<span class="sd">                sources enabled for each frame. If not None, it should specify</span>
+<span class="sd">                the filename of a FITS frame on which to derive the grouping</span>
+<span class="sd">                once and all subsequent fits are based on the same exact</span>
+<span class="sd">                sources, regardless of where on the frame they appear, as long</span>
+<span class="sd">                as they are within the frame.</span>
+
+<span class="sd">            discard_faint:    See `--discard-faint` command line argument.</span>
+
+<span class="sd">            remove_group_id:    See &#39;--remove-group-id&#39; command line argument.</span>
+
+<span class="sd">            dr_path_substitutions:    Any keywords needed to specify unique</span>
+<span class="sd">                paths in the data reduction files for the inputs and output</span>
+<span class="sd">                required for shape fitting.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="n">catalog_sources</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Source columns: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">&quot;ID&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">discard_faint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">discard_filter</span><span class="p">,</span> <span class="n">faint_limit</span> <span class="o">=</span> <span class="n">discard_faint</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
+            <span class="n">faint_limit</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">faint_limit</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="n">discard_filter</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">faint_limit</span>
+            <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_variables</span> <span class="o">=</span> <span class="n">fit_variables</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dr_path_substitutions</span> <span class="o">=</span> <span class="n">dr_path_substitutions</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sources: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">))</span>
+
+        <span class="c1">#        self._id_length = max(</span>
+        <span class="c1">#            len(id_value) for id_value in self._sources.index</span>
+        <span class="c1">#        )</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_group_id</span> <span class="o">=</span> <span class="n">remove_group_id</span>
+
+        <span class="k">if</span> <span class="n">grouping_frame</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">grouping_frame</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_project_sources</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grouping</span> <span class="o">=</span> <span class="n">grouping</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">,</span>
+                <span class="c1"># False positive</span>
+                <span class="c1"># pylint: disable=unsubscriptable-object</span>
+                <span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">],</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]),</span>
+                <span class="c1"># pylint: enable=unsubscriptable-object</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grouping</span> <span class="o">=</span> <span class="n">grouping</span></div>
+
+
+<div class="viewcode-block" id="SourceListCreator.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.SourceListCreator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the `fitpsf`/`fitprf` source list for this frame.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            frame_fname:    The filename of the frame to get PRF fitting</span>
+<span class="sd">                sources of.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            [numpy record array]:</span>
+<span class="sd">                The values of all source variables PSF/PRF fitting will use for</span>
+<span class="sd">                each fitting group. Each entry is suitable as input to</span>
+<span class="sd">                FitStarShape.fit(), with only one fitting group enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Getting sources from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">frame_fname</span><span class="p">))</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">frame_fname</span><span class="p">)</span>
+
+        <span class="n">grouping</span><span class="p">,</span> <span class="n">in_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_and_flag_in_frame</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Found </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2"> sources inside the frame.&quot;</span><span class="p">,</span>
+            <span class="n">in_frame</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">in_frame</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">fit_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="n">in_frame</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Fit source columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">grouping</span> <span class="o">=</span> <span class="n">grouping</span><span class="p">[</span><span class="n">in_frame</span><span class="p">]</span>
+
+        <span class="n">number_fit_groups</span> <span class="o">=</span> <span class="n">grouping</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_group_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">number_fit_groups</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">number_fit_groups</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">remove_group_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_group_id</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Removing group_id: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">remove_group_id</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">del</span> <span class="n">number_fit_groups</span><span class="p">[</span><span class="n">remove_group_id</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">fit_sources</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="n">number_fit_groups</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="n">number_fit_groups</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Group </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">group_id</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="c1"># This is more readable</span>
+                <span class="c1"># pylint:disable=superfluous-parens</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">group_id</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grouping</span> <span class="o">==</span> <span class="n">group_id</span>
+                <span class="c1"># pylint:enable=superfluous-parens</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">fit_sources</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_fit_groups</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">group_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_fit_groups</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Group </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">group_id</span><span class="p">])</span>
+                <span class="p">)</span>
+
+                <span class="c1"># This is more readable</span>
+                <span class="c1"># pylint:disable=superfluous-parens</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">group_id</span><span class="p">][</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grouping</span> <span class="o">==</span> <span class="n">group_id</span>
+                <span class="c1"># pylint:enable=superfluous-parens</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Result: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+<span class="c1"># pylint: enable=too-many-instance-attributes</span>
+
+
+<div class="viewcode-block" id="create_source_list_creator">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.create_source_list_creator">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_source_list_creator</span><span class="p">(</span><span class="n">dr_fnames</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">catalog_lock</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a fully configured instance of SourceListCreator.&quot;&quot;&quot;</span>
+
+    <span class="n">catalog_sources</span><span class="p">,</span> <span class="n">outliers</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
+        <span class="n">dr_files</span><span class="o">=</span><span class="n">dr_fnames</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;photometry&quot;</span><span class="p">),</span>
+        <span class="n">return_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">skytoframe_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;skytoframe_version&quot;</span><span class="p">],</span>
+        <span class="n">lock</span><span class="o">=</span><span class="n">catalog_lock</span><span class="p">,</span>
+    <span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">outliers</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Not all images in multi-image fit have consistent pointing!&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">SourceListCreator</span><span class="p">(</span>
+        <span class="n">catalog_sources</span><span class="o">=</span><span class="n">catalog_sources</span><span class="p">,</span>
+        <span class="n">fit_variables</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;map_variables&quot;</span><span class="p">],</span>
+        <span class="n">grouping</span><span class="o">=</span><span class="n">SplitSources</span><span class="p">(</span>
+            <span class="n">magnitude_column</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;split_magnitude_column&quot;</span><span class="p">],</span>
+            <span class="n">radius_splits</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;radius_splits&quot;</span><span class="p">],</span>
+            <span class="n">mag_split_by_source_count</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;mag_split_source_count&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">option</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;grouping_frame&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;discard_faint&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;remove_group_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;skytoframe_version&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_dr_substitutions">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.get_dr_substitutions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the substitutions to use for DR file paths.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">version_name</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">version_name</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">version_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">,</span> <span class="s2">&quot;shapefit&quot;</span><span class="p">,</span> <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span> <span class="s2">&quot;skytoframe&quot;</span><span class="p">]</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="get_shape_fitter_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.get_shape_fitter_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_shape_fitter_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a fully configured instance of FitStarShape.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;require_convergence&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shape_mode&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shape_grid&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;bg_min_pix&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shapefit_src_min_bg_pix&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;cover_grid&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shapefit_src_cover_grid&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;src_max_count&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shapefit_max_sources&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;dr_path_substitutions&quot;</span><span class="p">:</span> <span class="n">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;subpixmap&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;subpixmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_subpixmap</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;subpixmap&quot;</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;background_annulus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gain&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;magnitude_1adu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shape_terms_expression&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;initial_aperture&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;smoothing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_chi2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pixel_rejection_threshold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_abs_amplitude_change&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_rel_amplitude_change&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;min_convergence_rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_iterations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;src_min_signal_to_noise&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;src_max_sat_frac&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;src_max_aperture&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;src_min_pix&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;src_max_pix&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shapefit_&quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="fit_frame_set">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.fit_frame_set">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_frame_set</span><span class="p">(</span>
+    <span class="n">frame_filenames</span><span class="p">,</span>
+    <span class="n">configuration</span><span class="p">,</span>
+    <span class="n">mark_start</span><span class="p">,</span>
+    <span class="n">mark_end</span><span class="p">,</span>
+    <span class="n">catalog_lock</span><span class="o">=</span><span class="n">nullcontext</span><span class="p">(),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a simultaneous fit of all frames included in frame_filenames.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        frame_filenames ([str]):    The list of FITS file containting calibrated</span>
+<span class="sd">            frames to fit. The files must include at least 3 extensions: the</span>
+<span class="sd">            calibrated pixel values, estimated errors for the pixel values and</span>
+<span class="sd">            the pixel quality mask.</span>
+
+<span class="sd">        configuration(dict):    The configuration to use for PSF/PRF fitting,</span>
+<span class="sd">            background extraction etc.</span>
+
+<span class="sd">        mark_start(callable):     Called for each frame in the set before</span>
+<span class="sd">            processing begins.</span>
+
+<span class="sd">        mark_end(callable):     Called for each frame in the set after</span>
+<span class="sd">            processing ends.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dr_fname</span><span class="p">(</span><span class="n">frame_fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the filename to saving a shape fit.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">get_fname_from_header</span><span class="p">(</span>
+            <span class="n">get_primary_header</span><span class="p">(</span><span class="n">frame_fname</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fitting frame set: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">frame_filenames</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fitting configuration: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">))</span>
+
+    <span class="n">dr_fnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_dr_fname</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frame_filenames</span><span class="p">]</span>
+    <span class="n">get_sources</span> <span class="o">=</span> <span class="n">create_source_list_creator</span><span class="p">(</span>
+        <span class="n">dr_fnames</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">catalog_lock</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created source getter&quot;</span><span class="p">)</span>
+
+    <span class="n">shape_fitter_config</span> <span class="o">=</span> <span class="n">get_shape_fitter_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="n">star_shape_fitter</span> <span class="o">=</span> <span class="n">PiecewiseBicubicPSFMap</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created star shape fitter.&quot;</span><span class="p">)</span>
+
+    <span class="n">fit_sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_sources</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frame_filenames</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fit sources: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">fit_sources</span><span class="p">))</span>
+
+    <span class="n">num_fit_groups</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_sources</span><span class="p">)</span> <span class="k">for</span> <span class="n">frame_sources</span> <span class="ow">in</span> <span class="n">fit_sources</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fitting </span><span class="si">%s</span><span class="s2"> group&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">num_fit_groups</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">frame_filenames</span><span class="p">:</span>
+        <span class="n">mark_start</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fit_group</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_fit_groups</span><span class="p">):</span>
+        <span class="n">shape_fitter_config</span><span class="p">[</span><span class="s2">&quot;dr_path_substitutions&quot;</span><span class="p">][</span><span class="s2">&quot;fit_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_group</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Fitting:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">frame_filenames: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">sources: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">dr_fnames: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">frame_filenames</span><span class="p">),</span>
+            <span class="nb">repr</span><span class="p">([</span><span class="n">sources</span><span class="p">[</span><span class="n">fit_group</span><span class="p">]</span> <span class="k">for</span> <span class="n">sources</span> <span class="ow">in</span> <span class="n">fit_sources</span><span class="p">]),</span>
+            <span class="nb">repr</span><span class="p">([</span><span class="n">get_dr_fname</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frame_filenames</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">star_shape_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">fits_fnames</span><span class="o">=</span><span class="n">frame_filenames</span><span class="p">,</span>
+            <span class="n">sources</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">sources</span><span class="p">[</span><span class="n">fit_group</span><span class="p">]</span><span class="o">.</span><span class="n">to_records</span><span class="p">()</span> <span class="k">for</span> <span class="n">sources</span> <span class="ow">in</span> <span class="n">fit_sources</span>
+            <span class="p">],</span>
+            <span class="n">output_dr_fnames</span><span class="o">=</span><span class="n">dr_fnames</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">shape_fitter_config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Done fitting&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">frame_filenames</span><span class="p">:</span>
+        <span class="n">mark_end</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="fit_star_shape">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.fit_star_shape">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_star_shape</span><span class="p">(</span>
+    <span class="n">image_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the best-fit model for the PSF/PRF in the given images.&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
+    <span class="n">image_collection</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">image_collection</span><span class="p">)</span>
+    <span class="n">frame_list_splits</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">image_collection</span><span class="p">),</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_simultaneous&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">fit_arguments</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">image_collection</span><span class="p">[</span>
+            <span class="n">split</span> <span class="p">:</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">split</span> <span class="o">+</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_simultaneous&quot;</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">image_collection</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="n">frame_list_splits</span>
+    <span class="p">]</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Using </span><span class="si">%d</span><span class="s2"> parallel processes to fit </span><span class="si">%d</span><span class="s2"> (=? </span><span class="si">%d</span><span class="s2">) frames&quot;</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">],</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">image_collection</span><span class="p">),</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">fit_arguments</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Fit arguments:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">fit_arguments</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">frame_set</span> <span class="ow">in</span> <span class="n">fit_arguments</span><span class="p">:</span>
+            <span class="n">fit_frame_set</span><span class="p">(</span><span class="n">frame_set</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;parent_pid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpid</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span>
+            <span class="n">processes</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_parallel_processes&quot;</span><span class="p">],</span>
+            <span class="n">initializer</span><span class="o">=</span><span class="n">init_dr_process</span><span class="p">,</span>
+            <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">configuration</span><span class="p">,),</span>
+            <span class="n">maxtasksperchild</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">,</span> <span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">manager</span><span class="p">:</span>
+            <span class="n">catalog_lock</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                <span class="n">partial</span><span class="p">(</span>
+                    <span class="n">fit_frame_set</span><span class="p">,</span>
+                    <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+                    <span class="n">mark_start</span><span class="o">=</span><span class="n">mark_start</span><span class="p">,</span>
+                    <span class="n">mark_end</span><span class="o">=</span><span class="n">mark_end</span><span class="p">,</span>
+                    <span class="n">catalog_lock</span><span class="o">=</span><span class="n">catalog_lock</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">fit_arguments</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cleanup_interrupted">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.cleanup_interrupted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove star shape fit datasets from the DR file of the given image.&quot;&quot;&quot;</span>
+
+    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
+    <span class="n">dr_path_substitutions</span> <span class="o">=</span> <span class="n">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span>
+
+        <span class="n">fits_header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">fits_header</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">delete_sources</span><span class="p">(</span>
+                <span class="s2">&quot;srcproj.columns&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;srcproj_column_name&quot;</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">delete_star_shape_fit</span><span class="p">(</span><span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="has_astrometry">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.has_astrometry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_astrometry</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the DR file contains a sky-to-frame transformation.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">get_primary_header</span><span class="p">(</span><span class="n">image_fname</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
+                <span class="s2">&quot;skytoframe.coefficients&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step for fitting star shapes from the command line.&quot;&quot;&quot;</span>
+
+    <span class="n">configuration</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;manage&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
+    <span class="n">dr_path_substitutions</span> <span class="o">=</span> <span class="n">get_dr_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="n">fit_star_shape</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">image_fname</span>
+            <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">find_fits_with_dr_fnames</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;calibrated_images&quot;</span><span class="p">),</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shapefit_only_if&quot;</span><span class="p">),</span>
+                <span class="n">dr_fname_format</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_astrometry</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">dr_path_substitutions</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

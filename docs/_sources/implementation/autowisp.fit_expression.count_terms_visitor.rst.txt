@@ -1,0 +1,7 @@
+autowisp.fit\_expression.count\_terms\_visitor module
+=====================================================
+
+.. automodule:: autowisp.fit_expression.count_terms_visitor
+   :members:
+   :show-inheritance:
+   :undoc-members:

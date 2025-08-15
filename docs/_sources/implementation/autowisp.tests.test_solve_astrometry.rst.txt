@@ -1,0 +1,7 @@
+autowisp.tests.test\_solve\_astrometry module
+=============================================
+
+.. automodule:: autowisp.tests.test_solve_astrometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

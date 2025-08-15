@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.tests package &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.tests.fits_test_case module" href="autowisp.tests.fits_test_case.html" />
+    <link rel="prev" title="autowisp.processing_steps.tfa module" href="autowisp.processing_steps.tfa.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.tests package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.tests.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.tests">
+<span id="autowisp-tests-package"></span><h1>autowisp.tests package<a class="headerlink" href="#module-autowisp.tests" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-4bc0fbd0a982375eb9b7b9e7f1b474fb6a529c0f.png" alt="Inheritance diagram of AutoWISPTestCase, FloatTestCase" usemap="#inheritance868cfd8fd4" class="inheritance graphviz" /></div>
+<map id="inheritance868cfd8fd4" name="inheritance868cfd8fd4">
+<area shape="rect" id="node3" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="13,155,242,181"/>
+</map><p>Autowisp unit-test init.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">AutoWISPTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FloatTestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-2dc293707063b095970b56b1b3809473a7ffaf22.png" alt="Inheritance diagram of autowisp.tests.AutoWISPTestCase" usemap="#inheritancedf3369b4cf" class="inheritance graphviz" /></div>
+<map id="inheritancedf3369b4cf" name="inheritancedf3369b4cf">
+<area shape="rect" id="node3" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="13,155,242,181"/>
+</map><p>Base class for AutoWISP tests.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.get_inputs">
+<span class="sig-name descname"><span class="pre">get_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.get_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.get_inputs" title="Link to this definition"></a></dt>
+<dd><p>Get the input files for the test step and return what to clean up.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.run_step">
+<span class="sig-name descname"><span class="pre">run_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.run_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.run_step" title="Link to this definition"></a></dt>
+<dd><p>Run a calibration step and check the return code.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.setUp" title="Link to this definition"></a></dt>
+<dd><p>Make sure the data to compare against is defined.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.set_test_directory">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_test_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processing_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_test_dirname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.set_test_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.set_test_directory" title="Link to this definition"></a></dt>
+<dd><p>Set the directory where data to test against is located.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.successful_test">
+<span class="sig-name descname"><span class="pre">successful_test</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.successful_test" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.tearDown" title="Link to this definition"></a></dt>
+<dd><p>Remove the processing directory.</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.fits_test_case.html">autowisp.tests.fits_test_case module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.fits_test_case.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase"><code class="docutils literal notranslate"><span class="pre">FITSTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase.assert_fits_match"><code class="docutils literal notranslate"><span class="pre">FITSTestCase.assert_fits_match()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.get_test_data.html">autowisp.tests.get_test_data module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.get_test_data.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.get_test_data.html#autowisp.tests.get_test_data.download_zip"><code class="docutils literal notranslate"><span class="pre">download_zip()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.get_test_data.html#autowisp.tests.get_test_data.get_test_data"><code class="docutils literal notranslate"><span class="pre">get_test_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.h5_test_case.html">autowisp.tests.h5_test_case module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.h5_test_case.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase"><code class="docutils literal notranslate"><span class="pre">H5TestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.assert_groups_match"><code class="docutils literal notranslate"><span class="pre">H5TestCase.assert_groups_match()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.run_step_test"><code class="docutils literal notranslate"><span class="pre">H5TestCase.run_step_test()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_calibrate.html">autowisp.tests.test_calibrate module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_calibrate.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate"><code class="docutils literal notranslate"><span class="pre">TestCalibrate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate._test_calibration"><code class="docutils literal notranslate"><span class="pre">TestCalibrate._test_calibration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_bias_calibration"><code class="docutils literal notranslate"><span class="pre">TestCalibrate.test_bias_calibration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_dark_calibration"><code class="docutils literal notranslate"><span class="pre">TestCalibrate.test_dark_calibration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_flat_calibration"><code class="docutils literal notranslate"><span class="pre">TestCalibrate.test_flat_calibration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_object_calibration"><code class="docutils literal notranslate"><span class="pre">TestCalibrate.test_object_calibration()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_create_lightcurves.html">autowisp.tests.test_create_lightcurves module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_create_lightcurves.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_create_lightcurves.html#autowisp.tests.test_create_lightcurves.TestCreateLightcurves"><code class="docutils literal notranslate"><span class="pre">TestCreateLightcurves</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_create_lightcurves.html#autowisp.tests.test_create_lightcurves.TestCreateLightcurves.is_postprocessing"><code class="docutils literal notranslate"><span class="pre">TestCreateLightcurves.is_postprocessing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_create_lightcurves.html#autowisp.tests.test_create_lightcurves.TestCreateLightcurves.test_create_lightcurves"><code class="docutils literal notranslate"><span class="pre">TestCreateLightcurves.test_create_lightcurves()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html">autowisp.tests.test_detrending_stat module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat"><code class="docutils literal notranslate"><span class="pre">TestDetrendingStat</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.run_test"><code class="docutils literal notranslate"><span class="pre">TestDetrendingStat.run_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.test_generate_epd_statistics"><code class="docutils literal notranslate"><span class="pre">TestDetrendingStat.test_generate_epd_statistics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_detrending_stat.html#autowisp.tests.test_detrending_stat.TestDetrendingStat.test_generate_tfa_statistics"><code class="docutils literal notranslate"><span class="pre">TestDetrendingStat.test_generate_tfa_statistics()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_epd.html">autowisp.tests.test_epd module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_epd.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_epd.html#autowisp.tests.test_epd.TestEPD"><code class="docutils literal notranslate"><span class="pre">TestEPD</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_epd.html#autowisp.tests.test_epd.TestEPD.test_epd"><code class="docutils literal notranslate"><span class="pre">TestEPD.test_epd()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_find_stars.html">autowisp.tests.test_find_stars module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_find_stars.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars"><code class="docutils literal notranslate"><span class="pre">TestFindStars</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars.test_find_stars"><code class="docutils literal notranslate"><span class="pre">TestFindStars.test_find_stars()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_fit_magnitudes.html">autowisp.tests.test_fit_magnitudes module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_fit_magnitudes.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes"><code class="docutils literal notranslate"><span class="pre">TestFitMagnitudes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_fit_magnitudes.html#autowisp.tests.test_fit_magnitudes.TestFitMagnitudes.test_fit_magnitudes"><code class="docutils literal notranslate"><span class="pre">TestFitMagnitudes.test_fit_magnitudes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_fit_source_extracted_psf_map.html">autowisp.tests.test_fit_source_extracted_psf_map module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_fit_source_extracted_psf_map.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_fit_source_extracted_psf_map.html#autowisp.tests.test_fit_source_extracted_psf_map.TestFitSourceExtractedPSFMap"><code class="docutils literal notranslate"><span class="pre">TestFitSourceExtractedPSFMap</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_fit_source_extracted_psf_map.html#autowisp.tests.test_fit_source_extracted_psf_map.TestFitSourceExtractedPSFMap.test_fit_source_extracted_psf_map"><code class="docutils literal notranslate"><span class="pre">TestFitSourceExtractedPSFMap.test_fit_source_extracted_psf_map()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_fit_star_shape.html">autowisp.tests.test_fit_star_shape module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_fit_star_shape.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_fit_star_shape.html#autowisp.tests.test_fit_star_shape.TestFitStarShape"><code class="docutils literal notranslate"><span class="pre">TestFitStarShape</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_fit_star_shape.html#autowisp.tests.test_fit_star_shape.TestFitStarShape.test_fit_star_shape"><code class="docutils literal notranslate"><span class="pre">TestFitStarShape.test_fit_star_shape()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_measure_aperture_photometry.html">autowisp.tests.test_measure_aperture_photometry module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_measure_aperture_photometry.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_measure_aperture_photometry.html#autowisp.tests.test_measure_aperture_photometry.TestMeasureAperturePhotometry"><code class="docutils literal notranslate"><span class="pre">TestMeasureAperturePhotometry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_measure_aperture_photometry.html#autowisp.tests.test_measure_aperture_photometry.TestMeasureAperturePhotometry.is_magfit"><code class="docutils literal notranslate"><span class="pre">TestMeasureAperturePhotometry.is_magfit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_measure_aperture_photometry.html#autowisp.tests.test_measure_aperture_photometry.TestMeasureAperturePhotometry.test_measure_aperture_photometry"><code class="docutils literal notranslate"><span class="pre">TestMeasureAperturePhotometry.test_measure_aperture_photometry()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_solve_astrometry.html">autowisp.tests.test_solve_astrometry module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_solve_astrometry.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_solve_astrometry.html#autowisp.tests.test_solve_astrometry.TestSolveAstrometry"><code class="docutils literal notranslate"><span class="pre">TestSolveAstrometry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_solve_astrometry.html#autowisp.tests.test_solve_astrometry.TestSolveAstrometry.test_solve_astrometry"><code class="docutils literal notranslate"><span class="pre">TestSolveAstrometry.test_solve_astrometry()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html">autowisp.tests.test_stack_to_master module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster"><code class="docutils literal notranslate"><span class="pre">TestStackToMaster</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster._test_stack_to_master"><code class="docutils literal notranslate"><span class="pre">TestStackToMaster._test_stack_to_master()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster.test_stack_master_bias"><code class="docutils literal notranslate"><span class="pre">TestStackToMaster.test_stack_master_bias()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster.test_stack_master_dark"><code class="docutils literal notranslate"><span class="pre">TestStackToMaster.test_stack_master_dark()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster.test_stack_master_flat"><code class="docutils literal notranslate"><span class="pre">TestStackToMaster.test_stack_master_flat()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.tests.test_tfa.html">autowisp.tests.test_tfa module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_tfa.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA"><code class="docutils literal notranslate"><span class="pre">TestTFA</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA.test_tfa"><code class="docutils literal notranslate"><span class="pre">TestTFA.test_tfa()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.processing_steps.tfa.html" class="btn btn-neutral float-left" title="autowisp.processing_steps.tfa module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.tests.fits_test_case.html" class="btn btn-neutral float-right" title="autowisp.tests.fits_test_case module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

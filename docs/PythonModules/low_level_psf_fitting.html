@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Level PSF/PRF Fitting Interface &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Low Level PSF/PRF Fitting Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/PythonModules/low_level_psf_fitting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="low-level-psf-prf-fitting-interface">
+<h1>Low Level PSF/PRF Fitting Interface<a class="headerlink" href="#low-level-psf-prf-fitting-interface" title="Link to this heading"></a></h1>
+<p>First to define our terms. The PSF is the distribution of light produced by the
+optical system in the plane of the detector for a point source at infinity,
+while the PRF gives the response of a detector pixel at some offset from the
+“center” of the source. That is the PRF is the PSF convolved with the
+sensitivity map of detector pixels.</p>
+<p>PSF/PRF fitting is done using AstroWISP, which models both the PSF and the PRF
+as follows: The area around the source location is split into a rectangular grid
+of cells (unrelated to pixels) with, in general, non-uniform sizes, organized in
+M rows and N columns. In each cell, the amount of light falling on the detector
+is modeled as a bi–cubic function:</p>
+<div class="math notranslate nohighlight">
+\[f(x,y)=A\sum_{m=0}^3\sum_{n=0}^3 C_{i,j,m,n} x^m y^n \label{eq: piecewise
+bicubic PSF}\]</div>
+<p>where <span class="math notranslate nohighlight">\(C_{i,j,m,n}\)</span> is the coefficient in front of <span class="math notranslate nohighlight">\(x^my^n\)</span> for the
+cell in the i-th column and j-th row.  The only restrictions imposed during PSF
+fitting (but may be violated if manual PSF models are supplied) are common
+sense: first: <span class="math notranslate nohighlight">\(f(x,y)\)</span> should be continuously differentiable across cell
+boundaries; and second: the PSF and all its derivatives should be zero at the
+grid boundaries. Under these assumptions, the PB model is fully specified by the
+values of <span class="math notranslate nohighlight">\(f\)</span>, <span class="math notranslate nohighlight">\(\frac{\partial f}{\partial x}\)</span>,
+<span class="math notranslate nohighlight">\(\frac{\partial f}{\partial y}\)</span> and <span class="math notranslate nohighlight">\(\frac{\partial^2 f}{\partial x
+\partial y}\)</span> on the <span class="math notranslate nohighlight">\((N-1)\times(M-1)\)</span> cell corners.</p>
+<p>The PSF model is described by a set of shape parameters (the <span class="math notranslate nohighlight">\(C_{i,j,m,n}\)</span>
+coefficients) and an overall amplitude. The amplitudes are independent between
+sources, while the shape parameters are assumed to vary smoothly as a function
+of image position, outside temperature, color or brightness of the source, etc.
+This smooth dependence is specified as a polynomial of a user specified order,
+and the fit is performed for the coefficients of this polynomial. The fitting
+compares measured pixel values with the value predicted from either the integral
+of the product of the PSF and the sub–pixel sensitivity map or the value of the
+PRF at the center of the pixel, weighing each pixel by its signal to noise. All
+source pixels in all input images will be fit simultaneously.</p>
+<p>If the amplitudes are fixed, the predicted pixel values are linear functions of
+the polynomial expansion coefficients. As a result, PSF/PRF fitting splits into
+two linear fits: one for the polynomial expansion coefficients of the shape
+parameters and one for the amplitudes. The fit is performed by iterating between
+the two, until the fractional change in the vector of best fit fluxes falls
+below some threshold. It is highly advantageous to redefine the fitting
+parameters such that the full integral of the PSF/PRF is restricted to always be
+unity. This is straightforward to achieve, and does not break the linear
+dependence of the predicted pixel values on the fitted parameters. The only
+problem that remains is to derive a good initial guess for either the fluxes or
+the shape parameters. The former can be achieved by performing aperture
+photometry on the input sources, assuming a flat PSF model.</p>
+<p>Since modelling every single image pixel and fitting for the fluxes of all
+sources simultaneously is an overwhelming computational task, AstroWISP
+processes only pixels near known sources (i.e. ones that at least partially
+overlap with the PSF grid), discarding pixels to which multiple sources
+contribute flux from the shape fit but fitting for the fluxes of such sources
+simultaneously during the amplitude fitting step.</p>
+<p>Given calibrated FITS frames of the night sky produced as described in
+<a class="reference internal" href="low_level_image_calibration.html"><span class="doc">Low Level Image Calibration Interface</span></a> and an astrometric solution produced as
+described in <a class="reference internal" href="low_level_astrometry.html"><span class="doc">Low Level Astrometry Interface</span></a>, this module uses AstroWISP to carry
+out the PSF/PRF fitting decsribed above in four steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Querying the catalogue for all sources in an area fully covering the image,
+filtering those sources by specified criteria and using the astrometric
+solution to project those sources on the frame, discarding sources which
+project to locations outside the frame. This is the list of sources passed
+to AstroWISP for which PSF/PRF fitting is performed.</p></li>
+<li><p>Invoke AstroWISP to measure the background for each source in the above
+list.</p></li>
+<li><p>Invoke AstroWISP with the list of sources now each augmented by its
+background measurement to fir for the PSF or PRF.</p></li>
+<li><p>Add the results of the above 3 steps to the data reduction files for the
+frames processed, fully documenting the versions of each tool and module
+used as well as any configuration parameters.</p></li>
+</ol>
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

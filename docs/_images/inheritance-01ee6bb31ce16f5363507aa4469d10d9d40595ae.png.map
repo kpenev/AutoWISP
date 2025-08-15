@@ -1,0 +1,9 @@
+<map id="inheritancecc9baa953e" name="inheritancecc9baa953e">
+<area shape="rect" id="node1" title="High&#45;level object providing a flexible interface for celestial coordinate" alt="" coords="5,155,294,181"/>
+<area shape="rect" id="node2" title="Mixin class to provide shape&#45;changing methods." alt="" coords="19,80,280,107"/>
+<area shape="rect" id="node3" title="Mixin class to provide shape&#45;changing methods." alt="" coords="10,5,289,32"/>
+<area shape="rect" id="node4" title="Base class for the interval classes, which, when called with an" alt="" coords="328,80,590,107"/>
+<area shape="rect" id="node6" title="Interval based on IRAF&#39;s zscale." alt="" coords="322,155,596,181"/>
+<area shape="rect" id="node5" title="A transformation object." alt="" coords="313,5,604,32"/>
+<area shape="rect" id="node7" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="628,5,911,32"/>
+</map>

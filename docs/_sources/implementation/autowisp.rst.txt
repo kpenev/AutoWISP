@@ -1,0 +1,50 @@
+autowisp package
+================
+
+.. automodule:: autowisp
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.astrometry
+   autowisp.data_reduction
+   autowisp.database
+   autowisp.fake_image
+   autowisp.fit_expression
+   autowisp.image_calibration
+   autowisp.light_curves
+   autowisp.magnitude_fitting
+   autowisp.processing_steps
+   autowisp.tests
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.Dump2hdf5
+   autowisp.bui_util
+   autowisp.catalog
+   autowisp.evaluator
+   autowisp.file_utilities
+   autowisp.fits_utilities
+   autowisp.hdf5_file
+   autowisp.image_smoothing
+   autowisp.image_utilities
+   autowisp.iterative_rejection_util
+   autowisp.miscellaneous
+   autowisp.multiprocessing_util
+   autowisp.piecewise_bicubic_psf_map
+   autowisp.pipeline_exceptions
+   autowisp.processor
+   autowisp.source_finder
+   autowisp.source_finder_util
+   autowisp.split_sources
+   autowisp.tess_interface

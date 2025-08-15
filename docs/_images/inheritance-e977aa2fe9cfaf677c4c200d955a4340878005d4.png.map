@@ -1,0 +1,4 @@
+<map id="inheritanceb5d5ddce15" name="inheritanceb5d5ddce15">
+<area shape="rect" id="node1" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="28,5,301,32"/>
+<area shape="rect" id="node2" href="#autowisp.light_curves.tfa_correction.TFACorrection" target="_top" title="Class for performing TFA corrections to a set of lightcurves." alt="" coords="5,80,324,107"/>
+</map>

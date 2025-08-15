@@ -1,0 +1,1582 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.hdf5_file &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.hdf5_file</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.hdf5_file</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Only a single class is defined so hardly makes sense to split.</span>
+<span class="c1"># pylint: disable=too-many-lines</span>
+<span class="sd">&quot;&quot;&quot;Define a class for working with HDF5 files.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">exc_info</span>
+
+<span class="c1"># from ast import literal_eval</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exception</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.pipeline_exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDF5LayoutError</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 0b6d6e5b656d6c627eac0797338c78208ce9d7d5 $&quot;</span>
+
+
+<span class="c1"># This is a h5py issue not an issue with this module</span>
+<span class="c1"># pylint: disable=too-many-ancestors</span>
+<span class="c1"># pylint: disable=too-many-public-methods</span>
+<div class="viewcode-block" id="HDF5File">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HDF5File</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for HDF5 pipeline products.</span>
+
+<span class="sd">    The actual structure of the file has to be defined by a class inheriting</span>
+<span class="sd">    from this one, by overwriting the relevant properties and</span>
+<span class="sd">    :meth:`_get_root_tag_name`.</span>
+
+<span class="sd">    Implements backwards compatibility for different versions of the structure</span>
+<span class="sd">    of files.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _file_structure:    See the first entry returned by get_file_structure.</span>
+
+<span class="sd">        _file_structure_version:    See the second entry returned by</span>
+<span class="sd">            get_file_structure.</span>
+
+<span class="sd">        _hat_id_prefixes (numpy.array):    A list of the currently recognized</span>
+<span class="sd">            HAT-ID prefixes, with the correct data type ready for adding as a</span>
+<span class="sd">            dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HDF5File._get_root_tag_name">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._get_root_tag_name">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_root_tag_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The name of the root tag in the layout configuration.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="HDF5File._product">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._product">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_product</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The pipeline key of the product held in this type of HDF5 files.&quot;&quot;&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_layout_version_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return path, name of attribute in the file holding the layout version.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;LayoutVersion&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identifying strings for the recognized elements of the HDF5 file.</span>
+
+<span class="sd">        Shoul be a dictionary-like object with values being a set of strings</span>
+<span class="sd">        containing the identifiers of the HDF5 elements and keys:</span>
+
+<span class="sd">            * dataset: Identifiers for the data sets that could be included in</span>
+<span class="sd">                the file.</span>
+
+<span class="sd">            * attribute: Identifiers for the attributes that could be included</span>
+<span class="sd">                in the file.</span>
+
+<span class="sd">            * link: Identifiers for the links that could be included in</span>
+<span class="sd">                the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HDF5File.get_file_structure">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_file_structure">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_file_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the layout structure with the given version of the file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            version:    The version number of the layout structure to set. If</span>
+<span class="sd">                None, it should provide the default structure for new files</span>
+<span class="sd">                (presumably the latest version).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (dict, str):</span>
+
+<span class="sd">                The dictionary specifies how to include elements in the HDF5</span>
+<span class="sd">                file. The keys for the dictionary should be one in one of the</span>
+<span class="sd">                lists in self.elements and the value is an object with</span>
+<span class="sd">                attributes decsribing how to include the element. See classes in</span>
+<span class="sd">                :mod:database.data_model for the provided attributes and their</span>
+<span class="sd">                meining.</span>
+
+<span class="sd">                The string is the actual file structure version returned. The</span>
+<span class="sd">                same as version if version is not None.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="HDF5File._flag_required_attribute_parents">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._flag_required_attribute_parents">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flag_required_attribute_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flag attributes whose parents must exist when adding the attribute.</span>
+
+<span class="sd">        The file structure must be fully configured before calling this method!</span>
+
+<span class="sd">        If the parent is a group, it is safe to create it and then add the</span>
+<span class="sd">        attribute, however, this in is not the case for attributes to datasets.</span>
+
+<span class="sd">        Add an attribute named &#39;parent_must_exist&#39; to all attribute</span>
+<span class="sd">        configurations in self._file_structure set to False if and only if the</span>
+<span class="sd">        attribute parent is a group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dataset_paths</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span>
+            <span class="k">for</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">attribute_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]:</span>
+            <span class="n">attribute</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+            <span class="n">attribute</span><span class="o">.</span><span class="n">parent_must_exist</span> <span class="o">=</span> <span class="n">attribute</span><span class="o">.</span><span class="n">parent</span> <span class="ow">in</span> <span class="n">dataset_paths</span></div>
+
+
+<div class="viewcode-block" id="HDF5File._write_text_to_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._write_text_to_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_text_to_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds ASCII text/file as a dateset to an HDF5 file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to add.</span>
+
+<span class="sd">            text:    The text or file to add. If it is an open file, the</span>
+<span class="sd">                contents is dumped, if it is a python2 string or a python3</span>
+<span class="sd">                bytes, the value is stored.</span>
+
+<span class="sd">            if_exists:    See add_dataset().</span>
+
+<span class="sd">            substitututions:    Any arguments that should be substituted in the</span>
+<span class="sd">                dataset path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;i1&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;i1&quot;</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;i1&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span>
+            <span class="n">dataset_key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="n">if_exists</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.write_fitsheader_to_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.write_fitsheader_to_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_fitsheader_to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">fitsheader</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a FITS header to an HDF5 file as a dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key(str):    The key identifying the dataset to add the</span>
+<span class="sd">                header to.</span>
+
+<span class="sd">            fitsheader(fits.Header):    The header to save.</span>
+
+<span class="sd">            kwargs:    Passed directly to :meth:`_write_text_to_dataset`\ .</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitsheader</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># pylint false positive</span>
+            <span class="c1"># pylint: disable=no-member</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fitsheader</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fitsfile</span><span class="p">:</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">fitsfile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+                <span class="k">if</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">header</span> <span class="o">=</span> <span class="n">fitsfile</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+                <span class="n">fitsheader_string</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+            <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fitsheader_string</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">fitsheader</span><span class="o">.</span><span class="n">cards</span>
+            <span class="p">)</span>
+        <span class="n">fitsheader_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">fitsheader_string</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;i1&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_text_to_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="n">fitsheader_array</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.read_fitsheader_from_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.read_fitsheader_from_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_fitsheader_from_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a FITS header from an HDF5 dataset.</span>
+
+<span class="sd">        The inverse of :meth:`write_fitsheader_to_dataset`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            h5dset:    The dataset containing the header to read.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            fits.Header:</span>
+<span class="sd">                The FITS header contained in the given dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fitsheader_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+            <span class="n">BytesIO</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">endcard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.check_for_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.check_for_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_for_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">must_exist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the given key identifies a dataset and it actually exists.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to check for.</span>
+
+<span class="sd">            must_exist:    If True, and the dataset does not exist, raise</span>
+<span class="sd">                IOError.</span>
+
+<span class="sd">            substitutions:    Any arguments that should be substituted in the</span>
+<span class="sd">                path. Only required if must_exist == True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError:</span>
+<span class="sd">                If the specified key is not in the currently set file structure</span>
+<span class="sd">                or does not identify a dataset.</span>
+
+<span class="sd">            IOError:</span>
+<span class="sd">                If the dataset does not exist but the must_exist argument is</span>
+<span class="sd">                True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dataset_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The key &#39;</span><span class="si">{</span><span class="n">dataset_key</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">&#39; does not exist in the list of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;configured </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_product</span><span class="p">()</span><span class="si">!s}</span><span class="s2"> file entries.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">dataset_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">dataset_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;link&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The key &#39;</span><span class="si">{</span><span class="n">dataset_key</span><span class="si">!s}</span><span class="s2">&#39; does not identify a dataset or &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;link in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!s}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">must_exist</span><span class="p">:</span>
+            <span class="n">dataset_path</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Requried dataset (&#39;</span><span class="si">{</span><span class="n">dataset_key</span><span class="si">}</span><span class="s2">&#39;) &#39;</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">&#39; does &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;not exist in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.get_element_type">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_element_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_element_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">element_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the type of HDF5 entry that corresponds to the given ID.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            element_id:    The identifying string for an element present in the</span>
+<span class="sd">                HDF5 file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            hdf5_type:    The type of HDF5 structure to create for this element.</span>
+<span class="sd">                One of: &#39;group&#39;, &#39;dataset&#39;, &#39;attribute&#39;, &#39;link&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># All implementations of _elemnts are required to make them dict-like.</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="k">for</span> <span class="n">element_type</span><span class="p">,</span> <span class="n">recognized</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">element_id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recognized</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">element_type</span>
+        <span class="c1"># pylint: enable=no-member</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Unrecognized element: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">element_id</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.get_element_path">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_element_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_element_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_id</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the path to the given element (.&lt;attr&gt; for attributes).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            substitutions:    Arguments that should be substituted in the path.</span>
+<span class="sd">                If none are given, the path is returned without substitutions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str:</span>
+<span class="sd">                A string giving the path the element does/will have in the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">element_type</span><span class="p">,</span> <span class="n">recognized</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">element_id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recognized</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">element_type</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span>
+                    <span class="n">attribute_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">element_id</span><span class="p">]</span>
+                    <span class="n">path_template</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">attribute_config</span><span class="o">.</span><span class="n">parent</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">name</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">element_id</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span>
+
+        <span class="k">if</span> <span class="n">substitutions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">path_template</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">return</span> <span class="n">path_template</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.layout_to_xml">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.layout_to_xml">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">layout_to_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an etree.Element decsribing the currently defined layout.&quot;&quot;&quot;</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span>
+            <span class="s2">&quot;group&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_root_tag_name</span><span class="p">(),</span>
+                <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure_version</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">require_parent</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">must_be_group</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return group element at the given path creating groups as needed.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                path ([str]):    The path for the group element required. Each</span>
+<span class="sd">                    entry in the list is the name of a sub-group of the previous</span>
+<span class="sd">                    entry.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                etree.Element:</span>
+<span class="sd">                    The element holding the group at the specified path. If it</span>
+<span class="sd">                    does not exist, it is created along with any parent groups</span>
+<span class="sd">                    required along the way.</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                TypeError:</span>
+<span class="sd">                    If an element anywhere along the given path already exists,</span>
+<span class="sd">                    but is not a group.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">root</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">parent</span>
+            <span class="n">current_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">current_path</span> <span class="o">+=</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">group_name</span>
+                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">iterfind</span><span class="p">(</span><span class="s2">&quot;./*&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">group_name</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;group&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+                            <span class="n">must_be_group</span> <span class="ow">or</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;dataset&quot;</span>
+                        <span class="p">):</span>
+                            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                                <span class="s2">&quot;Element &quot;</span>
+                                <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">current_path</span><span class="p">)</span>
+                                <span class="o">+</span> <span class="s2">&quot; exists, but is of type &quot;</span>
+                                <span class="o">+</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span>
+                                <span class="o">+</span> <span class="s2">&quot;, expected group&quot;</span>
+                                <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">must_be_group</span> <span class="k">else</span> <span class="s2">&quot; or dataset&quot;</span><span class="p">)</span>
+                                <span class="o">+</span> <span class="s2">&quot;!&quot;</span>
+                            <span class="p">)</span>
+                        <span class="n">parent</span> <span class="o">=</span> <span class="n">element</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">group_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">parent</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add the given dataset as a SubElement to the given parent.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                parent (etree.Element):    The group element in the result</span>
+<span class="sd">                    tree to add the dataset under.</span>
+
+<span class="sd">                dataset:    The dataset to add (object with attributes</span>
+<span class="sd">                    specifying how the dataset should be added to the file).</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
+                <span class="n">parent</span><span class="p">,</span>
+                <span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">abspath</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">pipeline_key</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">compression</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">compression_options</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">scaleoffset</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">scaleoffset</span><span class="p">),</span>
+                <span class="n">shuffle</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">),</span>
+                <span class="n">fill</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">),</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">add_attribute</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">attribute</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add the given attribute as a SubElement to the given parent.&quot;&quot;&quot;</span>
+
+            <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
+                <span class="n">parent</span><span class="p">,</span>
+                <span class="s2">&quot;attribute&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">pipeline_key</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">add_link</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Add the given link as a SubElement to the given parent.&quot;&quot;&quot;</span>
+
+            <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
+                <span class="n">parent</span><span class="p">,</span>
+                <span class="s2">&quot;link&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">link</span><span class="o">.</span><span class="n">abspath</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">link</span><span class="o">.</span><span class="n">pipeline_key</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">link</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">link</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">abspath</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">add_dataset</span><span class="p">(</span><span class="n">require_parent</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">dataset</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attribute_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]:</span>
+            <span class="n">attribute</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">attribute</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="n">add_attribute</span><span class="p">(</span><span class="n">require_parent</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="n">attribute</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">link_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;link&quot;</span><span class="p">]:</span>
+            <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">link_key</span><span class="p">]</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">abspath</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">add_link</span><span class="p">(</span><span class="n">require_parent</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">link</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">root</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.get_dtype">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_dtype">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return numpy data type for the element with by the given key.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">element_key</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Used only on input defined by us.</span>
+        <span class="c1"># pylint: disable=eval-used</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="c1"># pylint: enable=eval-used</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="c1"># The path_substitutions arg is used by overloading functions.</span>
+    <span class="c1"># pylint: disable=unused-argument</span>
+    <span class="c1"># The point of this function is to handle many cases</span>
+    <span class="c1"># pylint: disable=too-many-branches</span>
+<div class="viewcode-block" id="HDF5File.get_dataset_creation_args">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_dataset_creation_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_creation_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all arguments to pass to create_dataset() except the content.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to delete.</span>
+
+<span class="sd">            path_substitutions:    In theory the dataset creation arguments can</span>
+<span class="sd">                depend on the full dataset path (c.f. srcextract.sources).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                All arguments to pass to create_dataset() or require_dataset()</span>
+<span class="sd">                except: name, shape and data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">dataset_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;shuffle&quot;</span><span class="p">:</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">shuffle</span><span class="p">}</span>
+
+        <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">compression</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">compression</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">dataset_config</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;gzip&quot;</span>
+                <span class="ow">and</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">compression_options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression_opts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">dataset_config</span><span class="o">.</span><span class="n">compression_options</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">scaleoffset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">scaleoffset</span>
+
+        <span class="k">if</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">replace_nonfinite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;fillvalue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">replace_nonfinite</span>
+
+        <span class="k">if</span> <span class="n">dataset_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;catalogue.columns&quot;</span><span class="p">,</span> <span class="s2">&quot;srcproj.columns&quot;</span><span class="p">]:</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">path_substitutions</span><span class="p">[</span>
+                <span class="n">dataset_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_column_name&quot;</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;hat_id_prefix&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hat_id_field&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hat_id_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;objtype&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;doublestar&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sigRA&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sigDec&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phqual&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;magsrcflag&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;DESIGNATION&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_variable_flag&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;datalink_url&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;epoch_photometry_url&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;libname_gspphot&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pmra&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pmdec&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_bp_mean_mag&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_rp_mean_mag&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_bp_mean_flux&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_rp_mean_flux&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_bp_mean_flux_error&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_rp_mean_flux_error&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phot_bp_rp_excess_factor&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gzip&quot;</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression_opts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;shuffle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="s2">&quot;RA_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec_orig&quot;</span><span class="p">]:</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span>
+            <span class="k">elif</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]:</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="k">elif</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;J&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;K&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;V&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;R&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;I&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;u&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;g&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;i&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;z&quot;</span><span class="p">,</span>
+            <span class="p">]</span> <span class="ow">or</span> <span class="n">column</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;mag&quot;</span><span class="p">):</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">elif</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;dist&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;epochRA&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;epochDec&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sigucacmag&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;errJ&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;errH&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;errK&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">column</span> <span class="ow">in</span> <span class="s2">&quot;source_id&quot;</span> <span class="ow">or</span> <span class="n">column</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_n_obs&quot;</span><span class="p">):</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;uint64&quot;</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="c1"># pylint: enable=unused-argument</span>
+    <span class="c1"># pylint: enable=too-many-branches</span>
+
+<div class="viewcode-block" id="HDF5File.hdf5_class_string">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.hdf5_class_string">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hdf5_class_string</span><span class="p">(</span><span class="n">hdf5_class</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string identifier of the given hdf5 class.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hdf5_class</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;group&quot;</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hdf5_class</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;dataset&quot;</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hdf5_class</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">HardLink</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;hard link&quot;</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hdf5_class</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">SoftLink</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;soft link&quot;</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hdf5_class</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">ExternalLink</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;external link&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Argument to hdf5_class_string does not appear to be a class or&quot;</span>
+            <span class="s2">&quot; a child of a class defined by h5py!&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.add_attribute">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_attribute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_attribute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">attribute_key</span><span class="p">,</span>
+        <span class="n">attribute_value</span><span class="p">,</span>
+        <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a single attribute to a dateset or a group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attribute_key:    The key in _destinations that corresponds to the</span>
+<span class="sd">                attribute to add. If the key is not one of the recognized keys,</span>
+<span class="sd">                h5file is not modified and the function silently exits.</span>
+
+<span class="sd">            attribute_value:    The value to give the attribute.</span>
+
+<span class="sd">            if_exists:    What should be done if the attribute exists? Possible</span>
+<span class="sd">                values are:</span>
+
+<span class="sd">                * ignore:</span>
+<span class="sd">                    do not update but return the attribute&#39;s value.</span>
+
+<span class="sd">                * overwrite:</span>
+<span class="sd">                    Change the value to the specified one.</span>
+
+<span class="sd">                * error:</span>
+<span class="sd">                    raise an exception.</span>
+
+<span class="sd">            substitutions:    variables to substitute in HDF5 paths and names.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            unknown:</span>
+<span class="sd">                The value of the attribute. May differ from attribute_value if</span>
+<span class="sd">                the attribute already exists, if type conversion is performed,</span>
+<span class="sd">                or if the file structure does not specify a location for the</span>
+<span class="sd">                attribute. In the latter case the result is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">attribute_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">assert</span> <span class="n">attribute_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]</span>
+
+        <span class="n">attribute_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+        <span class="n">parent_path</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">parent</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">parent_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">parent_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">parent_path</span><span class="p">]</span>
+
+        <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">name</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">attribute_name</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="c1"># TODO: handle  multi-valued attributes correctly.</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span>
+                <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
+                    <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;Attribute &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">parent_path</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                    <span class="s2">&quot;already exists!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">assert</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;overwrite&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">string_</span><span class="p">)):</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">attribute_name</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="n">attribute_value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="n">attribute_value</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">attribute_name</span><span class="p">,</span>
+                <span class="n">attribute_value</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">attribute_key</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.delete_attribute">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.delete_attribute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the given attribute.&quot;&quot;&quot;</span>
+
+        <span class="n">attribute_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+        <span class="n">parent_path</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">parent</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">parent_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">parent_path</span><span class="p">]</span>
+            <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">name</span> <span class="o">%</span> <span class="n">substitutions</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.add_link">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_link">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link_key</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a soft link to the HDF5 file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            link_key:    The key identifying the link to create.</span>
+
+<span class="sd">            if_exists:    See same name argument to :meth:`add_attribute`.</span>
+
+<span class="sd">            substitutions:    variables to substitute in HDF5 paths and names of</span>
+<span class="sd">                both where the link should be place and where it should point</span>
+<span class="sd">                to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str:</span>
+<span class="sd">                The path the identified link points to. See if_exists argument</span>
+<span class="sd">                for how the value con be determined or None if the link was not</span>
+<span class="sd">                created (not defined in current file structure).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            IOError:    if an object with the same name as the link exists,</span>
+<span class="sd">                but is not a link or is a link, but does not point to the</span>
+<span class="sd">                configured target and if_exists == &#39;error&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">link_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">assert</span> <span class="n">link_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;link&quot;</span><span class="p">]</span>
+
+        <span class="n">link_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">link_key</span><span class="p">]</span>
+
+        <span class="n">link_path</span> <span class="o">=</span> <span class="n">link_config</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="n">target_path</span> <span class="o">=</span> <span class="n">link_config</span><span class="o">.</span><span class="n">target</span> <span class="o">%</span> <span class="n">substitutions</span>
+
+        <span class="k">if</span> <span class="n">link_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">existing_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">link_path</span><span class="p">,</span> <span class="n">getclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getlink</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">existing_class</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">SoftLink</span><span class="p">):</span>
+                <span class="n">existing_target_path</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">link_path</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+                <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span> <span class="ow">or</span> <span class="n">existing_target_path</span> <span class="o">==</span> <span class="n">target_path</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">existing_target_path</span>
+
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unable to create link with key </span><span class="si">{</span><span class="n">link_key</span><span class="si">}</span><span class="s2">: a link at &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">link_path</span><span class="si">}</span><span class="s2">&#39; already exists in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;, and &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;points to &#39;</span><span class="si">{</span><span class="n">existing_target_path</span><span class="si">}</span><span class="s2">&#39; instead of &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">target_path</span><span class="si">}</span><span class="s2">&#39;!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unable to create link with key </span><span class="si">{</span><span class="n">link_key</span><span class="si">}</span><span class="s2">: a &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hdf5_class_string</span><span class="p">(</span><span class="n">existing_class</span><span class="p">)</span><span class="si">}</span><span class="s2"> at &#39;</span><span class="si">{</span><span class="n">link_path</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;already exists in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;!&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">link_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">SoftLink</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target_path</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.delete_link">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.delete_link">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the link corresponding to the given key.&quot;&quot;&quot;</span>
+
+        <span class="n">link_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">link_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">link_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">link_path</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="HDF5File._add_repack_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._add_repack_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_repack_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the given dataset to the list of datasets to repack.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;repack&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">repack_attribute_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="s2">&quot;repack&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">repack_parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Adding </span><span class="si">%s</span><span class="s2"> to repack datasets (dtype: </span><span class="si">%s</span><span class="s2">) of </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">dataset_path</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)),</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="s2">&quot;repack&quot;</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">repack_parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">repack_parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">repack_parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
+                <span class="o">+</span> <span class="n">dataset_path</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repack_parent</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">repack_attribute_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">dataset_path</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.delete_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.delete_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete obsolete HDF5 dataset if it exists and update repacking flag.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to delete.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool:</span>
+<span class="sd">                Was a dataset actually deleted?</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Error.HDF5:</span>
+<span class="sd">                if an entry already exists at the target dataset&#39;s location</span>
+<span class="sd">                but is not a dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dataset_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">dataset_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+
+        <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_repack_dataset</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">dataset_path</span><span class="p">]</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.dump_file_or_text">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.dump_file_or_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dump_file_or_text</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="n">file_contents</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a byte-by-byte dump of a file-like object to self.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to create for the</span>
+<span class="sd">                file contents.</span>
+
+<span class="sd">            file_contents:    See text argument to</span>
+<span class="sd">                :meth:`_write_text_to_dataset`. None is also a valid value, in</span>
+<span class="sd">                which case an empty dataset is created.</span>
+
+<span class="sd">            if_exists:    See same name argument to add_attribute.</span>
+
+<span class="sd">            substitutions:    variables to substitute in the dataset HDF5 path.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (bool):</span>
+<span class="sd">                Was the dataset actually created?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_text_to_dataset</span><span class="p">(</span>
+            <span class="n">dataset_key</span><span class="o">=</span><span class="n">dataset_key</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">file_contents</span>
+                <span class="k">if</span> <span class="n">file_contents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;i1&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">if_exists</span><span class="o">=</span><span class="n">if_exists</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.add_file_dump">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_file_dump">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_file_dump</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset_key</span><span class="p">,</span>
+        <span class="n">fname</span><span class="p">,</span>
+        <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span>
+        <span class="n">delete_original</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a byte by byte dump of a file to self.</span>
+
+<span class="sd">        If the file does not exist an empty dataset is created.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fname:    The name of the file to dump.</span>
+
+<span class="sd">            dataset_key:    Passed directly to dump_file_like.</span>
+
+<span class="sd">            if_exists:    See same name argument to add_attribute.</span>
+
+<span class="sd">            delete_original:    If True, the file being dumped is</span>
+<span class="sd">                deleted (default).</span>
+
+<span class="sd">            substitutions:    variables to substitute in the dataset HDF5 path.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">created_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump_file_or_text</span><span class="p">(</span>
+            <span class="n">dataset_key</span><span class="p">,</span>
+            <span class="c1"># Switching to if would result in unnecessarily complicated code</span>
+            <span class="c1"># pylint: disable=consider-using-with</span>
+            <span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="c1"># pylint: enable=consider-using-with</span>
+            <span class="n">if_exists</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">delete_original</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">created_dataset</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dataset &#39;</span><span class="si">{</span><span class="n">dataset_key</span><span class="si">}</span><span class="s2">&#39; containing a dump of &#39;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;not created in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; but original deletion &quot;</span>
+                    <span class="s2">&quot;was requested!&quot;</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.get_attribute">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_attribute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the attribute identified by the given key.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attribute_key:    The key of the attribute to return. It must be one</span>
+<span class="sd">                of the standard keys.</span>
+
+<span class="sd">            default_value:    If this is not None this values is returned if the</span>
+<span class="sd">                attribute does not exist in the file, if None, not finding the</span>
+<span class="sd">                attribute rasies IOError.</span>
+
+<span class="sd">            substitutions:    Any keys that must be substituted in the path</span>
+<span class="sd">                (i.e. ap_ind, config_id, ...).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            value:    The value of the attribute.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError:</span>
+<span class="sd">                If no attribute with the given key is defined in the current</span>
+<span class="sd">                files structure or if it does not correspond to an attribute.</span>
+
+<span class="sd">            IOError:</span>
+<span class="sd">                If the requested dataset is not found and no default value was</span>
+<span class="sd">                given.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">attribute_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The key &#39;</span><span class="si">{</span><span class="n">attribute_key</span><span class="si">}</span><span class="s2">&#39; does not exist in the list of &quot;</span>
+                <span class="s2">&quot;configured HDF5 file structure.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">attribute_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The key &#39;</span><span class="si">{</span><span class="n">attribute_key</span><span class="si">}</span><span class="s2">&#39; does not correspond to an attribute&quot;</span>
+                <span class="s2">&quot; in the configured HDF5 file structure.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">attribute_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+
+        <span class="n">parent_path</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">parent</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">name</span> <span class="o">%</span> <span class="n">substitutions</span>
+
+        <span class="k">if</span> <span class="n">parent_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default_value</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Requested attribute (</span><span class="si">{</span><span class="n">attribute_key</span><span class="si">}</span><span class="s2">) &#39;</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">&#39; from&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; a non-existent path: &#39;</span><span class="si">{</span><span class="n">parent_path</span><span class="si">}</span><span class="s2">&#39; in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;!&quot;</span>
+            <span class="p">)</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">parent_path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">attribute_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default_value</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The attribute (</span><span class="si">{</span><span class="n">attribute_key</span><span class="si">}</span><span class="s2">) &#39;</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">&#39; is not &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;defined for &#39;</span><span class="si">{</span><span class="n">parent_path</span><span class="si">}</span><span class="s2">&#39; in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;!&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.get_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset_key</span><span class="p">,</span>
+        <span class="n">expected_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a dataset as a numpy float or int array.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key in self._destinations identifying the</span>
+<span class="sd">                dataset to read.</span>
+
+<span class="sd">            expected_shape:    The shape to use for the dataset if an empty</span>
+<span class="sd">                dataset is found. If None, a zero-sized array is returned.</span>
+
+<span class="sd">            default_value:    If the dataset does not exist, this value is</span>
+<span class="sd">                returned.</span>
+
+<span class="sd">            substitutions:    Any arguments that should be substituted in the</span>
+<span class="sd">                path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array:</span>
+<span class="sd">                A numpy int/float array containing the identified dataset from</span>
+<span class="sd">                the HDF5 file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError:</span>
+<span class="sd">                If the specified key is not in the currently set file structure</span>
+<span class="sd">                or does not identify a dataset.</span>
+
+<span class="sd">            IOError:</span>
+<span class="sd">                If the dataset does not exist, and no default_value was</span>
+<span class="sd">                specified</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
+            <span class="n">dataset_key</span><span class="p">,</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+        <span class="p">)</span>
+
+        <span class="n">dataset_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+
+        <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default_value</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">dataset_path</span><span class="p">]</span>
+        <span class="n">variable_length_dtype</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="c1">#        if variable_length_dtype is not None:</span>
+        <span class="c1">#            result_dtype = variable_length_dtype</span>
+
+        <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="o">.</span><span class="n">shape</span> <span class="k">if</span> <span class="n">expected_shape</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">expected_shape</span>
+                <span class="p">),</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">variable_length_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dataset</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">dataset_config</span><span class="o">.</span><span class="n">replace_nonfinite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span>
+        <span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">result</span> <span class="o">==</span> <span class="n">dataset</span><span class="o">.</span><span class="n">fillvalue</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.get_dataset_shape">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_dataset_shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the shape of the given dataset.&quot;&quot;&quot;</span>
+
+        <span class="n">dataset_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+
+        <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">dataset_path</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span></div>
+
+
+<div class="viewcode-block" id="HDF5File._replace_nonfinite">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._replace_nonfinite">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace_nonfinite</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">expected_dtype</span><span class="p">,</span> <span class="n">replace_nonfinite</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return (copy of) data with non-finite values replaced.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span>
+            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">string_</span>
+            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span>
+        <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">expected_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">expected_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span>
+            <span class="p">)</span>
+            <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;None&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="n">replace_nonfinite</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                <span class="n">shape</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">replace_nonfinite</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data</span>
+
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="n">data_copy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data_copy</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">finite</span><span class="p">)]</span> <span class="o">=</span> <span class="n">replace_nonfinite</span>
+        <span class="k">return</span> <span class="n">data_copy</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.add_dataset">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_dataset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset_key</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span>
+        <span class="n">unlimited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a single dataset to self.</span>
+
+<span class="sd">        If the target dataset already exists, it is deleted first and the</span>
+<span class="sd">        name of the dataset is added to the root level Repack attribute.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to add.</span>
+
+<span class="sd">            data:    The values that should be written, a numpy array with</span>
+<span class="sd">                an appropriate data type or None if an empty dataset should be</span>
+<span class="sd">                created.</span>
+
+<span class="sd">            if_exists:    See same name argument to add_attribute.</span>
+
+<span class="sd">            unlimited(bool):    Should the first dimension of the dataset be</span>
+<span class="sd">                unlimited (i.e. data can be added later)?</span>
+
+<span class="sd">            shape(tuple(int,...)):    The shape of the dataset to create if data</span>
+<span class="sd">                is None, otherwise the shape of the data is used. Just like if</span>
+<span class="sd">                data is specified, the first dimension will be ignored if</span>
+<span class="sd">                unlimited is True. It is an error to specify both data and</span>
+<span class="sd">                shape!</span>
+
+<span class="sd">            dtype:    The data type for the new dataset if the data is None. It</span>
+<span class="sd">                is an error to specify both dtype and data!</span>
+
+<span class="sd">            substitututions:    Any arguments that should be substituted in the</span>
+<span class="sd">                dataset path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">dataset_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span>
+        <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">dataset_config</span><span class="o">.</span><span class="n">abspath</span> <span class="o">%</span> <span class="n">substitutions</span>
+
+        <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Dataset </span><span class="si">{</span><span class="n">dataset_path</span><span class="si">!r}</span><span class="s2"> already existis in &quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">if_exists</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">ing!&#39;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dataset (&#39;</span><span class="si">{</span><span class="n">dataset_key</span><span class="si">}</span><span class="s2">&#39;) &#39;</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">&#39; already exists&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; and overwriting is not allowed!&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+
+        <span class="n">creation_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset_creation_args</span><span class="p">(</span>
+            <span class="n">dataset_key</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_copy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace_nonfinite</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">),</span>
+                <span class="n">dataset_config</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">assert</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">data_copy</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="n">unlimited</span><span class="p">:</span>
+            <span class="n">shape_tail</span> <span class="o">=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_chunk_size&quot;</span><span class="p">):</span>
+                <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;chunks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chunk_size</span><span class="p">,)</span> <span class="o">+</span> <span class="n">shape_tail</span>
+                <span class="c1"># pylint: enable=no-member</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;chunks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;maxshape&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">+</span> <span class="n">shape_tail</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">string_</span>
+            <span class="ow">or</span> <span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span>
+        <span class="p">):</span>
+            <span class="k">assert</span> <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span>
+            <span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">special_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="nb">bytes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;scaleoffset&quot;</span> <span class="ow">in</span> <span class="n">creation_args</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data_copy</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+            <span class="n">dataset_path</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data_copy</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="o">**</span><span class="n">creation_args</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataset_path</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layout_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Opens the given HDF5 file in the given mode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fname:    The name of the file to open.</span>
+
+<span class="sd">            mode:    The mode to open the file in (see hdf5.File).</span>
+
+<span class="sd">            layout_version:    If the file does not exist, this is the version</span>
+<span class="sd">                of the layout that will be used for its structure. Leave None</span>
+<span class="sd">                to use the latest defined.</span>
+
+<span class="sd">            kwargs:    Any additional arguments. Passed directly to h5py.File.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+                <span class="s2">&quot;memory_only&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;core&quot;</span><span class="p">,</span> <span class="n">backing_store</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                            <span class="k">raise</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">details</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Problem opening </span><span class="si">{</span><span class="n">fname</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> in mode=</span><span class="si">{</span><span class="n">mode</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">()))</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">details</span>
+
+        <span class="n">layout_version_path</span><span class="p">,</span> <span class="n">layout_version_attr</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layout_version_attribute</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">old_file</span><span class="p">:</span>
+            <span class="n">layout_version</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">layout_version_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span>
+                <span class="n">layout_version_attr</span>
+            <span class="p">]</span>
+
+        <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defined_elements</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure_version</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_file_structure</span><span class="p">(</span><span class="n">layout_version</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">old_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">layout_version_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span>
+                <span class="n">layout_version_attr</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure_version</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.collect_columns">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.collect_columns">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collect_columns</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">name_head</span><span class="p">,</span> <span class="n">name_tail</span><span class="p">,</span> <span class="n">dset_name</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If dataset is 1D and name starts and ends as given, add to destination.</span>
+
+<span class="sd">        This function is intended to be passed to h5py.Group.visititems() after</span>
+<span class="sd">        fixing the first 3 arguments using functools.partial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            destination(pandas.DataFrame):    The DataFrame to add matching</span>
+<span class="sd">                datasets to. Datasets are added with column names given by the</span>
+<span class="sd">                part of the name between `name_head` and `name_tail`.</span>
+
+<span class="sd">            name_head(str):    Only datasets whose names start with this will be</span>
+<span class="sd">                included.</span>
+
+<span class="sd">            name_tail(str):    Only datasets whose names end with this will be</span>
+<span class="sd">                included.</span>
+
+<span class="sd">            dset_name(str):    The name of the dataset.</span>
+
+<span class="sd">            values(array-like):    The values to potentially add as the new</span>
+<span class="sd">                column.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dset_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name_head</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dset_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">name_tail</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">):</span>
+            <span class="n">column_name</span> <span class="o">=</span> <span class="n">dset_name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name_head</span><span class="p">)</span> <span class="p">:]</span>
+            <span class="k">if</span> <span class="n">name_tail</span><span class="p">:</span>
+                <span class="n">column_name</span> <span class="o">=</span> <span class="n">column_name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">name_tail</span><span class="p">)]</span>
+            <span class="n">enum_transform</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">check_enum_dtype</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">enum_transform</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">insert_values</span> <span class="o">=</span> <span class="n">values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">insert_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                    <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;S&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">enum_transform</span><span class="o">.</span><span class="n">keys</span><span class="p">()))),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">new</span><span class="p">,</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">enum_transform</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">insert_values</span><span class="p">[</span><span class="n">values</span><span class="p">[:]</span> <span class="o">==</span> <span class="n">old</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+            <span class="n">destination</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">destination</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">insert_values</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.delete_columns">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.delete_columns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">name_head</span><span class="p">,</span> <span class="n">name_tail</span><span class="p">,</span> <span class="n">dset_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete 1D datasets under parent if name starts and ends as given.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">[</span><span class="n">dset_name</span><span class="p">],</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dset_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name_head</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dset_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">name_tail</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="p">[</span><span class="n">dset_name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">dset_name</span> <span class="ow">in</span> <span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Deleting </span><span class="si">%s</span><span class="s2"> from </span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="nb">repr</span><span class="p">(</span><span class="n">dset_name</span><span class="p">),</span>
+                    <span class="nb">repr</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                    <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_repack_dataset</span><span class="p">(</span><span class="n">parent</span><span class="p">[</span><span class="n">dset_name</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">parent</span><span class="p">[</span><span class="n">dset_name</span><span class="p">]</span></div>
+</div>
+
+
+
+<span class="c1"># pylint: enable=too-many-ancestors</span>
+<span class="c1"># pylint: enable=too-many-public-methods</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

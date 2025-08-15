@@ -1,0 +1,7 @@
+autowisp.image\_calibration.master\_flat\_maker module
+======================================================
+
+.. automodule:: autowisp.image_calibration.master_flat_maker
+   :members:
+   :show-inheritance:
+   :undoc-members:

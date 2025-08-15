@@ -1,0 +1,7 @@
+autowisp.processing\_steps.measure\_aperture\_photometry module
+===============================================================
+
+.. automodule:: autowisp.processing_steps.measure_aperture_photometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

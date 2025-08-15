@@ -1,0 +1,7 @@
+autowisp.fit\_expression.FitTermsParserListener module
+======================================================
+
+.. automodule:: autowisp.fit_expression.FitTermsParserListener
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.tests.test\_fit\_source\_extracted\_psf\_map module
+============================================================
+
+.. automodule:: autowisp.tests.test_fit_source_extracted_psf_map
+   :members:
+   :show-inheritance:
+   :undoc-members:

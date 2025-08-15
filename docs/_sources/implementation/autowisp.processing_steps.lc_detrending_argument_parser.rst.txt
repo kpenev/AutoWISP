@@ -1,0 +1,7 @@
+autowisp.processing\_steps.lc\_detrending\_argument\_parser module
+==================================================================
+
+.. automodule:: autowisp.processing_steps.lc_detrending_argument_parser
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.image\_utilities module
+================================
+
+.. automodule:: autowisp.image_utilities
+   :members:
+   :show-inheritance:
+   :undoc-members:

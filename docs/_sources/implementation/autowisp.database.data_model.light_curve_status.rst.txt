@@ -1,0 +1,7 @@
+autowisp.database.data\_model.light\_curve\_status module
+=========================================================
+
+.. automodule:: autowisp.database.data_model.light_curve_status
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.database.initialize\_database module
+=============================================
+
+.. automodule:: autowisp.database.initialize_database
+   :members:
+   :show-inheritance:
+   :undoc-members:

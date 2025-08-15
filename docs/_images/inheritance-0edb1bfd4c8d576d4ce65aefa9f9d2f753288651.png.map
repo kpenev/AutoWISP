@@ -1,0 +1,5 @@
+<map id="inheritance457570dd78" name="inheritance457570dd78">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="129,5,298,32"/>
+<area shape="rect" id="node3" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="111,80,316,107"/>
+<area shape="rect" id="node2" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="5,155,422,181"/>
+</map>

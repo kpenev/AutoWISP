@@ -1,0 +1,6 @@
+<map id="inheritance2965e86f4c" name="inheritance2965e86f4c">
+<area shape="rect" id="node1" href="#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="5,80,301,107"/>
+<area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="54,5,252,32"/>
+<area shape="rect" id="node3" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="276,5,592,32"/>
+<area shape="rect" id="node4" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="617,5,921,32"/>
+</map>

@@ -1,0 +1,7 @@
+autowisp.database.data\_model.condition\_expression module
+==========================================================
+
+.. automodule:: autowisp.database.data_model.condition_expression
+   :members:
+   :show-inheritance:
+   :undoc-members:

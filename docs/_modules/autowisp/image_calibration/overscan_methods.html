@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_calibration.overscan_methods &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.image_calibration.overscan_methods</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.image_calibration.overscan_methods</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;A collection of overscan correction methods (see Calibrator class docs).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.pipeline_exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvergenceError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Processor</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 4aad389e1ad0897f0fa4ec0744ba76050d01fe00 $&quot;</span>
+
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<span class="c1"># It still makes sense to make a class with two methods (including __call__).</span>
+
+
+<div class="viewcode-block" id="Base">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Base</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Processor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The minimal intefrace that must be provided by overscan methods.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Base.document_in_fits_header">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base.document_in_fits_header">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">document_in_fits_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Document last overscan correction by updating given FITS header.&quot;&quot;&quot;</span></div>
+
+
+    <span class="c1"># Intentional</span>
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="Base.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base.__call__">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">raw_fname</span><span class="p">,</span>
+        <span class="n">raw_hdu</span><span class="p">,</span>
+        <span class="n">overscans</span><span class="p">,</span>
+        <span class="n">image_area</span><span class="p">,</span>
+        <span class="n">gain</span><span class="p">,</span>
+        <span class="n">split_channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the overscan correction and its variance for the given image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            raw_fname:    The raw image(s) for which to find the</span>
+<span class="sd">                overscan correction. Should be dictionary of filenames if</span>
+<span class="sd">                processing multi-channel dataset that is split in different</span>
+<span class="sd">                files.</span>
+
+<span class="sd">            raw_hdu:    The HDU to read from the raw file. Int or dict indexed</span>
+<span class="sd">                by channel name.</span>
+
+<span class="sd">            overscans:    A list of the areas on the image to use when</span>
+<span class="sd">                determining the overscan correction. Each area is specified as</span>
+<span class="sd">                ``dict(xmin = &lt;int&gt;, xmax = &lt;int&gt;, ymin = &lt;int&gt;, ymax = &lt;int&gt;)``</span>
+<span class="sd">                For multi-channel data the coordinates are for the un-split</span>
+<span class="sd">                image.</span>
+
+<span class="sd">            image_area:    The area in raw_image for which to calculate the</span>
+<span class="sd">                overscan correction. The format is the same as a single</span>
+<span class="sd">                overscan area.</span>
+
+<span class="sd">            gain:    The value of the gain to assume for the raw image</span>
+<span class="sd">                (electrons/ADU).</span>
+
+<span class="sd">            split_channels:    See :class:`Calibrator`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary with items:</span>
+
+<span class="sd">                * correction:    A 2-D numpy array with the same resolution</span>
+<span class="sd">                    as the image_area giving the correction to subtract from</span>
+<span class="sd">                    each pixel.</span>
+
+<span class="sd">                * variance:    An estimate of the variance in the</span>
+<span class="sd">                    overscan_correction entries (in ADU).</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+    <span class="c1"># pylint: enable=arguments-differ</span>
+
+
+<div class="viewcode-block" id="Median">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Median</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Correction is median of all overscan pixels with iterative outlier reject.</span>
+
+<span class="sd">    The correction is computed as the median of all overscan pixels. After that,</span>
+<span class="sd">    pixels that are too far from the median are excluded and the process starts</span>
+<span class="sd">    from the beginning until no pixels are rejected or the maximum number of</span>
+<span class="sd">    rejection iterations is reached.</span>
+
+<span class="sd">    Public attributes exactly match the  :meth:`__init__` arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Median.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reject_threshold</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">max_reject_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">min_pixels</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">require_convergence</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a median ovescan correction method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reject_threshold:    Pixels that differ by more than</span>
+<span class="sd">                reject_threshold standard deviations from the median are</span>
+<span class="sd">                rejected at each iteration.</span>
+
+<span class="sd">            max_reject_iterations:    The maximum number of outlier rejection</span>
+<span class="sd">                iterations to perform. If this limit is reached, either the</span>
+<span class="sd">                latest result is accepted, or an exception is raised depending</span>
+<span class="sd">                on **require_convergence**.</span>
+
+<span class="sd">            require_convergence:    If this is False and the maximum number of</span>
+<span class="sd">                rejection iterations is reached, the last median computed is the</span>
+<span class="sd">                accepted result. If this is True, hitting the</span>
+<span class="sd">                max_reject_iterations limit throws an exception.</span>
+
+<span class="sd">            min_pixels:    If iterative rejection drives the number of</span>
+<span class="sd">                acceptable pixels below this value an exception is raised.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            Initializes the following private attributes to None, which indicate</span>
+<span class="sd">            the state of the last overscan correction calculation:</span>
+
+<span class="sd">            **_last_num_reject_iter**:    The number of rejection iterations</span>
+<span class="sd">                used by the last overscan correction calculation.</span>
+
+<span class="sd">            **_last_num_pixels**:    The number of unrejected pixels the last</span>
+<span class="sd">                overscan correction was based on.</span>
+
+<span class="sd">            **_last_converged**:    Did the last overscan calculation converge?</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reject_threshold</span> <span class="o">=</span> <span class="n">reject_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_reject_iterations</span> <span class="o">=</span> <span class="n">max_reject_iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_pixels</span> <span class="o">=</span> <span class="n">min_pixels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">require_convergence</span> <span class="o">=</span> <span class="n">require_convergence</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_pixels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_converged</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="c1"># pylint: disable=anomalous-backslash-in-string</span>
+    <span class="c1"># Triggers on doxygen commands.</span>
+<div class="viewcode-block" id="Median.document_in_fits_header">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median.document_in_fits_header">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">document_in_fits_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Document the last calculated overscan correction to header.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            Adds the following keywords to the header::</span>
+
+<span class="sd">                OVSCNMTD = Iterative rejection median</span>
+<span class="sd">                           / Overscan correction method</span>
+
+<span class="sd">                OVSCREJM = ###</span>
+<span class="sd">                           / Maximum number of allowed overscan rejection</span>
+<span class="sd">                           iterations.</span>
+
+<span class="sd">                OVSCMINP = ###</span>
+<span class="sd">                           / Minimum number of pixels to base correction on</span>
+
+<span class="sd">                OVSCREJI = ###</span>
+<span class="sd">                           / Number of overscan rejection iterations applied</span>
+
+<span class="sd">                OVSCNPIX = ###</span>
+<span class="sd">                           / Actual number of pixels used to calc overscan</span>
+
+<span class="sd">                OVSCCONV = T/F</span>
+<span class="sd">                           / Did the last overscan correction converge</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            header:    The FITS header to add the keywords to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: enable=anomalous-backslash-in-string</span>
+
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OVSCNMTD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Iterative rejection median&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Overscan correction method&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OVSCREJM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_reject_iterations</span><span class="p">,</span>
+            <span class="s2">&quot;Maximum number of allowed overscan rejection iterations.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OVSCMINP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_pixels</span><span class="p">,</span>
+            <span class="s2">&quot;Minimum number of pixels to base correction on&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OVSCREJI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span><span class="p">,</span>
+            <span class="s2">&quot;Number of overscan rejection iterations applied&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OVSCNPIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_pixels</span><span class="p">,</span>
+            <span class="s2">&quot;Actual number of pixels used to calc overscan&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OVSCCONV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_converged</span><span class="p">,</span>
+            <span class="s2">&quot;Did the last overscan correction converge&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Median.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">raw_image</span><span class="p">,</span> <span class="n">overscans</span><span class="p">,</span> <span class="n">image_area</span><span class="p">,</span> <span class="n">gain</span><span class="p">,</span> <span class="n">split_channels</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        See Base.__call__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">split_channels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">split_channels</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_overscan_pixel_values</span><span class="p">():</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return a numpy array of the pixel values to base correctiono on.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                None</span>
+
+<span class="sd">            Retruns:</span>
+<span class="sd">                numpy.array:</span>
+<span class="sd">                    The values of the pixels to use when calculating the</span>
+<span class="sd">                    overscan correction. Even if overscan areasoverlap only a</span>
+<span class="sd">                    single copy of each pixel is included.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">need_area</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;xmin&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                <span class="s2">&quot;ymin&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                <span class="s2">&quot;xmax&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;ymax&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">num_overscan_pixels</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">overscan_area</span> <span class="ow">in</span> <span class="n">overscans</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="s2">&quot;xy&quot;</span><span class="p">:</span>
+                    <span class="n">need_area</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                        <span class="n">need_area</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;min&quot;</span><span class="p">],</span> <span class="n">overscan_area</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;min&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">need_area</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                        <span class="n">need_area</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;max&quot;</span><span class="p">],</span> <span class="n">overscan_area</span><span class="p">[</span><span class="n">coord</span> <span class="o">+</span> <span class="s2">&quot;max&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">num_overscan_pixels</span> <span class="o">+=</span> <span class="p">(</span>
+                        <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span>
+                    <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">])</span>
+
+            <span class="n">not_included</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">raw_image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">overscan_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_overscan_pixels</span><span class="p">)</span>
+            <span class="n">new_value_start</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">overscans</span><span class="p">:</span>
+                <span class="n">overscan_area</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="n">area</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-</span> <span class="n">need_area</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;min&quot;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">area</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">}</span>
+                <span class="n">new_pixels</span> <span class="o">=</span> <span class="n">raw_image</span><span class="p">[</span>
+                    <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
+                    <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">],</span>
+                <span class="p">][</span>
+                    <span class="n">not_included</span><span class="p">[</span>
+                        <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
+                        <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">]</span>
+                <span class="n">overscan_values</span><span class="p">[</span>
+                    <span class="n">new_value_start</span> <span class="p">:</span> <span class="n">new_value_start</span> <span class="o">+</span> <span class="n">new_pixels</span><span class="o">.</span><span class="n">size</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">new_pixels</span>
+
+                <span class="n">new_value_start</span> <span class="o">+=</span> <span class="n">new_pixels</span><span class="o">.</span><span class="n">size</span>
+
+                <span class="n">not_included</span><span class="p">[</span>
+                    <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
+                    <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">overscan_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">],</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">return</span> <span class="n">overscan_values</span>
+
+        <span class="n">overscan_values</span> <span class="o">=</span> <span class="n">get_overscan_pixel_values</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_rejected</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="p">(</span>
+            <span class="n">num_rejected</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_reject_iterations</span>
+            <span class="ow">and</span> <span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_pixels</span>
+        <span class="p">):</span>
+            <span class="n">start_num_values</span> <span class="o">=</span> <span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">correction</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">overscan_values</span><span class="p">)</span>
+            <span class="n">median_deviations</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">overscan_values</span> <span class="o">-</span> <span class="n">correction</span><span class="p">)</span>
+            <span class="n">deviation_scale</span> <span class="o">=</span> <span class="n">median_deviations</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">start_num_values</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">overscan_values</span> <span class="o">=</span> <span class="n">overscan_values</span><span class="p">[</span>
+                <span class="n">median_deviations</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reject_threshold</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">deviation_scale</span>
+            <span class="p">]</span>
+            <span class="n">num_rejected</span> <span class="o">=</span> <span class="n">start_num_values</span> <span class="o">-</span> <span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_pixels</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConvergenceError</span><span class="p">(</span>
+                <span class="s2">&quot;Median overscan: Too few pixels remain &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">) after &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> rejection iterations.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_rejected</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_convergence</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_reject_iter</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_reject_iterations</span>
+            <span class="k">raise</span> <span class="n">ConvergenceError</span><span class="p">(</span>
+                <span class="s2">&quot;Median overscan correction iterative rejection exceeded the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;maximum number (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_reject_iterations</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">) of iteratons &quot;</span>
+                <span class="s2">&quot;allowed&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_num_pixels</span> <span class="o">=</span> <span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_converged</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">image_shape</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">],</span>
+            <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;correction&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">image_shape</span><span class="p">,</span> <span class="n">correction</span><span class="p">),</span>
+            <span class="s2">&quot;variance&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="n">image_shape</span><span class="p">,</span> <span class="n">deviation_scale</span> <span class="o">/</span> <span class="n">overscan_values</span><span class="o">.</span><span class="n">size</span>
+            <span class="p">),</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

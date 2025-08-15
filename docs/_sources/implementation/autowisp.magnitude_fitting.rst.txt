@@ -1,0 +1,28 @@
+autowisp.magnitude\_fitting package
+===================================
+
+.. automodule:: autowisp.magnitude_fitting
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.magnitude_fitting.tests
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.magnitude_fitting.base
+   autowisp.magnitude_fitting.iterative_refit
+   autowisp.magnitude_fitting.linear
+   autowisp.magnitude_fitting.master_photref_collector_grcollect
+   autowisp.magnitude_fitting.master_photref_collector_zarr
+   autowisp.magnitude_fitting.util

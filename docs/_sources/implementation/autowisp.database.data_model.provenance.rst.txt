@@ -1,0 +1,26 @@
+autowisp.database.data\_model.provenance package
+================================================
+
+.. automodule:: autowisp.database.data_model.provenance
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.database.data_model.provenance.camera
+   autowisp.database.data_model.provenance.camera_access
+   autowisp.database.data_model.provenance.camera_channel
+   autowisp.database.data_model.provenance.camera_type
+   autowisp.database.data_model.provenance.mount
+   autowisp.database.data_model.provenance.mount_access
+   autowisp.database.data_model.provenance.mount_type
+   autowisp.database.data_model.provenance.observatory
+   autowisp.database.data_model.provenance.observer
+   autowisp.database.data_model.provenance.telescope
+   autowisp.database.data_model.provenance.telescope_access
+   autowisp.database.data_model.provenance.telescope_type

@@ -1,0 +1,7 @@
+autowisp.tests.test\_measure\_aperture\_photometry module
+=========================================================
+
+.. automodule:: autowisp.tests.test_measure_aperture_photometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

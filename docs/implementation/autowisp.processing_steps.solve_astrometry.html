@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.solve_astrometry module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.processing_steps.stack_to_master module" href="autowisp.processing_steps.stack_to_master.html" />
+    <link rel="prev" title="autowisp.processing_steps.measure_aperture_photometry module" href="autowisp.processing_steps.measure_aperture_photometry.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.processing_steps.html">autowisp.processing_steps package</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.solve_astrometry module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.processing_steps.solve_astrometry.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.processing_steps.solve_astrometry">
+<span id="autowisp-processing-steps-solve-astrometry-module"></span><h1>autowisp.processing_steps.solve_astrometry module<a class="headerlink" href="#module-autowisp.processing_steps.solve_astrometry" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-fe1fb02fc0400cfecb54e4defb8d9a307af78fcb.png" alt="Inheritance diagram of DataReductionFile, Evaluator, ManualStepArgumentParser, Process, Transformation" usemap="#inheritance0c8f953ab2" class="inheritance graphviz" /></div>
+<map id="inheritance0c8f953ab2" name="inheritance0c8f953ab2">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
+<area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="796,5,966,32"/>
+<area shape="rect" id="node8" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1008,80,1197,107"/>
+<area shape="rect" id="node4" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="1212,5,1529,32"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
+<area shape="rect" id="node10" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="673,155,1089,181"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+</map><p>Fit for a transformation between sky and image coordinates.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.add_anet_cmdline_args">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">add_anet_cmdline_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#add_anet_cmdline_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.add_anet_cmdline_args" title="Link to this definition"></a></dt>
+<dd><p>Add to parser all command line arguments needed to run astrometry.net.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.astrometry_process">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">astrometry_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_queue</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">web_lock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#astrometry_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.astrometry_process" title="Link to this definition"></a></dt>
+<dd><p>Run pending astrometry tasks from the queue in process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.cleanup_interrupted">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">cleanup_interrupted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interrupted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#cleanup_interrupted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.cleanup_interrupted" title="Link to this definition"></a></dt>
+<dd><p>Delete any astrometry datasets left over from prior interrupted run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.construct_transformation">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">construct_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformation_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#construct_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.construct_transformation" title="Link to this definition"></a></dt>
+<dd><p>Construct a <cite>Transformation</cite> object from the given information.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.find_final_transformation">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">find_final_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation_estimate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">web_lock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#find_final_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.find_final_transformation" title="Link to this definition"></a></dt>
+<dd><p>Find the final transformation for a given image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.get_xy_extracted">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">get_xy_extracted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srcextract_version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#get_xy_extracted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.get_xy_extracted" title="Link to this definition"></a></dt>
+<dd><p>Return array of extracted source positions.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.main" title="Link to this definition"></a></dt>
+<dd><p>Run the step from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.manage_astrometry">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">manage_astrometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pending</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#manage_astrometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.manage_astrometry" title="Link to this definition"></a></dt>
+<dd><p>Manege solving all frames until they solve or fail hopelessly.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.parse_command_line">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.parse_command_line" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed command line arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.prepare_configuration">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">prepare_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#prepare_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.prepare_configuration" title="Link to this definition"></a></dt>
+<dd><p>Apply fallbacks to the configuration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.print_file_contents">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">print_file_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#print_file_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.print_file_contents" title="Link to this definition"></a></dt>
+<dd><p>Print the entire contenst of the given file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.save_to_dr">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">save_to_dr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_extracted_corr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_rms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#save_to_dr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.save_to_dr" title="Link to this definition"></a></dt>
+<dd><p>Save the solved astrometry to the given DR file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.save_trans_to_dr">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">save_trans_to_dr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_rms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#save_trans_to_dr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.save_trans_to_dr" title="Link to this definition"></a></dt>
+<dd><p>Save the transformation to the DR file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.solve_astrometry">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">solve_astrometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#solve_astrometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.solve_astrometry" title="Link to this definition"></a></dt>
+<dd><p>Find the (RA, Dec) -&gt; (x, y) transformation for the given DR files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.solve_image">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">solve_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">web_lock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#solve_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.solve_image" title="Link to this definition"></a></dt>
+<dd><p>Find the astrometric transformation for a single image and save to DR file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dr_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the data reduction file containing the
+extracted sources from the frame and that will be updated with the
+newly solved astrometry.</p></li>
+<li><p><strong>transformation_estimate</strong> (<em>None</em><em> or </em><em>(</em><em>matrix</em><em>, </em><em>matrix</em><em>)</em>) – Estimate of the
+transformations x(xi, eta) and y(xi, eta) for the raw frame (i.e.
+before channel splitting) that will be refined. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+<code class="docutils literal notranslate"><span class="pre">solve_field</span></code> from astrometry.net is used to find iniitial
+estimates.</p></li>
+<li><p><strong>web_lock</strong> (<a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Lock" title="(in Python v3.13)"><em>multiprocessing.Lock</em></a>) – A lock that is held hile a
+catalog file is checked and/or created.</p></li>
+<li><p><strong>mark_start</strong> (<em>callable</em>) – Called before anything is written to the DR
+file if successful transformation is found.</p></li>
+<li><p><strong>mark_end</strong> (<em>callable</em>) – Called after a successful transformation is fully
+written to the DR file.</p></li>
+<li><p><strong>configuration</strong> – Parameters defining how astrometry is to be fit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>the coefficients of the x(xi, eta) transformation converted to RAW</dt><dd><p>image coordinates (i.e. before channel splitting)</p>
+</dd>
+<dt>trans_y(2D numpy array):</dt><dd><p>the coefficients of the y(xi, eta) transformation converted to RAW
+image coordinates (i.e. before channel splitting)</p>
+</dd>
+<dt>ra_cent(float): the RA center around which the above transformation</dt><dd><p>applies</p>
+</dd>
+<dt>dec_cent(float): the Dec center around which the above transformation</dt><dd><p>applies</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trans_x(2D numpy array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.transformation_from_raw">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">transformation_from_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#transformation_from_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.transformation_from_raw" title="Link to this definition"></a></dt>
+<dd><p>Convert the transformation coefficients to pre-channel split coords.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.solve_astrometry.transformation_to_raw">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.solve_astrometry.</span></span><span class="sig-name descname"><span class="pre">transformation_to_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/solve_astrometry.html#transformation_to_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.solve_astrometry.transformation_to_raw" title="Link to this definition"></a></dt>
+<dd><p>Convert the transformation coefficients to pre-channel split coords.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.processing_steps.measure_aperture_photometry.html" class="btn btn-neutral float-left" title="autowisp.processing_steps.measure_aperture_photometry module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.processing_steps.stack_to_master.html" class="btn btn-neutral float-right" title="autowisp.processing_steps.stack_to_master module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

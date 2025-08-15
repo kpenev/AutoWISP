@@ -1,0 +1,7 @@
+autowisp.light\_curves.tfa\_correction module
+=============================================
+
+.. automodule:: autowisp.light_curves.tfa_correction
+   :members:
+   :show-inheritance:
+   :undoc-members:

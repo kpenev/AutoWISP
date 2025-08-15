@@ -1,0 +1,7 @@
+autowisp.tests.test\_find\_stars module
+=======================================
+
+.. automodule:: autowisp.tests.test_find_stars
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+<map id="inheritance9a1bb6beb6" name="inheritance9a1bb6beb6">
+<area shape="rect" id="node1" title="represents an event target, that is, something we can listen on" alt="" coords="5,5,248,32"/>
+<area shape="rect" id="node5" title="Abstract base class for connection pools." alt="" coords="133,80,309,107"/>
+<area shape="rect" id="node3" title="A configurable :class:`.Session` factory." alt="" coords="429,80,675,107"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="499,5,604,32"/>
+<area shape="rect" id="node6" title="A Pool which does not pool connections." alt="" coords="124,155,319,181"/>
+</map>

@@ -1,133 +1,314 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>superphot_pipeline &#8212; SuperPhotPipeline  documentation</title>
-    
-    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="superphot_pipeline package" href="superphot_pipeline.html" />
-    <link rel="prev" title="Low Level Master Stack Interface" href="../PythonModules/low_level_master_stack.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="superphot_pipeline.html" title="superphot_pipeline package"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../PythonModules/low_level_master_stack.html" title="Low Level Master Stack Interface"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../PythonModules/low_level_master_stack.html"
-                        title="previous chapter">Low Level Master Stack Interface</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="superphot_pipeline.html"
-                        title="next chapter">superphot_pipeline package</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/implementation/modules.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="superphot-pipeline">
-<h1>superphot_pipeline<a class="headerlink" href="#superphot-pipeline" title="Permalink to this headline">¶</a></h1>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">autowisp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="autowisp">
+<h1>autowisp<a class="headerlink" href="#autowisp" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="superphot_pipeline.html">superphot_pipeline package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="superphot_pipeline.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
-<li class="toctree-l2"><a class="reference internal" href="superphot_pipeline.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.astrometry.html">superphot_pipeline.astrometry package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.astrometry.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.astrometry.html#submodules">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.astrometry.html">autowisp.astrometry package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.astrometry.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.astrometry.html#autowisp.astrometry.AnmatchTransformation"><code class="docutils literal notranslate"><span class="pre">AnmatchTransformation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.astrometry.html#autowisp.astrometry.Transformation"><code class="docutils literal notranslate"><span class="pre">Transformation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.astrometry.html#submodules">Submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.fake_image.html">superphot_pipeline.fake_image package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.fake_image.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.fake_image.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.html">autowisp.data_reduction package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.data_reduction.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.data_reduction.html#submodules">Submodules</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.image_calibration.html">superphot_pipeline.image_calibration package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.image_calibration.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.html">autowisp.database package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fake_image.html">autowisp.fake_image package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fake_image.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.html">autowisp.fit_expression package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.html">autowisp.image_calibration package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_calibration.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_calibration.html#autowisp.image_calibration.Calibrator"><code class="docutils literal notranslate"><span class="pre">Calibrator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_calibration.html#autowisp.image_calibration.MasterFlatMaker"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_calibration.html#autowisp.image_calibration.MasterMaker"><code class="docutils literal notranslate"><span class="pre">MasterMaker</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_calibration.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.light_curves.html">autowisp.light_curves package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.light_curves.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.html">autowisp.magnitude_fitting package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.magnitude_fitting.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.magnitude_fitting.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.magnitude_fitting.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.processing_steps.html">autowisp.processing_steps package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.processing_steps.html#autowisp.processing_steps.import_steps"><code class="docutils literal notranslate"><span class="pre">import_steps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.processing_steps.html#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.html">autowisp.tests package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.tests.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase"><code class="docutils literal notranslate"><span class="pre">AutoWISPTestCase</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.tests.html#submodules">Submodules</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="superphot_pipeline.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.hdf5_file.html">superphot_pipeline.hdf5_file module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.hdf5_file.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.Dump2hdf5.html">autowisp.Dump2hdf5 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.bui_util.html">autowisp.bui_util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.catalog.html">autowisp.catalog module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.WISPGaia"><code class="docutils literal notranslate"><span class="pre">WISPGaia</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog._find_best_fov"><code class="docutils literal notranslate"><span class="pre">_find_best_fov()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.check_catalog_coverage"><code class="docutils literal notranslate"><span class="pre">check_catalog_coverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.create_catalog_file"><code class="docutils literal notranslate"><span class="pre">create_catalog_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.ensure_catalog"><code class="docutils literal notranslate"><span class="pre">ensure_catalog()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.find_outliers"><code class="docutils literal notranslate"><span class="pre">find_outliers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.get_catalog_info"><code class="docutils literal notranslate"><span class="pre">get_catalog_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.get_max_abs_corner_xi_eta"><code class="docutils literal notranslate"><span class="pre">get_max_abs_corner_xi_eta()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.read_catalog_file"><code class="docutils literal notranslate"><span class="pre">read_catalog_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.catalog.html#autowisp.catalog.show_stars"><code class="docutils literal notranslate"><span class="pre">show_stars()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.image_smoothing.html">superphot_pipeline.image_smoothing module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.image_smoothing.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.evaluator.html">autowisp.evaluator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator"><code class="docutils literal notranslate"><span class="pre">Evaluator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator"><code class="docutils literal notranslate"><span class="pre">LightCurveEvaluator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp"><code class="docutils literal notranslate"><span class="pre">LightCurveLookUp</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.image_utilities.html">superphot_pipeline.image_utilities module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.image_utilities.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.file_utilities.html">autowisp.file_utilities module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#autowisp.file_utilities.find_data_fnames"><code class="docutils literal notranslate"><span class="pre">find_data_fnames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#autowisp.file_utilities.find_dr_fnames"><code class="docutils literal notranslate"><span class="pre">find_dr_fnames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#autowisp.file_utilities.find_fits_fnames"><code class="docutils literal notranslate"><span class="pre">find_fits_fnames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#autowisp.file_utilities.find_fits_with_dr_fnames"><code class="docutils literal notranslate"><span class="pre">find_fits_with_dr_fnames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#autowisp.file_utilities.find_lc_fnames"><code class="docutils literal notranslate"><span class="pre">find_lc_fnames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.file_utilities.html#autowisp.file_utilities.get_data_filenames"><code class="docutils literal notranslate"><span class="pre">get_data_filenames()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.iterative_rejection_util.html">superphot_pipeline.iterative_rejection_util module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.iterative_rejection_util.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fits_utilities.html">autowisp.fits_utilities module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fits_utilities.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fits_utilities.html#autowisp.fits_utilities.get_primary_header"><code class="docutils literal notranslate"><span class="pre">get_primary_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fits_utilities.html#autowisp.fits_utilities.read_image_components"><code class="docutils literal notranslate"><span class="pre">read_image_components()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fits_utilities.html#autowisp.fits_utilities.update_stack_header"><code class="docutils literal notranslate"><span class="pre">update_stack_header()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.pipeline_exceptions.html">superphot_pipeline.pipeline_exceptions module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.pipeline_exceptions.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.hdf5_file.html">autowisp.hdf5_file module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.hdf5_file.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File"><code class="docutils literal notranslate"><span class="pre">HDF5File</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="superphot_pipeline.processor.html">superphot_pipeline.processor module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="superphot_pipeline.processor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_smoothing.html">autowisp.image_smoothing module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother"><code class="docutils literal notranslate"><span class="pre">ChainSmoother</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother"><code class="docutils literal notranslate"><span class="pre">ImageSmoother</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother"><code class="docutils literal notranslate"><span class="pre">PolynomialImageSmoother</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.SeparableLinearImageSmoother"><code class="docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother"><code class="docutils literal notranslate"><span class="pre">SplineImageSmoother</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother"><code class="docutils literal notranslate"><span class="pre">WrapFilterAsSmoother</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_utilities.html">autowisp.image_utilities module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_utilities.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_utilities.html#autowisp.image_utilities.bin_image"><code class="docutils literal notranslate"><span class="pre">bin_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_utilities.html#autowisp.image_utilities.create_snapshot"><code class="docutils literal notranslate"><span class="pre">create_snapshot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_utilities.html#autowisp.image_utilities.get_pointing_from_header"><code class="docutils literal notranslate"><span class="pre">get_pointing_from_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_utilities.html#autowisp.image_utilities.zoom_image"><code class="docutils literal notranslate"><span class="pre">zoom_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.image_utilities.html#autowisp.image_utilities.zscale_image"><code class="docutils literal notranslate"><span class="pre">zscale_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.iterative_rejection_util.html">autowisp.iterative_rejection_util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.iterative_rejection_util.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.flag_outliers"><code class="docutils literal notranslate"><span class="pre">flag_outliers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rej_polynomial_fit"><code class="docutils literal notranslate"><span class="pre">iterative_rej_polynomial_fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rej_smoothing_spline"><code class="docutils literal notranslate"><span class="pre">iterative_rej_smoothing_spline()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rejection_average"><code class="docutils literal notranslate"><span class="pre">iterative_rejection_average()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.miscellaneous.html">autowisp.miscellaneous module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.miscellaneous.html#autowisp.miscellaneous.get_hat_source_id_str"><code class="docutils literal notranslate"><span class="pre">get_hat_source_id_str()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.multiprocessing_util.html">autowisp.multiprocessing_util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.multiprocessing_util.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.get_code_version_str"><code class="docutils literal notranslate"><span class="pre">get_code_version_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.get_log_outerr_filenames"><code class="docutils literal notranslate"><span class="pre">get_log_outerr_filenames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.setup_process"><code class="docutils literal notranslate"><span class="pre">setup_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.setup_process_map"><code class="docutils literal notranslate"><span class="pre">setup_process_map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.piecewise_bicubic_psf_map.html">autowisp.piecewise_bicubic_psf_map module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.piecewise_bicubic_psf_map.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap"><code class="docutils literal notranslate"><span class="pre">PiecewiseBicubicPSFMap</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.pipeline_exceptions.html">autowisp.pipeline_exceptions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.pipeline_exceptions.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.BadImageError"><code class="docutils literal notranslate"><span class="pre">BadImageError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ConvergenceError"><code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.HDF5LayoutError"><code class="docutils literal notranslate"><span class="pre">HDF5LayoutError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ImageMismatchError"><code class="docutils literal notranslate"><span class="pre">ImageMismatchError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.OutsideImageError"><code class="docutils literal notranslate"><span class="pre">OutsideImageError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.processor.html">autowisp.processor module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.processor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor"><code class="docutils literal notranslate"><span class="pre">Processor</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.source_finder.html">autowisp.source_finder module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.source_finder.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.source_finder.html#autowisp.source_finder.SourceFinder"><code class="docutils literal notranslate"><span class="pre">SourceFinder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.source_finder_util.html">autowisp.source_finder_util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.source_finder_util.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.source_finder_util.html#autowisp.source_finder_util.get_srcextract_columns"><code class="docutils literal notranslate"><span class="pre">get_srcextract_columns()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.source_finder_util.html#autowisp.source_finder_util.start_fistar"><code class="docutils literal notranslate"><span class="pre">start_fistar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.source_finder_util.html#autowisp.source_finder_util.start_hatphot"><code class="docutils literal notranslate"><span class="pre">start_hatphot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.split_sources.html">autowisp.split_sources module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.split_sources.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.split_sources.html#autowisp.split_sources.SplitSources"><code class="docutils literal notranslate"><span class="pre">SplitSources</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tess_interface.html">autowisp.tess_interface module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.tess_interface.html#autowisp.tess_interface.get_tess_lightcurve"><code class="docutils literal notranslate"><span class="pre">get_tess_lightcurve()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -136,35 +317,34 @@
 </li>
 </ul>
 </div>
-</div>
+</section>
 
 
+           </div>
           </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="superphot_pipeline.html" title="superphot_pipeline package"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../PythonModules/low_level_master_stack.html" title="Low Level Master Stack Interface"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Kaloyan Penev.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
-    </div>
-  </body>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

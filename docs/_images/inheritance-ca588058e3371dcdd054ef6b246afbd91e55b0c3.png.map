@@ -1,0 +1,10 @@
+<map id="inheritance467b24042d" name="inheritance467b24042d">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.Action" target="_top" title="Information about how to convert command line strings to Python objects." alt="" coords="130,5,243,32"/>
+<area shape="rect" id="node6" href="#autowisp.processing_steps.calibrate.ParseChannelsAction" target="_top" title="Parse chanel command line arguments as described in the help." alt="" coords="5,80,368,107"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="410,5,579,32"/>
+<area shape="rect" id="node8" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="392,80,597,107"/>
+<area shape="rect" id="node3" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="620,80,916,107"/>
+<area shape="rect" id="node4" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="669,5,866,32"/>
+<area shape="rect" id="node5" href="#autowisp.processing_steps.calibrate.ParseChannelDependentAction" target="_top" title="Parse command line arguments with channel dependent values." alt="" coords="891,5,1309,32"/>
+<area shape="rect" id="node7" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="286,155,703,181"/>
+</map>

@@ -1,0 +1,7 @@
+autowisp.processing\_steps.solve\_astrometry module
+===================================================
+
+.. automodule:: autowisp.processing_steps.solve_astrometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

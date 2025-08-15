@@ -1,0 +1,7 @@
+autowisp.astrometry.astrometry\_max\_mag\_estimate module
+=========================================================
+
+.. automodule:: autowisp.astrometry.astrometry_max_mag_estimate
+   :members:
+   :show-inheritance:
+   :undoc-members:

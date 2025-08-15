@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.source_finder &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.source_finder</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.source_finder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Uniform interface for source extractoin using several methods.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">recfunctions</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrowisp.utils.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">prepare_file_output</span><span class="p">,</span>
+    <span class="n">get_unpacked_fits</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">source_finder_util</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+
+
+<span class="c1"># This still makes sense as a class</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="SourceFinder">
+<a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SourceFinder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find sources in an image of the night sky and repor properties.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SourceFinder._create_mock_source_list">
+<a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder._create_mock_source_list">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mock_source_list</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a source list with randomly generated properties.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">fits_file</span><span class="p">:</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">hdu_index</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">fits_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="mi">1</span>
+            <span class="n">xresolution</span> <span class="o">=</span> <span class="n">fits_file</span><span class="p">[</span><span class="n">hdu_index</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]</span>
+            <span class="n">yresolution</span> <span class="o">=</span> <span class="n">fits_file</span><span class="p">[</span><span class="n">hdu_index</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]</span>
+            <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">med_pixel</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">fits_file</span><span class="p">[</span><span class="n">hdu_index</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">nsources</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="n">nsources</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;npix&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">source_finder_util</span><span class="o">.</span><span class="n">get_srcextract_columns</span><span class="p">(</span><span class="s2">&quot;fistar&quot;</span><span class="p">)</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span>
+        <span class="c1"># False positive</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span> <span class="o">*</span> <span class="n">xresolution</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span> <span class="o">*</span> <span class="n">yresolution</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;bg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">))</span> <span class="o">*</span> <span class="n">med_pixel</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;amp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;s/n&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;bg&quot;</span><span class="p">]</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.3</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">)</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;npix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">+</span> <span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">nsources</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="SourceFinder._add_saturation_flags">
+<a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder._add_saturation_flags">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_saturation_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fits_fname</span><span class="p">,</span> <span class="n">source_list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add array of how many pixels near source are saturated.&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fits_file</span><span class="p">:</span>
+            <span class="n">saturated_kdtree</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">KDTree</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">fits_file</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.5</span>
+            <span class="p">)</span>
+
+        <span class="n">source_coords</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">source_list</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">source_list</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Match radii: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">source_list</span><span class="p">[</span><span class="s2">&quot;npix&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">saturated_in_range</span> <span class="o">=</span> <span class="n">saturated_kdtree</span><span class="o">.</span><span class="n">query_ball_point</span><span class="p">(</span>
+            <span class="n">source_coords</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">source_list</span><span class="p">[</span><span class="s2">&quot;npix&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saturated in range shape: </span><span class="si">{</span><span class="n">saturated_in_range</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saturated in range: </span><span class="si">{</span><span class="n">saturated_in_range</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">recfunctions</span><span class="o">.</span><span class="n">append_fields</span><span class="p">(</span>
+            <span class="n">source_list</span><span class="p">,</span>
+            <span class="s2">&quot;nsatpix&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">saturated</span><span class="p">)</span> <span class="k">for</span> <span class="n">saturated</span> <span class="ow">in</span> <span class="n">saturated_in_range</span><span class="p">],</span>
+            <span class="n">usemask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SourceFinder.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;hatphot&quot;</span><span class="p">,</span>
+        <span class="n">brightness_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">filter_sources</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
+        <span class="n">max_sources</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_dir_creation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">always_return_sources</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare to use the specified tool and define faint limit.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="n">tool</span><span class="p">,</span>
+            <span class="s2">&quot;brightness_threshold&quot;</span><span class="p">:</span> <span class="n">brightness_threshold</span><span class="p">,</span>
+            <span class="s2">&quot;allow_overwrite&quot;</span><span class="p">:</span> <span class="n">allow_overwrite</span><span class="p">,</span>
+            <span class="s2">&quot;allow_dir_creation&quot;</span><span class="p">:</span> <span class="n">allow_dir_creation</span><span class="p">,</span>
+            <span class="s2">&quot;always_return_sources&quot;</span><span class="p">:</span> <span class="n">always_return_sources</span><span class="p">,</span>
+            <span class="s2">&quot;filter_sources&quot;</span><span class="p">:</span> <span class="n">filter_sources</span><span class="p">,</span>
+            <span class="s2">&quot;max_sources&quot;</span><span class="p">:</span> <span class="n">max_sources</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SourceFinder.__call__">
+<a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fits_fname</span><span class="p">,</span> <span class="n">source_fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract the sources from the given frame and save or return them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fits_fname(str):    The filename of the fits file to extract</span>
+<span class="sd">                sources from. Can be packed or unpacked.</span>
+
+<span class="sd">            source_fname(str or None):    If None, the extract sources are</span>
+<span class="sd">                returned as numpy. field array. Otherwise, this specifies a file</span>
+<span class="sd">                to save the source extractor output.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            field array or None:</span>
+<span class="sd">                The extracted source from the image, if source_fname was None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">configuration</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mock&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_mock_source_list</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+
+        <span class="n">start_extraction</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">source_finder_util</span><span class="p">,</span> <span class="s2">&quot;start_&quot;</span> <span class="o">+</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">get_unpacked_fits</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">unpacked_fname</span><span class="p">:</span>
+            <span class="n">extraction_args</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">unpacked_fname</span><span class="p">,</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">source_fname</span><span class="p">:</span>
+                <span class="n">prepare_file_output</span><span class="p">(</span>
+                    <span class="n">source_fname</span><span class="p">,</span>
+                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;allow_overwrite&quot;</span><span class="p">],</span>
+                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;allow_dir_creation&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">source_fname</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">destination</span><span class="p">:</span>
+                    <span class="n">start_extraction</span><span class="p">(</span><span class="o">*</span><span class="n">extraction_args</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;always_return_sources&quot;</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="n">sources_file</span> <span class="o">=</span> <span class="n">source_fname</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">extraction_process</span> <span class="o">=</span> <span class="n">start_extraction</span><span class="p">(</span><span class="o">*</span><span class="n">extraction_args</span><span class="p">)</span>
+                <span class="n">sources_file</span> <span class="o">=</span> <span class="n">extraction_process</span><span class="o">.</span><span class="n">stdout</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span>
+                <span class="n">sources_file</span><span class="p">,</span>
+                <span class="n">names</span><span class="o">=</span><span class="n">source_finder_util</span><span class="o">.</span><span class="n">get_srcextract_columns</span><span class="p">(</span>
+                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">deletechars</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hatphot&quot;</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">0.5</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">0.5</span>
+            <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter_sources&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span>
+                    <span class="n">Evaluator</span><span class="p">(</span><span class="n">result</span><span class="p">)(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter_sources&quot;</span><span class="p">])</span>
+                <span class="p">]</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_sources&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_sources&quot;</span><span class="p">]]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">source_fname</span><span class="p">:</span>
+                <span class="n">extraction_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_saturation_flags</span><span class="p">(</span><span class="n">unpacked_fname</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

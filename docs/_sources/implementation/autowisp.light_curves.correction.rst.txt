@@ -1,0 +1,7 @@
+autowisp.light\_curves.correction module
+========================================
+
+.. automodule:: autowisp.light_curves.correction
+   :members:
+   :show-inheritance:
+   :undoc-members:

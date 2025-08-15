@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.iterative_rejection_util module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.miscellaneous module" href="autowisp.miscellaneous.html" />
+    <link rel="prev" title="autowisp.image_utilities module" href="autowisp.image_utilities.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.iterative_rejection_util module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.iterative_rejection_util.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.iterative_rejection_util">
+<span id="autowisp-iterative-rejection-util-module"></span><h1>autowisp.iterative_rejection_util module<a class="headerlink" href="#module-autowisp.iterative_rejection_util" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-d0b30509750e730d06dc4d9ffc76642ab81bc4ec.png" alt="Inheritance diagram of BSpline, ConvergenceError" usemap="#inheritance19bc1a258a" class="inheritance graphviz" /></div>
+<map id="inheritance19bc1a258a" name="inheritance19bc1a258a">
+<area shape="rect" id="node1" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="5,5,306,32"/>
+</map><p>A collection of general purpose statistical manipulations of scipy arrays.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util.flag_outliers">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">flag_outliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">residuals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#flag_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.flag_outliers" title="Link to this definition"></a></dt>
+<dd><p>Flag outlier residuals (see <a href="#id1"><span class="problematic" id="id2">`iterative_rej_linear_leastsq`_</span></a>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">iterative_rej_linear_leastsq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_predicted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#iterative_rej_linear_leastsq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="Link to this definition"></a></dt>
+<dd><p>Perform linear leasts squares fit iteratively rejecting outliers.</p>
+<p>The returned function finds vector x that minimizes the square difference
+between matrix.dot(x) and rhs, iterating between fitting and  rejecting RHS
+entries which are too far from the fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> – The matrix defining the linear least squares problem.</p></li>
+<li><p><strong>rhs</strong> – The RHS of the least squares problem.</p></li>
+<li><p><strong>outlier_threshold</strong> – The RHS entries are considered outliers if they
+devite from the fit by more than this values times the root mean
+square of the fit residuals.</p></li>
+<li><p><strong>max_iterations</strong> – The maximum number of rejection/re-fitting iterations
+allowed. Zero for simple fit with no rejections.</p></li>
+<li><p><strong>return_predicted</strong> – Should the best-fit values for the RHS be returned?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>array:</dt><dd><p>The best fit coefficients.</p>
+</dd>
+<dt>float:</dt><dd><p>The root mean square residual of the latest fit iteration.</p>
+</dd>
+<dt>array:</dt><dd><p>The predicted values for the RHS. Only available if
+<strong>return_predicted</strong> == <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util.iterative_rej_polynomial_fit">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">iterative_rej_polynomial_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">leastsq_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">leastsq_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#iterative_rej_polynomial_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.iterative_rej_polynomial_fit" title="Link to this definition"></a></dt>
+<dd><p>Fit for c_i in y = sum(c_i * x^i), iteratively rejecting outliers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – The x (independent variable) in the polynomial.</p></li>
+<li><p><strong>y</strong> – The value predicted by the polynomial (y).</p></li>
+<li><p><strong>order</strong> – The maximum power of x term to include in the
+polynomial expansion.</p></li>
+<li><p><strong>leastsq_args</strong> – Passed directly to
+<a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>.</p></li>
+<li><p><strong>leastsq_kwargs</strong> – Passed directly to
+<a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>See <a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util.iterative_rej_smoothing_spline">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">iterative_rej_smoothing_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">spline_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#iterative_rej_smoothing_spline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.iterative_rej_smoothing_spline" title="Link to this definition"></a></dt>
+<dd><p>Use scipy’s UnivariateSpline for iterative rejection smoothing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – The x (independent variable) in the dependence.</p></li>
+<li><p><strong>y</strong> – The y (dependenc variable) in the dependence.</p></li>
+<li><p><strong>outlier_threshold</strong> – See same name argument of
+<a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>. If two values are given, the
+first indicates positive (i.e. rhs &gt; matrix * coefficients) and the
+second negative (rhs &lt; matrix * coefficients) deviations.</p></li>
+<li><p><strong>max_iterations</strong> – See same name argument of
+<a class="reference internal" href="#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterative_rej_linear_leastsq()</span></code></a>.</p></li>
+<li><p><strong>spline_args</strong> – Keyword arguments passed directly to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.interpolate.splrep()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The latest iteration of the smoothing spline fit, after either the
+outlier rejection/refitting iterations have converged or
+max_iterations was reached.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>scipy.interpolate.UnivariateSpline</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.iterative_rejection_util.iterative_rejection_average">
+<span class="sig-prename descclassname"><span class="pre">autowisp.iterative_rejection_util.</span></span><span class="sig-name descname"><span class="pre">iterative_rejection_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deviation_average=&lt;function</span> <span class="pre">nanmean&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_convergence=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mangle_input=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keepdims=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/iterative_rejection_util.html#iterative_rejection_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.iterative_rejection_util.iterative_rejection_average" title="Link to this definition"></a></dt>
+<dd><p>Avarage with iterative rejection of outliers along an axis.</p>
+<p class="rubric">Notes</p>
+<p>A more efficient implementation is possible for median.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> – The array to compute the average of.</p></li>
+<li><p><strong>outlier_threshold</strong> – Outliers are defined as outlier_threshold * (root
+maen square deviation around the average). Non-finite values are
+always outliers. This value could also be a 2-tuple with one
+positive and one negative entry, specifying the thresholds in the
+positive and negative directions separately.</p></li>
+<li><p><strong>average_func</strong> – A function which returns the average to compute (e.g.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.nanmean()</span></code> or <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.nanmedian()</span></code>), must ignore nan
+values.</p></li>
+<li><p><strong>deviation_average</strong> – A function or iterable of functions to use for
+computing the average deviation. If multiple, the first is used for
+outlier rejection.</p></li>
+<li><p><strong>max_iter</strong> – The maximum number of rejection - re-fitting iterations
+to perform.</p></li>
+<li><p><strong>axis</strong> – The axis along which to compute the average.</p></li>
+<li><p><strong>require_convergence</strong> – If the maximum number of iterations is reached
+and still there are entries that should be rejected this argument
+determines what happens. If True, an exception is raised, if False,
+the last result is returned as final.</p></li>
+<li><p><strong>mangle_input</strong> – Is this function allowed to mangle the input array.</p></li>
+<li><p><strong>keepdims</strong> – See the keepdims argument of <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.mean()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>array(float):</dt><dd><p>An array with all axes of a other than axis being the same and
+the dimension along the axis-th axis being 1. Each entry if of
+average is independently computed from all other entries.</p>
+</dd>
+<dt>array(float):</dt><dd><p>An empirical estimate of the standard deviation around the
+returned <cite>average</cite> for each pixel. Calculated as RMS of the
+difference between individual values and the average divided by
+one less than the number of pixels contributing to that
+particular pixel’s average. Has the same shape as above.</p>
+</dd>
+<dt>array(int):</dt><dd><p>The number of non-rejected non-NaN values included in the
+average of each pixel. Same shape as above.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.image_utilities.html" class="btn btn-neutral float-left" title="autowisp.image_utilities module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.miscellaneous.html" class="btn btn-neutral float-right" title="autowisp.miscellaneous module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

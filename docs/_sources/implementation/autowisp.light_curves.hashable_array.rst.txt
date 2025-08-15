@@ -1,0 +1,7 @@
+autowisp.light\_curves.hashable\_array module
+=============================================
+
+.. automodule:: autowisp.light_curves.hashable_array
+   :members:
+   :show-inheritance:
+   :undoc-members:

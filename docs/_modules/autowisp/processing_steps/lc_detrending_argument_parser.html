@@ -1,0 +1,778 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.lc_detrending_argument_parser &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.lc_detrending_argument_parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.lc_detrending_argument_parser</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implement shared argument parsing for LC detrending processing steps.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">asteval</span><span class="w"> </span><span class="kn">import</span> <span class="n">Interpreter</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManualStepArgumentParser</span>
+
+
+<div class="viewcode-block" id="DetrendDatasetIter">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DetrendDatasetIter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterate over the detrending datasets specified in a cmdline argument.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DetrendDatasetIter.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up the iterator for the given argument.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="DetrendDatasetIter.__next__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter.__next__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the next dataset specification.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;;&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splits</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_split_delimited_string">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._split_delimited_string">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_delimited_string</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">separator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the detrending dataset argument at `;`, handling `;;`.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">argument</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">splits</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">splits</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">splits</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">splits</span> <span class="ow">and</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">splits</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">separator</span>
+                <span class="k">if</span> <span class="n">splits</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">+=</span> <span class="n">splits</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_parse_substitutions">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._parse_substitutions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_substitutions</span><span class="p">(</span><span class="n">substitutions_str_iter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generator of all possible combination of substitutions.&quot;&quot;&quot;</span>
+
+    <span class="n">substitution_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;^(?P&lt;key&gt;\w+)\s*(?P&lt;type&gt;(=|in))\s*(?P&lt;value&gt;\S.*)$&quot;</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parsed_substitution</span> <span class="o">=</span> <span class="n">substitution_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">substitutions_str_iter</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="p">{}</span>
+        <span class="k">return</span>
+    <span class="k">assert</span> <span class="n">parsed_substitution</span>
+    <span class="k">if</span> <span class="n">parsed_substitution</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;in&quot;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">Interpreter</span><span class="p">()(</span><span class="n">parsed_substitution</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">Interpreter</span><span class="p">()(</span><span class="n">parsed_substitution</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])]</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">_parse_substitutions</span><span class="p">(</span><span class="n">substitutions_str_iter</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">parsed_substitution</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_parse_fit_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._parse_fit_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_fit_datasets</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the fit datasets argument (see help for details).&quot;&quot;&quot;</span>
+
+    <span class="n">dset_specfication_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;^(?P&lt;from&gt;[\w.]+)&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\s*-&gt;\s*&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(?P&lt;to&gt;[\w.]+)&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\s*&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(:\s*(?P&lt;substitutions&gt;.*))?&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;$&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">specification</span> <span class="ow">in</span> <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">):</span>
+        <span class="n">parsed_dset</span> <span class="o">=</span> <span class="n">dset_specfication_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed_dset</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="n">parsed_dset</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span>
+                    <span class="n">substitution</span><span class="p">,</span>
+                    <span class="n">parsed_dset</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">substitution</span> <span class="ow">in</span> <span class="n">_parse_substitutions</span><span class="p">(</span>
+                    <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">parsed_dset</span><span class="p">[</span><span class="s2">&quot;substitutions&quot;</span><span class="p">],</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_parse_lc_variables">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._parse_lc_variables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_lc_variables</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the EPD variables command line argument (see help for details).&quot;&quot;&quot;</span>
+
+    <span class="n">var_specfication_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;^(?P&lt;varname&gt;\w+)&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\s*=\s*&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(?P&lt;dset&gt;[\w.]+)&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\s*&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(:\s*(?P&lt;substitutions&gt;.*))?&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;$&quot;</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">specification</span> <span class="ow">in</span> <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parsing: </span><span class="si">{</span><span class="n">specification</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">parsed_var</span> <span class="o">=</span> <span class="n">var_specfication_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed_var</span>
+        <span class="n">substitutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">_parse_substitutions</span><span class="p">(</span>
+                <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">parsed_var</span><span class="p">[</span><span class="s2">&quot;substitutions&quot;</span><span class="p">],</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">parsed_var</span><span class="p">[</span><span class="s2">&quot;varname&quot;</span><span class="p">],</span> <span class="p">(</span><span class="n">parsed_var</span><span class="p">[</span><span class="s2">&quot;dset&quot;</span><span class="p">],</span> <span class="n">substitutions</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="LCDetrendingArgumentParser">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LCDetrendingArgumentParser</span><span class="p">(</span><span class="n">ManualStepArgumentParser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Boiler plate handling of LC detrending command line arguments.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LCDetrendingArgumentParser.add_transit_parameters">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_transit_parameters</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">limb_darkening</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">fit_flags</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add command line parameters to the current parser to specify a transit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timing(bool):    Should arguments specifying the timing of the</span>
+<span class="sd">                transit be included, i.e. period, ephemerides, duration?</span>
+
+<span class="sd">            duration(bool):    Sholud a potentially redundant argument for</span>
+<span class="sd">                transit duration be added?</span>
+
+<span class="sd">            geometry(bool or str):     Should arguments specifying the geometry</span>
+<span class="sd">                of the transit be included. If the value converts to False,</span>
+<span class="sd">                nothing is included. Otherwise this argument should be either:</span>
+
+<span class="sd">                    * &#39;circular&#39;: i.e. include radius ratio, inclination, and</span>
+<span class="sd">                      semimajor axis.</span>
+
+<span class="sd">                    * &#39;eccentric&#39;: i.e. in additition to the above, include</span>
+<span class="sd">                      eccentricity and argument of periastron.</span>
+
+<span class="sd">            limb_darkening(bool):    Should arguments for specifying the stellar</span>
+<span class="sd">                limb-darkening be included?</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="p">(</span><span class="ow">not</span> <span class="n">geometry</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">geometry</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;circular&quot;</span><span class="p">,</span> <span class="s2">&quot;eccentric&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--mid-transit&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mf">2455867.402743</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The time of mit-transit in BJD. Default: </span><span class="si">%(default)s</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;(from https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--period&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mf">2.15000820</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The orbital period (used to convert time to phase). &quot;</span>
+                <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2"> (from &quot;</span>
+                <span class="s2">&quot;https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">duration</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--transit-duration&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mf">3.1205</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The transit duration in hours. Default: </span><span class="si">%(default)s</span><span class="s2"> (from&quot;</span>
+                <span class="s2">&quot; https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">geometry</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--radius-ratio&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mf">0.14886</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The planet to star radius ratio. Default: </span><span class="si">%(default)s</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;(HAT-P-32).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--inclination&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mf">88.98</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The inclination angle between the orbital angular &quot;</span>
+                <span class="s2">&quot;momentum and the line of sight in degrees. &quot;</span>
+                <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2"> (HAT-P-32).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--scaled-semimajor&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mf">5.344</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The ratio of the semimajor axis to the stellar radius. &quot;</span>
+                <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2"> (HAT-P-32).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">geometry</span> <span class="o">==</span> <span class="s2">&quot;eccentric&quot;</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                    <span class="s2">&quot;--eccentricity&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;-e&quot;</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                    <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The orbital eccentricity to assume for the transiting&quot;</span>
+                    <span class="s2">&quot; planet. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                    <span class="s2">&quot;--periastron&quot;</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                    <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The argument of periastron. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">limb_darkening</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--limb-darkening&quot;</span><span class="p">,</span>
+                <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mf">0.316</span><span class="p">,</span> <span class="mf">0.303</span><span class="p">),</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The limb darkening coefficients to assume for the star &quot;</span>
+                <span class="s2">&quot;(quadratic model). Default: </span><span class="si">%(default)s</span><span class="s2"> (HAT-P-32).&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fit_flags</span><span class="p">:</span>
+            <span class="n">choices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
+                <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;mid_transit&quot;</span><span class="p">,</span> <span class="s2">&quot;period&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">geometry</span><span class="p">:</span>
+                <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="s2">&quot;inclination&quot;</span><span class="p">,</span> <span class="s2">&quot;semimajor&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">geometry</span> <span class="o">==</span> <span class="s2">&quot;eccentric&quot;</span><span class="p">:</span>
+                    <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;eccentricity&quot;</span><span class="p">,</span> <span class="s2">&quot;periastron&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">limb_darkening</span><span class="p">:</span>
+                <span class="n">choices</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;limbdark&quot;</span><span class="p">])</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--mutable-transit-params&quot;</span><span class="p">,</span>
+                <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List the transit parameters for which best-fit values &quot;</span>
+                <span class="s2">&quot;should be found rather than assuming they are fixed at what is&quot;</span>
+                <span class="s2">&quot; specified on the command line. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDetrendingArgumentParser._add_epd_arguments">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_epd_arguments">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_epd_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add parameters required for EPD only.&quot;&quot;&quot;</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--epd-terms-expression&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;O3{1/cos(z)}&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A fitting terms expression involving only variables from &quot;</span>
+            <span class="s2">&quot;`epd_variables` which expands to the various terms to use &quot;</span>
+            <span class="s2">&quot;in a linear least squares EPD correction.&quot;</span>
+            <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--fit-weights&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression involving only variables from `epd_variables` &quot;</span>
+            <span class="s2">&quot;which should evaluate to the weights to use per LC point in a &quot;</span>
+            <span class="s2">&quot;linear least squares EPD correction. If left unspecified, no &quot;</span>
+            <span class="s2">&quot;weighting is performed.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--skip-outlier-prerejection&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;pre_reject_outliers&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If passed the initial rejection of outliers before the fit &quot;</span>
+            <span class="s2">&quot;begins is not performed.&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDetrendingArgumentParser._add_tfa_arguments">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_tfa_arguments">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_tfa_arguments</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add parameters required for TFA only.&quot;&quot;&quot;</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--saturation-magnitude&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">7.0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The magnitude at which sources start to saturate. &quot;</span>
+            <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-forbid-saturated-templates&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;allow_saturated_templates&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If passed, saturated stars are precluded from being selected &quot;</span>
+            <span class="s2">&quot;as templates.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-mag-rms-dependence-order&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum order of magnitude to include in the fit for &quot;</span>
+            <span class="s2">&quot;typical rms vs magnitude. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-mag-rms-outlier-threshold&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stars are not allowed to be in the template if their RMS is &quot;</span>
+            <span class="s2">&quot;more than this many sigma away from the mag-rms fit. This is also &quot;</span>
+            <span class="s2">&quot;the threshold used for rejecting outliers when doing the iterative&quot;</span>
+            <span class="s2">&quot; fit for the rms as a function of magnutude. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-mag-rms-max-rej-iter&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection fit iterations to do when &quot;</span>
+            <span class="s2">&quot;deriving the rms(mag) dependence. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-max-rms&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stars are allowed to be in the template only if their RMS is &quot;</span>
+            <span class="s2">&quot;no larger than this. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-faint-mag-limit&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stars fainter than this cannot be template stars. Default: &quot;</span>
+            <span class="s2">&quot;</span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-min-observations-quantile&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The minimum number of observations required of template stars&quot;</span>
+            <span class="s2">&quot; is the smaller of this quantile among the input collection of &quot;</span>
+            <span class="s2">&quot;stars and the number per --tfa-min-observations-fraction.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-min-observations-fraction&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The minimum number of observations required of template stars&quot;</span>
+            <span class="s2">&quot; is the smaller of this number times the maximum number of &quot;</span>
+            <span class="s2">&quot;observations of any star and the number per &quot;</span>
+            <span class="s2">&quot;--tfa-min-observations-quantile.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-sqrt-num-templates&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of template stars is the square of this number. &quot;</span>
+            <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-observation-id&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;fitsheader.fnum&quot;</span><span class="p">,),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The datasets to use for matching observations across light &quot;</span>
+            <span class="s2">&quot;curves. For example, the following works for HAT: &quot;</span>
+            <span class="s2">&quot;fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-selected-plots&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;tfa_template_selection_</span><span class="si">%(plot_id)s</span><span class="s2">_phot</span><span class="si">%(phot_index)s</span><span class="s2">.eps&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional template for naming plots showing the template &quot;</span>
+            <span class="s2">&quot;selection in action. If not specified, no such plots are &quot;</span>
+            <span class="s2">&quot;generated. Should include </span><span class="si">%%</span><span class="s2">(plot_id)s and </span><span class="si">%%</span><span class="s2">(phot_index)d &quot;</span>
+            <span class="s2">&quot;substitutions.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--epd-statistics-fname&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;epd_statistics.txt&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The statistics filename for the results of the EPD fit. &quot;</span>
+            <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-radius-splits&quot;</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The threshold radius values where to split sources into &quot;</span>
+            <span class="s2">&quot;groups. By default, no splitting by radius is done.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--tfa-mag-split-source-count&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If passed, after spltting by radius (if any), sources are &quot;</span>
+            <span class="s2">&quot;further split into groups by magnitude such that each group &quot;</span>
+            <span class="s2">&quot;contains at least this many sources. By default, no splitting by &quot;</span>
+            <span class="s2">&quot;magnitude is done.&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDetrendingArgumentParser.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">add_reconstructive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">convert_to_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;lc&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the parser with options common to all LC detrending steps.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            See ManualStepArgumentParser.__init__().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">input_type</span><span class="o">=</span><span class="n">input_type</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">allow_parallel_processing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;tfa&quot;</span><span class="p">],</span>
+            <span class="n">convert_to_dict</span><span class="o">=</span><span class="n">convert_to_dict</span><span class="p">,</span>
+            <span class="n">add_lc_fname_arg</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;tfa&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">!=</span> <span class="s2">&quot;epd&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--single-photref-dr-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The filename of the single photometric reference DR file.&quot;</span>
+                <span class="s2">&quot; Used for string substitutions of command line arguments.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--variables&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">_parse_lc_variables</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;sphotref = apphot.magfit.cfg.single_photref : &quot;</span>
+                <span class="s2">&quot;aperture_index = 0&quot;</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot;; x = srcproj.columns : &quot;</span>
+                        <span class="s2">&quot;srcproj_column_name = &#39;x&#39; &amp; srcproj_version = 0; &quot;</span>
+                        <span class="s2">&quot;y = srcproj.columns : &quot;</span>
+                        <span class="s2">&quot;srcproj_column_name = &#39;y&#39; &amp; srcproj_version = 0; &quot;</span>
+                        <span class="s2">&quot;bg = bg.value; &quot;</span>
+                        <span class="s2">&quot;z = skypos.zenith_distance; &quot;</span>
+                        <span class="s2">&quot;S = srcextract.psf_map.eval: &quot;</span>
+                        <span class="s2">&quot;srcextract_psf_param = &#39;s&#39;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;epd&quot;</span>
+                    <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Define variables&quot;</span>
+            <span class="s2">&quot;to be used in --lc-points-filter-expression, &quot;</span>
+            <span class="s2">&quot;--epd-terms-expression, --fit-weights, etc. Should be &quot;</span>
+            <span class="s2">&quot;formatted as a ``;`` separated list of &lt;varname&gt; = &lt;dataset key&gt;&quot;</span>
+            <span class="s2">&quot; [: &lt;substitutions&gt;]. For example: &quot;</span>
+            <span class="s1">&#39;``&quot;x = srcproj.columns : src_proj_column_name = x  &amp; &#39;</span>
+            <span class="s2">&quot;srcproj_version = 0; y = srcproj.columns : &quot;</span>
+            <span class="s1">&#39;src_proj_column_name = y&quot;``, defines `x` and `y` variables that &#39;</span>
+            <span class="s2">&quot;correspond to the projected x and y positions of the source in&quot;</span>
+            <span class="s2">&quot; the frame.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--lc-points-filter-expression&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression using variables` which evaluates to either&quot;</span>
+            <span class="s2">&quot; True or False indicating if a given point in the lightcurve &quot;</span>
+            <span class="s2">&quot;should be fit and corrected. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">!s}</span><span class="s2">-datasets&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">_parse_fit_datasets</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A ``;`` separated list of the datasets to detrend. Each entry&quot;</span>
+            <span class="s2">&quot; should be formatted as: ``&lt;input-key&gt; -&gt; &lt;output-key&gt; &quot;</span>
+            <span class="s2">&quot;[: &lt;substitution&gt; (= &lt;value&gt;| in &lt;expression&gt;) &quot;</span>
+            <span class="s2">&quot;[&amp; &lt;substitution&gt; (= &lt;value&gt; | in &lt;expression&gt;) ...]]``. &quot;</span>
+            <span class="s1">&#39;For example: ``&quot;apphot.magfit.magnitude -&gt; &#39;</span>
+            <span class="s2">&quot;apphot.epd.magnitude : magfit_iteration = 5 &amp; aperture_index in &quot;</span>
+            <span class="s1">&#39;range(39)&quot;``. White space is ignored. Literal ``;`` and ``&amp;`` can &#39;</span>
+            <span class="s2">&quot;be used in the specification of a dataset as ``;;`` and ``&amp;&amp;`` &quot;</span>
+            <span class="s2">&quot;respectively. Configurations of how the fitting was done and the &quot;</span>
+            <span class="s2">&quot;resulting residual and non-rejected points are added to &quot;</span>
+            <span class="s2">&quot;configuration datasets generated by removing the tail of the &quot;</span>
+            <span class="s1">&#39;destination and adding ``&quot;.cfg.&quot; + &lt;parameter name&gt;`` for &#39;</span>
+            <span class="s2">&quot;configurations and just `` + &lt;parameter name&gt;`` for &quot;</span>
+            <span class="s2">&quot;fitting statistics. For example, if the output dataset key is&quot;</span>
+            <span class="s1">&#39;``&quot;shapefit.epd.magnitude&quot;``, the configuration datasets will look&#39;</span>
+            <span class="s1">&#39;like ``&quot;shapefit.epd.cfg.fit_terms&quot;``, and &#39;</span>
+            <span class="s1">&#39;``&quot;shapefit.epd.residual&quot;``.&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--detrend-reference-avg&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to average magnitudes to define reference point for &quot;</span>
+            <span class="s2">&quot;calculating residuals.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--detrend-error-avg&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;nanmedian&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to average fitting residuals for outlier rejection and &quot;</span>
+            <span class="s2">&quot;perforamnce reporting.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--detrend-rej-level&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How far away from the fit should a point be before &quot;</span>
+            <span class="s2">&quot;it is rejected in units of detrend_error_avg. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--detrend-max-rej-iter&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection/re-fitting iterations to &quot;</span>
+            <span class="s2">&quot;perform. If the fit has not converged by then, the latest &quot;</span>
+            <span class="s2">&quot;iteration is accepted. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_reconstructive</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--target-id&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The lightcurve of the given source (any one of the &quot;</span>
+                <span class="s2">&quot;catalogue identifiers stored in the LC file) will be fit using&quot;</span>
+                <span class="s2">&quot; reconstructive detrending, starting the transit parameter fit&quot;</span>
+                <span class="s2">&quot; with the values supplied, and fitting for the values allowed &quot;</span>
+                <span class="s2">&quot;to vary. If not specified all LCs are fit in &quot;</span>
+                <span class="s2">&quot;non-reconstructive way.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_transit_parameters</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;circular&quot;</span><span class="p">,</span>
+                <span class="n">limb_darkening</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">fit_flags</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--detrending-catalog&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--detrending-catalogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of a catalogue file containing the sources in the &quot;</span>
+            <span class="s2">&quot;frame. Used only to generate performance statistics reports. If &quot;</span>
+            <span class="s2">&quot;not specified, performance is not reported.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;stat&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">-statistics-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_statistics.txt&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The statistics filename for the results of the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> fit.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--magnitude-column&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The magnitude column to use for the performance statistics. &quot;</span>
+            <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;tfa&quot;</span><span class="p">]:</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_add_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="si">}</span><span class="s2">_arguments&quot;</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

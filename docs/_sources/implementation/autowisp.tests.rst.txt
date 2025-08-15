@@ -1,0 +1,29 @@
+autowisp.tests package
+======================
+
+.. automodule:: autowisp.tests
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.tests.fits_test_case
+   autowisp.tests.get_test_data
+   autowisp.tests.h5_test_case
+   autowisp.tests.test_calibrate
+   autowisp.tests.test_create_lightcurves
+   autowisp.tests.test_detrending_stat
+   autowisp.tests.test_epd
+   autowisp.tests.test_find_stars
+   autowisp.tests.test_fit_magnitudes
+   autowisp.tests.test_fit_source_extracted_psf_map
+   autowisp.tests.test_fit_star_shape
+   autowisp.tests.test_measure_aperture_photometry
+   autowisp.tests.test_solve_astrometry
+   autowisp.tests.test_stack_to_master
+   autowisp.tests.test_tfa

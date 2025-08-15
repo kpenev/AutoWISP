@@ -1,0 +1,7 @@
+autowisp.tests.h5\_test\_case module
+====================================
+
+.. automodule:: autowisp.tests.h5_test_case
+   :members:
+   :show-inheritance:
+   :undoc-members:

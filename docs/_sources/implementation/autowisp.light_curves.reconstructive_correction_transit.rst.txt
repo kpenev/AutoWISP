@@ -1,0 +1,7 @@
+autowisp.light\_curves.reconstructive\_correction\_transit module
+=================================================================
+
+.. automodule:: autowisp.light_curves.reconstructive_correction_transit
+   :members:
+   :show-inheritance:
+   :undoc-members:

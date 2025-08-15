@@ -1,0 +1,7 @@
+autowisp.light\_curves.light\_curve\_file module
+================================================
+
+.. automodule:: autowisp.light_curves.light_curve_file
+   :members:
+   :show-inheritance:
+   :undoc-members:

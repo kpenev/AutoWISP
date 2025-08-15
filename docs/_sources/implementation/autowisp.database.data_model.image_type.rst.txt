@@ -1,0 +1,7 @@
+autowisp.database.data\_model.image\_type module
+================================================
+
+.. automodule:: autowisp.database.data_model.image_type
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,492 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.calculate_photref_merit &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.calculate_photref_merit</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.calculate_photref_merit</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Sort DR files by their single photometric reference merit function.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkyCoord</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">AltAz</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.fit_source_extracted_psf_map</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_predictors_and_weights</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_dr_fnames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fit_expression</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Interface</span> <span class="k">as</span> <span class="n">FitTermsInterface</span><span class="p">,</span>
+    <span class="n">iterative_fit</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManualStepArgumentParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;dr&quot;</span>
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
+        <span class="n">inputs_help_extra</span><span class="o">=</span><span class="s2">&quot;The DR files must already contain PSF fitting and &quot;</span>
+        <span class="s2">&quot;smoothed source exaction PSF map.&quot;</span><span class="p">,</span>
+        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;srcextract&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;background&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--observatory-location&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LATITUDE&quot;</span><span class="p">,</span> <span class="s2">&quot;LONGITUDE&quot;</span><span class="p">,</span> <span class="s2">&quot;ALTITUDE&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LAT_OBS&quot;</span><span class="p">,</span> <span class="s2">&quot;LONG_OBS&quot;</span><span class="p">,</span> <span class="s2">&quot;ALT_OBS&quot;</span><span class="p">],</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The latitude, longitude and altitude of the observatory from &quot;</span>
+        <span class="s2">&quot;where the images were collected. Can be arbitrary expression involving&quot;</span>
+        <span class="s2">&quot; header keywords.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bg-map-fit-terms-expression&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--bg-map-terms&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;O3{x, y}&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression involving the x and y source coordinates for the &quot;</span>
+        <span class="s2">&quot;terms to include when fitting a smooth function to the background &quot;</span>
+        <span class="s2">&quot;measurements.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bg-map-error-avg&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to average fitting residuals for outlier rejection during &quot;</span>
+        <span class="s2">&quot;background smoothing.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bg-map-rej-level&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How far away from the fit should a point be before it is rejected&quot;</span>
+        <span class="s2">&quot; in units of error_avg.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bg-map-max-rej-iter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of outlier rejection/refit iterations allowed &quot;</span>
+        <span class="s2">&quot;when fitting for the smooth background of an image.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--merit-function&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1.0 / ((1.0 - qnt_s)**2 + qnt_bg**2)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The merit function to use. High values should indicate a better &quot;</span>
+        <span class="s2">&quot;candidate to serve as photometric reference. The function may use any &quot;</span>
+        <span class="s2">&quot;PSF parameter as well as the following frame properties:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">z: the zenith distance of the frame center</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">bg: the background level at the center of the frame</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;In addition, for each property the standard deviation over all frames &quot;</span>
+        <span class="s2">&quot;can also be used as ``std_&lt;param&gt;`` (e.g. ``std_z``) as well as its &quot;</span>
+        <span class="s2">&quot;quantile as ``qnt_&lt;param&gt;`` (e.g. ``qnt_bg`` for the background &quot;</span>
+        <span class="s2">&quot;quantile).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_matched_sources">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_matched_sources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_matched_sources</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">dr_path_substitutions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience wrapper around `DataReductionFile.get_matched_sources()`.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_matched_sources</span><span class="p">(</span><span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_typical_star">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_typical_star">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_typical_star</span><span class="p">(</span>
+    <span class="n">dr_fnames</span><span class="p">,</span>
+    <span class="n">source_average</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+    <span class="n">frame_average</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the average of the matched sources in all DR files.</span>
+
+<span class="sd">    For each DR file the properties of the matched stars (i.e. everything from</span>
+<span class="sd">    the catalog and source extraction) are averaged and then another average is</span>
+<span class="sd">    computed over the DR files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dr_fnames([str]):    The filenames of the DR files to get the typical</span>
+<span class="sd">            star for.</span>
+
+<span class="sd">        source_average(&#39;mean&#39;|&#39;median&#39;):    How to avarage source properties</span>
+<span class="sd">            within a single DR file.</span>
+
+<span class="sd">        frame_average(&#39;mean&#39;|&#39;median&#39;):    How the average accross DR files the</span>
+<span class="sd">            the already averaged per DR file properties</span>
+
+<span class="sd">        dr_path_substitutions(dict):    Substitutions required to uniquely</span>
+<span class="sd">            identify the datasets within the DR file to process.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.Series:</span>
+<span class="sd">            The double averaged matched star properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">source_averaged</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">get_matched_sources</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dr_path_substitutions</span><span class="p">),</span> <span class="n">source_average</span>
+        <span class="p">)()</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">dr_fnames</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">source_averaged</span><span class="p">,</span> <span class="n">frame_average</span><span class="p">)()</span></div>
+
+
+
+<div class="viewcode-block" id="get_center_zenith_distance">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_center_zenith_distance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_center_zenith_distance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">astrometry</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the zenith distance of the center of the frame.&quot;&quot;&quot;</span>
+
+    <span class="n">header_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+    <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">altitude</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">header_eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;observatory_location&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">location</span> <span class="o">=</span> <span class="n">EarthLocation</span><span class="p">(</span>
+        <span class="n">lat</span><span class="o">=</span><span class="n">latitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="n">longitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">altitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">obs_time</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
+    <span class="n">source_coords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+        <span class="n">ra</span><span class="o">=</span><span class="n">astrometry</span><span class="o">.</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">dec</span><span class="o">=</span><span class="n">astrometry</span><span class="o">.</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">altitude</span> <span class="o">=</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span>
+        <span class="n">AltAz</span><span class="p">(</span><span class="n">obstime</span><span class="o">=</span><span class="n">obs_time</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">alt</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">altitude</span></div>
+
+
+
+<div class="viewcode-block" id="get_center_background">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_center_background">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_center_background</span><span class="p">(</span>
+    <span class="n">dr_file</span><span class="p">,</span>
+    <span class="n">header</span><span class="p">,</span>
+    <span class="n">fit_terms_expression</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">error_avg</span><span class="p">,</span>
+    <span class="n">rej_level</span><span class="p">,</span>
+    <span class="n">max_rej_iter</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the sky background at the center of the frame.</span>
+
+<span class="sd">    Fit a smooth function of position to the background measurements from shape</span>
+<span class="sd">    fitting and evaluate it at the center of the frame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">source_positions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">coord</span><span class="p">:</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;srcproj.columns&quot;</span><span class="p">,</span>
+            <span class="n">srcproj_column_name</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="s2">&quot;xy&quot;</span>
+    <span class="p">}</span>
+    <span class="n">source_positions</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">source_positions</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Source positions: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">source_positions</span><span class="p">))</span>
+
+    <span class="n">fit_terms</span> <span class="o">=</span> <span class="n">FitTermsInterface</span><span class="p">(</span><span class="n">fit_terms_expression</span><span class="p">)(</span><span class="n">source_positions</span><span class="p">)</span>
+    <span class="n">measured_bg</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="s2">&quot;bg.value&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+    <span class="n">coef</span><span class="p">,</span> <span class="n">square_residual</span><span class="p">,</span> <span class="n">num_fit</span> <span class="o">=</span> <span class="n">iterative_fit</span><span class="p">(</span>
+        <span class="n">fit_terms</span><span class="p">,</span>
+        <span class="n">measured_bg</span><span class="p">,</span>
+        <span class="n">error_avg</span><span class="o">=</span><span class="n">error_avg</span><span class="p">,</span>
+        <span class="n">rej_level</span><span class="o">=</span><span class="n">rej_level</span><span class="p">,</span>
+        <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">max_rej_iter</span><span class="p">,</span>
+        <span class="n">fit_identifier</span><span class="o">=</span><span class="s2">&quot;background&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Background fit:</span><span class="se">\n</span><span class="s2">coefficientsn: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">square residual: </span><span class="si">%s</span><span class="s2">i</span><span class="se">\n</span><span class="s2">num fit: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">coef</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">square_residual</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">num_fit</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">coef</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_frame_merit_info">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_frame_merit_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_frame_merit_info</span><span class="p">(</span>
+    <span class="n">dr_fname</span><span class="p">,</span> <span class="n">typical_star</span><span class="p">,</span> <span class="n">bg_fit_config</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the properties relevant for calculating the merit of given DR.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+        <span class="n">astrometry</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">()</span>
+        <span class="n">astrometry</span><span class="o">.</span><span class="n">read_transformation</span><span class="p">(</span><span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;dr&quot;</span><span class="p">:</span> <span class="n">dr_fname</span><span class="p">,</span>
+            <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">get_center_zenith_distance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">astrometry</span><span class="p">,</span> <span class="n">config</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">typical_star</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">astrometry</span><span class="o">.</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">typical_star</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">astrometry</span><span class="o">.</span><span class="n">pre_projection_center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">typical_star</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">typical_star</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="n">psf_map_predictors</span> <span class="o">=</span> <span class="n">get_predictors_and_weights</span><span class="p">(</span>
+            <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">typical_star</span><span class="p">]),</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                <span class="s2">&quot;srcextract.psf_map.cfg.terms&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+            <span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">psf_map_coefficients</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
+            <span class="s2">&quot;srcextract.psf_map&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">psf_param</span><span class="p">,</span> <span class="n">map_coef</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                <span class="s2">&quot;srcextract.psf_map.cfg.psf_params&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+            <span class="p">),</span>
+            <span class="n">psf_map_coefficients</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">psf_param</span><span class="o">.</span><span class="n">decode</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">map_coef</span><span class="p">,</span> <span class="n">psf_map_predictors</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;bg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_center_background</span><span class="p">(</span>
+            <span class="n">dr_file</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">bg_fit_config</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_photref_merit">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.calculate_photref_merit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_photref_merit</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid pollutin global namespace.&quot;&quot;&quot;</span>
+
+    <span class="n">dr_path_substitutions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">what</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="n">what</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;srcextract&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;background&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+    <span class="n">bg_fit_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">argname</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;bg_map_&quot;</span><span class="p">)</span> <span class="p">:]:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">argname</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">argname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;bg_map_&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">typical_star</span> <span class="o">=</span> <span class="n">get_typical_star</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Typical star:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">typical_star</span><span class="p">))</span>
+    <span class="n">merit_info</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">get_frame_merit_info</span><span class="p">(</span>
+            <span class="n">dr_fname</span><span class="p">,</span>
+            <span class="n">typical_star</span><span class="p">,</span>
+            <span class="n">bg_fit_config</span><span class="p">,</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span>
+    <span class="p">)</span>
+    <span class="n">frame_quantities</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">merit_info</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">frame_quantities</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;dr&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">frame_quantities</span><span class="p">:</span>
+        <span class="n">merit_info</span><span class="p">[</span><span class="s2">&quot;qnt_&quot;</span> <span class="o">+</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">merit_info</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">pct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">eval_merit</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">merit_info</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">frame_quantities</span><span class="p">:</span>
+        <span class="n">eval_merit</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;std_&quot;</span> <span class="o">+</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">merit_info</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">merit_info</span><span class="p">[</span><span class="s2">&quot;merit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_merit</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;merit_function&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">merit_info</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Merit info:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span>
+            <span class="n">calculate_photref_merit</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">find_dr_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dr_files&quot;</span><span class="p">))),</span>
+                <span class="n">cmdline_config</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;merit&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

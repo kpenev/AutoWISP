@@ -1,0 +1,7 @@
+autowisp.tests.test\_detrending\_stat module
+============================================
+
+.. automodule:: autowisp.tests.test_detrending_stat
+   :members:
+   :show-inheritance:
+   :undoc-members:

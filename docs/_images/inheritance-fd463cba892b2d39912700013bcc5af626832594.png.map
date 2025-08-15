@@ -1,0 +1,16 @@
+<map id="inheritancef5cad57cac" name="inheritancef5cad57cac">
+<area shape="rect" id="node1" title="Structure base class" alt="" coords="111,5,235,32"/>
+<area shape="rect" id="node2" href="#autowisp.light_curves.lc_data_slice.LCDataSliceBase" target="_top" title="A time&#45;slice of LC data to be shared between LC dumping processes." alt="" coords="5,80,341,107"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_bool" target="_top" title="ctypes.c_bool" alt="" coords="259,5,362,32"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_byte" target="_top" title="ctypes.c_byte" alt="" coords="385,5,489,32"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_char_p" target="_top" title="ctypes.c_char_p" alt="" coords="513,5,630,32"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_double" target="_top" title="ctypes.c_double" alt="" coords="655,5,771,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_float" target="_top" title="ctypes.c_float" alt="" coords="795,5,898,32"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_int" target="_top" title="ctypes.c_int" alt="" coords="922,5,1014,32"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_long" target="_top" title="ctypes.c_long" alt="" coords="1038,5,1140,32"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_short" target="_top" title="ctypes.c_short" alt="" coords="1165,5,1272,32"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_ubyte" target="_top" title="ctypes.c_ubyte" alt="" coords="1296,5,1407,32"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_uint" target="_top" title="ctypes.c_uint" alt="" coords="1431,5,1531,32"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_ulong" target="_top" title="ctypes.c_ulong" alt="" coords="1554,5,1664,32"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/ctypes.html#ctypes.c_ushort" target="_top" title="ctypes.c_ushort" alt="" coords="1688,5,1802,32"/>
+</map>

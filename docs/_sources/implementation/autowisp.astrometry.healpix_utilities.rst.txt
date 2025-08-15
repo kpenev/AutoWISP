@@ -1,0 +1,7 @@
+autowisp.astrometry.healpix\_utilities module
+=============================================
+
+.. automodule:: autowisp.astrometry.healpix_utilities
+   :members:
+   :show-inheritance:
+   :undoc-members:

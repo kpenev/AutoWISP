@@ -1,0 +1,7 @@
+autowisp.pipeline\_exceptions module
+====================================
+
+.. automodule:: autowisp.pipeline_exceptions
+   :members:
+   :show-inheritance:
+   :undoc-members:

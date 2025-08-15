@@ -1,0 +1,6 @@
+<map id="inheritanceda3848f997" name="inheritanceda3848f997">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="131,5,205,32"/>
+<area shape="rect" id="node3" href="autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit" target="_top" title="A base class for all classes doing magnitude fitting." alt="" coords="24,80,312,107"/>
+<area shape="rect" id="node2" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="229,5,496,32"/>
+<area shape="rect" id="node4" href="#autowisp.magnitude_fitting.linear.LinearMagnitudeFit" target="_top" title="Differential photometry correction using linear regression." alt="" coords="5,155,331,181"/>
+</map>

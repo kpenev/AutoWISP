@@ -1,0 +1,1063 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.database.data_model.provenance package &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.database.data_model.provenance.camera module" href="autowisp.database.data_model.provenance.camera.html" />
+    <link rel="prev" title="autowisp.database.data_model package" href="autowisp.database.data_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.database.html">autowisp.database package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.database.data_model.html">autowisp.database.data_model package</a></li>
+      <li class="breadcrumb-item active">autowisp.database.data_model.provenance package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.database.data_model.provenance.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.database.data_model.provenance">
+<span id="autowisp-database-data-model-provenance-package"></span><h1>autowisp.database.data_model.provenance package<a class="headerlink" href="#module-autowisp.database.data_model.provenance" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-2d1030ebd13e3d2ae5a33d49a039e85fb96a17e4.png" alt="Inheritance diagram of Camera, CameraAccess, CameraChannel, CameraType, DataModelBase, Mount, MountAccess, MountType, Observatory, Observer, Telescope, TelescopeAccess, TelescopeType" usemap="#inheritance640bd72bf0" class="inheritance graphviz" /></div>
+<map id="inheritance640bd72bf0" name="inheritance640bd72bf0">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2492,229,2822,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="5,304,375,331"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess" target="_top" title="The table describing the camera access" alt="" coords="399,304,861,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="885,304,1354,331"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="1378,304,1807,331"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount" target="_top" title="The table describing the mounts specified" alt="" coords="1831,304,2184,331"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess" target="_top" title="The table dscribing the mount access" alt="" coords="2207,304,2653,331"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType" target="_top" title="The table describing the different mount types" alt="" coords="2677,304,3090,331"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="3114,304,3532,331"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer" target="_top" title="The table describing the observers" alt="" coords="3557,304,3940,331"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope" target="_top" title="The table describing the telescopes specified" alt="" coords="3964,304,4360,331"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess" target="_top" title="The table describing the telescope access" alt="" coords="4383,304,4872,331"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType" target="_top" title="The table dscribing the different telescope types" alt="" coords="4896,304,5351,331"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2604,5,2709,32"/>
+</map><p>Add all tables to __all__.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/camera.html#Camera"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-c9faa8582df4ab2f031ff55891bba80b7cf988e1.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.Camera" usemap="#inheritance7058ac523a" class="inheritance graphviz" /></div>
+<map id="inheritance7058ac523a" name="inheritance7058ac523a">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="25,229,355,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="5,304,375,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="137,5,243,32"/>
+</map><p>The table describing the camera specified</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/camera.html#Camera.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.__str__" title="Link to this definition"></a></dt>
+<dd><p>Human readable info for the camera.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.camera_type">
+<span class="sig-name descname"><span class="pre">camera_type</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.camera_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.camera_type_id">
+<span class="sig-name descname"><span class="pre">camera_type_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.camera_type_id" title="Link to this definition"></a></dt>
+<dd><p>The id of the camera type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.channels">
+<span class="sig-name descname"><span class="pre">channels</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.channels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.notes" title="Link to this definition"></a></dt>
+<dd><p>The notes provided for the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.observers">
+<span class="sig-name descname"><span class="pre">observers</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.observers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.observing_sessions">
+<span class="sig-name descname"><span class="pre">observing_sessions</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.observing_sessions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.serial_number">
+<span class="sig-name descname"><span class="pre">serial_number</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.serial_number" title="Link to this definition"></a></dt>
+<dd><p>The serial number of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Camera.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Camera.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraAccess">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">CameraAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/camera_access.html#CameraAccess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraAccess" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-4200e808d6bbae8f7f1c634e282604fb85cafba1.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.CameraAccess" usemap="#inheritance4c86b23c14" class="inheritance graphviz" /></div>
+<map id="inheritance4c86b23c14" name="inheritance4c86b23c14">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="71,229,402,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess" target="_top" title="The table describing the camera access" alt="" coords="5,304,468,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="184,5,289,32"/>
+</map><p>The table describing the camera access</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraAccess.camera_id">
+<span class="sig-name descname"><span class="pre">camera_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraAccess.camera_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraAccess.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraAccess.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraAccess.observer_id">
+<span class="sig-name descname"><span class="pre">observer_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraAccess.observer_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for the observer</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraAccess.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraAccess.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">CameraChannel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/camera_channel.html#CameraChannel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-d20e77bf3a6abf1c3019bf242fcced1c3462b12e.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.CameraChannel" usemap="#inheritance8009bf792d" class="inheritance graphviz" /></div>
+<map id="inheritance8009bf792d" name="inheritance8009bf792d">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="75,229,405,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="5,304,475,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="187,5,293,32"/>
+</map><p>The table describing each of the channels of a type of camera.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.camera_type_id">
+<span class="sig-name descname"><span class="pre">camera_type_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.camera_type_id" title="Link to this definition"></a></dt>
+<dd><p>The camera type to which this channel belongs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.name" title="Link to this definition"></a></dt>
+<dd><p>A label to assign to the channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.x_offset">
+<span class="sig-name descname"><span class="pre">x_offset</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.x_offset" title="Link to this definition"></a></dt>
+<dd><p>The x index of the first pixel of the channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.x_step">
+<span class="sig-name descname"><span class="pre">x_step</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.x_step" title="Link to this definition"></a></dt>
+<dd><p>The step in the x direction between consecutive pixels of the channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.y_offset">
+<span class="sig-name descname"><span class="pre">y_offset</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.y_offset" title="Link to this definition"></a></dt>
+<dd><p>The y index of the first pixel of the channel.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraChannel.y_step">
+<span class="sig-name descname"><span class="pre">y_step</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraChannel.y_step" title="Link to this definition"></a></dt>
+<dd><p>The step in the y direction between consecutive pixels of the channel.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">CameraType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/camera_type.html#CameraType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-4df806c9fff715f3e2309fc9bf5bcdcc621b8556.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.CameraType" usemap="#inheritance1fb7d2969e" class="inheritance graphviz" /></div>
+<map id="inheritance1fb7d2969e" name="inheritance1fb7d2969e">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="55,229,385,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="5,304,435,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="167,5,273,32"/>
+</map><p>The table describing the different  camera types</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.cameras">
+<span class="sig-name descname"><span class="pre">cameras</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.cameras" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.channels">
+<span class="sig-name descname"><span class="pre">channels</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.channels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.make">
+<span class="sig-name descname"><span class="pre">make</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.make" title="Link to this definition"></a></dt>
+<dd><p>The make of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.model" title="Link to this definition"></a></dt>
+<dd><p>The model of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.notes" title="Link to this definition"></a></dt>
+<dd><p>The notes provided for the camera type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.pixel_size">
+<span class="sig-name descname"><span class="pre">pixel_size</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.pixel_size" title="Link to this definition"></a></dt>
+<dd><p>The pixel size of the camera in microns</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.sensor_type">
+<span class="sig-name descname"><span class="pre">sensor_type</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.sensor_type" title="Link to this definition"></a></dt>
+<dd><p>The sensor type of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.version">
+<span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.version" title="Link to this definition"></a></dt>
+<dd><p>The version of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.x_resolution">
+<span class="sig-name descname"><span class="pre">x_resolution</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.x_resolution" title="Link to this definition"></a></dt>
+<dd><p>The x_resolution of the camera</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.CameraType.y_resolution">
+<span class="sig-name descname"><span class="pre">y_resolution</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.CameraType.y_resolution" title="Link to this definition"></a></dt>
+<dd><p>The y_resolution of the camera</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">Mount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/mount.html#Mount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-77c48984de14c02f53a458f79437df37bd10990a.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.Mount" usemap="#inheritance581a6d6b78" class="inheritance graphviz" /></div>
+<map id="inheritance581a6d6b78" name="inheritance581a6d6b78">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="16,229,347,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount" target="_top" title="The table describing the mounts specified" alt="" coords="5,304,358,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="129,5,234,32"/>
+</map><p>The table describing the mounts specified</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/mount.html#Mount.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.__str__" title="Link to this definition"></a></dt>
+<dd><p>Human readable info for the mount.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.mount_type">
+<span class="sig-name descname"><span class="pre">mount_type</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.mount_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.mount_type_id">
+<span class="sig-name descname"><span class="pre">mount_type_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.mount_type_id" title="Link to this definition"></a></dt>
+<dd><p>The identifier of the mount type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.notes" title="Link to this definition"></a></dt>
+<dd><p>The notes provided for the mount</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.observers">
+<span class="sig-name descname"><span class="pre">observers</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.observers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.observing_sessions">
+<span class="sig-name descname"><span class="pre">observing_sessions</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.observing_sessions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.serial_number">
+<span class="sig-name descname"><span class="pre">serial_number</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.serial_number" title="Link to this definition"></a></dt>
+<dd><p>The serial number for each mount</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Mount.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Mount.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountAccess">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">MountAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/mount_access.html#MountAccess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.MountAccess" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-439e4851d58dcba017cb4e946f436432d8fd8ed0.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.MountAccess" usemap="#inheritance252b8d8b02" class="inheritance graphviz" /></div>
+<map id="inheritance252b8d8b02" name="inheritance252b8d8b02">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="63,229,393,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess" target="_top" title="The table dscribing the mount access" alt="" coords="5,304,451,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="175,5,281,32"/>
+</map><p>The table dscribing the mount access</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountAccess.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountAccess.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountAccess.mount_id">
+<span class="sig-name descname"><span class="pre">mount_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountAccess.mount_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier of the mount</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountAccess.observer_id">
+<span class="sig-name descname"><span class="pre">observer_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountAccess.observer_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for the observer</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountAccess.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountAccess.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">MountType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/mount_type.html#MountType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-31025e35afa31749e3d318cb05e32eb22e3bdbaf.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.MountType" usemap="#inheritance5b27f336f8" class="inheritance graphviz" /></div>
+<map id="inheritance5b27f336f8" name="inheritance5b27f336f8">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="46,229,377,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType" target="_top" title="The table describing the different mount types" alt="" coords="5,304,418,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="159,5,264,32"/>
+</map><p>The table describing the different mount types</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.make">
+<span class="sig-name descname"><span class="pre">make</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.make" title="Link to this definition"></a></dt>
+<dd><p>The make of the mount type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.model" title="Link to this definition"></a></dt>
+<dd><p>The model for each mount type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.mounts">
+<span class="sig-name descname"><span class="pre">mounts</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.mounts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.notes" title="Link to this definition"></a></dt>
+<dd><p>The notes provided for the mount type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.MountType.version">
+<span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.MountType.version" title="Link to this definition"></a></dt>
+<dd><p>The version of the mount type</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">Observatory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/observatory.html#Observatory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-c9baaecaa9fdef9ded0fcf3e4ae9d08c4c953b5e.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.Observatory" usemap="#inheritancee54b1d57e2" class="inheritance graphviz" /></div>
+<map id="inheritancee54b1d57e2" name="inheritancee54b1d57e2">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="49,229,380,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="5,304,424,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="162,5,267,32"/>
+</map><p>The table describing the observatory</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/observatory.html#Observatory.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.__str__" title="Link to this definition"></a></dt>
+<dd><p>Human readable identifier for the observatory.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.altitude">
+<span class="sig-name descname"><span class="pre">altitude</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.altitude" title="Link to this definition"></a></dt>
+<dd><p>The altitude of the observatory</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.latitude">
+<span class="sig-name descname"><span class="pre">latitude</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.latitude" title="Link to this definition"></a></dt>
+<dd><p>The latitude of the observatory</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.longitude">
+<span class="sig-name descname"><span class="pre">longitude</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.longitude" title="Link to this definition"></a></dt>
+<dd><p>The longitude of the observatory</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the observatory</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.observing_sessions">
+<span class="sig-name descname"><span class="pre">observing_sessions</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.observing_sessions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observatory.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observatory.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">Observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/observer.html#Observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-b001643520bfee35a642b05ad1797f4e73239431.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.Observer" usemap="#inheritance5d56b0f712" class="inheritance graphviz" /></div>
+<map id="inheritance5d56b0f712" name="inheritance5d56b0f712">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="32,229,362,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer" target="_top" title="The table describing the observers" alt="" coords="5,304,389,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="144,5,250,32"/>
+</map><p>The table describing the observers</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/observer.html#Observer.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.__str__" title="Link to this definition"></a></dt>
+<dd><p>Human readable string identifying the observer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.cameras">
+<span class="sig-name descname"><span class="pre">cameras</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.cameras" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.email">
+<span class="sig-name descname"><span class="pre">email</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.email" title="Link to this definition"></a></dt>
+<dd><p>The email of the observer</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.mounts">
+<span class="sig-name descname"><span class="pre">mounts</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.mounts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the observer</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.notes" title="Link to this definition"></a></dt>
+<dd><p>Any user supplied notes describing the observer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.observing_sessions">
+<span class="sig-name descname"><span class="pre">observing_sessions</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.observing_sessions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.phone" title="Link to this definition"></a></dt>
+<dd><p>The phone number of the observer</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.telescopes">
+<span class="sig-name descname"><span class="pre">telescopes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.telescopes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Observer.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Observer.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">Telescope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/telescope.html#Telescope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-f81cd2b7f376ee432053787889dd17f01886e90b.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.Telescope" usemap="#inheritance6734f6d899" class="inheritance graphviz" /></div>
+<map id="inheritance6734f6d899" name="inheritance6734f6d899">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="38,229,368,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope" target="_top" title="The table describing the telescopes specified" alt="" coords="5,304,401,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="150,5,256,32"/>
+</map><p>The table describing the telescopes specified</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/telescope.html#Telescope.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.__str__" title="Link to this definition"></a></dt>
+<dd><p>Human readable identifier for the telescope.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.notes" title="Link to this definition"></a></dt>
+<dd><p>The notes provided for the telescope</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.observers">
+<span class="sig-name descname"><span class="pre">observers</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.observers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.observing_sessions">
+<span class="sig-name descname"><span class="pre">observing_sessions</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.observing_sessions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.serial_number">
+<span class="sig-name descname"><span class="pre">serial_number</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.serial_number" title="Link to this definition"></a></dt>
+<dd><p>The serial number of the telescope</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.telescope_type">
+<span class="sig-name descname"><span class="pre">telescope_type</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.telescope_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.telescope_type_id">
+<span class="sig-name descname"><span class="pre">telescope_type_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.telescope_type_id" title="Link to this definition"></a></dt>
+<dd><p>The id of the telescope type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.Telescope.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.Telescope.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeAccess">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">TelescopeAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/telescope_access.html#TelescopeAccess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeAccess" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-f58a60f217c299d47de59d3e165fdd92b19fb565.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.TelescopeAccess" usemap="#inheritancea1f7851d30" class="inheritance graphviz" /></div>
+<map id="inheritancea1f7851d30" name="inheritancea1f7851d30">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="84,229,415,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess" target="_top" title="The table describing the telescope access" alt="" coords="5,304,494,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="197,5,302,32"/>
+</map><p>The table describing the telescope access</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeAccess.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeAccess.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeAccess.observer_id">
+<span class="sig-name descname"><span class="pre">observer_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeAccess.observer_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for the observer</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeAccess.telescope_id">
+<span class="sig-name descname"><span class="pre">telescope_id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeAccess.telescope_id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier of the telescope</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeAccess.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeAccess.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.data_model.provenance.</span></span><span class="sig-name descname"><span class="pre">TelescopeType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/data_model/provenance/telescope_type.html#TelescopeType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" title="autowisp.database.data_model.base.DataModelBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-b442563fdcb73a71aa05817f2ad4fcfb741c63a8.png" alt="Inheritance diagram of autowisp.database.data_model.provenance.TelescopeType" usemap="#inheritance2466c54e52" class="inheritance graphviz" /></div>
+<map id="inheritance2466c54e52" name="inheritance2466c54e52">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="68,229,398,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType" target="_top" title="The table dscribing the different telescope types" alt="" coords="5,304,461,331"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="180,5,286,32"/>
+</map><p>The table dscribing the different telescope types</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.f_ratio">
+<span class="sig-name descname"><span class="pre">f_ratio</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.f_ratio" title="Link to this definition"></a></dt>
+<dd><p>The focal ratio of the telescope</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.focal_length">
+<span class="sig-name descname"><span class="pre">focal_length</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.focal_length" title="Link to this definition"></a></dt>
+<dd><p>The focal length of the telescope in mm</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.id" title="Link to this definition"></a></dt>
+<dd><p>A unique identifier for each row.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.make">
+<span class="sig-name descname"><span class="pre">make</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.make" title="Link to this definition"></a></dt>
+<dd><p>The make of the telescope</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.model" title="Link to this definition"></a></dt>
+<dd><p>The model of the telescope</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.notes">
+<span class="sig-name descname"><span class="pre">notes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.notes" title="Link to this definition"></a></dt>
+<dd><p>The notes provided for the telescope type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.telescopes">
+<span class="sig-name descname"><span class="pre">telescopes</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.telescopes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.timestamp" title="Link to this definition"></a></dt>
+<dd><p>When record was last changed</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.database.data_model.provenance.TelescopeType.version">
+<span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#autowisp.database.data_model.provenance.TelescopeType.version" title="Link to this definition"></a></dt>
+<dd><p>The version of the telescope</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html">autowisp.database.data_model.provenance.camera module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera"><code class="docutils literal notranslate"><span class="pre">Camera</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.__str__"><code class="docutils literal notranslate"><span class="pre">Camera.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.camera_type"><code class="docutils literal notranslate"><span class="pre">Camera.camera_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.camera_type_id"><code class="docutils literal notranslate"><span class="pre">Camera.camera_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.channels"><code class="docutils literal notranslate"><span class="pre">Camera.channels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.id"><code class="docutils literal notranslate"><span class="pre">Camera.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.notes"><code class="docutils literal notranslate"><span class="pre">Camera.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.observers"><code class="docutils literal notranslate"><span class="pre">Camera.observers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.observing_sessions"><code class="docutils literal notranslate"><span class="pre">Camera.observing_sessions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.serial_number"><code class="docutils literal notranslate"><span class="pre">Camera.serial_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.timestamp"><code class="docutils literal notranslate"><span class="pre">Camera.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html">autowisp.database.data_model.provenance.camera_access module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess"><code class="docutils literal notranslate"><span class="pre">CameraAccess</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess.camera_id"><code class="docutils literal notranslate"><span class="pre">CameraAccess.camera_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess.id"><code class="docutils literal notranslate"><span class="pre">CameraAccess.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess.observer_id"><code class="docutils literal notranslate"><span class="pre">CameraAccess.observer_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_access.html#autowisp.database.data_model.provenance.camera_access.CameraAccess.timestamp"><code class="docutils literal notranslate"><span class="pre">CameraAccess.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html">autowisp.database.data_model.provenance.camera_channel module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel"><code class="docutils literal notranslate"><span class="pre">CameraChannel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.camera_type_id"><code class="docutils literal notranslate"><span class="pre">CameraChannel.camera_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.id"><code class="docutils literal notranslate"><span class="pre">CameraChannel.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.name"><code class="docutils literal notranslate"><span class="pre">CameraChannel.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.timestamp"><code class="docutils literal notranslate"><span class="pre">CameraChannel.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.x_offset"><code class="docutils literal notranslate"><span class="pre">CameraChannel.x_offset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.x_step"><code class="docutils literal notranslate"><span class="pre">CameraChannel.x_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.y_offset"><code class="docutils literal notranslate"><span class="pre">CameraChannel.y_offset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.y_step"><code class="docutils literal notranslate"><span class="pre">CameraChannel.y_step</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html">autowisp.database.data_model.provenance.camera_type module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType"><code class="docutils literal notranslate"><span class="pre">CameraType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.cameras"><code class="docutils literal notranslate"><span class="pre">CameraType.cameras</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.channels"><code class="docutils literal notranslate"><span class="pre">CameraType.channels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.id"><code class="docutils literal notranslate"><span class="pre">CameraType.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.make"><code class="docutils literal notranslate"><span class="pre">CameraType.make</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.model"><code class="docutils literal notranslate"><span class="pre">CameraType.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.notes"><code class="docutils literal notranslate"><span class="pre">CameraType.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.pixel_size"><code class="docutils literal notranslate"><span class="pre">CameraType.pixel_size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.sensor_type"><code class="docutils literal notranslate"><span class="pre">CameraType.sensor_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.timestamp"><code class="docutils literal notranslate"><span class="pre">CameraType.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.version"><code class="docutils literal notranslate"><span class="pre">CameraType.version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.x_resolution"><code class="docutils literal notranslate"><span class="pre">CameraType.x_resolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.y_resolution"><code class="docutils literal notranslate"><span class="pre">CameraType.y_resolution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html">autowisp.database.data_model.provenance.mount module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount"><code class="docutils literal notranslate"><span class="pre">Mount</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.__str__"><code class="docutils literal notranslate"><span class="pre">Mount.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.id"><code class="docutils literal notranslate"><span class="pre">Mount.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.mount_type"><code class="docutils literal notranslate"><span class="pre">Mount.mount_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.mount_type_id"><code class="docutils literal notranslate"><span class="pre">Mount.mount_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.notes"><code class="docutils literal notranslate"><span class="pre">Mount.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.observers"><code class="docutils literal notranslate"><span class="pre">Mount.observers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.observing_sessions"><code class="docutils literal notranslate"><span class="pre">Mount.observing_sessions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.serial_number"><code class="docutils literal notranslate"><span class="pre">Mount.serial_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.timestamp"><code class="docutils literal notranslate"><span class="pre">Mount.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html">autowisp.database.data_model.provenance.mount_access module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess"><code class="docutils literal notranslate"><span class="pre">MountAccess</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess.id"><code class="docutils literal notranslate"><span class="pre">MountAccess.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess.mount_id"><code class="docutils literal notranslate"><span class="pre">MountAccess.mount_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess.observer_id"><code class="docutils literal notranslate"><span class="pre">MountAccess.observer_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess.timestamp"><code class="docutils literal notranslate"><span class="pre">MountAccess.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html">autowisp.database.data_model.provenance.mount_type module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType"><code class="docutils literal notranslate"><span class="pre">MountType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.id"><code class="docutils literal notranslate"><span class="pre">MountType.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.make"><code class="docutils literal notranslate"><span class="pre">MountType.make</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.model"><code class="docutils literal notranslate"><span class="pre">MountType.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.mounts"><code class="docutils literal notranslate"><span class="pre">MountType.mounts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.notes"><code class="docutils literal notranslate"><span class="pre">MountType.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.timestamp"><code class="docutils literal notranslate"><span class="pre">MountType.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.version"><code class="docutils literal notranslate"><span class="pre">MountType.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html">autowisp.database.data_model.provenance.observatory module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory"><code class="docutils literal notranslate"><span class="pre">Observatory</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.__str__"><code class="docutils literal notranslate"><span class="pre">Observatory.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.altitude"><code class="docutils literal notranslate"><span class="pre">Observatory.altitude</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.id"><code class="docutils literal notranslate"><span class="pre">Observatory.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.latitude"><code class="docutils literal notranslate"><span class="pre">Observatory.latitude</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.longitude"><code class="docutils literal notranslate"><span class="pre">Observatory.longitude</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.name"><code class="docutils literal notranslate"><span class="pre">Observatory.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.observing_sessions"><code class="docutils literal notranslate"><span class="pre">Observatory.observing_sessions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.timestamp"><code class="docutils literal notranslate"><span class="pre">Observatory.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html">autowisp.database.data_model.provenance.observer module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer"><code class="docutils literal notranslate"><span class="pre">Observer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.__str__"><code class="docutils literal notranslate"><span class="pre">Observer.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.cameras"><code class="docutils literal notranslate"><span class="pre">Observer.cameras</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.email"><code class="docutils literal notranslate"><span class="pre">Observer.email</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.id"><code class="docutils literal notranslate"><span class="pre">Observer.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.mounts"><code class="docutils literal notranslate"><span class="pre">Observer.mounts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.name"><code class="docutils literal notranslate"><span class="pre">Observer.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.notes"><code class="docutils literal notranslate"><span class="pre">Observer.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.observing_sessions"><code class="docutils literal notranslate"><span class="pre">Observer.observing_sessions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.phone"><code class="docutils literal notranslate"><span class="pre">Observer.phone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.telescopes"><code class="docutils literal notranslate"><span class="pre">Observer.telescopes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.timestamp"><code class="docutils literal notranslate"><span class="pre">Observer.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html">autowisp.database.data_model.provenance.telescope module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope"><code class="docutils literal notranslate"><span class="pre">Telescope</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.__str__"><code class="docutils literal notranslate"><span class="pre">Telescope.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.id"><code class="docutils literal notranslate"><span class="pre">Telescope.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.notes"><code class="docutils literal notranslate"><span class="pre">Telescope.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.observers"><code class="docutils literal notranslate"><span class="pre">Telescope.observers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.observing_sessions"><code class="docutils literal notranslate"><span class="pre">Telescope.observing_sessions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.serial_number"><code class="docutils literal notranslate"><span class="pre">Telescope.serial_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.telescope_type"><code class="docutils literal notranslate"><span class="pre">Telescope.telescope_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.telescope_type_id"><code class="docutils literal notranslate"><span class="pre">Telescope.telescope_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.timestamp"><code class="docutils literal notranslate"><span class="pre">Telescope.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html">autowisp.database.data_model.provenance.telescope_access module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess"><code class="docutils literal notranslate"><span class="pre">TelescopeAccess</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess.id"><code class="docutils literal notranslate"><span class="pre">TelescopeAccess.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess.observer_id"><code class="docutils literal notranslate"><span class="pre">TelescopeAccess.observer_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess.telescope_id"><code class="docutils literal notranslate"><span class="pre">TelescopeAccess.telescope_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_access.html#autowisp.database.data_model.provenance.telescope_access.TelescopeAccess.timestamp"><code class="docutils literal notranslate"><span class="pre">TelescopeAccess.timestamp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html">autowisp.database.data_model.provenance.telescope_type module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType"><code class="docutils literal notranslate"><span class="pre">TelescopeType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.f_ratio"><code class="docutils literal notranslate"><span class="pre">TelescopeType.f_ratio</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.focal_length"><code class="docutils literal notranslate"><span class="pre">TelescopeType.focal_length</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.id"><code class="docutils literal notranslate"><span class="pre">TelescopeType.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.make"><code class="docutils literal notranslate"><span class="pre">TelescopeType.make</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.model"><code class="docutils literal notranslate"><span class="pre">TelescopeType.model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.notes"><code class="docutils literal notranslate"><span class="pre">TelescopeType.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.telescopes"><code class="docutils literal notranslate"><span class="pre">TelescopeType.telescopes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.timestamp"><code class="docutils literal notranslate"><span class="pre">TelescopeType.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.version"><code class="docutils literal notranslate"><span class="pre">TelescopeType.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.database.data_model.html" class="btn btn-neutral float-left" title="autowisp.database.data_model package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.database.data_model.provenance.camera.html" class="btn btn-neutral float-right" title="autowisp.database.data_model.provenance.camera module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

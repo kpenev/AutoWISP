@@ -1,0 +1,7 @@
+autowisp.processing\_steps.create\_lightcurves module
+=====================================================
+
+.. automodule:: autowisp.processing_steps.create_lightcurves
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.tests.test\_calibrate module
+=====================================
+
+.. automodule:: autowisp.tests.test_calibrate
+   :members:
+   :show-inheritance:
+   :undoc-members:

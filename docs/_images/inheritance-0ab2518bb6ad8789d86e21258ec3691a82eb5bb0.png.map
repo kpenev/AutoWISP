@@ -1,0 +1,39 @@
+<map id="inheritance655f7110e1" name="inheritance655f7110e1">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="551,453,626,480"/>
+<area shape="rect" id="node17" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
+<area shape="rect" id="node19" href="#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="508,528,824,555"/>
+<area shape="rect" id="node2" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="1726,5,1898,32"/>
+<area shape="rect" id="node20" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1718,80,1907,107"/>
+<area shape="rect" id="node3" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
+<area shape="rect" id="node4" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
+<area shape="rect" id="node22" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2482,229,2812,256"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="652,304,968,331"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="992,304,1443,331"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="1467,304,1827,331"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1851,304,2248,331"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="2273,304,2613,331"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="2637,304,3065,331"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="3089,304,3669,331"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="3692,304,4034,331"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4058,304,4406,331"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="4431,304,4799,331"/>
+<area shape="rect" id="node6" title="Base class used for declarative class definitions." alt="" coords="2515,155,2779,181"/>
+<area shape="rect" id="node18" href="#autowisp.database.processing.ProcessingInProgress" target="_top" title="Raised when a particular step is running in a different process/host." alt="" coords="2724,5,3053,32"/>
+<area shape="rect" id="node21" title="Represents an HDF5 file." alt="" coords="328,453,451,480"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="536,80,707,107"/>
+<area shape="rect" id="node27" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="541,155,702,181"/>
+<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="374,5,520,32"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="544,5,699,32"/>
+<area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="723,5,891,32"/>
+<area shape="rect" id="node28" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="406,229,613,256"/>
+<area shape="rect" id="node31" title="Wraps a Group, AttributeManager or DimensionManager object to provide" alt="" coords="638,229,827,256"/>
+<area shape="rect" id="node32" title="Wraps a Group or AttributeManager object to provide a mutable" alt="" coords="392,304,627,331"/>
+<area shape="rect" id="node29" title="Mixin class that allows sharing information between objects which" alt="" coords="155,229,382,256"/>
+<area shape="rect" id="node30" title="Base class for high&#45;level interface objects." alt="" coords="199,304,359,331"/>
+<area shape="rect" id="node33" title="Represents an HDF5 group." alt="" coords="318,379,462,405"/>
+<area shape="rect" id="node34" title="Represents an OS process with the given PID." alt="" coords="3078,5,3182,32"/>
+<area shape="rect" id="node35" title="define a class as inspectable." alt="" coords="2537,80,2757,107"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2594,5,2700,32"/>
+<area shape="rect" id="node37" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="3206,5,3392,32"/>
+</map>

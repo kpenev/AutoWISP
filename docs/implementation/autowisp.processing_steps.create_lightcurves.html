@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.create_lightcurves module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.processing_steps.epd module" href="autowisp.processing_steps.epd.html" />
+    <link rel="prev" title="autowisp.processing_steps.calibrate module" href="autowisp.processing_steps.calibrate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.processing_steps.html">autowisp.processing_steps package</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.create_lightcurves module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.processing_steps.create_lightcurves.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.processing_steps.create_lightcurves">
+<span id="autowisp-processing-steps-create-lightcurves-module"></span><h1>autowisp.processing_steps.create_lightcurves module<a class="headerlink" href="#module-autowisp.processing_steps.create_lightcurves" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-a198f0ead0a9f576abb3bb77290e1feb1df6de52.png" alt="Inheritance diagram of DataReductionFile, DecodingStringFormatter, Interpreter, LightCurveFile, ManualStepArgumentParser, MasterCatalog, Table" usemap="#inheritancec4c181a21c" class="inheritance graphviz" /></div>
+<map id="inheritancec4c181a21c" name="inheritancec4c181a21c">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
+<area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="976,5,1145,32"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
+<area shape="rect" id="node11" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node9" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="1401,80,1816,107"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="1552,5,1665,32"/>
+<area shape="rect" id="node12" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="1688,5,2067,32"/>
+<area shape="rect" id="node13" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="852,155,1268,181"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="596,80,767,107"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="601,155,762,181"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="434,5,580,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="604,5,759,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="783,5,951,32"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="467,229,675,256"/>
+</map><p>Create light curves from a collection of DR files.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">MasterCatalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-b5dc73077f902297675d23e04eeb57e5f98a8785.png" alt="Inheritance diagram of autowisp.processing_steps.create_lightcurves.MasterCatalog" usemap="#inheritance9bc6c0f694" class="inheritance graphviz" /></div>
+<map id="inheritance9bc6c0f694" name="inheritance9bc6c0f694">
+<area shape="rect" id="node1" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog" target="_top" title="Class for managing the master catalog for LC creation." alt="" coords="5,5,384,32"/>
+</map><p>Class for managing the master catalog for LC creation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog.__init__" title="Link to this definition"></a></dt>
+<dd><p>Prepare to add sources to the catalog.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog.add_batch">
+<span class="sig-name descname"><span class="pre">add_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog.add_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog.add_batch" title="Link to this definition"></a></dt>
+<dd><p>Add any sources after a batch of newly created lightcurves.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog.is_new">
+<span class="sig-name descname"><span class="pre">is_new</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog.is_new"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog.is_new" title="Link to this definition"></a></dt>
+<dd><p>True iff the given master is newly created rather than extension.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.MasterCatalog.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#MasterCatalog.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.MasterCatalog.save" title="Link to this definition"></a></dt>
+<dd><p>Save the catalog and return the filename.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.cleanup_interrupted">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">cleanup_interrupted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interrupted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#cleanup_interrupted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.cleanup_interrupted" title="Link to this definition"></a></dt>
+<dd><p>Cleanup the file system after interrupted lightcurve creation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.create_lightcurves">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">create_lightcurves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#create_lightcurves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.create_lightcurves" title="Link to this definition"></a></dt>
+<dd><p>Create lightcurves from the data in the given DR files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.dummy_fname_parser">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">dummy_fname_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#dummy_fname_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.dummy_fname_parser" title="Link to this definition"></a></dt>
+<dd><p>No extra keywords to add from filename.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.get_observatory">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">get_observatory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#get_observatory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.get_observatory" title="Link to this definition"></a></dt>
+<dd><p>Return (latitude, longitude, altitude) where given data was collected.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.get_path_substitutions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">get_path_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#get_path_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.get_path_substitutions" title="Link to this definition"></a></dt>
+<dd><p>Return the path substitutions for getting data out of DR files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.has_magfit">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">has_magfit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#has_magfit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.has_magfit" title="Link to this definition"></a></dt>
+<dd><p>Check if the DR file contains a sky-to-frame transformation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.main" title="Link to this definition"></a></dt>
+<dd><p>Run the light curve creation step from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.parse_command_line">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.parse_command_line" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed command line arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.create_lightcurves.sort_by_observatory">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.create_lightcurves.</span></span><span class="sig-name descname"><span class="pre">sort_by_observatory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/create_lightcurves.html#sort_by_observatory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.create_lightcurves.sort_by_observatory" title="Link to this definition"></a></dt>
+<dd><p>Split the DR files by observatory coords and sort within observatory.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.processing_steps.calibrate.html" class="btn btn-neutral float-left" title="autowisp.processing_steps.calibrate module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.processing_steps.epd.html" class="btn btn-neutral float-right" title="autowisp.processing_steps.epd module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

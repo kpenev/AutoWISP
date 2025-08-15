@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_calibration.overscan_methods module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.light_curves package" href="autowisp.light_curves.html" />
+    <link rel="prev" title="autowisp.image_calibration.master_maker module" href="autowisp.image_calibration.master_maker.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.image_calibration.html">autowisp.image_calibration package</a></li>
+      <li class="breadcrumb-item active">autowisp.image_calibration.overscan_methods module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.image_calibration.overscan_methods.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.image_calibration.overscan_methods">
+<span id="autowisp-image-calibration-overscan-methods-module"></span><h1>autowisp.image_calibration.overscan_methods module<a class="headerlink" href="#module-autowisp.image_calibration.overscan_methods" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-96e95880cfa3f4c56b8d78ab14a596f7627d68b7.png" alt="Inheritance diagram of ABC, Base, ConvergenceError, Median, Processor" usemap="#inheritance330361a1c8" class="inheritance graphviz" /></div>
+<map id="inheritance330361a1c8" name="inheritance330361a1c8">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="57,5,132,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_calibration.overscan_methods.Base" target="_top" title="The minimal intefrace that must be provided by overscan methods." alt="" coords="11,80,338,107"/>
+<area shape="rect" id="node4" href="#autowisp.image_calibration.overscan_methods.Median" target="_top" title="Correction is median of all overscan pixels with iterative outlier reject." alt="" coords="5,155,344,181"/>
+<area shape="rect" id="node3" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="156,5,353,32"/>
+<area shape="rect" id="node5" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="378,5,678,32"/>
+</map><p>A collection of overscan correction methods (see Calibrator class docs).</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Base">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.overscan_methods.</span></span><span class="sig-name descname"><span class="pre">Base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Base"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Base" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor" title="autowisp.processor.Processor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Processor</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-1a9db987ae04aaf5c147ee438caffe7a2517f353.png" alt="Inheritance diagram of autowisp.image_calibration.overscan_methods.Base" usemap="#inheritancea77dd5144b" class="inheritance graphviz" /></div>
+<map id="inheritancea77dd5144b" name="inheritancea77dd5144b">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="51,5,126,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_calibration.overscan_methods.Base" target="_top" title="The minimal intefrace that must be provided by overscan methods." alt="" coords="5,80,332,107"/>
+<area shape="rect" id="node3" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="150,5,347,32"/>
+</map><p>The minimal intefrace that must be provided by overscan methods.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Base.__call__">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_hdu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overscans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Base.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Base.__call__" title="Link to this definition"></a></dt>
+<dd><p>Return the overscan correction and its variance for the given image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_fname</strong> – The raw image(s) for which to find the
+overscan correction. Should be dictionary of filenames if
+processing multi-channel dataset that is split in different
+files.</p></li>
+<li><p><strong>raw_hdu</strong> – The HDU to read from the raw file. Int or dict indexed
+by channel name.</p></li>
+<li><p><strong>overscans</strong> – A list of the areas on the image to use when
+determining the overscan correction. Each area is specified as
+<code class="docutils literal notranslate"><span class="pre">dict(xmin</span> <span class="pre">=</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">xmax</span> <span class="pre">=</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">ymin</span> <span class="pre">=</span> <span class="pre">&lt;int&gt;,</span> <span class="pre">ymax</span> <span class="pre">=</span> <span class="pre">&lt;int&gt;)</span></code>
+For multi-channel data the coordinates are for the un-split
+image.</p></li>
+<li><p><strong>image_area</strong> – The area in raw_image for which to calculate the
+overscan correction. The format is the same as a single
+overscan area.</p></li>
+<li><p><strong>gain</strong> – The value of the gain to assume for the raw image
+(electrons/ADU).</p></li>
+<li><p><strong>split_channels</strong> – See <code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrator</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Dictionary with items:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>correction:    A 2-D numpy array with the same resolution</dt><dd><p>as the image_area giving the correction to subtract from
+each pixel.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>variance:    An estimate of the variance in the</dt><dd><p>overscan_correction entries (in ADU).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Base.document_in_fits_header">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">document_in_fits_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Base.document_in_fits_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Base.document_in_fits_header" title="Link to this definition"></a></dt>
+<dd><p>Document last overscan correction by updating given FITS header.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Median">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.overscan_methods.</span></span><span class="sig-name descname"><span class="pre">Median</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reject_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_reject_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_convergence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Median"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Median" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.image_calibration.overscan_methods.Base" title="autowisp.image_calibration.overscan_methods.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-5ea7c0d62d774630bd66ab6fa42ff76d3313827c.png" alt="Inheritance diagram of autowisp.image_calibration.overscan_methods.Median" usemap="#inheritance52c5ee0b09" class="inheritance graphviz" /></div>
+<map id="inheritance52c5ee0b09" name="inheritance52c5ee0b09">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="57,5,132,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_calibration.overscan_methods.Base" target="_top" title="The minimal intefrace that must be provided by overscan methods." alt="" coords="11,80,338,107"/>
+<area shape="rect" id="node4" href="#autowisp.image_calibration.overscan_methods.Median" target="_top" title="Correction is median of all overscan pixels with iterative outlier reject." alt="" coords="5,155,344,181"/>
+<area shape="rect" id="node3" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="156,5,353,32"/>
+</map><p>Correction is median of all overscan pixels with iterative outlier reject.</p>
+<p>The correction is computed as the median of all overscan pixels. After that,
+pixels that are too far from the median are excluded and the process starts
+from the beginning until no pixels are rejected or the maximum number of
+rejection iterations is reached.</p>
+<p>Public attributes exactly match the  <a class="reference internal" href="#autowisp.image_calibration.overscan_methods.Median.__init__" title="autowisp.image_calibration.overscan_methods.Median.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> arguments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Median.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overscans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Median.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Median.__call__" title="Link to this definition"></a></dt>
+<dd><p>See Base.__call__</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Median.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reject_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_reject_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_convergence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Median.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Median.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create a median ovescan correction method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reject_threshold</strong> – Pixels that differ by more than
+reject_threshold standard deviations from the median are
+rejected at each iteration.</p></li>
+<li><p><strong>max_reject_iterations</strong> – The maximum number of outlier rejection
+iterations to perform. If this limit is reached, either the
+latest result is accepted, or an exception is raised depending
+on <strong>require_convergence</strong>.</p></li>
+<li><p><strong>require_convergence</strong> – If this is False and the maximum number of
+rejection iterations is reached, the last median computed is the
+accepted result. If this is True, hitting the
+max_reject_iterations limit throws an exception.</p></li>
+<li><p><strong>min_pixels</strong> – If iterative rejection drives the number of
+acceptable pixels below this value an exception is raised.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Initializes the following private attributes to None, which indicate
+the state of the last overscan correction calculation:</p>
+<dl class="simple">
+<dt><strong>_last_num_reject_iter</strong>:    The number of rejection iterations</dt><dd><p>used by the last overscan correction calculation.</p>
+</dd>
+<dt><strong>_last_num_pixels</strong>:    The number of unrejected pixels the last</dt><dd><p>overscan correction was based on.</p>
+</dd>
+</dl>
+<p><strong>_last_converged</strong>:    Did the last overscan calculation converge?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.overscan_methods.Median.document_in_fits_header">
+<span class="sig-name descname"><span class="pre">document_in_fits_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/overscan_methods.html#Median.document_in_fits_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.overscan_methods.Median.document_in_fits_header" title="Link to this definition"></a></dt>
+<dd><p>Document the last calculated overscan correction to header.</p>
+<p class="rubric">Notes</p>
+<p>Adds the following keywords to the header:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OVSCNMTD</span> <span class="o">=</span> <span class="n">Iterative</span> <span class="n">rejection</span> <span class="n">median</span>
+           <span class="o">/</span> <span class="n">Overscan</span> <span class="n">correction</span> <span class="n">method</span>
+
+<span class="n">OVSCREJM</span> <span class="o">=</span> <span class="c1">###</span>
+           <span class="o">/</span> <span class="n">Maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">allowed</span> <span class="n">overscan</span> <span class="n">rejection</span>
+           <span class="n">iterations</span><span class="o">.</span>
+
+<span class="n">OVSCMINP</span> <span class="o">=</span> <span class="c1">###</span>
+           <span class="o">/</span> <span class="n">Minimum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">pixels</span> <span class="n">to</span> <span class="n">base</span> <span class="n">correction</span> <span class="n">on</span>
+
+<span class="n">OVSCREJI</span> <span class="o">=</span> <span class="c1">###</span>
+           <span class="o">/</span> <span class="n">Number</span> <span class="n">of</span> <span class="n">overscan</span> <span class="n">rejection</span> <span class="n">iterations</span> <span class="n">applied</span>
+
+<span class="n">OVSCNPIX</span> <span class="o">=</span> <span class="c1">###</span>
+           <span class="o">/</span> <span class="n">Actual</span> <span class="n">number</span> <span class="n">of</span> <span class="n">pixels</span> <span class="n">used</span> <span class="n">to</span> <span class="n">calc</span> <span class="n">overscan</span>
+
+<span class="n">OVSCCONV</span> <span class="o">=</span> <span class="n">T</span><span class="o">/</span><span class="n">F</span>
+           <span class="o">/</span> <span class="n">Did</span> <span class="n">the</span> <span class="n">last</span> <span class="n">overscan</span> <span class="n">correction</span> <span class="n">converge</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>header</strong> – The FITS header to add the keywords to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.image_calibration.master_maker.html" class="btn btn-neutral float-left" title="autowisp.image_calibration.master_maker module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.light_curves.html" class="btn btn-neutral float-right" title="autowisp.light_curves package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

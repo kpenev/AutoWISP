@@ -1,0 +1,33 @@
+autowisp.processing\_steps package
+==================================
+
+.. automodule:: autowisp.processing_steps
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.processing_steps.add_images_to_db
+   autowisp.processing_steps.calculate_photref_merit
+   autowisp.processing_steps.calibrate
+   autowisp.processing_steps.create_lightcurves
+   autowisp.processing_steps.epd
+   autowisp.processing_steps.find_stars
+   autowisp.processing_steps.fit_magnitudes
+   autowisp.processing_steps.fit_source_extracted_psf_map
+   autowisp.processing_steps.fit_star_shape
+   autowisp.processing_steps.generate_epd_statistics
+   autowisp.processing_steps.generate_tfa_statistics
+   autowisp.processing_steps.lc_detrending
+   autowisp.processing_steps.lc_detrending_argument_parser
+   autowisp.processing_steps.manual_util
+   autowisp.processing_steps.measure_aperture_photometry
+   autowisp.processing_steps.solve_astrometry
+   autowisp.processing_steps.stack_to_master
+   autowisp.processing_steps.stack_to_master_flat
+   autowisp.processing_steps.tfa

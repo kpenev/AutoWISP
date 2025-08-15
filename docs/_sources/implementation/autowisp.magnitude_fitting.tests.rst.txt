@@ -1,0 +1,15 @@
+autowisp.magnitude\_fitting.tests package
+=========================================
+
+.. automodule:: autowisp.magnitude_fitting.tests
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.magnitude_fitting.tests.test_mphotref_collector

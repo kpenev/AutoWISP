@@ -1,0 +1,7 @@
+<map id="inheritance5be2093b25" name="inheritance5be2093b25">
+<area shape="rect" id="node1" title="Test case involving floating point comparisons." alt="" coords="60,80,304,107"/>
+<area shape="rect" id="node3" href="autowisp.tests.html#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="68,155,296,181"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="104,5,260,32"/>
+<area shape="rect" id="node4" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase" target="_top" title="Add assert for comparing AutoWISP generated FITS files." alt="" coords="41,229,323,256"/>
+<area shape="rect" id="node5" href="#autowisp.tests.test_stack_to_master.TestStackToMaster" target="_top" title="Test cases for master stacking steps." alt="" coords="5,304,359,331"/>
+</map>

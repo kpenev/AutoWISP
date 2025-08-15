@@ -1,0 +1,7 @@
+autowisp.database.data\_model.provenance.observatory module
+===========================================================
+
+.. automodule:: autowisp.database.data_model.provenance.observatory
+   :members:
+   :show-inheritance:
+   :undoc-members:

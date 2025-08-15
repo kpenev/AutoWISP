@@ -1,0 +1,1257 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_calibration package &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.image_calibration.calibrator module" href="autowisp.image_calibration.calibrator.html" />
+    <link rel="prev" title="autowisp.fit_expression.used_var_finder module" href="autowisp.fit_expression.used_var_finder.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.image_calibration package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.image_calibration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.image_calibration">
+<span id="autowisp-image-calibration-package"></span><h1>autowisp.image_calibration package<a class="headerlink" href="#module-autowisp.image_calibration" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-e0e71e87f0777b74c6764711946b1f03caae0daf.png" alt="Inheritance diagram of Calibrator, MasterFlatMaker, MasterMaker" usemap="#inheritancefc341249a1" class="inheritance graphviz" /></div>
+<map id="inheritancefc341249a1" name="inheritancefc341249a1">
+<area shape="rect" id="node1" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="5,80,301,107"/>
+<area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="226,5,424,32"/>
+<area shape="rect" id="node4" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="324,80,670,107"/>
+<area shape="rect" id="node3" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker" target="_top" title="Specialize MasterMaker for making master flat frames." alt="" coords="301,155,693,181"/>
+</map><p>Module implementing the low-level image calibration.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.</span></span><span class="sig-name descname"><span class="pre">Calibrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">saturation_threshold</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor" title="autowisp.processor.Processor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Processor</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-9c8e4579bb9577adfb81ccea38aa3732328ee916.png" alt="Inheritance diagram of autowisp.image_calibration.Calibrator" usemap="#inheritancecd19eb79cc" class="inheritance graphviz" /></div>
+<map id="inheritancecd19eb79cc" name="inheritancecd19eb79cc">
+<area shape="rect" id="node1" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator" target="_top" title="Provide basic calibration operations (bias/dark/flat) fully tracking noise." alt="" coords="5,80,301,107"/>
+<area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="54,5,252,32"/>
+</map><p>Provide basic calibration operations (bias/dark/flat) fully tracking noise.</p>
+<p>Public attributes, set through <a class="reference internal" href="#autowisp.image_calibration.Calibrator.__init__" title="autowisp.image_calibration.Calibrator.__init__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__init__()</span></code></a>, provide defaults for
+calibration parameters that can be overwritten on a one-time basis for
+each frame being calibrated by passing arguments to <a class="reference internal" href="#autowisp.image_calibration.Calibrator.__call__" title="autowisp.image_calibration.Calibrator.__call__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__call__()</span></code></a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.configuration">
+<span class="sig-name descname"><span class="pre">configuration</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.configuration" title="Link to this definition"></a></dt>
+<dd><p>Defines the following calibration parameters:</p>
+<dl class="simple">
+<dt>raw_hdu:    Which hdu of the raw frame contains the image to</dt><dd><p>calibrate. If a single number, the channels are assumed
+staggeder in that image. Otherwise, should be be a dictionary
+indexed by channel name specifying the header of each color
+channel. Note that the header is always taken from the first
+non-trivial hdu. For compressed frames, this should never be
+zero.</p>
+</dd>
+<dt>split_channels:    If this is a color image (i.e. staggering 4 color</dt><dd><p>channels), this argument should be a dictionary with keys the
+names to use for the color channels and values specifying slices
+in the image that isolate the pixels of each channel. If single
+color images it should be <code class="docutils literal notranslate"><span class="pre">{None:</span> <span class="pre">slice(None)}</span></code>.</p>
+</dd>
+<dt>saturation_threshold:    The value (in ADU) above which the pixel is</dt><dd><p>considered saturated.</p>
+</dd>
+</dl>
+<p>overscan:   A dictionary containing:</p>
+<blockquote>
+<div><ul>
+<li><p>areas:    The areas in the raw image to use for overscan
+corrections.  The format is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+         <span class="n">xmax</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+         <span class="n">ymin</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+         <span class="n">ymax</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">),</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>method:    See <a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base" title="autowisp.image_calibration.overscan_methods.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">overscan_methods.Base</span></code></a></p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>image_area:    The area in the raw image which actually contains the</dt><dd><p>useful image of the night sky. The dimensions must match the
+dimensions of the masters to apply an of the overscan correction
+retured by overscan_method. The format is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>gain:    The gain to assume for the input image (electrons/ADU).</dt><dd><p>Only useful when estimating errors and could be used by the
+overscan_method.</p>
+</dd>
+<dt>calibrated_fname:    The filename under which to save the craeted</dt><dd><p>image. Treated as a format string that may involve replacement
+fields from the resulting header, including {CLRCHNL}, which
+gets replaced by the color channel if channel splitting is
+performed, as well as {RAWFNAME}, which gets replaced by the
+file name of the input FITS file with all directories and
+<cite>.fits</cite> or <cite>.fits.fz</cite> extension stripped and {FNUM} which gets
+replaced by the frame number (see above).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.master_bias">
+<span class="sig-name descname"><span class="pre">master_bias</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.master_bias" title="Link to this definition"></a></dt>
+<dd><p>A dictionary indexed by channel with each entry being
+further dictionary containing:</p>
+<ul class="simple">
+<li><p>filenames: Dictionary indexed by color channel of the filename of
+the master bias frame to use in subsequent calibrations (if not
+overwritten).</p></li>
+<li><p>correction:    The correction to apply (if not overwritten)
+constructed by combining the master biases for each channel.</p></li>
+<li><p>variance:    An estimate of the variance of the <code class="docutils literal notranslate"><span class="pre">correction</span></code>
+entry.</p></li>
+<li><p>mask:    The bitmask the pixel indicating the combination of
+flags raised for each pixel. The individual flages are defined
+by <a class="reference internal" href="autowisp.image_calibration.mask_utilities.html#autowisp.image_calibration.mask_utilities.mask_flags" title="autowisp.image_calibration.mask_utilities.mask_flags"><code class="xref py py-data docutils literal notranslate"><span class="pre">mask_utilities.mask_flags</span></code></a>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.master_dark">
+<span class="sig-name descname"><span class="pre">master_dark</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.master_dark" title="Link to this definition"></a></dt>
+<dd><p>Analogous to <a class="reference internal" href="#autowisp.image_calibration.Calibrator.master_bias" title="autowisp.image_calibration.Calibrator.master_bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_bias</span></code></a> but contaning the
+information about the default master dark.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.master_flat">
+<span class="sig-name descname"><span class="pre">master_flat</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.master_flat" title="Link to this definition"></a></dt>
+<dd><p>Analogous to <a class="reference internal" href="#autowisp.image_calibration.Calibrator.master_bias" title="autowisp.image_calibration.Calibrator.master_bias"><code class="xref py py-attr docutils literal notranslate"><span class="pre">master_bias</span></code></a> but contaning the
+information about the default master flat.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.masks">
+<span class="sig-name descname"><span class="pre">masks</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.masks" title="Link to this definition"></a></dt>
+<dd><p>A dictionary containing:</p>
+<ul class="simple">
+<li><p>filenames: Dictionary indexed by channel containing a list of the
+files from which this mask was constructed.</p></li>
+<li><p>image: The combined mask image (bitwise OR) of all masks in
+<code class="docutils literal notranslate"><span class="pre">filenames</span></code>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.module_git_ids">
+<span class="sig-name descname"><span class="pre">module_git_ids</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.module_git_ids" title="Link to this definition"></a></dt>
+<dd><p>A collection of Git Id values (sha1 checksums of the
+git blobs) for each module used by the calibration. Those get added
+to the header to ensure reprobducability.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.extra_header">
+<span class="sig-name descname"><span class="pre">extra_header</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.extra_header" title="Link to this definition"></a></dt>
+<dd><p>Additional keywords to add to the header.</p>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibrator</span><span class="p">,</span>        <span class="o">&gt;&gt;&gt;</span>     <span class="n">overscan_methods</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Create a calibrator callable instance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span> <span class="o">=</span> <span class="n">Calibrator</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#The first 20 lines of the image are overscan area and overscan</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#is applied by subtracting the median of all pixels in the</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#overscan area from the remaining image.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">overscans</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">areas</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">20</span><span class="p">)],</span>
+<span class="gp">&gt;&gt;&gt; </span>                   <span class="n">method</span><span class="o">=</span><span class="n">overscan_methods</span><span class="o">.</span><span class="n">Median</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#The master bias frame to use.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">master_bias</span><span class="o">=</span><span class="s1">&#39;masters/master_bias1.fits&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#The gain (electrons/ADU) to assume for the input images.</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">gain</span><span class="o">=</span><span class="mf">16.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1">#The area within the raw frame containing the image:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">image_area</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">4116</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Specify a master dark after construction.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span><span class="n">dark</span><span class="o">=</span><span class="s1">&#39;masters/master_dark3.fits&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Calibrate an image called &#39;raw1.fits&#39;, producing (or overwriting a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#calibrated file called &#39;calib1.fits&#39; using the previously specified</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#calibration parameters. Note that no flat correction is going to be</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#applied, since a master flat was never specified.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">&#39;raw1.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span><span class="o">=</span><span class="s1">&#39;calib1.fits&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Calibrate an image, changing the gain assumed for this image only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#and disabling overscan correction for this image only.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">&#39;raw2.fits&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">calibrated</span><span class="o">=</span><span class="s1">&#39;calib2.fits&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">gain</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="n">overscans</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">calibration_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator.__call__" title="Link to this definition"></a></dt>
+<dd><p>Calibrate the raw frame, save result to calibrated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw</strong> – The filename of the raw frame to calibrate.</p></li>
+<li><p><strong>calibration_params</strong> – Keyword only arguments allowing one of the
+calibration parameters to be switched for this calibration only.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">saturation_threshold</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create a calibrator and define some default calibration parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default</strong> (<em>Any configuration parameters users wish to change from their</em>)</p></li>
+<li><p><strong>values</strong> (<em>see class description for details</em>)</p></li>
+<li><p><strong>masters</strong> – See set_masters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator._calib_mask_from_master">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_calib_mask_from_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._calib_mask_from_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator._calib_mask_from_master" title="Link to this definition"></a></dt>
+<dd><p>Overwrite a master mask with what should be used for a calibrated frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mask</strong> – The mask of the master frame. On exit, gets overwritten by
+the mask with which the calibrated image mask should be combined
+to account for imperfections in the master.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator._document_in_header">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_document_in_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calibration_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._document_in_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator._document_in_header" title="Link to this definition"></a></dt>
+<dd><p>Return header(s) documenting how the calibration was done.</p>
+<p>The following keywords are added or overwritten:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MBIASFNM</span><span class="p">:</span> <span class="n">Filename</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">bias</span> <span class="n">used</span>
+
+<span class="n">MBIASSHA</span><span class="p">:</span> <span class="n">Sha</span><span class="o">-</span><span class="mi">1</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">bias</span> <span class="n">frame</span> <span class="n">used</span><span class="o">.</span>
+
+<span class="n">MDARKFNM</span><span class="p">:</span> <span class="n">Filename</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">dark</span> <span class="n">used</span>
+
+<span class="n">MDARKSHA</span><span class="p">:</span> <span class="n">Sha</span><span class="o">-</span><span class="mi">1</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">dark</span> <span class="n">frame</span> <span class="n">used</span><span class="o">.</span>
+
+<span class="n">MFLATFNM</span><span class="p">:</span> <span class="n">Filename</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">flat</span> <span class="n">used</span>
+
+<span class="n">MFLATSHA</span><span class="p">:</span> <span class="n">Sha</span><span class="o">-</span><span class="mi">1</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">the</span> <span class="n">master</span> <span class="n">flat</span> <span class="n">frame</span> <span class="n">used</span><span class="o">.</span>
+
+<span class="n">OVRSCN</span><span class="o">%</span><span class="mi">02</span><span class="n">d</span><span class="p">:</span> <span class="n">The</span> <span class="n">overscan</span> <span class="n">regions</span> <span class="n">get</span> <span class="n">consecutive</span> <span class="n">IDs</span> <span class="ow">and</span> <span class="k">for</span>
+    <span class="n">each</span> <span class="n">one</span><span class="p">,</span> <span class="n">the</span> <span class="nb">id</span> <span class="n">gets</span> <span class="n">substituted</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">keyword</span> <span class="k">as</span> <span class="n">given</span><span class="o">.</span>
+    <span class="n">The</span> <span class="n">value</span> <span class="n">describes</span> <span class="n">the</span> <span class="n">overscan</span> <span class="n">region</span> <span class="n">like</span><span class="p">:</span>
+    <span class="o">%</span><span class="p">(</span><span class="n">xmin</span><span class="p">)</span><span class="n">d</span> <span class="o">&lt;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="o">%</span><span class="p">(</span><span class="n">xmax</span><span class="p">)</span><span class="n">d</span><span class="p">,</span> <span class="o">%</span><span class="p">(</span><span class="n">ymin</span><span class="p">)</span><span class="n">d</span> <span class="o">&lt;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="o">%</span><span class="p">(</span><span class="n">ymax</span><span class="p">)</span><span class="n">d</span> <span class="k">with</span> <span class="n">the</span>
+    <span class="n">sibustition</span> <span class="n">dictionary</span> <span class="n">given</span> <span class="n">directly</span> <span class="n">by</span> <span class="n">the</span> <span class="n">corresponding</span>
+    <span class="n">overscan</span> <span class="n">area</span><span class="o">.</span>
+
+<span class="n">IMAGAREA</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%(xmin)d</span><span class="s1"> &lt; x &lt; </span><span class="si">%(xmax)d</span><span class="s1">, </span><span class="si">%(ymin)d</span><span class="s1"> &lt; y &lt; </span><span class="si">%(ymax)d</span><span class="s1">&#39;</span>
+    <span class="n">subsituted</span> <span class="k">with</span> <span class="n">the</span> <span class="n">image</span> <span class="n">are</span> <span class="k">as</span> <span class="n">specified</span> <span class="n">during</span>
+    <span class="n">calibration</span><span class="o">.</span>
+
+<span class="n">CALBGAIN</span><span class="p">:</span> <span class="n">The</span> <span class="n">gain</span> <span class="n">assumed</span> <span class="n">during</span> <span class="n">calibration</span><span class="o">.</span>
+
+<span class="n">CLIBSHA</span><span class="p">:</span> <span class="n">Sha</span><span class="o">-</span><span class="mi">1</span> <span class="n">chacksum</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Calibrator</span><span class="o">.</span><span class="n">py</span> <span class="n">blob</span> <span class="n">per</span> <span class="n">Git</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>In addition, the overscan method describes itself in the header in
+any way it sees fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calibration_params</strong> – The parameters used when calibrating (see
+calibration_params argument to <a class="reference internal" href="#autowisp.image_calibration.Calibrator.__call__" title="autowisp.image_calibration.Calibrator.__call__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__()</span></code></a>.</p></li>
+<li><p><strong>header</strong> – The header to update with the calibration information.
+Must already have the <code class="docutils literal notranslate"><span class="pre">CLRCHNL</span></code> keyword defined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Indexed by channel name the header to use for the</dt><dd><p>calibrated image.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator._get_calibration_params">
+<span class="sig-name descname"><span class="pre">_get_calibration_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator._get_calibration_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator._get_calibration_params" title="Link to this definition"></a></dt>
+<dd><p>Set all calibration parameters following overwrite rules.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.check_calib_params">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_calib_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calib_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.check_calib_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator.check_calib_params" title="Link to this definition"></a></dt>
+<dd><p>Check if calibration parameters are consistent mutually and with image.</p>
+<p>Raises an exception if some problem is detected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_image</strong> – The raw image to calibrate (numpy 2-D array).</p></li>
+<li><p><strong>calib_params</strong> – The current set of calibration parameters to apply.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>Checks for:</dt><dd><ul class="simple">
+<li><p>Overscan or image areas outside the image.</p></li>
+<li><p>Any master resolution does not match image area for
+corresponding channel.</p></li>
+<li><p>Image or overscan areas have inverted boundaries, e.g.
+xmin &gt; xmax</p></li>
+<li><p>gain is not a finite positive number</p></li>
+<li><p>leak_directions is not an iterable of 2-element iterables</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.default_configuration">
+<span class="sig-name descname"><span class="pre">default_configuration</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'allow_overwrite':</span> <span class="pre">False,</span> <span class="pre">'bias_level_adu':</span> <span class="pre">0.0,</span> <span class="pre">'compress_calibrated':</span> <span class="pre">16,</span> <span class="pre">'gain':</span> <span class="pre">1.0,</span> <span class="pre">'image_area':</span> <span class="pre">None,</span> <span class="pre">'leak_directions':</span> <span class="pre">[],</span> <span class="pre">'overscans':</span> <span class="pre">{'areas':</span> <span class="pre">None,</span> <span class="pre">'method':</span> <span class="pre">None},</span> <span class="pre">'split_channels':</span> <span class="pre">False}</span></em><a class="headerlink" href="#autowisp.image_calibration.Calibrator.default_configuration" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">module_git_ids</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'calibrator':</span> <span class="pre">'$Id:</span> <span class="pre">577de2417317dd1d26c623e59f8474f0efd50369</span> <span class="pre">$',</span> <span class="pre">'mask_utilities':</span> <span class="pre">'$Id:</span> <span class="pre">5b6835e1bfd0bec642536c00517b8d088d1f5d28</span> <span class="pre">$',</span> <span class="pre">'overscan_methods':</span> <span class="pre">'$Id:</span> <span class="pre">4aad389e1ad0897f0fa4ec0744ba76050d01fe00</span> <span class="pre">$'}</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.set_masters">
+<span class="sig-name descname"><span class="pre">set_masters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/calibrator.html#Calibrator.set_masters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.Calibrator.set_masters" title="Link to this definition"></a></dt>
+<dd><p>Define the default masterts to use for calibrations.</p>
+<p>The cannels and image area must be correctly set by __init__.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bias</strong> – The filename of the master bias to use. String if single
+channel processing, dictionary indexed by channel if
+multi-channel.</p></li>
+<li><p><strong>dark</strong> – The filename of the master dark to use. See bias.</p></li>
+<li><p><strong>flat</strong> – The filename of the master flat to use. See bias.</p></li>
+<li><p><strong>masks</strong> – Either a single filename or a list of the mask files
+to use. See bias.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.</span></span><span class="sig-name descname"><span class="pre">MasterFlatMaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_statistics_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_select_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">large_scale_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloud_check_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_stack_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" title="autowisp.image_calibration.master_maker.MasterMaker"><code class="xref py py-class docutils literal notranslate"><span class="pre">MasterMaker</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-b083984d816517fa8312abcad5e8dd23ce5667a0.png" alt="Inheritance diagram of autowisp.image_calibration.MasterFlatMaker" usemap="#inheritance054b0e6a06" class="inheritance graphviz" /></div>
+<map id="inheritance054b0e6a06" name="inheritance054b0e6a06">
+<area shape="rect" id="node1" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker" target="_top" title="Specialize MasterMaker for making master flat frames." alt="" coords="5,155,398,181"/>
+<area shape="rect" id="node2" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="29,80,374,107"/>
+<area shape="rect" id="node3" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="103,5,300,32"/>
+</map><p>Specialize MasterMaker for making master flat frames.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.stamp_statistics_config">
+<span class="sig-name descname"><span class="pre">stamp_statistics_config</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.stamp_statistics_config" title="Link to this definition"></a></dt>
+<dd><p>Dictionary configuring how stamps statistics
+for stamp-based selection are extracted from the frames.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.stamp_select_config">
+<span class="sig-name descname"><span class="pre">stamp_select_config</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.stamp_select_config" title="Link to this definition"></a></dt>
+<dd><p>Dictionary configuring how stamp-based selection
+is performed. See keyword only arguments of
+<a class="reference internal" href="#autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection" title="autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configure_stamp_selection()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.large_scale_smoother">
+<span class="sig-name descname"><span class="pre">large_scale_smoother</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.large_scale_smoother" title="Link to this definition"></a></dt>
+<dd><p>A
+<a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother" title="autowisp.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">autowisp.image_smoothing.ImageSmoother</span></code></a>
+instance applied  to the ratio of a frame to the reference large
+scale structure before applying it to the frame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.cloud_check_smoother">
+<span class="sig-name descname"><span class="pre">cloud_check_smoother</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.cloud_check_smoother" title="Link to this definition"></a></dt>
+<dd><p><a class="reference internal" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother" title="autowisp.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">autowisp.image_smoothing.ImageSmoother</span></code></a>
+instance used for cloud detection performed on the full flat frames
+after smoothing to the master large scale structure.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.master_stack_config">
+<span class="sig-name descname"><span class="pre">master_stack_config</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.master_stack_config" title="Link to this definition"></a></dt>
+<dd><p>Dictionary configuring how to stack the
+individual frames into a master.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker._master_large_scale">
+<span class="sig-name descname"><span class="pre">_master_large_scale</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker._master_large_scale" title="Link to this definition"></a></dt>
+<dd><p>The large scale structure imposed on all master
+flats. Dictionary with keys <code class="docutils literal notranslate"><span class="pre">values</span></code>, <code class="docutils literal notranslate"><span class="pre">stdev</span></code>, <code class="docutils literal notranslate"><span class="pre">mask</span></code> and
+<code class="docutils literal notranslate"><span class="pre">header</span></code>. If empty dictionary, nothing is imposed.</p>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.ndimage.filters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_smoothing</span><span class="w"> </span><span class="kn">import</span>\
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">PolynomialImageSmoother</span><span class="p">,</span>\
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">SplineImageSmoother</span><span class="p">,</span>\
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">ChainSmoother</span><span class="p">,</span>\
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">WrapFilterAsSmoother</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Stamp statistics configuration:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * stamps span half the frame along each dimension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * stamps are detrended by a bi-quadratic polynomial with at most</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    one rejection iteration, discarding more than 3-sigma outliers.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * for each stamp a iterative rejection mean and variance are</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    calculated with up to 3 iterations rejecting three or more</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    sigma outliers.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stamp_statistics_config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">smoother</span><span class="o">=</span><span class="n">PolynomialImageSmoother</span><span class="p">(</span><span class="n">num_x_terms</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                     <span class="n">num_y_terms</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                     <span class="n">outlier_threshold</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                     <span class="n">max_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">average</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">outlier_threshold</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">max_iter</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Stamp statistics based selection configuration:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * Stamps with more than 0.1% of their pixels saturated are</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    discarded</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * if variance vs mean quadratic fit has residual of more than 5k</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    ADU^2, the entire night is considered cloudy.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * individual frames with stamp mean and variance deviating more</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    than 2*(fit_residual) are discarded as cloudy.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * high master flat will be generated from frames with stamp mean</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    &gt; 25 kADU, and low master flat from frames with stamp mean &lt; 15</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    kADU (intermediate frames are discarded).</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stamp_select_config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">max_saturated_fraction</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                           <span class="n">var_mean_fit_threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                           <span class="n">var_mean_fit_iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                           <span class="n">cloudy_night_threshold</span><span class="o">=</span><span class="mf">5e3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                           <span class="n">cloudy_frame_threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                           <span class="n">min_high_mean</span><span class="o">=</span><span class="mf">2.5e4</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                           <span class="n">max_low_mean</span><span class="o">=</span><span class="mf">1.5e4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Large scale structure smoothing configuration. For each frame, the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#large scale struture is corrected by taking the ratio of the frame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#to the reference (median of all input frames), smoothing this ratio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#and then dividing by it. The following defines how the smoothing is</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#performed:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * shrink by a factor of 4 in each direction (16 pixels gets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    averaged to one).</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * Performa a box-filtering with a half-size of 6-pixels using</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    median averaging</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * Perform a bi-cubic spline interpolation smoothing of the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    box-filtered image.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * Discard more than 5-sigma outliers if any and re-smooth (no</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    further iterations allowed)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * Re-interpolate the image back to its original size, using</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    bicubic interpolation (see zoom_image()).</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * The resulting image is scaled to have a mean of 1 (no</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    configuration for that).</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">large_scale_smoother</span> <span class="o">=</span> <span class="n">ChainSmoother</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">WrapFilterAsSmoother</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">median_filter</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                         <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">SplineImageSmoother</span><span class="p">(</span><span class="n">num_x_nodes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                        <span class="n">num_y_nodes</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                        <span class="n">outlier_threshold</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                        <span class="n">max_iter</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">bin_factor</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">zoom_interp_order</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Configuration for smoothnig when checking for clouds.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#After smoothing to the master large scale structure:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * extract a central stamp is extracted from each flat covering</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    3/4 of the frame along each dimension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * shrink the fractional deviation of that stamp from the master</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    by a factor of 4 in each dimension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * smooth by median box-filtering with half size of 4 shrunk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    pixels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * zoom the frame back out by a factor of 4 in each dimension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    (same factor as shrinking, no separater config), using</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    bi-quadratic interpolation.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cloud_check_smoother</span> <span class="o">=</span> <span class="n">WrapFilterAsSmoother</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">median_filter</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">bin_factor</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">zoom_interp_order</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#When stacking masters require:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * At least 10 input frames for a high intensity master and at</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    least 5 for a low intensity one.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * When creating the stack used to match large-scale structure,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    use median averaging with outlier rejection of more than</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    4-sigma outliers with at most one reject/re-fit iteration.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * When creating the final master use median averaging with</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    outlier rejection of more than 2-sigma outliers in the positive</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    and more than 3-sigma in the negative direction with at most 2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    reject/re-fit iterations. Create the master compressed and</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    raise an exception if a file with that name already exists.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">master_stack_config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">min_pointing_separation</span><span class="o">=</span><span class="mf">150.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">large_scale_deviation_threshold</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">min_high_combine</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">min_low_combine</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">large_scale_stack_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">outlier_threshold</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">average_func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">min_valid_values</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">max_iter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">exclude_mask</span><span class="o">=</span><span class="n">MasterMaker</span><span class="o">.</span><span class="n">default_exclude_mask</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">master_stack_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">outlier_threshold</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">average_func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">min_valid_values</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">max_iter</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">exclude_mask</span><span class="o">=</span><span class="n">MasterMaker</span><span class="o">.</span><span class="n">default_exclude_mask</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Create an object for stacking calibrated flat frames to master</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#flats. In addition to the stamp-based rejections:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * reject flats that point within 40 arcsec of each other on the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    sky.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * Require at least 10 frames to be combined into a high master</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    and at least 5 for a low master.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  * if the smoothed cloud-check image contains pixels with absolute</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#    value &gt; 5% the frame is discarded as cloudy.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_master_flat</span> <span class="o">=</span> <span class="n">MasterFlatMaker</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">stamp_statistics_config</span><span class="o">=</span><span class="n">stamp_statistics_config</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">stamp_select_config</span><span class="o">=</span><span class="n">stamp_select_config</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">large_scale_smoother</span><span class="o">=</span><span class="n">large_scale_smoother</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">cloud_check_smoother</span><span class="o">=</span><span class="n">cloud_check_smoother</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">master_stack_config</span><span class="o">=</span><span class="n">master_stack_config</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Create master flat(s) from the given raw flat frames. Note that</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#zero, one or two master flat frames can be created, depending on</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#the input images. Assume that the raw flat frames have names like</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#10-&lt;fnum&gt;_2.fits.fz, with fnum ranging from 1 to 30 inclusive.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_master_flat</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">[</span><span class="s1">&#39;10-</span><span class="si">%d</span><span class="s1">_2.fits.fz&#39;</span> <span class="o">%</span> <span class="n">fnum</span> <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">)],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">high_master_fname</span><span class="o">=</span><span class="s1">&#39;high_master_flat.fits.fz&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">low_master_fname</span><span class="o">=</span><span class="s1">&#39;low_master_flat.fits.fz&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_master_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_master_fname</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_statistics_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_select_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_stack_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.__call__" title="Link to this definition"></a></dt>
+<dd><p>Attempt to create high &amp; low master flat from the given frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_list</strong> – A list of the frames to create the masters from
+(FITS filenames).</p></li>
+<li><p><strong>high_master_fname</strong> – The filename to save the generated high
+intensity master flat if one is successfully created.</p></li>
+<li><p><strong>low_master_fname</strong> – The filename to save the generated low
+intensity master flat if one is successfully created.</p></li>
+<li><p><strong>compress</strong> – Should the final result be compressed?</p></li>
+<li><p><strong>allow_overwrite</strong> – See same name argument
+to
+<a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.create_result" title="autowisp.image_calibration.fits_util.create_result"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.image_calibration.fits_util.create_result()</span></code></a>
+.</p></li>
+<li><p><strong>stamp_statistics_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Overwrite the configuration
+for extracting stamp statistics for this set of frames only.</p></li>
+<li><p><strong>stamp_select_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Overwrite the stamp selection
+configuration for this set of frames only.</p></li>
+<li><p><strong>master_stack_config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Overwrite the configuration for how to
+stack frames to a master for this set of frames only.</p></li>
+<li><p><strong>custom_header</strong> – See same name argument to
+<a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.__call__" title="autowisp.image_calibration.master_maker.MasterMaker.__call__"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.image_calibration.master_maker.MasterMaker.__call__()</span></code></a>
+.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A dictionary splitting the input list of frames into</p>
+<blockquote>
+<div><dl class="simple">
+<dt>high:</dt><dd><p>All entries from <code class="xref py py-attr docutils literal notranslate"><span class="pre">frame_list</span></code> which were deemed
+suitable for inclusion in a master high flat.</p>
+</dd>
+<dt>low:</dt><dd><p>All entries from <code class="xref py py-attr docutils literal notranslate"><span class="pre">frame_list</span></code> which were deemed
+suitable for inclusion in a master low flat.</p>
+</dd>
+<dt>medium:</dt><dd><p>All entries from <code class="xref py py-attr docutils literal notranslate"><span class="pre">frame_list</span></code> which were of
+intermediate intensity and thus not included in any
+master, but for which no issues were detected.</p>
+</dd>
+<dt>colocated:</dt><dd><p>All entries from <code class="xref py py-attr docutils literal notranslate"><span class="pre">frame_list</span></code> which were excluded
+because they were not sufficiently isolated from their
+closest neighbor to guarantee that stars do not overlap.</p>
+</dd>
+<dt>cloudy:</dt><dd><p>All entries from <code class="xref py py-attr docutils literal notranslate"><span class="pre">frame_list</span></code> which were flagged
+as cloudy either based on their stamps or on the final
+full-frame cloud check.</p>
+</dd>
+</dl>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_statistics_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_select_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">large_scale_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloud_check_smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_stack_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create object for creating master flats out of calibrated flat frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stamp_statistics_config</strong> – A dictionary mith arguments to pass
+to <a class="reference internal" href="#autowisp.image_calibration.MasterFlatMaker.configure_stamp_statistics" title="autowisp.image_calibration.MasterFlatMaker.configure_stamp_statistics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configure_stamp_statistics()</span></code></a>.</p></li>
+<li><p><strong>stamp_select_cofig</strong> – A dictionary with arguments to pass
+to <a class="reference internal" href="#autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection" title="autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configure_stamp_selection()</span></code></a>.</p></li>
+<li><p><strong>large_scale_smoother</strong> – An ImageSmoother instance used when
+matching large scale structure of individual flats to master.</p></li>
+<li><p><strong>cloud_check_smoother</strong> – An ImageSmoother instance used when checkng
+the full frames for clouds (after stamps are checked).</p></li>
+<li><p><strong>master_stack_config</strong> – Configuration of how to stack frames to a
+master after matching their large scale structure. See
+example in class doc-string for details.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker._classify_from_stamps">
+<span class="sig-name descname"><span class="pre">_classify_from_stamps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_statistics_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stamp_select_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker._classify_from_stamps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker._classify_from_stamps" title="Link to this definition"></a></dt>
+<dd><p>Classify frames by intensity: (high/low/ntermediate), or flag as cloudy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame_list</strong> – The list of frames to create masters from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>filename list:</dt><dd><p>The list of high intensity non-cloudy frames.</p>
+</dd>
+<dt>filename list:</dt><dd><p>The list of low intensity non-cloudy frames.</p>
+</dd>
+<dt>filename list:</dt><dd><p>The list of medium intensity non-cloudy frames.</p>
+</dd>
+<dt>filename list:</dt><dd><p>The list of frames suspected of containing clouds in
+their central stamps.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker._find_colocated">
+<span class="sig-name descname"><span class="pre">_find_colocated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker._find_colocated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker._find_colocated" title="Link to this definition"></a></dt>
+<dd><p>Split the list of frames into well isolated ones and co-located ones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame_list</strong> – A list of the frames to create the masters from
+(FITS filenames).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>filename list:</dt><dd><p>The ist of frames sufficiently far in pointing from all
+other frames.</p>
+</dd>
+<dt>filename list:</dt><dd><p>The list of frames which have at least one other
+frame too close in pointing to them.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker._get_stamp_statistics">
+<span class="sig-name descname"><span class="pre">_get_stamp_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">stamp_statistics_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker._get_stamp_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker._get_stamp_statistics" title="Link to this definition"></a></dt>
+<dd><p>Get relevant information from the stamp of a single input flat frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame_list</strong> – The list of frames for which to extract stamp
+statistics.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array with fields called <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">variance</span></code> and
+<code class="docutils literal notranslate"><span class="pre">num_averaged</span></code> with the obvious meanings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy field array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection">
+<span class="sig-name descname"><span class="pre">configure_stamp_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_saturated_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_mean_fit_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_mean_fit_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudy_night_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudy_frame_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_high_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_low_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker.configure_stamp_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection" title="Link to this definition"></a></dt>
+<dd><p>Configure stamp-based frame selection and high/low split.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_saturated_fraction</strong> – The maximum fraction of stamp pixels
+allowed to be saturated before discarding the frame.</p></li>
+<li><p><strong>cloudy_night_threshold</strong> – The maximum residual of the variance vs
+mean quadratic fit before a night is declared cloudy. If None,
+this check is disabled.</p></li>
+<li><p><strong>cloudy_frame_threshold</strong> – The maximum deviation in units of the RMS
+residual of the fit an individual frame’s variance vs mean from
+the var(mean) quadratic fit before the frame is declared cloudy.</p></li>
+<li><p><strong>min_high_mean</strong> – The minimum mean of the stamp pixels in order to
+consider the frame high intensity.</p></li>
+<li><p><strong>max_low_mean</strong> – The maximum mean of the stamp pixels in order to
+consider the frame low intensity. Must not overlap
+with min_high_mean.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.configure_stamp_statistics">
+<span class="sig-name descname"><span class="pre">configure_stamp_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker.configure_stamp_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.configure_stamp_statistics" title="Link to this definition"></a></dt>
+<dd><p>Configure extraction of stamp satistics for rejection &amp; high/low split.</p>
+<p>Any arguments left as None are not updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fraction</strong> – The fraction of the frame size that is included in the
+stamp along each dimension (i.e. fraction=0.5 means 1/4 of all
+frame pixels will be incruded in the stamp).</p></li>
+<li><p><strong>smoother</strong> – An ImageSmoother instance used used for
+de-trending the stamps before extracting statistics</p></li>
+<li><p><strong>outlier_threshold</strong> – The threshold in units of RMS deviation from
+the average above which pixels are considered outliers from the
+de-trending function and discarded from its fit.</p></li>
+<li><p><strong>max_iter</strong> – The maximum number of fit/reject iterations to perform
+before declaring the de-trending function final.</p></li>
+<li><p><strong>average</strong> – How to compute the average. Should be either <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>
+or <code class="docutils literal notranslate"><span class="pre">'median'</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterFlatMaker.prepare_for_stacking">
+<span class="sig-name descname"><span class="pre">prepare_for_stacking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_flat_maker.html#MasterFlatMaker.prepare_for_stacking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterFlatMaker.prepare_for_stacking" title="Link to this definition"></a></dt>
+<dd><p>Match image large scale to <cite>self._master_large_scale</cite> if not empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image</strong> – The image to transform large scale structure of.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If <a class="reference internal" href="#autowisp.image_calibration.MasterFlatMaker._master_large_scale" title="autowisp.image_calibration.MasterFlatMaker._master_large_scale"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_master_large_scale</span></code></a> is an empty dictionary, this is
+just <code class="xref py py-attr docutils literal notranslate"><span class="pre">image</span></code>. Otherwise, <code class="xref py py-attr docutils literal notranslate"><span class="pre">image</span></code> is transformed to
+have the same large scale structure as
+<a class="reference internal" href="#autowisp.image_calibration.MasterFlatMaker._master_large_scale" title="autowisp.image_calibration.MasterFlatMaker._master_large_scale"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_master_large_scale</span></code></a>, while the small scale
+structure is preserved. <code class="xref py py-attr docutils literal notranslate"><span class="pre">image</span></code> is also checked for
+clouds, and discarded if cloudy.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.</span></span><span class="sig-name descname"><span class="pre">MasterMaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask=('BAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress=16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords=()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterMaker" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor" title="autowisp.processor.Processor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Processor</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-6223aa38dc520d51d19f04acb450e78983332e8f.png" alt="Inheritance diagram of autowisp.image_calibration.MasterMaker" usemap="#inheritance659c305a22" class="inheritance graphviz" /></div>
+<map id="inheritance659c305a22" name="inheritance659c305a22">
+<area shape="rect" id="node1" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="5,80,351,107"/>
+<area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="79,5,277,32"/>
+</map><p>Implement the simplest &amp; fully generalizable procedure for making a master.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.default_exclude_mask">
+<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.default_exclude_mask" title="Link to this definition"></a></dt>
+<dd><p>The default bit-mask indicating all flags which
+should result in a pixel being excluded from the averaging.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.stacking_options">
+<span class="sig-name descname"><span class="pre">stacking_options</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.stacking_options" title="Link to this definition"></a></dt>
+<dd><p>A dictionary with the default configuration of how
+to perform the stacking. The expected keys exactly match the keyword
+only arguments of the <a class="reference internal" href="#autowisp.image_calibration.MasterMaker.stack" title="autowisp.image_calibration.MasterMaker.stack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stack()</span></code></a> method.</p>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Create an object for stacking frames to masters, overwriting the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#default outlier threshold and requiring at least 10 frames be</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#stacked</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_master</span> <span class="o">=</span> <span class="n">MasterMaker</span><span class="p">(</span><span class="n">outlier_threshold</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                          <span class="n">min_valid_frames</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Stack a set of frames to a master, allowing no more than 3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#averaging/outlier rejection iterations and allowing a minimum of 3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#valid source pixels to make a master, for this master only.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_master</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">[</span><span class="s1">&#39;f1.fits.fz&#39;</span><span class="p">,</span> <span class="s1">&#39;f2.fits.fz&#39;</span><span class="p">,</span> <span class="s1">&#39;f3.fits.fz&#39;</span><span class="p">,</span> <span class="s1">&#39;f4.fits.fz&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;master.fits.fz&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">max_iter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">min_valid_values</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">stacking_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.__call__" title="Link to this definition"></a></dt>
+<dd><p>Create a master by stacking the given frames.</p>
+<p>The header of the craeted frame contains all keywords that are
+common and with consistent value from the input frames. In addition the
+following keywords are added:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_list</strong> – A list of the frames to stack (FITS filenames).</p></li>
+<li><p><strong>output_fname</strong> – The name of the output file to create. Can involve
+substitutions of any header keywords of the generated file.</p></li>
+<li><p><strong>compress</strong> – See <a class="reference internal" href="#autowisp.image_calibration.MasterMaker.__init__" title="autowisp.image_calibration.MasterMaker.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a></p></li>
+<li><p><strong>allow_overwrite</strong> – See same name argument
+to autowisp.image_calibration.fits_util.create_result.</p></li>
+<li><p><strong>custom_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A collection of keywords to use in addition
+to/instead of what is in the input frames header.</p></li>
+<li><p><strong>stacking_options</strong> – Keyword only arguments allowing overriding the
+stacking configuration specified at construction for this
+stack only.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Whether creating the master succeeded.</p>
+<dl class="simple">
+<dt>[&lt;FITS filenames&gt;]:</dt><dd><p>Frames which were discarded during stacking.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask=('BAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress=16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords=()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create a master maker with the given default stacking configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compress</strong> – If None or False, the final result is not
+compressed. Otherwise, this is the quantization level used for
+compressing the image (see <cite>astropy.io.fits</cite> documentation).</p></li>
+<li><p><strong>oothers</strong> (<em>all</em>) – See the keyword only arguments to the <a class="reference internal" href="#autowisp.image_calibration.MasterMaker.stack" title="autowisp.image_calibration.MasterMaker.stack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stack()</span></code></a>
+method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('BAD',)</span></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.prepare_for_stacking">
+<span class="sig-name descname"><span class="pre">prepare_for_stacking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.prepare_for_stacking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.prepare_for_stacking" title="Link to this definition"></a></dt>
+<dd><p>Override with any useful pre-processing of images before stacking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image</strong> – One of the images to include in the stack.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The image to actually include in the stack. Return None if the
+image should be excluded.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>same type as image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.stack">
+<span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.stack" title="Link to this definition"></a></dt>
+<dd><p>Create a master by stacking a list of frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_list</strong> – The frames to stack. Should be a list of
+FITS filenames.</p></li>
+<li><p><strong>min_valid_frames</strong> – The smallest number of frames from which to
+create a master. This could be broken if either the input list
+is not long enough or if too many frames are discarded by
+<a class="reference internal" href="#autowisp.image_calibration.MasterMaker.prepare_for_stacking" title="autowisp.image_calibration.MasterMaker.prepare_for_stacking"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_for_stacking()</span></code></a>.</p></li>
+<li><p><strong>outlier_threshold</strong> – See same name argument to
+<a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rejection_average" title="autowisp.iterative_rejection_util.iterative_rejection_average"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.iterative_rejection_util.iterative_rejection_average()</span></code></a>
+.</p></li>
+<li><p><strong>average_func</strong> – See same name argument to
+<a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rejection_average" title="autowisp.iterative_rejection_util.iterative_rejection_average"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.iterative_rejection_util.iterative_rejection_average()</span></code></a>
+.</p></li>
+<li><p><strong>min_valid_values</strong> – The minimum number of valid values to average
+for each pixel. If outlier rejection or masks results in fewer
+than this, the corresponding pixel gets a bad pixel mask.</p></li>
+<li><p><strong>max_iter</strong> – See same name argument to
+<a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rejection_average" title="autowisp.iterative_rejection_util.iterative_rejection_average"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.iterative_rejection_util.iterative_rejection_average()</span></code></a>
+.</p></li>
+<li><p><strong>exclude_mask</strong> – A bitwise or of mask flags, any of which result in
+the corresponding pixels being excluded from the averaging.
+Other mask flags in the input frames are ignored, treated
+as clean.</p></li>
+<li><p><strong>add_averaged_keywords</strong> – Any keywords listed will be added to the
+master header with a value calculated using the same averaging
+procedure as the image pixels.</p></li>
+<li><p><strong>custom_header</strong> – See same name argument to __call__().</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>2-D array:</dt><dd><p>The best estimate for the values of the maseter at
+each pixel. None if stacking failed.</p>
+</dd>
+<dt>2-D array:</dt><dd><p>The best estimate of the standard deviation of the
+master pixels. None if stacking failed.</p>
+</dd>
+<dt>2-D array:</dt><dd><p>The pixel quality mask for the master. None if
+stacking failed.</p>
+</dd>
+<dt>fits.Header:</dt><dd><p>The header to use for the newly created master frame. None
+if stacking failed.</p>
+</dd>
+<dt>[&lt;FITS filenames&gt;]:</dt><dd><p>List of the frames that were excluded by
+self.prepare_for_stacking().</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.calibrator.html">autowisp.image_calibration.calibrator module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator"><code class="docutils literal notranslate"><span class="pre">Calibrator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.configuration"><code class="docutils literal notranslate"><span class="pre">Calibrator.configuration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_bias"><code class="docutils literal notranslate"><span class="pre">Calibrator.master_bias</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_dark"><code class="docutils literal notranslate"><span class="pre">Calibrator.master_dark</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_flat"><code class="docutils literal notranslate"><span class="pre">Calibrator.master_flat</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.masks"><code class="docutils literal notranslate"><span class="pre">Calibrator.masks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.module_git_ids"><code class="docutils literal notranslate"><span class="pre">Calibrator.module_git_ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.extra_header"><code class="docutils literal notranslate"><span class="pre">Calibrator.extra_header</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.__call__"><code class="docutils literal notranslate"><span class="pre">Calibrator.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.__init__"><code class="docutils literal notranslate"><span class="pre">Calibrator.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator._calib_mask_from_master"><code class="docutils literal notranslate"><span class="pre">Calibrator._calib_mask_from_master()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator._document_in_header"><code class="docutils literal notranslate"><span class="pre">Calibrator._document_in_header()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator._get_calibration_params"><code class="docutils literal notranslate"><span class="pre">Calibrator._get_calibration_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.check_calib_params"><code class="docutils literal notranslate"><span class="pre">Calibrator.check_calib_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.default_configuration"><code class="docutils literal notranslate"><span class="pre">Calibrator.default_configuration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#id0"><code class="docutils literal notranslate"><span class="pre">Calibrator.module_git_ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.set_masters"><code class="docutils literal notranslate"><span class="pre">Calibrator.set_masters()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.fits_util.html">autowisp.image_calibration.fits_util module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep"><code class="docutils literal notranslate"><span class="pre">TimeISOTNoSep</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep.fast_parser_pars"><code class="docutils literal notranslate"><span class="pre">TimeISOTNoSep.fast_parser_pars</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep.name"><code class="docutils literal notranslate"><span class="pre">TimeISOTNoSep.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep.subfmts"><code class="docutils literal notranslate"><span class="pre">TimeISOTNoSep.subfmts</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_channel_keywords"><code class="docutils literal notranslate"><span class="pre">add_channel_keywords()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_required_keywords"><code class="docutils literal notranslate"><span class="pre">add_required_keywords()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.assemble_channels"><code class="docutils literal notranslate"><span class="pre">assemble_channels()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.create_result"><code class="docutils literal notranslate"><span class="pre">create_result()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.get_raw_header"><code class="docutils literal notranslate"><span class="pre">get_raw_header()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.mask_utilities.html">autowisp.image_calibration.mask_utilities module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.mask_utilities.html#class-inheritance-diagram">Class Inheritance Diagram</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.mask_utilities.html#autowisp.image_calibration.mask_utilities.mask_flags"><code class="docutils literal notranslate"><span class="pre">mask_flags</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.mask_utilities.html#autowisp.image_calibration.mask_utilities.combine_masks"><code class="docutils literal notranslate"><span class="pre">combine_masks()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.mask_utilities.html#autowisp.image_calibration.mask_utilities.get_saturation_mask"><code class="docutils literal notranslate"><span class="pre">get_saturation_mask()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html">autowisp.image_calibration.master_flat_maker module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.stamp_statistics_config"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.stamp_statistics_config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.stamp_select_config"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.stamp_select_config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.large_scale_smoother"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.large_scale_smoother</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.cloud_check_smoother"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.cloud_check_smoother</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.master_stack_config"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.master_stack_config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._master_large_scale"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker._master_large_scale</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.__call__"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.__init__"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._classify_from_stamps"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker._classify_from_stamps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._find_colocated"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker._find_colocated()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._get_stamp_statistics"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker._get_stamp_statistics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.configure_stamp_selection"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.configure_stamp_selection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.configure_stamp_statistics"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.configure_stamp_statistics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker.prepare_for_stacking"><code class="docutils literal notranslate"><span class="pre">MasterFlatMaker.prepare_for_stacking()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.master_maker.html">autowisp.image_calibration.master_maker module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker"><code class="docutils literal notranslate"><span class="pre">MasterMaker</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask"><code class="docutils literal notranslate"><span class="pre">MasterMaker.default_exclude_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.stacking_options"><code class="docutils literal notranslate"><span class="pre">MasterMaker.stacking_options</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.__call__"><code class="docutils literal notranslate"><span class="pre">MasterMaker.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.__init__"><code class="docutils literal notranslate"><span class="pre">MasterMaker.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#id0"><code class="docutils literal notranslate"><span class="pre">MasterMaker.default_exclude_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.prepare_for_stacking"><code class="docutils literal notranslate"><span class="pre">MasterMaker.prepare_for_stacking()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.stack"><code class="docutils literal notranslate"><span class="pre">MasterMaker.stack()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html">autowisp.image_calibration.overscan_methods module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base"><code class="docutils literal notranslate"><span class="pre">Base</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base.__call__"><code class="docutils literal notranslate"><span class="pre">Base.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base.document_in_fits_header"><code class="docutils literal notranslate"><span class="pre">Base.document_in_fits_header()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median"><code class="docutils literal notranslate"><span class="pre">Median</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median.__call__"><code class="docutils literal notranslate"><span class="pre">Median.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median.__init__"><code class="docutils literal notranslate"><span class="pre">Median.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Median.document_in_fits_header"><code class="docutils literal notranslate"><span class="pre">Median.document_in_fits_header()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.fit_expression.used_var_finder.html" class="btn btn-neutral float-left" title="autowisp.fit_expression.used_var_finder module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.image_calibration.calibrator.html" class="btn btn-neutral float-right" title="autowisp.image_calibration.calibrator module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

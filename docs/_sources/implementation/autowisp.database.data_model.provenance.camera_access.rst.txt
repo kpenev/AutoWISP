@@ -1,0 +1,7 @@
+autowisp.database.data\_model.provenance.camera\_access module
+==============================================================
+
+.. automodule:: autowisp.database.data_model.provenance.camera_access
+   :members:
+   :show-inheritance:
+   :undoc-members:

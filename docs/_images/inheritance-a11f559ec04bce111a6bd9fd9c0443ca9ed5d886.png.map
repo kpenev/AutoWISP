@@ -1,0 +1,8 @@
+<map id="inheritancead92c08b0c" name="inheritancead92c08b0c">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="192,5,361,32"/>
+<area shape="rect" id="node6" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="174,80,379,107"/>
+<area shape="rect" id="node2" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="385,5,557,32"/>
+<area shape="rect" id="node3" href="#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" target="_top" title="Iterate over the detrending datasets specified in a cmdline argument." alt="" coords="581,5,1060,32"/>
+<area shape="rect" id="node4" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,229,548,256"/>
+<area shape="rect" id="node5" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="68,155,485,181"/>
+</map>

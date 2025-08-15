@@ -1,0 +1,27 @@
+<map id="inheritancedbfd5a4b55" name="inheritancedbfd5a4b55">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="1365,80,1628,107"/>
+<area shape="rect" id="node2" title="Formatter for generating usage messages and argument help strings." alt="" coords="1418,5,1576,32"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="1670,5,1839,32"/>
+<area shape="rect" id="node17" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="1652,80,1856,107"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1825,229,2155,256"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="5,304,322,331"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="346,304,797,331"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="821,304,1181,331"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1205,304,1546,331"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="1570,304,1997,331"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2021,304,2370,331"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="2394,304,2853,331"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="2877,304,3308,331"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="3332,304,3734,331"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="3758,304,4126,331"/>
+<area shape="rect" id="node5" title="Base class used for declarative class definitions." alt="" coords="1858,155,2122,181"/>
+<area shape="rect" id="node16" href="#autowisp.database.initialize_database.StepCreator" target="_top" title="Add steps to the database one by one." alt="" coords="2804,5,3120,32"/>
+<area shape="rect" id="node18" title="represents an event target, that is, something we can listen on" alt="" coords="4009,5,4251,32"/>
+<area shape="rect" id="node21" title="Base class for elements that are the targets of :class:`.DDLEvents`" alt="" coords="4000,80,4261,107"/>
+<area shape="rect" id="node19" title="define a class as inspectable." alt="" coords="1880,80,2100,107"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1938,5,2043,32"/>
+<area shape="rect" id="node23" title="Base class for items that define a database schema." alt="" coords="4142,155,4377,181"/>
+<area shape="rect" id="node22" title="schema item that includes a top&#45;level schema name" alt="" coords="4132,229,4387,256"/>
+<area shape="rect" id="node24" title="A collection of :class:`_schema.Table`" alt="" coords="4150,304,4369,331"/>
+<area shape="rect" id="node25" title="Base class for visitable objects." alt="" coords="4285,80,4492,107"/>
+</map>

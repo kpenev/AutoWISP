@@ -1,0 +1,7 @@
+autowisp.database.manually\_fill\_tables module
+===============================================
+
+.. automodule:: autowisp.database.manually_fill_tables
+   :members:
+   :show-inheritance:
+   :undoc-members:

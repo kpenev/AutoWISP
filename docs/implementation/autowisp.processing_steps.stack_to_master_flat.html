@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.stack_to_master_flat module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.processing_steps.tfa module" href="autowisp.processing_steps.tfa.html" />
+    <link rel="prev" title="autowisp.processing_steps.stack_to_master module" href="autowisp.processing_steps.stack_to_master.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.processing_steps.html">autowisp.processing_steps package</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.stack_to_master_flat module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.processing_steps.stack_to_master_flat.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.processing_steps.stack_to_master_flat">
+<span id="autowisp-processing-steps-stack-to-master-flat-module"></span><h1>autowisp.processing_steps.stack_to_master_flat module<a class="headerlink" href="#module-autowisp.processing_steps.stack_to_master_flat" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-1a4019f5261b74b9c9914e530f710f97598fa361.png" alt="Inheritance diagram of ChainSmoother, MasterFlatMaker, MasterMaker, PolynomialImageSmoother, SplineImageSmoother, WrapFilterAsSmoother" usemap="#inheritancec6a7897946" class="inheritance graphviz" /></div>
+<map id="inheritancec6a7897946" name="inheritancec6a7897946">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="450,5,524,32"/>
+<area shape="rect" id="node6" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="350,80,625,107"/>
+<area shape="rect" id="node2" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker" target="_top" title="Specialize MasterMaker for making master flat frames." alt="" coords="1034,155,1426,181"/>
+<area shape="rect" id="node3" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="1057,80,1403,107"/>
+<area shape="rect" id="node4" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="1131,5,1329,32"/>
+<area shape="rect" id="node5" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="5,155,279,181"/>
+<area shape="rect" id="node8" href="autowisp.image_smoothing.html#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="303,155,672,181"/>
+<area shape="rect" id="node10" href="autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the numpy or astropy image filters in a smoother." alt="" coords="696,155,1010,181"/>
+<area shape="rect" id="node7" href="autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="143,229,482,256"/>
+<area shape="rect" id="node9" href="autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="506,229,818,256"/>
+</map><p>Stack calibrated flat frames to a master flat.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.stack_to_master_flat.cleanup_interrupted">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.stack_to_master_flat.</span></span><span class="sig-name descname"><span class="pre">cleanup_interrupted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interrupted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/stack_to_master_flat.html#cleanup_interrupted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.stack_to_master_flat.cleanup_interrupted" title="Link to this definition"></a></dt>
+<dd><p>Cleanup file system after partially creating stacked image(s).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.stack_to_master_flat.get_master_fnames">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.stack_to_master_flat.</span></span><span class="sig-name descname"><span class="pre">get_master_fnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/stack_to_master_flat.html#get_master_fnames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.stack_to_master_flat.get_master_fnames" title="Link to this definition"></a></dt>
+<dd><p>Return the filenames of the high and low master flats to generate.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.stack_to_master_flat.main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.stack_to_master_flat.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/stack_to_master_flat.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.stack_to_master_flat.main" title="Link to this definition"></a></dt>
+<dd><p>Run the step from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.stack_to_master_flat.parse_command_line">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.stack_to_master_flat.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/stack_to_master_flat.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.stack_to_master_flat.parse_command_line" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed command line arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.stack_to_master_flat.stack_to_master_flat">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.stack_to_master_flat.</span></span><span class="sig-name descname"><span class="pre">stack_to_master_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/stack_to_master_flat.html#stack_to_master_flat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.stack_to_master_flat.stack_to_master_flat" title="Link to this definition"></a></dt>
+<dd><p>Stack the given frames to produce single high and/or low master flat.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.processing_steps.stack_to_master.html" class="btn btn-neutral float-left" title="autowisp.processing_steps.stack_to_master module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.processing_steps.tfa.html" class="btn btn-neutral float-right" title="autowisp.processing_steps.tfa module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

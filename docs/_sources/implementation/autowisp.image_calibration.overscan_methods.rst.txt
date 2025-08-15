@@ -1,0 +1,7 @@
+autowisp.image\_calibration.overscan\_methods module
+====================================================
+
+.. automodule:: autowisp.image_calibration.overscan_methods
+   :members:
+   :show-inheritance:
+   :undoc-members:

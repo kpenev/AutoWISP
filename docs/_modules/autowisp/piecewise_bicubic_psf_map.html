@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.piecewise_bicubic_psf_map &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.piecewise_bicubic_psf_map</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.piecewise_bicubic_psf_map</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define class for working with piecewise bucubic PSF maps.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astrowisp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrowisp.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">flux_from_magnitude</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit_expression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_aperture_photometry_inputs</span><span class="p">,</span>
+    <span class="n">add_star_shape_fit</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="PiecewiseBicubicPSFMap">
+<a class="viewcode-back" href="../../implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PiecewiseBicubicPSFMap</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit and use piecewise bicubic PSF maps.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PiecewiseBicubicPSFMap.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a map, loading it from a DR file if one is specified.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_astrowisp_map</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eval_shape_terms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">dr_fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span></div>
+
+
+    <span class="c1"># TODO: Info on PSF vs PRF should be saved to DR file</span>
+    <span class="c1"># Breaking up seems to make things worse</span>
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="PiecewiseBicubicPSFMap.fit">
+<a class="viewcode-back" href="../../implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fits_fnames</span><span class="p">,</span>
+        <span class="n">sources</span><span class="p">,</span>
+        <span class="n">shape_terms_expression</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">background_annulus</span><span class="o">=</span><span class="p">(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">),</span>
+        <span class="n">require_convergence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_dr_fnames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dr_path_substitutions</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">fit_star_shape_config</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the best fit PSF/PRF map for the given images (simultaneous fit).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fits_fnames(str iterable):    The filenames of the FITS files to</span>
+<span class="sd">                fit.</span>
+
+<span class="sd">            sources(numpy structured array iterable):    For each image specify</span>
+<span class="sd">                the sources on which to base the PSF/PRF map. Sources are</span>
+<span class="sd">                supplied as a numpy structured array that should define all</span>
+<span class="sd">                variables required to evaluate the shape term expression</span>
+<span class="sd">                specified on __init__(). It must also include ``&#39;x&#39;`` and</span>
+<span class="sd">                ``&#39;y&#39;`` fields, even if those are not required to evaluate the</span>
+<span class="sd">                terms.</span>
+
+<span class="sd">            shape_terms_expression(str):    An expression specifying the terms</span>
+<span class="sd">                PSF/PRF parameters are allowed to dependend on. May involve</span>
+<span class="sd">                arbitrary catalogque position and other external variables. See</span>
+<span class="sd">                fit_expression.Interface for details.</span>
+
+<span class="sd">            background_annulus(float, float):    The inner radius and difference</span>
+<span class="sd">                between inner and outer radius of the annulus around each source</span>
+<span class="sd">                where background is measured. See astrowisp.BackgroundExtractor</span>
+<span class="sd">                for details.</span>
+
+<span class="sd">            require_convergence(bool):    See same name argument to</span>
+<span class="sd">                astrowisp.FitStarShape.fit()</span>
+
+<span class="sd">            output_dr_fnames(str iterable):    If not None, should specify one</span>
+<span class="sd">                data reduction file for each input frame where the fit results</span>
+<span class="sd">                are saved.</span>
+
+<span class="sd">            background_version(int), shapefit_version(int) srcproj_version(int):</span>
+<span class="sd">                The version numbers to use when saving projected</span>
+<span class="sd">                photometry sources, background extraciton, and PSF/PRF fitting</span>
+<span class="sd">                results.</span>
+
+<span class="sd">            fit_star_shape_config:    Any required configuration by</span>
+<span class="sd">                astrowisp.FitStarShape.__init__()</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;shape_terms_expression&quot;</span><span class="p">:</span> <span class="n">shape_terms_expression</span><span class="p">,</span>
+            <span class="s2">&quot;background_annulus&quot;</span><span class="p">:</span> <span class="n">background_annulus</span><span class="p">,</span>
+            <span class="s2">&quot;require_convergence&quot;</span><span class="p">:</span> <span class="n">require_convergence</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">fit_star_shape_config</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eval_shape_terms</span> <span class="o">=</span> <span class="n">fit_expression</span><span class="o">.</span><span class="n">Interface</span><span class="p">(</span>
+            <span class="n">shape_terms_expression</span>
+        <span class="p">)</span>
+        <span class="n">star_shape_fitter</span> <span class="o">=</span> <span class="n">astrowisp</span><span class="o">.</span><span class="n">FitStarShape</span><span class="p">(</span><span class="o">**</span><span class="n">fit_star_shape_config</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fits_fnames</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">output_dr_fnames</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_dr_fnames</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">fits_fnames</span>
+        <span class="p">)</span>
+
+        <span class="n">opened_frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">fits_fnames</span><span class="p">]</span>
+        <span class="n">value_index</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">opened_frames</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">error_index</span><span class="p">,</span> <span class="n">mask_index</span> <span class="o">=</span> <span class="n">value_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">value_index</span> <span class="o">+</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">opened_frames</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">frame</span><span class="p">[</span><span class="n">error_index</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span>
+            <span class="k">assert</span> <span class="n">frame</span><span class="p">[</span><span class="n">mask_index</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mask&quot;</span>
+
+        <span class="n">measure_backgrounds</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">astrowisp</span><span class="o">.</span><span class="n">BackgroundExtractor</span><span class="p">(</span>
+                <span class="n">frame</span><span class="p">[</span><span class="n">value_index</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;background_annulus&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;background_annulus&quot;</span><span class="p">]),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">opened_frames</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">get_bg</span><span class="p">,</span> <span class="n">frame_sources</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">measure_backgrounds</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+            <span class="n">get_bg</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">frame_sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">frame_sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="n">shape_fit_result_tree</span> <span class="o">=</span> <span class="n">star_shape_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="n">frame</span><span class="p">[</span><span class="n">value_index</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                    <span class="n">frame</span><span class="p">[</span><span class="n">error_index</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                    <span class="n">frame</span><span class="p">[</span><span class="n">mask_index</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                    <span class="n">frame_sources</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_eval_shape_terms</span><span class="p">(</span><span class="n">frame_sources</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">frame</span><span class="p">,</span> <span class="n">frame_sources</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">opened_frames</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">measure_backgrounds</span><span class="p">,</span>
+            <span class="n">require_convergence</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_astrowisp_map</span> <span class="o">=</span> <span class="n">astrowisp</span><span class="o">.</span><span class="n">PiecewiseBicubicPSFMap</span><span class="p">(</span>
+            <span class="n">shape_fit_result_tree</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output_dr_fnames</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">image_index</span><span class="p">,</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_dr_fnames</span><span class="p">):</span>
+                <span class="n">dtype_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="n">image_index</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;source_id&quot;</span> <span class="ow">in</span> <span class="n">dtype_names</span><span class="p">:</span>
+                    <span class="n">dtype_names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;ID&quot;</span><span class="p">)</span>
+                    <span class="n">image_sources</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="n">dtype_names</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">image_sources</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">image_index</span><span class="p">]</span>
+                <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                    <span class="n">dr_file</span><span class="o">.</span><span class="n">add_sources</span><span class="p">(</span>
+                        <span class="n">image_sources</span><span class="p">,</span>
+                        <span class="s2">&quot;srcproj.columns&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;srcproj_column_name&quot;</span><span class="p">,</span>
+                        <span class="n">parse_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">ascii_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;phqual&quot;</span><span class="p">,</span> <span class="s2">&quot;magsrcflag&quot;</span><span class="p">],</span>
+                        <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">add_star_shape_fit</span><span class="p">(</span>
+                        <span class="n">dr_file</span><span class="p">,</span>
+                        <span class="n">fit_terms_expression</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span>
+                            <span class="s2">&quot;shape_terms_expression&quot;</span>
+                        <span class="p">],</span>
+                        <span class="n">shape_fit_result_tree</span><span class="o">=</span><span class="n">shape_fit_result_tree</span><span class="p">,</span>
+                        <span class="n">num_sources</span><span class="o">=</span><span class="n">sources</span><span class="p">[</span><span class="n">image_index</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                        <span class="n">image_index</span><span class="o">=</span><span class="n">image_index</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+                    <span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: enable=too-many-locals</span>
+
+<div class="viewcode-block" id="PiecewiseBicubicPSFMap.load">
+<a class="viewcode-back" href="../../implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap.load">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">return_sources</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the PSF/PRF map from the given data reduction file.&quot;&quot;&quot;</span>
+
+        <span class="n">dummy_tool</span> <span class="o">=</span> <span class="n">astrowisp</span><span class="o">.</span><span class="n">SubPixPhot</span><span class="p">()</span>
+        <span class="n">io_tree</span> <span class="o">=</span> <span class="n">astrowisp</span><span class="o">.</span><span class="n">IOTree</span><span class="p">(</span><span class="n">dummy_tool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">apphot_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shape_terms_expression&quot;</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">get_aperture_photometry_inputs</span><span class="p">(</span><span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">sources</span> <span class="o">=</span> <span class="n">apphot_data</span><span class="p">[</span><span class="s2">&quot;source_data&quot;</span><span class="p">]</span>
+            <span class="n">apphot_data</span><span class="p">[</span><span class="s2">&quot;source_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sources</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;shapefit_mag_mfit000&quot;</span><span class="p">:</span> <span class="s2">&quot;mag&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;shapefit_mag_err_mfit000&quot;</span><span class="p">:</span> <span class="s2">&quot;mag_err&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to_records</span><span class="p">()</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=missing-kwoa</span>
+            <span class="n">io_tree</span><span class="o">.</span><span class="n">set_aperture_photometry_inputs</span><span class="p">(</span><span class="o">**</span><span class="n">apphot_data</span><span class="p">)</span>
+            <span class="c1"># pylint: enable=missing-kwoa</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_astrowisp_map</span> <span class="o">=</span> <span class="n">astrowisp</span><span class="o">.</span><span class="n">PiecewiseBicubicPSFMap</span><span class="p">(</span><span class="n">io_tree</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;magnitude_1adu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">apphot_data</span><span class="p">[</span><span class="s2">&quot;magnitude_1adu&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">apphot_data</span><span class="p">[</span><span class="s2">&quot;star_shape_grid&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eval_shape_terms</span> <span class="o">=</span> <span class="n">fit_expression</span><span class="o">.</span><span class="n">Interface</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;shape_terms_expression&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_sources</span><span class="p">:</span>
+            <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_from_magnitude</span><span class="p">(</span>
+                <span class="n">apphot_data</span><span class="p">[</span><span class="s2">&quot;source_data&quot;</span><span class="p">][</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;magnitude_1adu&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">sources</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PiecewiseBicubicPSFMap.__call__">
+<a class="viewcode-back" href="../../implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the map for the given source.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source(numpy structured value):    Should specify all variables</span>
+<span class="sd">                needed by the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            astrowisp.PiecewiseBicubicPSF:</span>
+<span class="sd">                The PSF of the given source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">source</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_astrowisp_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eval_shape_terms</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

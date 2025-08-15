@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.data_reduction package &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.data_reduction.data_reduction_file module" href="autowisp.data_reduction.data_reduction_file.html" />
+    <link rel="prev" title="autowisp.astrometry.transformation module" href="autowisp.astrometry.transformation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.data_reduction package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.data_reduction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.data_reduction">
+<span id="autowisp-data-reduction-package"></span><h1>autowisp.data_reduction package<a class="headerlink" href="#module-autowisp.data_reduction" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-4995cc3df22eb59caeec7357316d4c83b31bbf6d.png" alt="Inheritance diagram of DataReductionFile, SourceExtractedPSFMap" usemap="#inheritance8d819a2ce3" class="inheritance graphviz" /></div>
+<map id="inheritance8d819a2ce3" name="inheritance8d819a2ce3">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
+<area shape="rect" id="node5" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
+<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
+<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
+<area shape="rect" id="node4" href="autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap" target="_top" title="Evaluate smoothed PSF maps based on sorce extraction." alt="" coords="796,5,1271,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+</map><p>Module for working with Data Reduction files.</p>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html">autowisp.data_reduction.data_reduction_file module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile"><code class="docutils literal notranslate"><span class="pre">DataReductionFile</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._product"><code class="docutils literal notranslate"><span class="pre">DataReductionFile._product</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._key_io_tree_to_dr"><code class="docutils literal notranslate"><span class="pre">DataReductionFile._key_io_tree_to_dr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._dtype_dr_to_io_tree"><code class="docutils literal notranslate"><span class="pre">DataReductionFile._dtype_dr_to_io_tree</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.__init__"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._get_root_tag_name"><code class="docutils literal notranslate"><span class="pre">DataReductionFile._get_root_tag_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._prepare_source_iter"><code class="docutils literal notranslate"><span class="pre">DataReductionFile._prepare_source_iter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_frame_header"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.add_frame_header()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_hat_astrometry"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.add_hat_astrometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_magnitude_fitting"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.add_magnitude_fitting()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_sources"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.add_sources()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.delete_sources"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.delete_sources()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.fname_template"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.fname_template</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_dataset_creation_args"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_dataset_creation_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_dtype"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_dtype()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_fname_from_header"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_fname_from_header()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_frame_header"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_frame_header()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_matched_sources"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_matched_sources()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_num_apertures"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_num_apertures()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_num_magfit_iterations"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_num_magfit_iterations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_count"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_source_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_data"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_source_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_source_ids"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_source_ids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_sources"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.get_sources()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.has_shape_fit"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.has_shape_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.parse_hat_source_id"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.parse_hat_source_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.save_source_extracted_psf_map"><code class="docutils literal notranslate"><span class="pre">DataReductionFile.save_source_extracted_psf_map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.init_dr_process"><code class="docutils literal notranslate"><span class="pre">init_dr_process()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.data_reduction.source_extracted_psf_map.html">autowisp.data_reduction.source_extracted_psf_map module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.source_extracted_psf_map.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap"><code class="docutils literal notranslate"><span class="pre">SourceExtractedPSFMap</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap.__call__"><code class="docutils literal notranslate"><span class="pre">SourceExtractedPSFMap.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.data_reduction.source_extracted_psf_map.html#autowisp.data_reduction.source_extracted_psf_map.SourceExtractedPSFMap.__init__"><code class="docutils literal notranslate"><span class="pre">SourceExtractedPSFMap.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.data_reduction.utils.html">autowisp.data_reduction.utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._add_shapefit_map"><code class="docutils literal notranslate"><span class="pre">_add_shapefit_map()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._auto_add_tree_quantities"><code class="docutils literal notranslate"><span class="pre">_auto_add_tree_quantities()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._auto_delete_tree_quantities"><code class="docutils literal notranslate"><span class="pre">_auto_delete_tree_quantities()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._get_shapefit_map"><code class="docutils literal notranslate"><span class="pre">_get_shapefit_map()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._get_shapefit_map_grid"><code class="docutils literal notranslate"><span class="pre">_get_shapefit_map_grid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._parse_grid_str"><code class="docutils literal notranslate"><span class="pre">_parse_grid_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.add_aperture_photometry"><code class="docutils literal notranslate"><span class="pre">add_aperture_photometry()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.add_star_shape_fit"><code class="docutils literal notranslate"><span class="pre">add_star_shape_fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.delete_aperture_photometry"><code class="docutils literal notranslate"><span class="pre">delete_aperture_photometry()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.delete_star_shape_fit"><code class="docutils literal notranslate"><span class="pre">delete_star_shape_fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.fill_aperture_photometry_input_tree"><code class="docutils literal notranslate"><span class="pre">fill_aperture_photometry_input_tree()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.get_aperture_photometry_inputs"><code class="docutils literal notranslate"><span class="pre">get_aperture_photometry_inputs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.get_source_extracted_psf_map"><code class="docutils literal notranslate"><span class="pre">get_source_extracted_psf_map()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.astrometry.transformation.html" class="btn btn-neutral float-left" title="autowisp.astrometry.transformation module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.data_reduction.data_reduction_file.html" class="btn btn-neutral float-right" title="autowisp.data_reduction.data_reduction_file module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

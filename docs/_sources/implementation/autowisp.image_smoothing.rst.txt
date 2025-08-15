@@ -1,0 +1,7 @@
+autowisp.image\_smoothing module
+================================
+
+.. automodule:: autowisp.image_smoothing
+   :members:
+   :show-inheritance:
+   :undoc-members:

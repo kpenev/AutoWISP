@@ -1,0 +1,744 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example Usage: Processing the test data &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pipeline Steps" href="processing_steps.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Example Usage: Processing the test data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/test_data.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Example-Usage:-Processing-the-test-data">
+<h1>Example Usage: Processing the test data<a class="headerlink" href="#Example-Usage:-Processing-the-test-data" title="Link to this heading"></a></h1>
+<p>The following will walk you through processing a very small collection of images to lightcurves.</p>
+<p>We use a jupyter notebook format for this description to allow this to be closer to a living document that updates along with AutoWISP, however it is meant to demonstrate the usage of AutoWISP from the command line. All commands starting with <code class="docutils literal notranslate"><span class="pre">!</span></code> or <code class="docutils literal notranslate"><span class="pre">%</span></code> are shell commands, meaning you can execute them in your operating system’s terminal (command prompt in Windows).</p>
+<section id="Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">
+<h2>Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path<a class="headerlink" href="#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">mkdir</span> autowisp_test
+<span class="o">%</span><span class="k">cd</span> autowisp_test
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+mkdir: autowisp_test: File exists
+/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data/autowisp_test
+</pre></div></div>
+</div>
+</section>
+<section id="Download-the-test-data">
+<h2>Download the test data<a class="headerlink" href="#Download-the-test-data" title="Link to this heading"></a></h2>
+<p>The raw images processed in this example as well as the expected files that processing will produce can be downloaded from: (<a class="reference external" href="https://zenodo.org/records/15786531/files/test_data.zip?download=1">https://zenodo.org/records/15786531/files/test_data.zip?download=1</a>)</p>
+<p>Download the zip file from zenodo and unpack it. This will produce several directories called: <code class="docutils literal notranslate"><span class="pre">CAL</span></code>, <code class="docutils literal notranslate"><span class="pre">DR</span></code>, <code class="docutils literal notranslate"><span class="pre">Gaia</span></code>, <code class="docutils literal notranslate"><span class="pre">LC</span></code>, <code class="docutils literal notranslate"><span class="pre">MASTERS</span></code>, and <code class="docutils literal notranslate"><span class="pre">RAW</span></code>. It should also produce several files, one of which is called <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code>.</p>
+<p>Move <code class="docutils literal notranslate"><span class="pre">RAW</span></code> and <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> to the directory we just created.</p>
+<p>The remaining directories contain the files that processing should produce. You can compare what you get to those files.</p>
+</section>
+<section id="Perform-the-calibration-for-the-zero-frames">
+<h2>Perform the calibration for the zero frames<a class="headerlink" href="#Perform-the-calibration-for-the-zero-frames" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/zero
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>This should produce a directory called <code class="docutils literal notranslate"><span class="pre">CAL</span></code> under which there will be another directory called <code class="docutils literal notranslate"><span class="pre">zero</span></code> which contains the calibrated bias frames.</p>
+</section>
+<section id="Create-a-master-bias-by-stacking-the-calibrated-zero-frames">
+<h2>Create a master bias by stacking the calibrated zero frames<a class="headerlink" href="#Create-a-master-bias-by-stacking-the-calibrated-zero-frames" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/zero/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>This should produce a directory called MASTERS containing a single FITS file, which is the master bias.</p>
+</section>
+<section id="Perform-the-calibration-for-the-dark-frames">
+<h2>Perform the calibration for the dark frames<a class="headerlink" href="#Perform-the-calibration-for-the-dark-frames" title="Link to this heading"></a></h2>
+<p>Note that when calibrating the dark frames we wish to subtract the master bias generated above. In order to do this, we specify that the master that was generated above should be used as a master bias by adding <code class="docutils literal notranslate"><span class="pre">--master-bias</span> <span class="pre">&quot;R:MASTERS/zero_R.fits.fz&quot;</span></code> to our command line</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/dark/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">&quot;R:MASTERS/zero_R.fits.fz&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>There should now be another directory under <code class="docutils literal notranslate"><span class="pre">CAL</span></code>, called <code class="docutils literal notranslate"><span class="pre">dark</span></code> which contains the calibrated dark frames.</p>
+</section>
+<section id="Create-a-master-dark-by-stacking-the-calibrated-dark-images">
+<h2>Create a master dark by stacking the calibrated dark images<a class="headerlink" href="#Create-a-master-dark-by-stacking-the-calibrated-dark-images" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/dark/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-calibration-for-flat-frames">
+<h2>Perform calibration for flat frames<a class="headerlink" href="#Perform-calibration-for-flat-frames" title="Link to this heading"></a></h2>
+<p>Those should be corrected both with the master bias and the master dark generated in the previous two steps:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/flat/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">&quot;R:MASTERS/zero_R.fits.fz&quot;</span><span class="w"> </span>--master-dark<span class="w"> </span><span class="s2">&quot;R:MASTERS/dark_R.fits.fz&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">
+<h2>Build a master flat out of the individual calibrated flat frames<a class="headerlink" href="#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames" title="Link to this heading"></a></h2>
+<p>Note that creating a master flat uses a different command than creating master bias and dark!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master-flat<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/flat/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-calibration-for-object-frames">
+<h2>Perform calibration for object frames<a class="headerlink" href="#Perform-calibration-for-object-frames" title="Link to this heading"></a></h2>
+<p>Now we use all three masters</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/object/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">&quot;R:MASTERS/zero_R.fits.fz&quot;</span><span class="w"> </span>--master-dark<span class="w"> </span><span class="s2">&quot;R:MASTERS/dark_R.fits.fz&quot;</span><span class="w"> </span>--master-flat<span class="w"> </span><span class="s2">&quot;R:MASTERS/flat_R.fits.fz&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>If you wish to see how your calibrated images look, we recommend using <a class="reference external" href="https://sites.google.com/cfa.harvard.edu/saoimageds9/download">SAO DS9</a>.</p>
+</section>
+<section id="Find-stars-in-the-calibrated-object-frames">
+<h2>Find stars in the calibrated object frames<a class="headerlink" href="#Find-stars-in-the-calibrated-object-frames" title="Link to this heading"></a></h2>
+<p>This will create another directory called <code class="docutils literal notranslate"><span class="pre">DR</span></code> which contains what we call data reduction files. These files are where the pipeline saves the results of processing the calibrated images. So fare, these files will only contain the stars that we find in the images. If you wish to see the contents of HDF5 files, the best tool we are aware of is: <a class="reference external" href="https://www.hdfgroup.org/download-hdfview/">HDFView</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-find-stars<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-astrometry-on-DR-files">
+<h2>Perform astrometry on DR files<a class="headerlink" href="#Perform-astrometry-on-DR-files" title="Link to this heading"></a></h2>
+<p>This matches the extracted sources to a catalog of stars from the Gaia space mission and uses that information to figure out how to convert from coordinates on the sky to coordinates within each image. The conversion will also be stored in the DR files.</p>
+<p>Note that this may take a while, since we use an online service to find an initial guess which is often over-subscribed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-solve-astrometry<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-PSF/PRF-fitting">
+<h2>Perform PSF/PRF fitting<a class="headerlink" href="#Perform-PSF/PRF-fitting" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-star-shape<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+Reading model
+Reading grid
+Reading coefficients
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-aperture-photometry">
+<h2>Perform aperture photometry<a class="headerlink" href="#Perform-aperture-photometry" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-measure-aperture-photometry<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Reading backgroundReading background
+
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Reading background
+Setting apertures
+Reading PSF map
+Reading model
+Reading gridSetting apertures
+
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Reading coefficientsCreating flux measuring object
+
+Creating flux measuring object
+Measuring flux for image 0Measuring flux for image
+0
+tree suffix = tree suffix = .0.0
+
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Setting apertures
+Reading PSF map
+Reading model
+Reading grid
+Reading coefficients
+Creating flux measuring object
+Measuring flux for image 0
+tree suffix = .0
+Reading background
+Reading background
+Reading background
+Reading background
+Reading background
+Reading background
+
+</pre></div></div>
+</div>
+</section>
+<section id="Run-fit-source-extracted-PSF-map">
+<h2>Run fit source extracted PSF map<a class="headerlink" href="#Run-fit-source-extracted-PSF-map" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-source-extracted-psf-map<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-magnitude-fitting">
+<h2>Perform magnitude fitting<a class="headerlink" href="#Perform-magnitude-fitting" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-magnitudes<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>One of the products of this step is a series of magnitude fitting statistics files, which contain store information about most of the stars that are in the images. These are human readable (white-space separated files) that you can view with a text editor or open in your favorite application for manipulating data organized in columns. The inforamtion in this file can be a good guide on how good the photometry is.</p>
+<p>For each star, the first half of the columns in the statistics files are as follows:</p>
+<ul class="simple">
+<li><p>For the first aperture:</p>
+<ul>
+<li><p>The number of brightness measurements of the star</p></li>
+<li><p>The number of brightness measurements that are not outliers (unusually high or low)</p></li>
+<li><p>The median of all non-outlier brightness measurements</p></li>
+<li><p>A first measure of the uncentainty in the brightness measurements, estimated as the root-mean-square deviation from the median</p></li>
+<li><p>A second measure of the uncertainty in these measurements, estimated as the median of the absolute deviation around the median</p></li>
+</ul>
+</li>
+<li><p>Repeat for the second aperture</p></li>
+<li><p>…</p></li>
+</ul>
+<p>The second half of the columns are meant for internal use, and their definition may change in the future.</p>
+</section>
+<section id="Create-light-curves">
+<h2>Create light curves<a class="headerlink" href="#Create-light-curves" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-create-lightcurves<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-EPD-on-light-curves">
+<h2>Perform EPD on light curves<a class="headerlink" href="#Perform-EPD-on-light-curves" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-epd<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
+Parsing: &#34;x = srcproj.columns : srcproj_column_name = &#39;x&#39; &amp; srcproj_version = 0&#34;.
+Parsing: &#34;y = srcproj.columns : srcproj_column_name = &#39;y&#39; &amp; srcproj_version = 0&#34;.
+Parsing: &#39;bg = bg.value&#39;.
+Parsing: &#39;z = skypos.zenith_distance&#39;.
+Parsing: &#34;S = srcextract.psf_map.eval: srcextract_psf_param = &#39;s&#39;&#34;.
+
+</pre></div></div>
+</div>
+</section>
+<section id="Generate-EPD-statistics-file-for-light-curves">
+<h2>Generate EPD statistics file for light curves<a class="headerlink" href="#Generate-EPD-statistics-file-for-light-curves" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-generate-epd-statistics<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
+
+</pre></div></div>
+</div>
+</section>
+<section id="Perform-TFA-on-light-curves">
+<h2>Perform TFA on light curves<a class="headerlink" href="#Perform-TFA-on-light-curves" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-tfa<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
+
+</pre></div></div>
+</div>
+</section>
+<section id="Generate-TFA-statistics-file-for-light-curves">
+<h2>Generate TFA statistics file for light curves<a class="headerlink" href="#Generate-TFA-statistics-file-for-light-curves" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-generate-tfa-statistics<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
+
+</pre></div></div>
+</div>
+</section>
+<section id="Extract-brightness-vs-time-from-lightcurves">
+<h2>Extract brightness vs time from lightcurves<a class="headerlink" href="#Extract-brightness-vs-time-from-lightcurves" title="Link to this heading"></a></h2>
+<p>The lightcurves generated above are in HDF5 format. You can open the directly using HDFView as before. We have attempted to organze the content in a logical way. However, these files contain my be somewhat cumbersome to work with, and likely contain a lot more entries than typical user would care about. As an example, let us collect all aperture photometry measurements from one of the newly generated lightcurves in a CSV file</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-get-from-lc<span class="w"> </span>LC/GDR3_809281106831668736.h5<span class="w"> </span>--expression<span class="w"> </span><span class="nv">bjd</span><span class="o">=</span>skypos.BJD<span class="w"> </span>--expression<span class="w"> </span><span class="s1">&#39;mag{aperture_index}=apphot.magfit.magnitude&#39;</span><span class="w"> </span>-o<span class="w"> </span>GDR3_809281106831668736.csv<span class="w"> </span>--find-best
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+/opt/anaconda3/lib/python3.12/site-packages/autowisp/database/hdf5_file_structure.py:74: SAWarning: relationship &#39;Step.prerequisites&#39; will copy column step.id to column step_dependencies.blocked_step_id, which conflicts with relationship(s): &#39;StepDependencies.blocked_step&#39; (copies step.id to step_dependencies.blocked_step_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter &#39;overlaps=&#34;blocked_step&#34;&#39; to the &#39;Step.prerequisites&#39; relationship. (Background on this warning at: https://sqlalche.me/e/20/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+  db_session.query(HDF5Product)
+Single photref: b&#39;DR/10-465248_2_center.h5&#39;
+Aperture indices:  None
+Evaluating &#39;skypos.BJD&#39; for aperture 0
+Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 0
+Evaluating &#39;skypos.BJD&#39; for aperture 1
+Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 1
+Evaluating &#39;skypos.BJD&#39; for aperture 2
+Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 2
+Evaluating &#39;skypos.BJD&#39; for aperture 3
+Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 3
+Evaluating &#39;skypos.BJD&#39; for aperture 4
+Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 4
+
+</pre></div></div>
+</div>
+<p>You can open this file with your favorite text editor or load it in your favorite software for manipulating column-organized data. The contents of the file should look like:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;GDR3_809281106831668736.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+bjd,mag0,mag1,mag2,mag3
+2457819.837050383,4.006945615264255,3.17406685414204,3.0312522103547104,2.981423791605317
+2457819.837690473,3.743435615264255,3.0646768541420397,2.9453222103547105,2.886863791605317
+2457819.838957673,4.121655615264255,3.17709685414204,3.0010422103547105,2.962123791605317
+2457819.839599043,4.031455615264255,3.18722685414204,3.0456322103547104,3.044273791605317
+2457819.840274193,3.945705615264255,3.15156685414204,2.9139522103547106,2.827073791605317
+2457819.840906103,4.124025615264255,3.26076685414204,3.0048822103547104,2.940343791605317
+2457819.841551873,4.051135615264255,3.19773685414204,2.9911622103547106,2.912093791605317
+2457819.842187163,3.990045615264255,3.12918685414204,2.9628322103547107,2.919363791605317
+2457819.842825823,3.761285615264255,3.04416685414204,2.8789522103547105,2.860253791605317
+
+</pre></div></div>
+</div>
+<p>There are nine rows in the file corresponding to the nine successfully processed science images in this dataset.</p>
+<ul class="simple">
+<li><p>the first column (bjd) is the Barycentric Julian Date. This is a commonly used way of representing time in astronomy in units of days. It compensates for different light travel time from different stars to the Earth as the Earth revolves around the Sun, compensating for the fact that a given astronomical event will be observed to occur earlier if the earth is closer to the source than the sun and later if it is further.</p></li>
+<li><p>The remaining four columns show the measured and detrended brightness of the star in each of the four apertures used in this example</p></li>
+</ul>
+<p><strong>When you are done reviewing your results, remember to delete the directory you created at the beginning</strong></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="processing_steps.html" class="btn btn-neutral float-right" title="Pipeline Steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+autowisp.database.data\_model.provenance.mount\_access module
+=============================================================
+
+.. automodule:: autowisp.database.data_model.provenance.mount_access
+   :members:
+   :show-inheritance:
+   :undoc-members:

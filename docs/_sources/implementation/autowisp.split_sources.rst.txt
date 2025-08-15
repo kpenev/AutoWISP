@@ -1,0 +1,7 @@
+autowisp.split\_sources module
+==============================
+
+.. automodule:: autowisp.split_sources
+   :members:
+   :show-inheritance:
+   :undoc-members:

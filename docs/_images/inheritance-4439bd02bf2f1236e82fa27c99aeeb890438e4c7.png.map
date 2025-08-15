@@ -1,0 +1,8 @@
+<map id="inheritance82eb1f60fc" name="inheritance82eb1f60fc">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="192,5,361,32"/>
+<area shape="rect" id="node6" title="Drop&#45;in replacement for argparse.ArgumentParser that adds support for" alt="" coords="174,80,379,107"/>
+<area shape="rect" id="node2" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="431,5,703,32"/>
+<area shape="rect" id="node3" href="autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="403,80,731,107"/>
+<area shape="rect" id="node4" href="autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,229,548,256"/>
+<area shape="rect" id="node5" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="68,155,485,181"/>
+</map>

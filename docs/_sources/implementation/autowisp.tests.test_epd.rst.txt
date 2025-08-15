@@ -1,0 +1,7 @@
+autowisp.tests.test\_epd module
+===============================
+
+.. automodule:: autowisp.tests.test_epd
+   :members:
+   :show-inheritance:
+   :undoc-members:

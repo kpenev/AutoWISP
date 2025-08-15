@@ -1,0 +1,761 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.database package &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.database.data_model package" href="autowisp.database.data_model.html" />
+    <link rel="prev" title="autowisp.data_reduction.utils module" href="autowisp.data_reduction.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.database package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.database.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.database">
+<span id="autowisp-database-package"></span><h1>autowisp.database package<a class="headerlink" href="#module-autowisp.database" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.data_model.html">autowisp.database.data_model package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition"><code class="docutils literal notranslate"><span class="pre">Condition</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition.expression"><code class="docutils literal notranslate"><span class="pre">Condition.expression</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition.expression_id"><code class="docutils literal notranslate"><span class="pre">Condition.expression_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition.id"><code class="docutils literal notranslate"><span class="pre">Condition.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition.notes"><code class="docutils literal notranslate"><span class="pre">Condition.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Condition.timestamp"><code class="docutils literal notranslate"><span class="pre">Condition.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression"><code class="docutils literal notranslate"><span class="pre">ConditionExpression</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression.expression"><code class="docutils literal notranslate"><span class="pre">ConditionExpression.expression</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression.id"><code class="docutils literal notranslate"><span class="pre">ConditionExpression.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression.notes"><code class="docutils literal notranslate"><span class="pre">ConditionExpression.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ConditionExpression.timestamp"><code class="docutils literal notranslate"><span class="pre">ConditionExpression.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration"><code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.condition_expressions"><code class="docutils literal notranslate"><span class="pre">Configuration.condition_expressions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.condition_id"><code class="docutils literal notranslate"><span class="pre">Configuration.condition_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.conditions"><code class="docutils literal notranslate"><span class="pre">Configuration.conditions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.id"><code class="docutils literal notranslate"><span class="pre">Configuration.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.notes"><code class="docutils literal notranslate"><span class="pre">Configuration.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.parameter"><code class="docutils literal notranslate"><span class="pre">Configuration.parameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.parameter_id"><code class="docutils literal notranslate"><span class="pre">Configuration.parameter_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.timestamp"><code class="docutils literal notranslate"><span class="pre">Configuration.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.value"><code class="docutils literal notranslate"><span class="pre">Configuration.value</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Configuration.version"><code class="docutils literal notranslate"><span class="pre">Configuration.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.__str__"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.description"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.dtype"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.dtype</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.hdf5_structure_version_id"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.hdf5_structure_version_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.id"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.name"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.parent"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.parent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.pipeline_key"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.pipeline_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.structure_version"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.structure_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.timestamp"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.__str__"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.abspath"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.abspath</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.compression"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.compression</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.compression_options"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.compression_options</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.description"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.dtype"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.dtype</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.hdf5_structure_version_id"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.hdf5_structure_version_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.id"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.pipeline_key"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.pipeline_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.replace_nonfinite"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.replace_nonfinite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.scaleoffset"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.scaleoffset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.shuffle"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.shuffle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.structure_version"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.structure_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.timestamp"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link"><code class="docutils literal notranslate"><span class="pre">HDF5Link</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.abspath"><code class="docutils literal notranslate"><span class="pre">HDF5Link.abspath</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.description"><code class="docutils literal notranslate"><span class="pre">HDF5Link.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.hdf5_structure_version_id"><code class="docutils literal notranslate"><span class="pre">HDF5Link.hdf5_structure_version_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.id"><code class="docutils literal notranslate"><span class="pre">HDF5Link.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.pipeline_key"><code class="docutils literal notranslate"><span class="pre">HDF5Link.pipeline_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.structure_version"><code class="docutils literal notranslate"><span class="pre">HDF5Link.structure_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.target"><code class="docutils literal notranslate"><span class="pre">HDF5Link.target</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.timestamp"><code class="docutils literal notranslate"><span class="pre">HDF5Link.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product"><code class="docutils literal notranslate"><span class="pre">HDF5Product</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product.description"><code class="docutils literal notranslate"><span class="pre">HDF5Product.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product.id"><code class="docutils literal notranslate"><span class="pre">HDF5Product.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product.pipeline_key"><code class="docutils literal notranslate"><span class="pre">HDF5Product.pipeline_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product.structure_versions"><code class="docutils literal notranslate"><span class="pre">HDF5Product.structure_versions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product.timestamp"><code class="docutils literal notranslate"><span class="pre">HDF5Product.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.attributes"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.attributes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.datasets"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.datasets</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.hdf5_product_id"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.hdf5_product_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.id"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.links"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.links</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.product"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.product</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.timestamp"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.version"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.id"><code class="docutils literal notranslate"><span class="pre">Image.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.image_type"><code class="docutils literal notranslate"><span class="pre">Image.image_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.image_type_id"><code class="docutils literal notranslate"><span class="pre">Image.image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.notes"><code class="docutils literal notranslate"><span class="pre">Image.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.observing_session"><code class="docutils literal notranslate"><span class="pre">Image.observing_session</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.observing_session_id"><code class="docutils literal notranslate"><span class="pre">Image.observing_session_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.processing"><code class="docutils literal notranslate"><span class="pre">Image.processing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.raw_fname"><code class="docutils literal notranslate"><span class="pre">Image.raw_fname</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image.timestamp"><code class="docutils literal notranslate"><span class="pre">Image.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.applied_to"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.applied_to</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.configuration_version"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.configuration_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.finished"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.finished</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.host"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.host</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.id"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.image_type"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.image_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.image_type_id"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.notes"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.process_id"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.process_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.started"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.started</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.step"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.step_id"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.timestamp"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType"><code class="docutils literal notranslate"><span class="pre">ImageType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType.description"><code class="docutils literal notranslate"><span class="pre">ImageType.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType.id"><code class="docutils literal notranslate"><span class="pre">ImageType.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType.image"><code class="docutils literal notranslate"><span class="pre">ImageType.image</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType.name"><code class="docutils literal notranslate"><span class="pre">ImageType.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType.timestamp"><code class="docutils literal notranslate"><span class="pre">ImageType.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.config_name"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.config_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.id"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.image_type"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.image_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.image_type_id"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.master_type"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.master_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.master_type_id"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.master_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.optional"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.optional</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.step"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.step_id"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.timestamp"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.configuration_version"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.configuration_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.final"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.final</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.finished"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.finished</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.host"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.host</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.id"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.notes"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.process_id"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.process_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.single_photref_id"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.single_photref_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.sphotref"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.sphotref</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.started"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.started</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.step"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.step_id"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.timestamp"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus.id"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus.processing"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus.processing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus.progress_id"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus.progress_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus.status"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus.status</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.LightCurveStatus.timestamp"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile"><code class="docutils literal notranslate"><span class="pre">MasterFile</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.enabled"><code class="docutils literal notranslate"><span class="pre">MasterFile.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.filename"><code class="docutils literal notranslate"><span class="pre">MasterFile.filename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.id"><code class="docutils literal notranslate"><span class="pre">MasterFile.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.master_type"><code class="docutils literal notranslate"><span class="pre">MasterFile.master_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.progress_id"><code class="docutils literal notranslate"><span class="pre">MasterFile.progress_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.timestamp"><code class="docutils literal notranslate"><span class="pre">MasterFile.timestamp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.type_id"><code class="docutils literal notranslate"><span class="pre">MasterFile.type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.use_smallest"><code class="docutils literal notranslate"><span class="pre">MasterFile.use_smallest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType"><code class="docutils literal notranslate"><span class="pre">MasterType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.condition_id"><code class="docutils literal notranslate"><span class="pre">MasterType.condition_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.description"><code class="docutils literal notranslate"><span class="pre">MasterType.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.id"><code class="docutils literal notranslate"><span class="pre">MasterType.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.maker_image_split_condition_id"><code class="docutils literal notranslate"><span class="pre">MasterType.maker_image_split_condition_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.maker_image_type_id"><code class="docutils literal notranslate"><span class="pre">MasterType.maker_image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.maker_step_id"><code class="docutils literal notranslate"><span class="pre">MasterType.maker_step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.master_files"><code class="docutils literal notranslate"><span class="pre">MasterType.master_files</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.match_expressions"><code class="docutils literal notranslate"><span class="pre">MasterType.match_expressions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.name"><code class="docutils literal notranslate"><span class="pre">MasterType.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.split_expressions"><code class="docutils literal notranslate"><span class="pre">MasterType.split_expressions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.MasterType.timestamp"><code class="docutils literal notranslate"><span class="pre">MasterType.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession"><code class="docutils literal notranslate"><span class="pre">ObservingSession</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.camera"><code class="docutils literal notranslate"><span class="pre">ObservingSession.camera</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.camera_id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.camera_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.end_time_utc"><code class="docutils literal notranslate"><span class="pre">ObservingSession.end_time_utc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.images"><code class="docutils literal notranslate"><span class="pre">ObservingSession.images</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.label"><code class="docutils literal notranslate"><span class="pre">ObservingSession.label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.mount"><code class="docutils literal notranslate"><span class="pre">ObservingSession.mount</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.mount_id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.mount_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.notes"><code class="docutils literal notranslate"><span class="pre">ObservingSession.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.observatory"><code class="docutils literal notranslate"><span class="pre">ObservingSession.observatory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.observatory_id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.observatory_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.observer"><code class="docutils literal notranslate"><span class="pre">ObservingSession.observer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.observer_id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.observer_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.start_time_utc"><code class="docutils literal notranslate"><span class="pre">ObservingSession.start_time_utc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.target"><code class="docutils literal notranslate"><span class="pre">ObservingSession.target</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.target_id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.target_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.telescope"><code class="docutils literal notranslate"><span class="pre">ObservingSession.telescope</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.telescope_id"><code class="docutils literal notranslate"><span class="pre">ObservingSession.telescope_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.timestamp"><code class="docutils literal notranslate"><span class="pre">ObservingSession.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter.description"><code class="docutils literal notranslate"><span class="pre">Parameter.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter.id"><code class="docutils literal notranslate"><span class="pre">Parameter.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter.name"><code class="docutils literal notranslate"><span class="pre">Parameter.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter.steps"><code class="docutils literal notranslate"><span class="pre">Parameter.steps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Parameter.timestamp"><code class="docutils literal notranslate"><span class="pre">Parameter.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages"><code class="docutils literal notranslate"><span class="pre">ProcessedImages</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.channel"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.channel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.final"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.final</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.id"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.image"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.image</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.image_id"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.image_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.processing"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.processing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.progress_id"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.progress_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.status"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.status</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.timestamp"><code class="docutils literal notranslate"><span class="pre">ProcessedImages.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.id"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.image_type"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence.image_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.image_type_id"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence.image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.step"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence.step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.step_id"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence.step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.timestamp"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step.description"><code class="docutils literal notranslate"><span class="pre">Step.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step.id"><code class="docutils literal notranslate"><span class="pre">Step.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step.name"><code class="docutils literal notranslate"><span class="pre">Step.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step.parameters"><code class="docutils literal notranslate"><span class="pre">Step.parameters</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step.prerequisites"><code class="docutils literal notranslate"><span class="pre">Step.prerequisites</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step.timestamp"><code class="docutils literal notranslate"><span class="pre">Step.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies"><code class="docutils literal notranslate"><span class="pre">StepDependencies</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.__str__"><code class="docutils literal notranslate"><span class="pre">StepDependencies.__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocked_image_type_id"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocked_image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocked_imtype"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocked_imtype</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocked_step"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocked_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocked_step_id"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocked_step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocking_image_type_id"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocking_image_type_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocking_imtype"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocking_imtype</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocking_step"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocking_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocking_step_id"><code class="docutils literal notranslate"><span class="pre">StepDependencies.blocking_step_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.id"><code class="docutils literal notranslate"><span class="pre">StepDependencies.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.timestamp"><code class="docutils literal notranslate"><span class="pre">StepDependencies.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target"><code class="docutils literal notranslate"><span class="pre">Target</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.dec"><code class="docutils literal notranslate"><span class="pre">Target.dec</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.id"><code class="docutils literal notranslate"><span class="pre">Target.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.name"><code class="docutils literal notranslate"><span class="pre">Target.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.notes"><code class="docutils literal notranslate"><span class="pre">Target.notes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.observing_sessions"><code class="docutils literal notranslate"><span class="pre">Target.observing_sessions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.ra"><code class="docutils literal notranslate"><span class="pre">Target.ra</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Target.timestamp"><code class="docutils literal notranslate"><span class="pre">Target.timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.provenance.html">autowisp.database.data_model.provenance package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Camera"><code class="docutils literal notranslate"><span class="pre">Camera</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.CameraAccess"><code class="docutils literal notranslate"><span class="pre">CameraAccess</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.CameraChannel"><code class="docutils literal notranslate"><span class="pre">CameraChannel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.CameraType"><code class="docutils literal notranslate"><span class="pre">CameraType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Mount"><code class="docutils literal notranslate"><span class="pre">Mount</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.MountAccess"><code class="docutils literal notranslate"><span class="pre">MountAccess</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.MountType"><code class="docutils literal notranslate"><span class="pre">MountType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Observatory"><code class="docutils literal notranslate"><span class="pre">Observatory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Observer"><code class="docutils literal notranslate"><span class="pre">Observer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Telescope"><code class="docutils literal notranslate"><span class="pre">Telescope</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.TelescopeAccess"><code class="docutils literal notranslate"><span class="pre">TelescopeAccess</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.TelescopeType"><code class="docutils literal notranslate"><span class="pre">TelescopeType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.provenance.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.data_model.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.base.html">autowisp.database.data_model.base module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.base.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase"><code class="docutils literal notranslate"><span class="pre">DataModelBase</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.condition.html">autowisp.database.data_model.condition module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.condition.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition"><code class="docutils literal notranslate"><span class="pre">Condition</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.condition_expression.html">autowisp.database.data_model.condition_expression module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.condition_expression.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression"><code class="docutils literal notranslate"><span class="pre">ConditionExpression</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.configuration.html">autowisp.database.data_model.configuration module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.configuration.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration"><code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.hdf5_attributes.html">autowisp.database.data_model.hdf5_attributes module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_attributes.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute"><code class="docutils literal notranslate"><span class="pre">HDF5Attribute</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.hdf5_datasets.html">autowisp.database.data_model.hdf5_datasets module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_datasets.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_datasets.html#autowisp.database.data_model.hdf5_datasets.HDF5DataSet"><code class="docutils literal notranslate"><span class="pre">HDF5DataSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.hdf5_links.html">autowisp.database.data_model.hdf5_links module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_links.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_links.html#autowisp.database.data_model.hdf5_links.HDF5Link"><code class="docutils literal notranslate"><span class="pre">HDF5Link</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.hdf5_products.html">autowisp.database.data_model.hdf5_products module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_products.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_products.html#autowisp.database.data_model.hdf5_products.HDF5Product"><code class="docutils literal notranslate"><span class="pre">HDF5Product</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.hdf5_structure_versions.html">autowisp.database.data_model.hdf5_structure_versions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_structure_versions.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.hdf5_structure_versions.html#autowisp.database.data_model.hdf5_structure_versions.HDF5StructureVersion"><code class="docutils literal notranslate"><span class="pre">HDF5StructureVersion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.image.html">autowisp.database.data_model.image module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.image.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress"><code class="docutils literal notranslate"><span class="pre">ImageProcessingProgress</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages"><code class="docutils literal notranslate"><span class="pre">ProcessedImages</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.image_type.html">autowisp.database.data_model.image_type module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.image_type.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType"><code class="docutils literal notranslate"><span class="pre">ImageType</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.input_master_types.html">autowisp.database.data_model.input_master_types module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.input_master_types.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes"><code class="docutils literal notranslate"><span class="pre">InputMasterTypes</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.light_curve_processing_progress.html">autowisp.database.data_model.light_curve_processing_progress module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.light_curve_processing_progress.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingProgress</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.light_curve_status.html">autowisp.database.data_model.light_curve_status module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.light_curve_status.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.light_curve_status.html#autowisp.database.data_model.light_curve_status.LightCurveStatus"><code class="docutils literal notranslate"><span class="pre">LightCurveStatus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.master_files.html">autowisp.database.data_model.master_files module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.master_files.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile"><code class="docutils literal notranslate"><span class="pre">MasterFile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType"><code class="docutils literal notranslate"><span class="pre">MasterType</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.observing_session.html">autowisp.database.data_model.observing_session module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.observing_session.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession"><code class="docutils literal notranslate"><span class="pre">ObservingSession</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.processing_sequence.html">autowisp.database.data_model.processing_sequence module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.processing_sequence.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence"><code class="docutils literal notranslate"><span class="pre">ProcessingSequence</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.step_dependencies.html">autowisp.database.data_model.step_dependencies module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.step_dependencies.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies"><code class="docutils literal notranslate"><span class="pre">StepDependencies</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.steps_and_parameters.html">autowisp.database.data_model.steps_and_parameters module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.steps_and_parameters.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.data_model.target.html">autowisp.database.data_model.target module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.target.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target"><code class="docutils literal notranslate"><span class="pre">Target</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.hdf5_file_structure.html">autowisp.database.hdf5_file_structure module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.hdf5_file_structure.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure"><code class="docutils literal notranslate"><span class="pre">HDF5FileDatabaseStructure</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure.elements"><code class="docutils literal notranslate"><span class="pre">HDF5FileDatabaseStructure.elements</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure.get_file_structure"><code class="docutils literal notranslate"><span class="pre">HDF5FileDatabaseStructure.get_file_structure()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.image_processing.html">autowisp.database.image_processing module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher"><code class="docutils literal notranslate"><span class="pre">ExpressionMatcher</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher.__call__"><code class="docutils literal notranslate"><span class="pre">ExpressionMatcher.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher.__init__"><code class="docutils literal notranslate"><span class="pre">ExpressionMatcher.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher._get_master_values"><code class="docutils literal notranslate"><span class="pre">ExpressionMatcher._get_master_values()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.__call__"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.__init__"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._check_ready"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._check_ready()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._clean_pending_per_dependencies"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._clean_pending_per_dependencies()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._cleanup_interrupted"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._cleanup_interrupted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._end_processing"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._end_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._finalize_processing"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._finalize_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_batch_config"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._get_batch_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_config_batches"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._get_config_batches()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_interrupted"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._get_interrupted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._init_processed_ids"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._init_processed_ids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._prepare_processing"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._prepare_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._process_batch"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._process_batch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._set_calibration_config"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._set_calibration_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._split_by_master"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._split_by_master()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._start_processing"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._start_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._start_step"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager._start_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.add_raw_images"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.add_raw_images()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.find_processing_outputs"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.find_processing_outputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.get_step_input"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.get_step_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.group_pending_by_conditions"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.group_pending_by_conditions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.set_pending"><code class="docutils literal notranslate"><span class="pre">ImageProcessingManager.set_pending()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.NoMasterError"><code class="docutils literal notranslate"><span class="pre">NoMasterError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.get_master_expression_ids"><code class="docutils literal notranslate"><span class="pre">get_master_expression_ids()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.image_processing.html#autowisp.database.image_processing.remove_failed_prerequisite"><code class="docutils literal notranslate"><span class="pre">remove_failed_prerequisite()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html">autowisp.database.initialize_data_reduction_structure module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_attributes"><code class="docutils literal notranslate"><span class="pre">_get_apphot_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_datasets"><code class="docutils literal notranslate"><span class="pre">_get_apphot_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_links"><code class="docutils literal notranslate"><span class="pre">_get_apphot_links()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_attributes"><code class="docutils literal notranslate"><span class="pre">_get_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_background_attributes"><code class="docutils literal notranslate"><span class="pre">_get_background_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_background_datasets"><code class="docutils literal notranslate"><span class="pre">_get_background_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_background_links"><code class="docutils literal notranslate"><span class="pre">_get_background_links()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_catalogue_attributes"><code class="docutils literal notranslate"><span class="pre">_get_catalogue_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_catalogue_datasets"><code class="docutils literal notranslate"><span class="pre">_get_catalogue_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_datasets"><code class="docutils literal notranslate"><span class="pre">_get_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_link"><code class="docutils literal notranslate"><span class="pre">_get_link()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_links"><code class="docutils literal notranslate"><span class="pre">_get_links()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_magfit_attributes"><code class="docutils literal notranslate"><span class="pre">_get_magfit_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_magfit_datasets"><code class="docutils literal notranslate"><span class="pre">_get_magfit_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_magfit_key_and_path"><code class="docutils literal notranslate"><span class="pre">_get_magfit_key_and_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_attributes"><code class="docutils literal notranslate"><span class="pre">_get_shapefit_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_datasets"><code class="docutils literal notranslate"><span class="pre">_get_shapefit_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_links"><code class="docutils literal notranslate"><span class="pre">_get_shapefit_links()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_datasets"><code class="docutils literal notranslate"><span class="pre">_get_sky_to_frame_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_links"><code class="docutils literal notranslate"><span class="pre">_get_sky_to_frame_links()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_skytoframe_attributes"><code class="docutils literal notranslate"><span class="pre">_get_skytoframe_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_extraction_attributes"><code class="docutils literal notranslate"><span class="pre">_get_source_extraction_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_extraction_datasets"><code class="docutils literal notranslate"><span class="pre">_get_source_extraction_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_projection_attributes"><code class="docutils literal notranslate"><span class="pre">_get_source_projection_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_projection_datasets"><code class="docutils literal notranslate"><span class="pre">_get_source_projection_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_projection_links"><code class="docutils literal notranslate"><span class="pre">_get_source_projection_links()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure.get_default_data_reduction_structure"><code class="docutils literal notranslate"><span class="pre">get_default_data_reduction_structure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.initialize_database.html">autowisp.database.initialize_database module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.StepCreator"><code class="docutils literal notranslate"><span class="pre">StepCreator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.StepCreator.__call__"><code class="docutils literal notranslate"><span class="pre">StepCreator.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.StepCreator.__init__"><code class="docutils literal notranslate"><span class="pre">StepCreator.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database._overwrite_defaults"><code class="docutils literal notranslate"><span class="pre">_overwrite_defaults()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.add_default_hdf5_structures"><code class="docutils literal notranslate"><span class="pre">add_default_hdf5_structures()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.add_master_dependencies"><code class="docutils literal notranslate"><span class="pre">add_master_dependencies()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.drop_tables_matching"><code class="docutils literal notranslate"><span class="pre">drop_tables_matching()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.get_command_line_parser"><code class="docutils literal notranslate"><span class="pre">get_command_line_parser()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.init_processing"><code class="docutils literal notranslate"><span class="pre">init_processing()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.initialize_database"><code class="docutils literal notranslate"><span class="pre">initialize_database()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html">autowisp.database.initialize_light_curve_structure module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_attributes"><code class="docutils literal notranslate"><span class="pre">_get_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_catalogue_attributes"><code class="docutils literal notranslate"><span class="pre">_get_catalogue_attributes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_configuration_index_datasets"><code class="docutils literal notranslate"><span class="pre">_get_configuration_index_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_data_reduction_attribute_datasets"><code class="docutils literal notranslate"><span class="pre">_get_data_reduction_attribute_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_data_reduction_dataset_datasets"><code class="docutils literal notranslate"><span class="pre">_get_data_reduction_dataset_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_datasets"><code class="docutils literal notranslate"><span class="pre">_get_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_detrended_datasets"><code class="docutils literal notranslate"><span class="pre">_get_detrended_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_frame_datasets"><code class="docutils literal notranslate"><span class="pre">_get_frame_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_sky_position_datasets"><code class="docutils literal notranslate"><span class="pre">_get_sky_position_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_source_extraction_datasets"><code class="docutils literal notranslate"><span class="pre">_get_source_extraction_datasets()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure.get_default_light_curve_structure"><code class="docutils literal notranslate"><span class="pre">get_default_light_curve_structure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure.transform_dr_to_lc_path"><code class="docutils literal notranslate"><span class="pre">transform_dr_to_lc_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.interface.html">autowisp.database.interface module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.interface.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.lightcurve_processing.html">autowisp.database.lightcurve_processing module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.__call__"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.__init__"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._check_ready"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._check_ready()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._cleanup_interrupted"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._cleanup_interrupted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._get_lc_fnames"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._get_lc_fnames()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._mark_progress"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._mark_progress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._prepare_processing"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._prepare_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._specialize_config"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._specialize_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._start_step"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager._start_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.get_step_config"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager.get_step_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.select_step_sphotref"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager.select_step_sphotref()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.set_pending"><code class="docutils literal notranslate"><span class="pre">LightCurveProcessingManager.set_pending()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.manually_fill_tables.html">autowisp.database.manually_fill_tables module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.manually_fill_tables.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.processing.html">autowisp.database.processing module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.processing.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingInProgress"><code class="docutils literal notranslate"><span class="pre">ProcessingInProgress</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager"><code class="docutils literal notranslate"><span class="pre">ProcessingManager</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.__call__"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.__init__"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._check_running_processing"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._check_running_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._cleanup_interrupted"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._cleanup_interrupted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._create_current_processing"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._create_current_processing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_best_master"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._get_best_master()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_evaluated_entry"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._get_evaluated_entry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_master"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._get_master()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_split_channels"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._get_split_channels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._write_config_file"><code class="docutils literal notranslate"><span class="pre">ProcessingManager._write_config_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.add_masters"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.add_masters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.create_config_file"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.create_config_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.evaluate_expressions_image"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.evaluate_expressions_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_config"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.get_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_master_fname"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.get_master_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_matched_expressions"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.get_matched_expressions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_param_values"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.get_param_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_product_fname"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.get_product_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.set_pending"><code class="docutils literal notranslate"><span class="pre">ProcessingManager.set_pending()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.database.user_interface.html">autowisp.database.user_interface module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface._get_config_info"><code class="docutils literal notranslate"><span class="pre">_get_config_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface._get_db_conditions"><code class="docutils literal notranslate"><span class="pre">_get_db_conditions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface._parse_json_config"><code class="docutils literal notranslate"><span class="pre">_parse_json_config()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface._save_conditions"><code class="docutils literal notranslate"><span class="pre">_save_conditions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface._save_expressions"><code class="docutils literal notranslate"><span class="pre">_save_expressions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.get_db_configuration"><code class="docutils literal notranslate"><span class="pre">get_db_configuration()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.get_json_config"><code class="docutils literal notranslate"><span class="pre">get_json_config()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.get_processing_sequence"><code class="docutils literal notranslate"><span class="pre">get_processing_sequence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.get_progress"><code class="docutils literal notranslate"><span class="pre">get_progress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.get_progress_images"><code class="docutils literal notranslate"><span class="pre">get_progress_images()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.get_progress_lightcurves"><code class="docutils literal notranslate"><span class="pre">get_progress_lightcurves()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.list_channels"><code class="docutils literal notranslate"><span class="pre">list_channels()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.list_steps"><code class="docutils literal notranslate"><span class="pre">list_steps()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.database.user_interface.html#autowisp.database.user_interface.save_json_config"><code class="docutils literal notranslate"><span class="pre">save_json_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.data_reduction.utils.html" class="btn btn-neutral float-left" title="autowisp.data_reduction.utils module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.database.data_model.html" class="btn btn-neutral float-right" title="autowisp.database.data_model package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

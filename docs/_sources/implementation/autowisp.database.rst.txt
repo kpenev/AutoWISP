@@ -1,0 +1,32 @@
+autowisp.database package
+=========================
+
+.. automodule:: autowisp.database
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.database.data_model
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.database.hdf5_file_structure
+   autowisp.database.image_processing
+   autowisp.database.initialize_data_reduction_structure
+   autowisp.database.initialize_database
+   autowisp.database.initialize_light_curve_structure
+   autowisp.database.interface
+   autowisp.database.lightcurve_processing
+   autowisp.database.manually_fill_tables
+   autowisp.database.processing
+   autowisp.database.user_interface

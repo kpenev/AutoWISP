@@ -1,0 +1,609 @@
+\documentclass{article}
+\usepackage{amsmath}
+\author{Kaloyan Penev}
+\title{Efficient Update of the TFA Filter}
+\begin{document}
+\maketitle
+There are two types of changes that are occur commonly in TFA filters:
+\begin{enumerate}
+	\item Adding or removing a small number of templates
+	\item Addid or removing particular observations from all templates
+\end{enumerate}
+The first occurs during reconstructive TFA, when applying the filter to a
+template star, or if star(s) is the template set are suspected to be strongly
+influenced by the star being filtered.
+
+The second occurs due to stars moving in and out of the field of view or when
+the measured flux of a star is suspect for a given observation for some
+reason (e.g. bad pixel in the aperture). 
+
+\section{Notation}
+We assume that we start from a default filter from which only small changes
+of the two types mentioned above will need to made depending on the
+particular star being filtered.
+
+\begin{tabular}{rl}
+	$t$ & the number of templates in the default filter\\
+%	
+	$n$ & the number of observations in the default filter\\
+%
+	$\delta t$ & the number of templates dropped from the default filter 
+	minus the \\&number of templates added.\\
+%
+	$\delta n$ & the number of observations dropped from the default filter -
+	number added.\\
+%
+	$n_e$ & the number of observations dropped from the default filter +
+	number added.\\
+%
+	$t_e$ & the number of templates being added. \\
+%
+	$\mathbf{T}$ & the $t\times n$ matrix of template light curves in the
+	default filter.\\
+%
+	$\mathbf{T'}$ & the $(t-\delta t)\times(n-\delta n)$ matrix of the
+	template light curves of the \\&particular filter we want to apply to the
+	given star.\\
+%
+	$\mathbf{\tilde{T}}$ & the light curves of the non-rejected template
+	stars from the \\&original template for the modified set of observations
+	\\&($\tau'$ without the templates being added).\\
+%
+	$\mathbf{D_t}$ & the $\delta t\times (n-\delta n)$ matrix of the light
+	curves of the dropped \\&templates at the new observations.\\
+%
+	$\mathbf{D_o}$ & the $t\times \delta n$ matrix of the dropped/added
+	observations from the default \\&set of templates, added with (+) sign,
+	dropped with (-) sign.\\
+%
+	$\mathbf{\hat{D}_o}^T$ & the same as $\mathbf{D_o}$, but with all 
+	positive signs\\
+%
+	$\mathbf{e}$ & the matrix of light curves of the templates being added at
+	the final \\&set of observations.\\
+%
+	$\mathbf{m}$ & the vector of unfiltered magnitudes at the final set of
+	observations.\\
+%
+	$\mathbf{m}^f$ & the vector of filtered magnitudes at the final set of
+	observations.
+\end{tabular}
+
+\section{The New Filter}
+A TFA filter is fully specified if we have $\mathbf{T'}$ and
+$\left(\mathbf{T'T'}^T\right)^{-1}$. From those the updated magnitudes are
+given by:
+\begin{equation}
+	\mathbf{m}^f=\mathbf{m}-\mathbf{T'}^T\left(\mathbf{T'T'}^T\right)^{-1}
+	\mathbf{T'm}
+\end{equation}
+So we need to find $\mathbf{T'}$ and $\left(\mathbf{T'T'}^T\right)^{-1}$.
+
+Clearly:
+
+\begin{equation}
+	\mathbf{T'}=
+	\begin{array}{cl}
+		\hspace{0.1cm}
+	\overbrace{\hphantom{\begin{array}{c}
+	\mathbf{\tilde{T}} \end{array}}}^{n-\delta n}&\\\
+
+	\left(
+	\begin{array}{c} \mathbf{e} \\ \hline \\
+		\mathbf{\tilde{T}} \\ {} \\ \end{array}
+	\right)&
+
+	\hspace{-1.0cm}
+	\begin{array}{l}\left. \begin{array}{c} {} \end{array}\right\}t_e \\
+	\left.\begin{array}{c} \\ \\ \\
+	\end{array}\right\} t-\delta t-t_e
+	\end{array}
+
+\end{array}
+\end{equation}
+
+\begin{equation}
+	\Rightarrow \mathbf{T'T'}^T=
+	\begin{array}{cl}
+		\hspace{0.1cm}
+		\overbrace{\hphantom{\begin{array}{c}
+			{\ \quad\ } \end{array}}}^{t_e}
+		\overbrace{\hphantom{\begin{array}{ccc}
+		{\quad }&\mathbf{e\tilde{T}}^T&{\quad }\end{array}}}^{t-\delta t-t_e}&
+		\\\
+
+		\left(\begin{array}{c|ccc}
+			\mathbf{ee}^T & {\quad } & \mathbf{e\tilde{T}}^T & {\quad } \\
+			\hline\\
+			{} & {} & {}\\
+			\mathbf{\tilde{T}e}^T & {\quad } & \mathbf{\tilde{T}\tilde{T}}^T &
+			{\quad }\\ 
+			{} & {} & {}\\
+			{} & {} & {}\\
+		\end{array}\right)&
+
+		\hspace{-1.0cm}
+		\begin{array}{l}\left. \begin{array}{c} {} \end{array}\right\}t_e \\
+		\left.\begin{array}{c} \\ \\ \\ \\ \\
+		\end{array}\right\} t-\delta t-t_e
+		\end{array}
+	\end{array}
+	\nonumber
+\end{equation}
+If we then split the inverse in the same size pieces:
+\begin{equation}
+	\Rightarrow \left(\mathbf{T'T'}^T\right)^{-1}=
+	\begin{array}{cl}
+		\hspace{0.1cm}
+		\overbrace{\hphantom{\begin{array}{c}
+			{R} \end{array}}}^{t_e}
+		\overbrace{\hphantom{\begin{array}{ccc}
+		{\quad}&Q&{\quad}\end{array}}}^{t-\delta t-t_e}&
+		\\\
+
+		\left(\begin{array}{c|ccc}
+			\mathbf{P} & {\quad } & \mathbf{Q} & {\quad } \\
+			\hline\\
+			{} & {} & {}\\
+			\mathbf{R} & {\quad } & \mathbf{S} &
+			{\quad }\\ 
+			{} & {} & {}\\
+			{} & {} & {}\\
+		\end{array}\right)&
+
+		\hspace{-1.0cm}
+		\begin{array}{l}\left. \begin{array}{c} {} \end{array}\right\}t_e \\
+		\left.\begin{array}{c} \\ \\ \\ \\ \\
+		\end{array}\right\} t-\delta t-t_e
+		\end{array}
+	\end{array}
+	\label{eq: PQRS split}
+\end{equation}
+Inversion by Partitioning gives us:
+\begin{eqnarray}
+	\mathbf{P} &=& \left[\mathbf{ee}^T -
+	\mathbf{e\tilde{T}}^T\boldsymbol{\Lambda}\right]^{-1}
+	\label{eq: P}\\
+%
+	\mathbf{Q} &=& -\mathbf{P}\boldsymbol{\Lambda}^T\\
+%
+	\mathbf{R} &=& -\boldsymbol{\Lambda}\mathbf{P}\\
+%
+	\mathbf{S} &=& \left(\mathbf{\tilde{T}\tilde{T}}^T\right)^{-1}+
+	\boldsymbol{\Lambda}\mathbf{P}\boldsymbol{\Lambda}^T
+\end{eqnarray}
+where
+\begin{equation}
+	\boldsymbol{\Lambda}\equiv\left(\mathbf{\tilde{T}\tilde{T}}^T\right)^{-1}
+	\mathbf{\tilde{T}e}^T
+	\label{eq: Lambda}
+\end{equation}
+Computing the inverse in Eq. (\ref{eq: P}) is cheap since the matrix being
+inverted is has only as many rows and columns as the number of templates
+being added. 
+
+On the other hand $\mathbf{\tilde{T}\tilde{T}}^T$ is roughly the size of the
+original filter matrix, so we must find an efficient way of inverting it:
+\begin{eqnarray*}
+	\mathbf{TT}^T&=&\left(\begin{array}{c} \mathbf{D_t} \\ \hline \\
+		\mathbf{\tilde{T}} \\ {} \end{array}\right)
+		\left(\left.\mathbf{D_t}^T\right|
+		\quad \mathbf{\tilde{T}}^T\quad\right) - \mathbf{D_o\hat{D}_o} \\
+	\Rightarrow \mathbf{TT}^T+\mathbf{D_o\hat{D}_o} &=& 
+	\left(\begin{array}{c|ccc} 
+		\mathbf{D_tD_t}^T & {\quad} & \mathbf{D_t\tilde{T}}^T& {\quad}\\
+%
+		\hline\\
+%
+		& & & \\
+%
+		\mathbf{\tilde{T}D_t}^T& {\quad} & \mathbf{\tilde{T}\tilde{T}}^T & 
+		{\quad} \\
+		& & &\\
+		& & &\\
+	\end{array}\right) 
+\end{eqnarray*}
+If we define the submatrices $\boldsymbol{\pi}'$, $\boldsymbol{\chi}'$,
+$\boldsymbol{\rho}'$ and $\boldsymbol{\sigma}'$ as:
+\begin{equation}
+	\left(\mathbf{TT}^T+\mathbf{D_o\hat{D}_o}\right)^{-1}\equiv
+	\left(\begin{array}{c|ccc} 
+		\boldsymbol{\pi}' & {\quad} & \boldsymbol{\chi}' & {\quad}\\
+%
+		\hline\\
+%
+		& & & \\
+%
+		\boldsymbol{\rho}' & {\quad} & \boldsymbol{\sigma}' & 
+		{\quad} \\
+		& & &\\
+		& & &\\
+	\end{array}\right) 
+\end{equation}
+inversion by partitioning gives us:
+\begin{equation}
+	\left(\mathbf{\tilde{T}\tilde{T}}^T\right)^{-1}=\boldsymbol{\sigma}'+
+	\boldsymbol{\rho}'\boldsymbol{\pi}'^{-1}\boldsymbol{\chi}'
+	\label{eq: TTtilde inverse}
+\end{equation}
+which only involves taking the inverse of the small matrix
+$\boldsymbol{\pi}'$ and
+$\left(\mathbf{TT}^T+\mathbf{D_o\hat{D}_o}\right)^{-1}$ which can be 
+computed efficiently using the Woodbury Formula:
+\begin{equation}
+	\left(\mathbf{TT}^T+\mathbf{D_o\hat{D}_o}\right)^{-1}=
+	\left(\mathbf{TT}^T\right)^{-1}-\left[
+	\left(\mathbf{TT}^T\right)^{-1}\mathbf{D_o}\left(\mathbf{I}+
+	\mathbf{\hat{D}_o}\left(\mathbf{TT}^T\right)^{-1}\mathbf{D_o}
+	\right)^{-1}\mathbf{\hat{D}_o}\left(\mathbf{TT}^T\right)^{-1}\right]
+\end{equation}
+\section{Applying the Modified Filter Efficiently}
+If we simply use the above expressions to calculate $\mathbf{T'}$ and 
+$\left(\mathbf{T'T'}^T\right)^{-1}$, we would not gain anything, since those
+expressions involve multiplying matrices that are as big as
+$\mathbf{T'T'}^T$, which is of the same computational complexity as inverting
+$\mathbf{T'T'}^T$ directly. Luckily we do not actually need to do so. We only
+need to calculate:
+\begin{equation}
+	\mathbf{m}^f=\mathbf{m}-\mathbf{T'}^T\left(\mathbf{T'T'}^T\right)^{-1}
+	\mathbf{T'm}
+\end{equation}
+Note that we can calculate $\mathbf{m'}\equiv\mathbf{T'm}$ in
+$\mathcal{O}\left[(n-\delta n)(t-\delta t)\right]$ time. 
+We can split $\mathbf{m}^f$, $\mathbf{m}$ and $\mathbf{m'}$ into two 
+subvectors each with lengths matching the horizontal split in equation 
+\ref{eq: PQRS split} : 
+\begin{equation}
+	\mathbf{m'}=\left(\begin{array}{c}
+		\mathbf{m'}_1\\ \hline\\ {}\\ \mathbf{m'}_2\\ {}\\ {}
+	\end{array} \right),\quad 
+	\mathbf{m}=\left(\begin{array}{c}
+		\mathbf{m}_1\\ \hline\\ {}\\ \mathbf{m}_2\\ {}\\ {}
+	\end{array}
+	\right),\quad 
+	\mathbf{m}^f=\left(\begin{array}{c}
+		\mathbf{m}^f_1\\ \hline\\ {}\\ \mathbf{m}^f_2\\ {}\\ {}
+	\end{array} \right)
+\end{equation}
+With this split we then have:
+\begin{eqnarray*}
+	\left(\begin{array}{c}
+		\mathbf{m}^f_1\\ \hline\\ {}\\ \mathbf{m}^f_2\\ {}\\ {}
+	\end{array} \right) &=& 
+	\left(\begin{array}{c}
+		\mathbf{m}_1\\ \hline\\ {}\\ \mathbf{m}_2\\ {}\\ {}
+	\end{array} \right) -
+	\left(\begin{array}{c|ccc} 
+		\mathbf{e}^T & \quad & \mathbf{\tilde{T}}^T & \quad 
+	\end{array} \right)
+	\left(\begin{array}{c|ccc}
+		\mathbf{P} & {\quad } & \mathbf{Q} & {\quad } \\
+		\hline\\
+		{} & {} & {}\\
+		\mathbf{R} & {\quad } & \mathbf{S} &
+		{\quad }\\ 
+		{} & {} & {}\\
+		{} & {} & {}\\
+	\end{array}\right)
+	\left(\begin{array}{c}
+		\mathbf{m'}_1\\ \hline\\ {}\\ \mathbf{m'}_2\\ {}\\ {}
+	\end{array} \right)\\
+	&=& 
+	\left(\begin{array}{c}
+		\mathbf{m}_1\\ \hline\\ {}\\ \mathbf{m}_2\\ {}\\ {}
+	\end{array} \right) -
+	\left(\begin{array}{c|ccc} 
+		\mathbf{e}^T & \quad & \mathbf{\tilde{T}}^T & \quad 
+	\end{array} \right)
+	\left(\begin{array}{c}
+		\mathbf{P}\mathbf{m'}_1+\mathbf{Q}\mathbf{m'}_2\\ \hline\\ {}\\ 
+		\mathbf{R}\mathbf{m'}_1+\mathbf{S}\mathbf{m'}_2\\ {}\\ {}
+	\end{array} \right)
+\end{eqnarray*}
+Clearly the slowest operation here is calculating the expression 
+$\mathbf{e\tilde{T}}^T\boldsymbol{\Lambda}$, where $\boldsymbol{\Lambda}$ is
+defined in Eq. (\ref{eq: Lambda}), and we cannot go
+around evaluating this matrix, since it appears under the inverse in the
+expression for $\mathbf{P}$. So below we pay special attention to evaluating
+this matrix.
+
+\subsection{Evaluating $\mathbf{e\tilde{T}}^T\boldsymbol{\Lambda}$}
+Combining Equations (\ref{eq: Lambda}) and (\ref{eq: TTtilde inverse}):
+\begin{equation}
+	\boldsymbol{\Lambda}=\left(\boldsymbol{\sigma}'+
+	\boldsymbol{\rho}'\boldsymbol{\pi}'^{-1}\boldsymbol{\chi}'\right)
+	\mathbf{\tilde{T}e}^T
+\end{equation}
+In order to obtain expressions for $\boldsymbol{\pi}'$, $\boldsymbol{\chi}'$,
+$\boldsymbol{\rho}'$ and $\boldsymbol{\sigma}'$ introduce the following
+splittings:
+\begin{eqnarray*}
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\pi} & {\quad } & \boldsymbol{\chi} & {\quad } \\
+		\hline\\
+		{} & {} & {}\\
+		\boldsymbol{\rho} & {\quad } & \boldsymbol{\sigma} &
+		{\quad }\\ 
+		{} & {} & {}\\
+		{} & {} & {}\\
+	\end{array}\right)
+	&\equiv&\left(\mathbf{TT}^T\right)^{-1}	
+	\\
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\delta\pi} & {\quad } & \boldsymbol{\delta\chi} & 
+		{\quad } \\
+		\hline\\
+		{} & {} & {}\\
+		\boldsymbol{\delta\rho} & {\quad } & \boldsymbol{\delta\sigma} &
+		{\quad }\\ 
+		{} & {} & {}\\
+		{} & {} & {}\\
+	\end{array}\right)
+	&\equiv&
+	\left(\mathbf{TT}^T\right)^{-1}\mathbf{D_o}\left(\mathbf{I}+
+	\mathbf{\hat{D}_o}\left(\mathbf{TT}^T\right)^{-1}\mathbf{D_o}
+	\right)^{-1}\mathbf{\hat{D}_o}\left(\mathbf{TT}^T\right)^{-1}
+	\\
+	\left(\begin{array}{c}
+		\boldsymbol{\delta}\\ \hline\\ {}\\ \boldsymbol{\Delta}\\ {}\\ {}
+	\end{array} \right)\equiv \mathbf{D_o}
+	\\
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\hat{\delta}}& {\quad} & \boldsymbol{\hat{\Delta}} &
+		{\quad}
+	\end{array} \right)\equiv \mathbf{\hat{D}_o}
+\end{eqnarray*}
+With those 
+\begin{equation}
+	\Lambda=\boldsymbol{\sigma}\mathbf{\tilde{T}e}^T-
+	\boldsymbol{\delta\sigma}\mathbf{\tilde{T}e}^T+
+	\left(\boldsymbol{\rho}-\boldsymbol{\delta\rho}\right)
+	\boldsymbol{\pi}'^{-1}\left(\boldsymbol{\chi}\mathbf{\tilde{T}e}^T+
+	\boldsymbol{\delta\chi}\mathbf{\tilde{T}e}^T\right)
+\end{equation}
+and
+\begin{eqnarray*}
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\delta\pi} & {\quad } & \boldsymbol{\delta\chi} & 
+		{\quad } \\
+		\hline\\
+		{} & {} & {}\\
+		\boldsymbol{\delta\rho} & {\quad } & \boldsymbol{\delta\sigma} &
+		{\quad }\\ 
+		{} & {} & {}\\
+		{} & {} & {}\\
+	\end{array}\right)&=&
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\pi} & {\quad } & \boldsymbol{\chi} & {\quad } \\
+		\hline\\
+		{} & {} & {}\\
+		\boldsymbol{\rho} & {\quad } & \boldsymbol{\sigma} &
+		{\quad }\\ 
+		{} & {} & {}\\
+		{} & {} & {}\\
+	\end{array}\right)
+	\left(\begin{array}{c}
+		\boldsymbol{\delta}\\ \hline\\ {}\\ \boldsymbol{\Delta}\\ {}\\ {}
+	\end{array} \right)
+	\left(\boldsymbol{\theta}^{-1}\right)
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\hat{\delta}}& {\quad} & \boldsymbol{\hat{\Delta}} &
+		{\quad}
+	\end{array} \right)
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\pi} & {\quad } & \boldsymbol{\chi} & {\quad } \\
+		\hline\\
+		{} & {} & {}\\
+		\boldsymbol{\rho} & {\quad } & \boldsymbol{\sigma} &
+		{\quad }\\ 
+		{} & {} & {}\\
+		{} & {} & {}\\
+	\end{array}\right)\\
+	&=&
+	\left(\begin{array}{c}
+		\boldsymbol{\pi\delta}+\boldsymbol{\chi\Delta} \\ \hline\\ {}\\ 
+		\boldsymbol{\rho\delta}+\boldsymbol{\sigma\Delta}\\ {}\\ {}
+	\end{array} \right)
+	\left(\boldsymbol{\theta}^{-1}\right)
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\hat{\delta}\pi} +
+		\boldsymbol{\hat{\Delta}\rho} & 
+		{\quad} & 
+		\boldsymbol{\hat{\delta}\chi} +
+		\boldsymbol{\hat{\Delta}\sigma} & 
+		{\quad}
+	\end{array} \right)\\
+	&=&
+	\left(\begin{array}{c}
+		\boldsymbol{\pi\delta}+\boldsymbol{\chi\Delta} \\ \hline\\ {}\\ 
+		\boldsymbol{\rho\delta}+\boldsymbol{\sigma\Delta}\\ {}\\ {}
+	\end{array} \right)
+	\left(\begin{array}{c|ccc}
+		\boldsymbol{\theta}^{-1}
+		\boldsymbol{\hat{\delta}\pi} +
+		\boldsymbol{\theta}^{-1}
+		\boldsymbol{\hat{\Delta}\rho} & 
+		{\quad} & 
+		\boldsymbol{\theta}^{-1}
+		\boldsymbol{\hat{\delta}\chi} +
+		\boldsymbol{\theta}^{-1}
+		\boldsymbol{\hat{\Delta}\sigma} & 
+		{\quad}
+	\end{array} \right)
+\end{eqnarray*}
+So we end up with the following expressions:
+\begin{eqnarray*}
+	\boldsymbol{\delta\pi}&=&
+	\left(\boldsymbol{\pi\delta}+\boldsymbol{\chi\Delta}\right)
+	\left(\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\delta}\pi} +
+	\boldsymbol{\theta}^{-1} \boldsymbol{\hat{\Delta}\rho} \right)\\
+%
+	\boldsymbol{\delta\chi}&=&
+	\left(\boldsymbol{\pi\delta}+\boldsymbol{\chi\Delta}\right)
+	\left(\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\delta}\chi} +
+	\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\Delta}\sigma}\right)\\
+%
+	\boldsymbol{\delta\rho}&=&
+	\left(\boldsymbol{\rho\delta}+\boldsymbol{\sigma\Delta}\right)
+	\left(\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\delta}\pi} +
+	\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\Delta}\rho}\right)\\
+%
+	\boldsymbol{\delta\sigma}&=&
+	\left(\boldsymbol{\rho\delta}+\boldsymbol{\sigma\Delta}\right)
+	\left(\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\delta}\chi} +
+	\boldsymbol{\theta}^{-1}\boldsymbol{\hat{\Delta}\sigma}\right)
+\end{eqnarray*}
+where
+\begin{equation}
+	\boldsymbol{\theta}\equiv\mathbf{I}+
+	\mathbf{\hat{D}_o}\left(\mathbf{TT}^T\right)^{-1}\mathbf{D_o}
+	\nonumber
+\end{equation}
+The most efficient way to evaluate $\boldsymbol{\pi}'$ the inverse of which
+appers the expression for $\boldsymbol{\Lambda}$ is:
+\begin{displaymath}
+	\boldsymbol{\pi'}=\boldsymbol{\pi}-
+	\left(\boldsymbol{\pi\delta}+\boldsymbol{\chi\Delta}\right)
+	\left(\boldsymbol{\theta}^{-1}\right)
+	\left(\boldsymbol{\hat{\delta}\pi}+\boldsymbol{\hat{\Delta}\rho}\right)\\
+\end{displaymath}
+Then $\mathbf{e\tilde{T}}^T\boldsymbol{\Lambda}$ can be evaluated as follows:
+\\
+
+\noindent\makebox[\textwidth]{%
+\begin{tabular}{r@{$\equiv$}lcc}
+	symbol & expression & computational complexity & matrix size \\
+	\hline
+	$\boldsymbol{\tau}$ & $\mathbf{\tilde{T}e}^T$ & $\mathcal{O}\left[
+	(t-\delta t-t_e)(n-\delta n) t_e\right]$ & 
+	$(t-\delta t-t_e)\times t_e$\\
+%
+	$\boldsymbol{\Sigma}$ & $\boldsymbol{\sigma\tau}$ & $\mathcal{O}\left[
+	(t-\delta t-t_e)^2t_e\right]$ & $(t-\delta t-t_e)\times t_e$\\
+%
+	$\boldsymbol{\Upsilon}$ & $\boldsymbol{\tau}^T\boldsymbol{\rho}$ & 
+	$\mathcal{O}\left[t_e(\delta t+t_e)(t-\delta t-t_e)\right]$ & 
+	$t_e\times(\delta t+t_e)$\\
+%
+	$\boldsymbol{\Xi}$ & $\boldsymbol{\chi\tau}$ & $\mathcal{O}\left[
+	(\delta t+t_e)^2(t-\delta t-t_e)\right]$ & $(\delta t+t_e)\times t_e$\\
+%
+	$\boldsymbol{\Phi}_1$ & $\boldsymbol{\Upsilon\delta}+
+	\boldsymbol{\Sigma}^T\boldsymbol{\Delta}$ & $\mathcal{O}\left[
+	t_e t n_e\right]$ & $t_e\times n_e$\\
+%
+	$\boldsymbol{\Phi}_2$ & $\boldsymbol{\hat{\delta}\Xi}+
+	\boldsymbol{\hat{\Delta}\Sigma}$ & $\mathcal{O}\left[n_e t
+	t_e\right]$ & $n_e\times t_e$\\
+%
+	$\boldsymbol{\Phi}_3$ & $\boldsymbol{\pi\delta}+
+	\boldsymbol{\chi\Delta}$ & $\mathcal{O}\left[(\delta t+t_e)
+	t n_e\right]$ & $(\delta t+t_e)\times n_e$\\
+%
+	$\boldsymbol{\Phi}_4$ & $\boldsymbol{\hat{\delta}\pi}+
+	\boldsymbol{\hat{\Delta}\rho}$ & $\mathcal{O}\left[n_e t
+	(\delta t+t_e)\right]$ & $n_e\times(\delta t+t_e)$\\
+%
+	$\boldsymbol{\Phi}_5$ & $\boldsymbol{\rho\delta}+
+	\boldsymbol{\sigma\Delta}$ & $\mathcal{O}\left[t^2 n_e\right]$ & 
+	$(t-\delta t-t_e)\times n_e$\\
+%
+	$\boldsymbol{\theta}$ & $\mathbf{I}+
+	\boldsymbol{\hat{\delta}\Phi}_3+\boldsymbol{\hat{\Delta}\Phi}_5$ & 
+	$\mathcal{O}\left[t n_e^2\right]$ & $n_e\times n_e$\\
+%
+	$\boldsymbol{\pi'}$ & $\boldsymbol{\pi}-\boldsymbol{\Phi}_3
+	\boldsymbol{\theta}^{-1}\boldsymbol{\Phi}_4$ & $\mathcal{O}\left[n_e^2
+	(\delta_t+t_e)\right]$ & $(\delta_t+t_e)\times(\delta_t+t_e)$
+\end{tabular}}
+With those definitions we have:
+\begin{equation}
+	\mathbf{P}^{-1}=\left(\mathbf{ee}^T
+	-\boldsymbol{\tau}^T\boldsymbol{\Sigma}
+	+\boldsymbol{\Phi}_1\boldsymbol{\theta}^{-1}\boldsymbol{\Phi}_2\right)
+	-\left(\boldsymbol{\Upsilon}-
+	\boldsymbol{\Phi}_1\boldsymbol{\theta}^{-1}\boldsymbol{\Phi}_4\right)
+	\boldsymbol{\pi}'^{-1}\left(\boldsymbol{\Xi}-
+	\boldsymbol{\Phi}_3\boldsymbol{\theta}^{-1}\boldsymbol{\Phi}_2\right)
+\end{equation}
+We then need to evaluate the expressions $\mathbf{Pm'}_1$, $\mathbf{Qm'}_2$,
+$\mathbf{Rm'}_1$ and $\mathbf{Sm'}_2$ in order to get the filtered
+magnitudes. Clearly the fastest way to carry out the calculations is to 
+multiply only matrices with vectors, since those are the fastest operations:
+\\
+
+\noindent\makebox[\textwidth]{%
+\begin{tabular}{r@{$\equiv$}lcc@{$\rightarrow$}c}
+	symbol & expression & computational complexity & input vector size &
+	output vector size\\
+	\hline
+%
+	\rule{0pt}{6ex}
+	$h(\mathbf{v})$ & $\left(\boldsymbol{\theta}^{-1}\right)^T
+	\boldsymbol{\Phi}_5^T\mathbf{v}$ & $\mathcal{O}\left[(t-\delta t-t_e)
+	\times n_e\right]$ & $t-\delta t-t_e$ & $n_e$ \\
+%
+	\rule{0pt}{6ex}
+	$d(\mathbf{u}, \mathbf{v})$ & $\boldsymbol{\theta}^{-1}
+	\left(\boldsymbol{\hat{\delta}\chi}\mathbf{u}+\boldsymbol{\hat{\Delta}}
+	\mathbf{v}\right)$ & $\mathcal{O}\left[(n_e+\delta t+t_e)(t-\delta t-t_e)
+	\right]$ & $\left(t-\delta t-t_e,t-\delta t-t_e\right)$ & 
+	$n_e$ \\
+%
+	\rule{0pt}{6ex}
+	$c(\mathbf{u}, \mathbf{v})$ & $\boldsymbol{\pi}'^{-1}
+	\left[\boldsymbol{\chi}\mathbf{u}-\boldsymbol{\Phi}_3\mathbf{v}\right]$ & 
+	$\mathcal{O}\left[(\delta t+t_e)(t-\delta t-t_e)\right]$ & 
+	$\left(t-\delta t-t_e,\delta n_e\right)$ & 
+	$\delta t+t_e$ \\
+%
+	\rule{0pt}{6ex}
+	$f(\mathbf{v})$ & \multicolumn{4}{l}{
+	$\boldsymbol{\Sigma}^T\mathbf{v} + 
+	\boldsymbol{\Phi}_2^Th(\mathbf{v})+
+	\left[\boldsymbol{\Xi}^T +
+	\boldsymbol{\Phi}_2^T\left(\boldsymbol{\theta}^{-1}\right)^T
+	\boldsymbol{\Phi}_3^T\right]\left(\boldsymbol{\pi}'^{-1}\right)^T\left[
+	\boldsymbol{\rho}^T\mathbf{v}+\boldsymbol{\Phi}_4^Th(\mathbf{v})\right]
+	$} \\
+	\multicolumn{2}{c}{} & 
+	$\mathcal{O}\left[(t-\delta t-t_e)(t_e+n_e+\delta t)\right]$ & 
+	$t-\delta t-t_e$ & $t_e$\\
+%
+	\rule{0pt}{6ex}
+	$g(\mathbf{v})$ & \multicolumn{4}{l}{
+	$\boldsymbol{\sigma}\mathbf{v} - 
+	\boldsymbol{\Phi}_5
+	\left[d(\mathbf{v},\boldsymbol{\sigma}\mathbf{v})
+	+\boldsymbol{\theta}^{-1}\boldsymbol{\Phi}_4 
+	c\left(v, d(\mathbf{v},\boldsymbol{\sigma}\mathbf{v})\right)
+	\right]+\boldsymbol{\rho}
+	c\left(v, d(\mathbf{v},\boldsymbol{\sigma}\mathbf{v})\right)$} \\
+	\multicolumn{2}{c}{} & $\mathcal{O}\left[(t-\delta t-t_e)^2\right]$ & 
+	$t-\delta t-t_e$ & $t-\delta t-t_e$\\
+%
+	\rule{0pt}{6ex}
+	$\mathbf{Qm'}_2$ & $-\mathbf{P}f(\mathbf{m'}_2)$ & 
+	$\mathcal{O}\left[(t-\delta t-t_e)(t_e+n_e+\delta t)\right]$ & 
+	$t-\delta t-t_e$ & $t_e$\\
+%
+	\rule{0pt}{6ex}
+	$\mathbf{Rm'}_1$ & $-g(\boldsymbol{\tau}\mathbf{Pm'}_1)$ & 
+	$\mathcal{O}\left[(t-\delta t-t_e)^2\right]$ & 
+	$t_e$ & $t-\delta t-t_e$\\
+%
+	\rule{0pt}{6ex}
+	$\mathbf{Sm'}_2$ & $-g(\mathbf{m'}_2-\boldsymbol{\tau}\mathbf{Qm'}_2)$ & 
+	$\mathcal{O}\left[(t-\delta t-t_e)^2\right]$ & 
+	$t-\delta t-te$ & $t-\delta t-t_e$\\
+\end{tabular}}
+\\
+
+And the final corrected magnitudes are given by: 
+\begin{equation}
+	\mathbf{m}_f=\mathbf{m}-
+	\mathbf{e}^T\left(\mathbf{Pm'}_1+\mathbf{Qm'}_2\right)-
+	\mathbf{\tilde{T}}^T\left(\mathbf{Rm'}_1+\mathbf{Sm'}_2\right)
+\end{equation}
+
+\end{document}

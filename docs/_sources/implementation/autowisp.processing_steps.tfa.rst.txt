@@ -1,0 +1,7 @@
+autowisp.processing\_steps.tfa module
+=====================================
+
+.. automodule:: autowisp.processing_steps.tfa
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,1676 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration Options &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="autowisp package" href="implementation/autowisp.html" />
+    <link rel="prev" title="Pipeline Steps" href="processing_steps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configuration Options</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/wisp_options.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration-options">
+<h1>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h1>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-std-out-err-fname">
+<span class="sig-name descname"><span class="pre">std-out-err-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--std-out-err-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-std-out-err-fname" title="Link to this definition"></a></dt>
+<dd><p>The filename pattern to redirect stdout and stderr duringmultiprocessing. Should include substitutions to distinguish output from different multiprocessing processes. May include substitutions for any configuration arguments for a given processing step.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-fname-datetime-format">
+<span class="sig-name descname"><span class="pre">fname-datetime-format</span></span><span class="sig-prename descclassname"> <span class="pre">(--fname-datetime-format</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-fname-datetime-format" title="Link to this definition"></a></dt>
+<dd><p>How to format date and time as part of filenames (e.g. when creating output files for multiprocessing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-logging-fname">
+<span class="sig-name descname"><span class="pre">logging-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--logging-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-logging-fname" title="Link to this definition"></a></dt>
+<dd><p>The filename pattern to use for log files. Should include substitutions to distinguish logs from different multiprocessing processes. May include substitutions for any configuration arguments for a given processing step.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><span class="sig-prename descclassname"> <span class="pre">(--verbose</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-verbose" title="Link to this definition"></a></dt>
+<dd><p>The type of verbosity of logger.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-logging-message-format">
+<span class="sig-name descname"><span class="pre">logging-message-format</span></span><span class="sig-prename descclassname"> <span class="pre">(--logging-message-format</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-logging-message-format" title="Link to this definition"></a></dt>
+<dd><p>The format string to use for log messages. See python logging module for details.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-logging-datetime-format">
+<span class="sig-name descname"><span class="pre">logging-datetime-format</span></span><span class="sig-prename descclassname"> <span class="pre">(--logging-datetime-format</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-logging-datetime-format" title="Link to this definition"></a></dt>
+<dd><p>How to format date and time as part of filenames (e.g. when creating output files for multiprocessing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-exposure-start-utc">
+<span class="sig-name descname"><span class="pre">exposure-start-utc</span></span><span class="sig-prename descclassname"> <span class="pre">(--exposure-start-utc</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-exposure-start-utc" title="Link to this definition"></a></dt>
+<dd><p>The UTC time at which the exposure started. Can be arbitrary expression involving header keywords.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-exposure-start-jd">
+<span class="sig-name descname"><span class="pre">exposure-start-jd</span></span><span class="sig-prename descclassname"> <span class="pre">(--exposure-start-jd</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-exposure-start-jd" title="Link to this definition"></a></dt>
+<dd><p>The JD at which the exposure started. Can be arbitrary expression involving header keywords.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-exposure-seconds">
+<span class="sig-name descname"><span class="pre">exposure-seconds</span></span><span class="sig-prename descclassname"> <span class="pre">(--exposure-seconds</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-exposure-seconds" title="Link to this definition"></a></dt>
+<dd><p>The length of the exposure in seconds. Can be arbitrary expression involving header keywords.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-observer">
+<span class="sig-name descname"><span class="pre">observer</span></span><span class="sig-prename descclassname"> <span class="pre">(--observer</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-observer" title="Link to this definition"></a></dt>
+<dd><p>The name of the observer who/which collected the images. Can be arbitrary expression involving header keywords. Must already have an entry in the <code class="docutils literal notranslate"><span class="pre">observer</span></code> table.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-camera-serial-number">
+<span class="sig-name descname"><span class="pre">camera-serial-number</span></span><span class="sig-prename descclassname"> <span class="pre">(--camera-serial-number</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-camera-serial-number" title="Link to this definition"></a></dt>
+<dd><p>The serial number of the camera which collected the images. Can be arbitrary expression involving header keywords. Must already have an entry in the <code class="docutils literal notranslate"><span class="pre">camera</span></code> table.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-telescope-serial-number">
+<span class="sig-name descname"><span class="pre">telescope-serial-number</span></span><span class="sig-prename descclassname"> <span class="pre">(--telescope-serial-number</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-telescope-serial-number" title="Link to this definition"></a></dt>
+<dd><p>The serial number of the telescope (lens) which collected the images (or some other unique and persistent identifier of it). Can be arbitrary expression involving header keywords. Must already have an entry in the <code class="docutils literal notranslate"><span class="pre">telescope</span></code> table.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-mount-serial-number">
+<span class="sig-name descname"><span class="pre">mount-serial-number</span></span><span class="sig-prename descclassname"> <span class="pre">(--mount-serial-number</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-mount-serial-number" title="Link to this definition"></a></dt>
+<dd><p>The serial number of the mount which collected the images (or some other unique and persistent identifier of it). Can be arbitrary expression involving header keywords. Must already have an entry in the <code class="docutils literal notranslate"><span class="pre">mount</span></code> table.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-observatory">
+<span class="sig-name descname"><span class="pre">observatory</span></span><span class="sig-prename descclassname"> <span class="pre">(--observatory</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-observatory" title="Link to this definition"></a></dt>
+<dd><p>The name of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the <code class="docutils literal notranslate"><span class="pre">observatory</span></code> table. If not specified, –observatory-location is used to determine the observatory.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-observatory-location">
+<span class="sig-name descname"><span class="pre">observatory-location</span></span><span class="sig-prename descclassname"> <span class="pre">(--observatory-location</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-observatory-location" title="Link to this definition"></a></dt>
+<dd><p>The latitude and longitude of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the <code class="docutils literal notranslate"><span class="pre">observatory</span></code> table within approximately 100km. Only used if –observatory is not specified.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-target-ra">
+<span class="sig-name descname"><span class="pre">target-ra</span></span><span class="sig-prename descclassname"> <span class="pre">(--target-ra</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-target-ra" title="Link to this definition"></a></dt>
+<dd><p>The RA targetted by the observations in degrees. Can be arbitrary expression involving header keywords. If target table already contains an entry for this target, the RA must match within 1%% of the field of view or an error is raised. It can be left unspecified if the target is already in the target table, in which case it will be identified by name.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-target-dec">
+<span class="sig-name descname"><span class="pre">target-dec</span></span><span class="sig-prename descclassname"> <span class="pre">(--target-dec</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-target-dec" title="Link to this definition"></a></dt>
+<dd><p>The Dec targetted by the observations. See –target-ra for details.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-target-name">
+<span class="sig-name descname"><span class="pre">target-name</span></span><span class="sig-prename descclassname"> <span class="pre">(--target-name</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-target-name" title="Link to this definition"></a></dt>
+<dd><p>The name of the targetted area of the sky. Can be arbitrary expression involving header keywords. If not already in the target table it is automatically added.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-observing-session-label">
+<span class="sig-name descname"><span class="pre">observing-session-label</span></span><span class="sig-prename descclassname"> <span class="pre">(--observing-session-label</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-observing-session-label" title="Link to this definition"></a></dt>
+<dd><p>Unique label for the observing session. Can be arbitrary expression involving header keywords. If not already in the observing_session table it is automatically added. It will also be added as <code class="docutils literal notranslate"><span class="pre">OBS-SESN</span></code> keyword to the calibrated images.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-image-type">
+<span class="sig-name descname"><span class="pre">image-type</span></span><span class="sig-prename descclassname"> <span class="pre">(--image-type</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-image-type" title="Link to this definition"></a></dt>
+<dd><p>Header expression that evaluates to the image type. If it is not one of the image types listed in the database, the image is ignored. If not specified, the individual checks below are used instead.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-ignore-unknown-image-types">
+<span class="sig-name descname"><span class="pre">ignore-unknown-image-types</span></span><span class="sig-prename descclassname"> <span class="pre">(--ignore-unknown-image-types</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-ignore-unknown-image-types" title="Link to this definition"></a></dt>
+<dd><p>If this option is passed and an image of an unknown type is encountered it will not be added tot he database.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-raw-hdu">
+<span class="sig-name descname"><span class="pre">raw-hdu</span></span><span class="sig-prename descclassname"> <span class="pre">(--raw-hdu</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-raw-hdu" title="Link to this definition"></a></dt>
+<dd><p>Which hdu(s) of the raw frames contains the (channels of the) image to calibrate. If not specified, the first HDU with non-zero NAXIS value is used. If channels are already split, define the HDU containing the pixels of each channel by supplying multiple values of the form CHANNEL_NAME:HDU. If the same hdu is specified for all channels, or only a single integer is specified, that HDU is assumed to contain the staggered pixels of all channels (see –split-channels).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-saturation-threshold">
+<span class="sig-name descname"><span class="pre">saturation-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--saturation-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-saturation-threshold" title="Link to this definition"></a></dt>
+<dd><p>A value above which a pixel is considered saturated. If uspecified, the value is set to 80%% of the highest pixel value in EACH image.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-overscans">
+<span class="sig-name descname"><span class="pre">overscans</span></span><span class="sig-prename descclassname"> <span class="pre">(--overscans</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-overscans" title="Link to this definition"></a></dt>
+<dd><p>Overscan correction to apply. The format is: &lt;method&gt;:&lt;xmin1&gt;,&lt;xmax1&gt;,&lt;ymin1&gt;,&lt;ymax1&gt;[;&lt;xmin2&gt;,&lt;xmax2&gt;,&lt;ymin2&gt;,&lt;ymax2&gt;;…].</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-fnum">
+<span class="sig-name descname"><span class="pre">fnum</span></span><span class="sig-prename descclassname"> <span class="pre">(--fnum</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-fnum" title="Link to this definition"></a></dt>
+<dd><p>How to calculate a frame number from the header. Should be expression involving header keywords (with “-” replaced by “_”) or <cite>RAWFNAME</cite> which takes the raw frame name without extension or path and should return an integer.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-image-area">
+<span class="sig-name descname"><span class="pre">image-area</span></span><span class="sig-prename descclassname"> <span class="pre">(--image-area</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-image-area" title="Link to this definition"></a></dt>
+<dd><p>The area of the image to process (the rest is discarded). The format is &lt;xmin&gt;,&lt;xmax&gt;,&lt;ymin&gt;,&lt;ymax&gt;. Think of these as python array slices in each direction.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-gain">
+<span class="sig-name descname"><span class="pre">gain</span></span><span class="sig-prename descclassname"> <span class="pre">(--gain</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-gain" title="Link to this definition"></a></dt>
+<dd><p>The gain to assume for the input image (electrons/ADU). If not specified, it must be defined in the header as GAIN keyword.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-bias-level-adu">
+<span class="sig-name descname"><span class="pre">bias-level-adu</span></span><span class="sig-prename descclassname"> <span class="pre">(--bias-level-adu</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-bias-level-adu" title="Link to this definition"></a></dt>
+<dd><p>Most detectors add an offset to the quantized pixel values, this defines that offset (affects estimated variances).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-read-noise-electrons">
+<span class="sig-name descname"><span class="pre">read-noise-electrons</span></span><span class="sig-prename descclassname"> <span class="pre">(--read-noise-electrons</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-read-noise-electrons" title="Link to this definition"></a></dt>
+<dd><p>The read noise in electrons (assumed the same for all pixels).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-compress-calibrated">
+<span class="sig-name descname"><span class="pre">compress-calibrated</span></span><span class="sig-prename descclassname"> <span class="pre">(--compress-calibrated</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-compress-calibrated" title="Link to this definition"></a></dt>
+<dd><p>Specify a quantization level for compressing the calibrated image.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-master-bias">
+<span class="sig-name descname"><span class="pre">master-bias</span></span><span class="sig-prename descclassname"> <span class="pre">(--master-bias</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-master-bias" title="Link to this definition"></a></dt>
+<dd><p>The master bias to apply. No bias correction is applied of not specified. Each master filename should be preceeded by <code class="docutils literal notranslate"><span class="pre">&lt;channel</span> <span class="pre">name&gt;:</span></code> identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-master-dark">
+<span class="sig-name descname"><span class="pre">master-dark</span></span><span class="sig-prename descclassname"> <span class="pre">(--master-dark</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-master-dark" title="Link to this definition"></a></dt>
+<dd><p>The master dark to apply. No dark correction is applied of not specified. Each master filename should be preceeded by <code class="docutils literal notranslate"><span class="pre">&lt;channel</span> <span class="pre">name&gt;:</span></code> identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-master-flat">
+<span class="sig-name descname"><span class="pre">master-flat</span></span><span class="sig-prename descclassname"> <span class="pre">(--master-flat</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-master-flat" title="Link to this definition"></a></dt>
+<dd><p>The master flat to apply. No flat correction is applied of not specified. Each master filename should be preceeded by <code class="docutils literal notranslate"><span class="pre">&lt;channel</span> <span class="pre">name&gt;:</span></code> identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-master-mask">
+<span class="sig-name descname"><span class="pre">master-mask</span></span><span class="sig-prename descclassname"> <span class="pre">(--master-mask</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-master-mask" title="Link to this definition"></a></dt>
+<dd><p>Mask(s) to apply, indicating pixel quality. All pixels are considered “good” if no mask is specified. If multiple channel images are being processed each master filename should be preceeded by <code class="docutils literal notranslate"><span class="pre">&lt;channel</span> <span class="pre">name&gt;:</span></code> identifying which channel it applies to. Unlike other masters, channels without mask are allowed and multiple masks may be used for each channel.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-calibrated-fname">
+<span class="sig-name descname"><span class="pre">calibrated-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--calibrated-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-calibrated-fname" title="Link to this definition"></a></dt>
+<dd><p>Format string to generate the filenames for saving the calibrated images. Replacement fields can be anything from the header of the generated image (including {CLRCHNL} - name of channel if channel splitting is done, and {RAWFNAME} - the name of the corresponding input FITS file without directories or <cite>.fits</cite> and <cite>.fits.fz</cite> extension).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-average-func">
+<span class="sig-name descname"><span class="pre">average-func</span></span><span class="sig-prename descclassname"> <span class="pre">(--average-func</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-average-func" title="Link to this definition"></a></dt>
+<dd><p>The function to use for calculating the average of pixel values accross images. For quantile and percentile, the desired level is specified by adding <code class="docutils literal notranslate"><span class="pre">:&lt;q&gt;</span></code> at the end of the function name(e.g.``quantile:0.7``).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-outlier-threshold">
+<span class="sig-name descname"><span class="pre">outlier-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--outlier-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-outlier-threshold" title="Link to this definition"></a></dt>
+<dd><p>When averaging the values of a given pixel among the input images, values that are further than this value times the root mean square devitaion from the average are rejected and the average is recomputed iteratively until convergence or maximum number of iterations.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-valid-values">
+<span class="sig-name descname"><span class="pre">min-valid-values</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-valid-values</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-valid-values" title="Link to this definition"></a></dt>
+<dd><p>If rejecting outlier pixels results in fewer than this many surviving pixels, the corresponding pixel gets a bad pixel mask in themaster.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-iter">
+<span class="sig-name descname"><span class="pre">max-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of outlier rejection/averaging iterations to allow. If not converged before then, a warning is issued and the average if the last iteration is used.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-exclude-mask">
+<span class="sig-name descname"><span class="pre">exclude-mask</span></span><span class="sig-prename descclassname"> <span class="pre">(--exclude-mask</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-exclude-mask" title="Link to this definition"></a></dt>
+<dd><p>A list of mask flags, any of which result in the corresponding pixels being excluded from the averaging. Any mask flags not specifiedare ignored, treated as clean. Note that <code class="docutils literal notranslate"><span class="pre">'BAD'</span></code> means any kind of problem (e.g. saturated, hot/cold pixel, leaked etc.).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-compress">
+<span class="sig-name descname"><span class="pre">compress</span></span><span class="sig-prename descclassname"> <span class="pre">(--compress</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-compress" title="Link to this definition"></a></dt>
+<dd><p>If zero, the final result is not compressed. Otherwise,this is the quantization level used for compressing the image (see <cite>astropy.io.fits</cite> documentation).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-add-averaged-keywords">
+<span class="sig-name descname"><span class="pre">add-averaged-keywords</span></span><span class="sig-prename descclassname"> <span class="pre">(--add-averaged-keywords</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-add-averaged-keywords" title="Link to this definition"></a></dt>
+<dd><p>Specify any numeric-valued header keywords that should be generated for the master by averaging the corresponding values from the input frames using the same averaging as pixel values. By default the outlier rejected average JD of the input frames is added.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-valid-frames">
+<span class="sig-name descname"><span class="pre">min-valid-frames</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-valid-frames</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-valid-frames" title="Link to this definition"></a></dt>
+<dd><p>If there are fewer than this number of suitable frames to stack in a given master, that master is not generated.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stacked-master-fname">
+<span class="sig-name descname"><span class="pre">stacked-master-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--stacked-master-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stacked-master-fname" title="Link to this definition"></a></dt>
+<dd><p>Filename for the master to generate if successful. Can involve header substitutions, but should produce the same filename for all input frames. If not, the behavior is undefined.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-fraction">
+<span class="sig-name descname"><span class="pre">stamp-fraction</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-fraction</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-fraction" title="Link to this definition"></a></dt>
+<dd><p>The fraction of the image cloude detection stamps should span.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-smoothing-num-x-terms">
+<span class="sig-name descname"><span class="pre">stamp-smoothing-num-x-terms</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-smoothing-num-x-terms</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-smoothing-num-x-terms" title="Link to this definition"></a></dt>
+<dd><p>The number of x terms to include in the stamp smoothing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-smoothing-num-y-terms">
+<span class="sig-name descname"><span class="pre">stamp-smoothing-num-y-terms</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-smoothing-num-y-terms</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-smoothing-num-y-terms" title="Link to this definition"></a></dt>
+<dd><p>The number of y terms to include in the stamp smoothing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-smoothing-outlier-threshold">
+<span class="sig-name descname"><span class="pre">stamp-smoothing-outlier-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-smoothing-outlier-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-smoothing-outlier-threshold" title="Link to this definition"></a></dt>
+<dd><p>Pixels deviating by more than this many standard deviations form the best fit smoothing function are discarded after each smoothnig fit iteration. One or two numbers should be specified. If two, one should be positive and the other negative specifying separate thresholds in the positive and negative directions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-smoothing-max-iterations">
+<span class="sig-name descname"><span class="pre">stamp-smoothing-max-iterations</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-smoothing-max-iterations</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-smoothing-max-iterations" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of fit, reject iterations to use when smoothing stamps for cloud detection.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-pixel-average">
+<span class="sig-name descname"><span class="pre">stamp-pixel-average</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-pixel-average</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-pixel-average" title="Link to this definition"></a></dt>
+<dd><p>The pixels of smoothed cloud detection stamps are averaged using this function and square difference from that mean is calculated. The process is iteratively reapeated discarding outlier pixels.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-pixel-outlier-threshold">
+<span class="sig-name descname"><span class="pre">stamp-pixel-outlier-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-pixel-outlier-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-pixel-outlier-threshold" title="Link to this definition"></a></dt>
+<dd><p>The threshold in deviation around mean units to use for discarding stamp pixels during averaging of the smoothed stamps. One or two numbers should be specified. If two, one should be positive and the other negative specifying separate thresholds in the positive and negative directions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-pixel-max-iter">
+<span class="sig-name descname"><span class="pre">stamp-pixel-max-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-pixel-max-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-pixel-max-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of averaging, discarding terations to use when calculating average and square deviation of the smoothed stamps.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-max-saturated-fraction">
+<span class="sig-name descname"><span class="pre">stamp-select-max-saturated-fraction</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-max-saturated-fraction</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-max-saturated-fraction" title="Link to this definition"></a></dt>
+<dd><p>Stamps with more that this fraction of saturated pixels are discarded.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-var-mean-fit-threshold">
+<span class="sig-name descname"><span class="pre">stamp-select-var-mean-fit-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-var-mean-fit-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-var-mean-fit-threshold" title="Link to this definition"></a></dt>
+<dd><p>Variance vs mean fit for stamps is iteratively repeated after discarding from each iteration stamps that deviater from the fit by more than this number times the fit residual.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-var-mean-fit-iterations">
+<span class="sig-name descname"><span class="pre">stamp-select-var-mean-fit-iterations</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-var-mean-fit-iterations</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-var-mean-fit-iterations" title="Link to this definition"></a></dt>
+<dd><p>Variance vs mean fit for stamps is iteratively repeated after discarding from each iteration stamps that deviater from the fit by more than this number times the fit residual.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-cloudy-night-threshold">
+<span class="sig-name descname"><span class="pre">stamp-select-cloudy-night-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-cloudy-night-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-cloudy-night-threshold" title="Link to this definition"></a></dt>
+<dd><p>If variance vs mean quadratic fit has residual of more than this, the entire observing session is discarded as cloudy.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-cloudy-frame-threshold">
+<span class="sig-name descname"><span class="pre">stamp-select-cloudy-frame-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-cloudy-frame-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-cloudy-frame-threshold" title="Link to this definition"></a></dt>
+<dd><p>Individual frames with stamp mean and variance deviating from the variance vs mean fit by more than this number times the fit residual are discarded as cloudy.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-min-high-mean">
+<span class="sig-name descname"><span class="pre">stamp-select-min-high-mean</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-min-high-mean</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-min-high-mean" title="Link to this definition"></a></dt>
+<dd><p>The minimum average value of the stamp pixels for a frame to be included in a high master flat. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-stamp-select-max-low-mean">
+<span class="sig-name descname"><span class="pre">stamp-select-max-low-mean</span></span><span class="sig-prename descclassname"> <span class="pre">(--stamp-select-max-low-mean</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-stamp-select-max-low-mean" title="Link to this definition"></a></dt>
+<dd><p>The maximum average value of the stamp pixels for a frame to be included in a low master flat. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-filter">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-filter</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-filter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-filter" title="Link to this definition"></a></dt>
+<dd><p>For each frame, the large scale struture is corrected by taking the ratio of the frame to the reference (median of all input frames), smoothing this ratio and then dividing by it. Two filters are consecutively applied for smoothing. This is the first and it should be one of the scipy.ndimage box filters.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-filter-size">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-filter-size</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-filter-size</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-filter-size" title="Link to this definition"></a></dt>
+<dd><p>The size of the box filter to apply.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-spline-num-x-nodes">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-spline-num-x-nodes</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-spline-num-x-nodes</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-spline-num-x-nodes" title="Link to this definition"></a></dt>
+<dd><p>The second smoothing filter applied fits a separable x and y spline. The x spline uses this many internal nodes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-spline-num-y-nodes">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-spline-num-y-nodes</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-spline-num-y-nodes</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-spline-num-y-nodes" title="Link to this definition"></a></dt>
+<dd><p>The second smoothing filter applied fits a separable x and y spline. The x spline uses this many internal nodes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-spline-outlier-threshold">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-spline-outlier-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-spline-outlier-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-spline-outlier-threshold" title="Link to this definition"></a></dt>
+<dd><p>Spline smoothing discards pixels deviating by more than this number times the fit residual and iterates.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-spline-max-iter">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-spline-max-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-spline-max-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-spline-max-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of discard-refit iterations used during spline smoothing to get the large scale flat.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-bin-factor">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-bin-factor</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-bin-factor</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-bin-factor" title="Link to this definition"></a></dt>
+<dd><p>Before smoothing is applied the image is binned by this factor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-smoothing-zoom-interp-order">
+<span class="sig-name descname"><span class="pre">large-scale-smoothing-zoom-interp-order</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-smoothing-zoom-interp-order</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-smoothing-zoom-interp-order" title="Link to this definition"></a></dt>
+<dd><p>After smoothing the image is zoomed back out to its original size using this order interpolation.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-cloud-check-smoothing-filter">
+<span class="sig-name descname"><span class="pre">cloud-check-smoothing-filter</span></span><span class="sig-prename descclassname"> <span class="pre">(--cloud-check-smoothing-filter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-cloud-check-smoothing-filter" title="Link to this definition"></a></dt>
+<dd><p>When stacking, images with matched large scale flat, any image which deviates too much from the large scale flat is discarded as cloudy. This argument specifies a smoothing filter to apply to the deviation from the large scale flat before checking if the image is an outlier.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-cloud-check-smoothing-filter-size">
+<span class="sig-name descname"><span class="pre">cloud-check-smoothing-filter-size</span></span><span class="sig-prename descclassname"> <span class="pre">(--cloud-check-smoothing-filter-size</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-cloud-check-smoothing-filter-size" title="Link to this definition"></a></dt>
+<dd><p>The size of the cloud check smoothing fliter to use.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-cloud-check-smoothing-bin-factor">
+<span class="sig-name descname"><span class="pre">cloud-check-smoothing-bin-factor</span></span><span class="sig-prename descclassname"> <span class="pre">(--cloud-check-smoothing-bin-factor</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-cloud-check-smoothing-bin-factor" title="Link to this definition"></a></dt>
+<dd><p>Before smoothing is applied the deviation from large scale flat, it is binned by this factor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-cloud-check-smoothing-zoom-interp-order">
+<span class="sig-name descname"><span class="pre">cloud-check-smoothing-zoom-interp-order</span></span><span class="sig-prename descclassname"> <span class="pre">(--cloud-check-smoothing-zoom-interp-order</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-cloud-check-smoothing-zoom-interp-order" title="Link to this definition"></a></dt>
+<dd><p>After smoothing the deviation from large scale flat is zoomed back out to its original size using this order interpolation.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-pointing-separation">
+<span class="sig-name descname"><span class="pre">min-pointing-separation</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-pointing-separation</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-pointing-separation" title="Link to this definition"></a></dt>
+<dd><p>Individual flat frames must be at least this many arcseconds apart (per their headers) to be combined in order to avoid stars showing up above the sky brightness.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-deviation-threshold">
+<span class="sig-name descname"><span class="pre">large-scale-deviation-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-deviation-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-deviation-threshold" title="Link to this definition"></a></dt>
+<dd><p>If the smoothed difference between a frame and the combined large scale flat is more than this, the frame is discarded as potentially cloudy.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-high-combine">
+<span class="sig-name descname"><span class="pre">min-high-combine</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-high-combine</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-high-combine" title="Link to this definition"></a></dt>
+<dd><p>High master flat is generated only if at least this many frames of high illumination survive all checks.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-low-combine">
+<span class="sig-name descname"><span class="pre">min-low-combine</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-low-combine</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-low-combine" title="Link to this definition"></a></dt>
+<dd><p>Low master flat is generated only if at least this many frames of low illumination survive all checks.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-stack-outlier-threshold">
+<span class="sig-name descname"><span class="pre">large-scale-stack-outlier-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-stack-outlier-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-stack-outlier-threshold" title="Link to this definition"></a></dt>
+<dd><p>When determining the large scale flat outlier pixels of smoothed individual flats by more than this many sigma are discarded.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-stack-average-func">
+<span class="sig-name descname"><span class="pre">large-scale-stack-average-func</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-stack-average-func</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-stack-average-func" title="Link to this definition"></a></dt>
+<dd><p>The function used to average individual large scale flats.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-stack-min-valid-values">
+<span class="sig-name descname"><span class="pre">large-scale-stack-min-valid-values</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-stack-min-valid-values</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-stack-min-valid-values" title="Link to this definition"></a></dt>
+<dd><p>The minimum number of surviving pixels after outlier rejection required to count a stacked large scale pixel as valid.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-stack-max-iter">
+<span class="sig-name descname"><span class="pre">large-scale-stack-max-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-stack-max-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-stack-max-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of rejection-stacking iterations allowed when creating the large scale flat.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-large-scale-stack-exclude-mask">
+<span class="sig-name descname"><span class="pre">large-scale-stack-exclude-mask</span></span><span class="sig-prename descclassname"> <span class="pre">(--large-scale-stack-exclude-mask</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-large-scale-stack-exclude-mask" title="Link to this definition"></a></dt>
+<dd><p>A list of mask flags, any of which result in the corresponding pixels being excluded from the averaging. Any mask flags not specifiedare ignored, treated as clean. Note that <code class="docutils literal notranslate"><span class="pre">'BAD'</span></code> means any kind of problem (e.g. saturated, hot/cold pixel, leaked etc.).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-high-flat-master-fname">
+<span class="sig-name descname"><span class="pre">high-flat-master-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--high-flat-master-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-high-flat-master-fname" title="Link to this definition"></a></dt>
+<dd><p>Filename for the high illumination master flat to generate if successful. Can involve header substitutions, but should produce the same filename for all input frames. If not, the behavior is undefined.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-low-flat-master-fname">
+<span class="sig-name descname"><span class="pre">low-flat-master-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--low-flat-master-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-low-flat-master-fname" title="Link to this definition"></a></dt>
+<dd><p>Filename for the low illumination master flat to generate if successful. Can involve header substitutions, but should produce the same filename for all input frames. If not, the behavior is undefined.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-data-reduction-fname">
+<span class="sig-name descname"><span class="pre">data-reduction-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--data-reduction-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-data-reduction-fname" title="Link to this definition"></a></dt>
+<dd><p>Format string to generate the filename(s) of the data reduction files where extracted sources are saved. Replacement fields can be anything from the header of the calibrated image.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-num-parallel-processes">
+<span class="sig-name descname"><span class="pre">num-parallel-processes</span></span><span class="sig-prename descclassname"> <span class="pre">(--num-parallel-processes</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-num-parallel-processes" title="Link to this definition"></a></dt>
+<dd><p>The number of simultaneous fitpsf/fitprf processes to run.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcfind-tool">
+<span class="sig-name descname"><span class="pre">srcfind-tool</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcfind-tool</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcfind-tool" title="Link to this definition"></a></dt>
+<dd><p>The source extractor to use.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-brightness-threshold">
+<span class="sig-name descname"><span class="pre">brightness-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--brightness-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-brightness-threshold" title="Link to this definition"></a></dt>
+<dd><p>The minimum brightness to require of extracted sources. It shouldbe tuned to a value that picks out as many stars as possible, without resulting in an appreciable number of spurious detections. Two additional parameters (<a class="reference internal" href="#cmdoption-arg-filter-sources"><code class="xref std std-option docutils literal notranslate"><span class="pre">filter-sources</span></code></a> and <a class="reference internal" href="#cmdoption-arg-srcextract-max-sources"><code class="xref std std-option docutils literal notranslate"><span class="pre">srcextract-max-sources</span></code></a>) are sometimes useful to eliminate false positives.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-filter-sources">
+<span class="sig-name descname"><span class="pre">filter-sources</span></span><span class="sig-prename descclassname"> <span class="pre">(--filter-sources</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-filter-sources" title="Link to this definition"></a></dt>
+<dd><p>A condition involving the output columns from source extraction to impose on the list of extracted sources (sources that fail are discarded).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-max-sources">
+<span class="sig-name descname"><span class="pre">srcextract-max-sources</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-max-sources</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-max-sources" title="Link to this definition"></a></dt>
+<dd><p>If more than this many sources are extracted, the list is sorted by flux and truncated to this number.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog">
+<span class="sig-name descname"><span class="pre">astrometry-catalog</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog" title="Link to this definition"></a></dt>
+<dd><p>A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the <code class="docutils literal notranslate"><span class="pre">--catalog-filter</span></code> argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by <code class="docutils literal notranslate"><span class="pre">--catalog-safety-factor</span></code>, centered on the (RA * cos(Dec), Dec) of the frame rounded to <code class="docutils literal notranslate"><span class="pre">--catalog-pointing-precision</span></code>, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include <code class="docutils literal notranslate"><span class="pre">{checksum}</span></code> which will be replaced with the MD5 checksum of the parameters defining the query.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-magnitude-expression">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-magnitude-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-magnitude-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-magnitude-expression" title="Link to this definition"></a></dt>
+<dd><p>An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-max-magnitude">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-max-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-max-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-max-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The faintest magnitude to include in the catalog.This should approximately correspond to the <a class="reference internal" href="#cmdoption-arg-brightness-threshold"><code class="xref std std-option docutils literal notranslate"><span class="pre">brightness-threshold</span></code></a> argument used for source extraction. This can be automatically determined in most cases using <code class="docutils literal notranslate"><span class="pre">wisp-tune-astromety-max-mag</span></code>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-min-magnitude">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-min-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-min-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-min-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The brightest magnitude to include in the catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-pointing-precision">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-pointing-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-pointing-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-pointing-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-fov-precision">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-fov-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-fov-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-fov-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-filter">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-filter</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-filter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-filter" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-epoch">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-epoch</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-epoch</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-epoch" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-columns">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-columns</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-columns</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-columns" title="Link to this definition"></a></dt>
+<dd><p>The columns to include in the catalog file. Use ‘*’ to include everything.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-catalog-fov-safety-margin">
+<span class="sig-name descname"><span class="pre">astrometry-catalog-fov-safety-margin</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-catalog-fov-safety-margin</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-catalog-fov-safety-margin" title="Link to this definition"></a></dt>
+<dd><p>The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-reuse-transformation-key">
+<span class="sig-name descname"><span class="pre">reuse-transformation-key</span></span><span class="sig-prename descclassname"> <span class="pre">(--reuse-transformation-key</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-reuse-transformation-key" title="Link to this definition"></a></dt>
+<dd><p>Expression involving  header keywords that results in unique value for each group of frames representing separate channels of the same raw image.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-srcmatch-distance">
+<span class="sig-name descname"><span class="pre">max-srcmatch-distance</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-srcmatch-distance</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-srcmatch-distance" title="Link to this definition"></a></dt>
+<dd><p>The maximum distance between a projected and extracted source center before we declare the two could not possibly correspond to the same star. Determining a good value to use depends on the properties of the images being processed. It should be much larger than the uncertainty with which source extraction determines potiions but much smaller than  the typical discance between stars.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-astrometry-order">
+<span class="sig-name descname"><span class="pre">astrometry-order</span></span><span class="sig-prename descclassname"> <span class="pre">(--astrometry-order</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-astrometry-order" title="Link to this definition"></a></dt>
+<dd><p>The order of the transformation to fit (i.e. the maximum combined power of the cartographically projected coordinates each of the frame coordinates is allowed to depend on. The best value to use depends on the properties of the images being processed. It needs to be large enough to capture the distortion in the image away from gnomonic projection, yet small enough to have many fewer parameters than the easily detectable stars in the image. Typically, small field of view images have smaller distortions and a lower value should be used compared to wide-field images.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-source-safety-factor">
+<span class="sig-name descname"><span class="pre">min-source-safety-factor</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-source-safety-factor</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-source-safety-factor" title="Link to this definition"></a></dt>
+<dd><p>When solving for transformation coefficients the number of matched stars must exceed the number of free parameters by at least this factor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-trans-threshold">
+<span class="sig-name descname"><span class="pre">trans-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--trans-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-trans-threshold" title="Link to this definition"></a></dt>
+<dd><p>The threshold for the difference of two consecutive transformations</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-astrom-iter">
+<span class="sig-name descname"><span class="pre">max-astrom-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-astrom-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-astrom-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of iterations the astrometry solution can pass.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-min-match-fraction">
+<span class="sig-name descname"><span class="pre">min-match-fraction</span></span><span class="sig-prename descclassname"> <span class="pre">(--min-match-fraction</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-min-match-fraction" title="Link to this definition"></a></dt>
+<dd><p>The minimum fraction of extracted sources that must be matched to a catalog soure for the solution to be considered valid. It should be be less than 1 only to account for possible spurious stars found during source extraction. Having a stringent (close to 1) requirement ensures that the astrometry fails for images that are not of high quality (thin clouds, poor tracking, etc.)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-rms-distance">
+<span class="sig-name descname"><span class="pre">max-rms-distance</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-rms-distance</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-rms-distance" title="Link to this definition"></a></dt>
+<dd><p>The maximum RMS distance between projected and extracted positions for the astrometry solution to be considered valid. Should be slightly larger than the typical uncertainty with which source extraction determines the centroids of the stars.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-anet-indices">
+<span class="sig-name descname"><span class="pre">anet-indices</span></span><span class="sig-prename descclassname"> <span class="pre">(--anet-indices</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-anet-indices" title="Link to this definition"></a></dt>
+<dd><p>Full paths to the narrow and wide astometry.net index files. If these directories are not found, the web solver is used instead.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-anet-api-key">
+<span class="sig-name descname"><span class="pre">anet-api-key</span></span><span class="sig-prename descclassname"> <span class="pre">(--anet-api-key</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-anet-api-key" title="Link to this definition"></a></dt>
+<dd><p>The astrometry.net API key to use if web solver is used to find initial match to catalog. You can get it by signing in to the web service and selecting <code class="docutils literal notranslate"><span class="pre">Profile</span></code>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-frame-center-estimate">
+<span class="sig-name descname"><span class="pre">frame-center-estimate</span></span><span class="sig-prename descclassname"> <span class="pre">(--frame-center-estimate</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-frame-center-estimate" title="Link to this definition"></a></dt>
+<dd><p>The approximate right ascention and declination of the center of the frame in degrees. Can be an expression involving header keywords. If not specified, the center of the catalog is used (assuming the catalog is not being generated on-the-fly).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-frame-fov-estimate">
+<span class="sig-name descname"><span class="pre">frame-fov-estimate</span></span><span class="sig-prename descclassname"> <span class="pre">(--frame-fov-estimate</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-frame-fov-estimate" title="Link to this definition"></a></dt>
+<dd><p>Approximate field of view of the frame in degrees. Can be an expression involving header keywords. If not specified, the field of view of the catalog divided by <code class="docutils literal notranslate"><span class="pre">--image-scale-factor</span></code> is used.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tweak-order">
+<span class="sig-name descname"><span class="pre">tweak-order</span></span><span class="sig-prename descclassname"> <span class="pre">(--tweak-order</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tweak-order" title="Link to this definition"></a></dt>
+<dd><p>Range of tweak arguments to solve-field to try.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-image-scale-factor">
+<span class="sig-name descname"><span class="pre">image-scale-factor</span></span><span class="sig-prename descclassname"> <span class="pre">(--image-scale-factor</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-image-scale-factor" title="Link to this definition"></a></dt>
+<dd><p>Astrometry.net solution is searched with scale ranging from fov/image_scale_factor to fov * image_scale_factor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog">
+<span class="sig-name descname"><span class="pre">photometry-catalog</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog" title="Link to this definition"></a></dt>
+<dd><p>A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the <code class="docutils literal notranslate"><span class="pre">--catalog-filter</span></code> argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by <code class="docutils literal notranslate"><span class="pre">--catalog-safety-factor</span></code>, centered on the (RA * cos(Dec), Dec) of the frame rounded to <code class="docutils literal notranslate"><span class="pre">--catalog-pointing-precision</span></code>, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include <code class="docutils literal notranslate"><span class="pre">{checksum}</span></code> which will be replaced with the MD5 checksum of the parameters defining the query.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-magnitude-expression">
+<span class="sig-name descname"><span class="pre">photometry-catalog-magnitude-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-magnitude-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-magnitude-expression" title="Link to this definition"></a></dt>
+<dd><p>An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-max-magnitude">
+<span class="sig-name descname"><span class="pre">photometry-catalog-max-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-max-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-max-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The faintest magnitude to include in the catalog.This determines the faintest stars that will receive flux measuremets from AutoWISP. Going too deep will result in excessive number of stars being photometerd, producing large files and slow processing. Especially for wide-field images.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-min-magnitude">
+<span class="sig-name descname"><span class="pre">photometry-catalog-min-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-min-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-min-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The brightest magnitude to include in the catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-pointing-precision">
+<span class="sig-name descname"><span class="pre">photometry-catalog-pointing-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-pointing-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-pointing-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-fov-precision">
+<span class="sig-name descname"><span class="pre">photometry-catalog-fov-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-fov-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-fov-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-filter">
+<span class="sig-name descname"><span class="pre">photometry-catalog-filter</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-filter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-filter" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-epoch">
+<span class="sig-name descname"><span class="pre">photometry-catalog-epoch</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-epoch</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-epoch" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-columns">
+<span class="sig-name descname"><span class="pre">photometry-catalog-columns</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-columns</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-columns" title="Link to this definition"></a></dt>
+<dd><p>The columns to include in the catalog file. Use ‘*’ to include everything.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-photometry-catalog-fov-safety-margin">
+<span class="sig-name descname"><span class="pre">photometry-catalog-fov-safety-margin</span></span><span class="sig-prename descclassname"> <span class="pre">(--photometry-catalog-fov-safety-margin</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-photometry-catalog-fov-safety-margin" title="Link to this definition"></a></dt>
+<dd><p>The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-subpixmap">
+<span class="sig-name descname"><span class="pre">subpixmap</span></span><span class="sig-prename descclassname"> <span class="pre">(--subpixmap</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-subpixmap" title="Link to this definition"></a></dt>
+<dd><p>The sub-pixel sensitivity map to assume. If not specified uniform sensitivy is assumed. This is especially important if processing images from color cameras. For a standard Bayer array, the built-in map called <code class="docutils literal notranslate"><span class="pre">dslr_subpixmap.fits</span></code> can be used.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magnitude-1adu">
+<span class="sig-name descname"><span class="pre">magnitude-1adu</span></span><span class="sig-prename descclassname"> <span class="pre">(--magnitude-1adu</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magnitude-1adu" title="Link to this definition"></a></dt>
+<dd><p>The magnitude which corresponds to a source flux of 1ADU</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-background-annulus">
+<span class="sig-name descname"><span class="pre">background-annulus</span></span><span class="sig-prename descclassname"> <span class="pre">(--background-annulus</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-background-annulus" title="Link to this definition"></a></dt>
+<dd><p>The annulus to use when estimating the background under sources. The first number is the inner radius and should be large enough to avoid picking up light from the brightest stars from which reliable photometry is desired. The second number is the width of the annulus (i.e inner radius + width is the outer radius). It should be large enough to contain many tens of pixels.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-disable-cover-grid">
+<span class="sig-name descname"><span class="pre">shapefit-disable-cover-grid</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-disable-cover-grid</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-disable-cover-grid" title="Link to this definition"></a></dt>
+<dd><p>Should pixels be selected to cover the full PSF/PRF grid.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-src-min-bg-pix">
+<span class="sig-name descname"><span class="pre">shapefit-src-min-bg-pix</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-src-min-bg-pix</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-src-min-bg-pix" title="Link to this definition"></a></dt>
+<dd><p>The minimum number of pixels background should be based on if the source is to be used for shape fitting.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-src-max-sat-frac">
+<span class="sig-name descname"><span class="pre">shapefit-src-max-sat-frac</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-src-max-sat-frac</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-src-max-sat-frac" title="Link to this definition"></a></dt>
+<dd><p>The maximum fraction of saturated pixels of a source before it is discarded from shape fitting.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-src-min-signal-to-noise">
+<span class="sig-name descname"><span class="pre">shapefit-src-min-signal-to-noise</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-src-min-signal-to-noise</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-src-min-signal-to-noise" title="Link to this definition"></a></dt>
+<dd><p>The S/N threshold when selecting pixels around sources.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-src-max-aperture">
+<span class="sig-name descname"><span class="pre">shapefit-src-max-aperture</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-src-max-aperture</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-src-max-aperture" title="Link to this definition"></a></dt>
+<dd><p>The largest distance from the source center before pixel selection causes an error.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-src-min-pix">
+<span class="sig-name descname"><span class="pre">shapefit-src-min-pix</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-src-min-pix</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-src-min-pix" title="Link to this definition"></a></dt>
+<dd><p>The smallest number of pixels to require be assigned for a source if it is to be included in the shape fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-src-max-pix">
+<span class="sig-name descname"><span class="pre">shapefit-src-max-pix</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-src-max-pix</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-src-max-pix" title="Link to this definition"></a></dt>
+<dd><p>The largest number of pixels to require be assigned for a source if it is to be included in the shape fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-max-sources">
+<span class="sig-name descname"><span class="pre">shapefit-max-sources</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-max-sources</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-max-sources" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of sources to include in the fit. Excess sources (those with lowest signal to noise) are not included in the shape fit, though still get photometry measured. The only exception is if zero PSF model is used, in which case the fluxes of discarded sources are set to NaN. Set to zero to disable trimming the source list.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-discard-faint">
+<span class="sig-name descname"><span class="pre">discard-faint</span></span><span class="sig-prename descclassname"> <span class="pre">(--discard-faint</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-discard-faint" title="Link to this definition"></a></dt>
+<dd><p>If used, should indicate a faint magnitude limit in some band-pass, e.g. B&gt;14.0. Sources fainter than the specified limit will not be included in the input source lists for PRF fitting at all.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-smoothing">
+<span class="sig-name descname"><span class="pre">shapefit-smoothing</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-smoothing</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-smoothing" title="Link to this definition"></a></dt>
+<dd><p>Parameter controlling the smoothing penalty of the PSF fit. See Larger values result in smoother PSF/PRF models. Too small, and the model will contain oscillations fitting noise. Too large, and the model will begin chopping off sharp peaks and troughs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-max-chi2">
+<span class="sig-name descname"><span class="pre">shapefit-max-chi2</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-max-chi2</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-max-chi2" title="Link to this definition"></a></dt>
+<dd><p>If the chi squared value of a source during flux fitting exceeds this value, the source is excluded from shape fitting.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-pixel-rejection-threshold">
+<span class="sig-name descname"><span class="pre">shapefit-pixel-rejection-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-pixel-rejection-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-pixel-rejection-threshold" title="Link to this definition"></a></dt>
+<dd><p>Pixels away from best fit values by more than this many sigma are discarded from the fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-max-abs-amplitude-change">
+<span class="sig-name descname"><span class="pre">shapefit-max-abs-amplitude-change</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-max-abs-amplitude-change</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-max-abs-amplitude-change" title="Link to this definition"></a></dt>
+<dd><p>If the absolute sum square change in amplitudes falls below this, the fit is declared converged.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-max-rel-amplitude-change">
+<span class="sig-name descname"><span class="pre">shapefit-max-rel-amplitude-change</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-max-rel-amplitude-change</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-max-rel-amplitude-change" title="Link to this definition"></a></dt>
+<dd><p>If the relative sum square change in amplitudes falls below this, the fit is declared converged.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-min-convergence-rate">
+<span class="sig-name descname"><span class="pre">shapefit-min-convergence-rate</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-min-convergence-rate</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-min-convergence-rate" title="Link to this definition"></a></dt>
+<dd><p>If the rate of convergence of the amplitudes falls below this, an error is thrown.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-max-iterations">
+<span class="sig-name descname"><span class="pre">shapefit-max-iterations</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-max-iterations</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-max-iterations" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of shape-amplitude fitting iterations to allow.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-initial-aperture">
+<span class="sig-name descname"><span class="pre">shapefit-initial-aperture</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-initial-aperture</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-initial-aperture" title="Link to this definition"></a></dt>
+<dd><p>The aperture to use when estimating the initial flux of sources to start the first shape-amplitude fitting iteration.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-num-simultaneous">
+<span class="sig-name descname"><span class="pre">num-simultaneous</span></span><span class="sig-prename descclassname"> <span class="pre">(--num-simultaneous</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-num-simultaneous" title="Link to this definition"></a></dt>
+<dd><p>The number of frames to fit simultaneously, with a unified PSF/PRF model. Each simultaneous group consists of consecutive entries in the input list of frames.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shape-mode">
+<span class="sig-name descname"><span class="pre">shape-mode</span></span><span class="sig-prename descclassname"> <span class="pre">(--shape-mode</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shape-mode" title="Link to this definition"></a></dt>
+<dd><p>Is the mode representing PSF or PRF?</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shape-grid">
+<span class="sig-name descname"><span class="pre">shape-grid</span></span><span class="sig-prename descclassname"> <span class="pre">(--shape-grid</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shape-grid" title="Link to this definition"></a></dt>
+<dd><p>The grid to use for representing the PSF/PRF. If only outer boundaries are specified (like in the default), PSF is assumed not to vary accross the star. The outer boundaries should be far enough away from zero to accommodate the largest aperture used for aperture photometry. The placement of inner boundaries is dictated by the PSF being fit. Generally, more boundaries are needed in regions where the PSF/PRF varies more rapidly.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shape-terms-expression">
+<span class="sig-name descname"><span class="pre">shape-terms-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--shape-terms-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shape-terms-expression" title="Link to this definition"></a></dt>
+<dd><p>The term in the PSF shape parameter dependence. The expression is a product of polynomials. For example <code class="docutils literal notranslate"><span class="pre">O2(x,</span> <span class="pre">y}</span></code> would result in terms <code class="docutils literal notranslate"><span class="pre">1,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">x^2,</span> <span class="pre">xy,</span> <span class="pre">y^2</span></code> (i.e. combined total power of 2 or less). In contrast <code class="docutils literal notranslate"><span class="pre">O2{x}</span> <span class="pre">*</span> <span class="pre">O2{y}</span></code> will include all terms of up to second order in x and up to second order in y, including all cross-terms (total of 9 terms).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-map-variables">
+<span class="sig-name descname"><span class="pre">map-variables</span></span><span class="sig-prename descclassname"> <span class="pre">(--map-variables</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-map-variables" title="Link to this definition"></a></dt>
+<dd><p>Extra variables to allow the PRF to depend on in addition to (x and y). The &lt;expression&gt; can involve any catologue column , header variable, and <cite>STID</cite>, <cite>FNUM</cite>, <cite>CMPOS</cite>. The extra variables are added as extra columns after ID, x, y to the source list passed to fitpsf/fitprf in the order specified on the command line.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-split-magnitude-column">
+<span class="sig-name descname"><span class="pre">split-magnitude-column</span></span><span class="sig-prename descclassname"> <span class="pre">(--split-magnitude-column</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-split-magnitude-column" title="Link to this definition"></a></dt>
+<dd><p>The catalog column to use as the brightness indicator of the sources when splitting into groups.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-radius-splits">
+<span class="sig-name descname"><span class="pre">radius-splits</span></span><span class="sig-prename descclassname"> <span class="pre">(--radius-splits</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-radius-splits" title="Link to this definition"></a></dt>
+<dd><p>The threshold radius values where to split sources into groups. By default, no splitting by radius is done.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-mag-split-source-count">
+<span class="sig-name descname"><span class="pre">mag-split-source-count</span></span><span class="sig-prename descclassname"> <span class="pre">(--mag-split-source-count</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-mag-split-source-count" title="Link to this definition"></a></dt>
+<dd><p>If passed, after spltting by radius (if any), sources are further split into groups by magnitude such that each group contains at least this many sources. By default, no splitting by magnitude is done.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-grouping-frame">
+<span class="sig-name descname"><span class="pre">grouping-frame</span></span><span class="sig-prename descclassname"> <span class="pre">(--grouping-frame</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-grouping-frame" title="Link to this definition"></a></dt>
+<dd><p>If sources are being split per any of the above arguments, specifying a frame here results in the split being done based on the locations of sources in this frame and thus does not change from frame to frame. If not specified, grouping is done independently for each frame.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-remove-group-id">
+<span class="sig-name descname"><span class="pre">remove-group-id</span></span><span class="sig-prename descclassname"> <span class="pre">(--remove-group-id</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-remove-group-id" title="Link to this definition"></a></dt>
+<dd><p>If passed, this will remove the groups to fit in an indexable fashion. Multiple values may be passed e.g. 0 1 5 where each is the index corresponding to the group_id</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-shapefit-group">
+<span class="sig-name descname"><span class="pre">shapefit-group</span></span><span class="sig-prename descclassname"> <span class="pre">(--shapefit-group</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-shapefit-group" title="Link to this definition"></a></dt>
+<dd><p>If grouping was used during shape fitting, use this option to specify which of PSF map to use.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-apertures">
+<span class="sig-name descname"><span class="pre">apertures</span></span><span class="sig-prename descclassname"> <span class="pre">(--apertures</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-apertures" title="Link to this definition"></a></dt>
+<dd><p>The apretures to use for photometry. For faint stars small apertures work better because they avoid pixels dominated by sky noise. For bright stars larger apertures are better because they contain pixels with significant signal out to much larger distances from the projected position.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-error-offset">
+<span class="sig-name descname"><span class="pre">error-offset</span></span><span class="sig-prename descclassname"> <span class="pre">(--error-offset</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-error-offset" title="Link to this definition"></a></dt>
+<dd><p>A constant error to add to the formal error estimate from the measurement.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-psf-params">
+<span class="sig-name descname"><span class="pre">srcextract-psf-params</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-psf-params</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-psf-params" title="Link to this definition"></a></dt>
+<dd><p>List of the parameters describing PSF shapes of the extracted sources to fit a smooth dependence for. If left unspecified, smooth map will be fit for (<cite>‘S’</cite>, <cite>‘D’</cite>, <cite>‘K’</cite>) or (<cite>‘fwhm’</cite>, <cite>‘round’</cite>, <cite>‘pa’</cite>), whichever is available.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-psfmap-terms">
+<span class="sig-name descname"><span class="pre">srcextract-psfmap-terms</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-psfmap-terms</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-psfmap-terms" title="Link to this definition"></a></dt>
+<dd><p>An expression involving source extraction and/or catalogue variables for the terms to include in the smoothing fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-psfmap-weights">
+<span class="sig-name descname"><span class="pre">srcextract-psfmap-weights</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-psfmap-weights</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-psfmap-weights" title="Link to this definition"></a></dt>
+<dd><p>An expression involving source extraction and/or catalogue variables for the weights to use for the smoothing fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-psfmap-error-avg">
+<span class="sig-name descname"><span class="pre">srcextract-psfmap-error-avg</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-psfmap-error-avg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-psfmap-error-avg" title="Link to this definition"></a></dt>
+<dd><p>How to average fitting residuals for outlier rejection.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-psfmap-rej-level">
+<span class="sig-name descname"><span class="pre">srcextract-psfmap-rej-level</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-psfmap-rej-level</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-psfmap-rej-level" title="Link to this definition"></a></dt>
+<dd><p>How far away from the fit should a point be before it is rejected in units of error_avg.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcextract-psfmap-max-rej-iter">
+<span class="sig-name descname"><span class="pre">srcextract-psfmap-max-rej-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcextract-psfmap-max-rej-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcextract-psfmap-max-rej-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of rejection/re-fitting iterations to perform.If the fit has not converged by then, the latest iteration is accepted. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog">
+<span class="sig-name descname"><span class="pre">magfit-catalog</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog" title="Link to this definition"></a></dt>
+<dd><p>A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the <code class="docutils literal notranslate"><span class="pre">--catalog-filter</span></code> argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by <code class="docutils literal notranslate"><span class="pre">--catalog-safety-factor</span></code>, centered on the (RA * cos(Dec), Dec) of the frame rounded to <code class="docutils literal notranslate"><span class="pre">--catalog-pointing-precision</span></code>, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include <code class="docutils literal notranslate"><span class="pre">{checksum}</span></code> which will be replaced with the MD5 checksum of the parameters defining the query.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-magnitude-expression">
+<span class="sig-name descname"><span class="pre">magfit-catalog-magnitude-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-magnitude-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-magnitude-expression" title="Link to this definition"></a></dt>
+<dd><p>An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-max-magnitude">
+<span class="sig-name descname"><span class="pre">magfit-catalog-max-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-max-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-max-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The faintest magnitude to include in the catalog.In most cases, the photometry catalog should be used for magnitude fitting as well.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-min-magnitude">
+<span class="sig-name descname"><span class="pre">magfit-catalog-min-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-min-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-min-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The brightest magnitude to include in the catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-pointing-precision">
+<span class="sig-name descname"><span class="pre">magfit-catalog-pointing-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-pointing-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-pointing-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-fov-precision">
+<span class="sig-name descname"><span class="pre">magfit-catalog-fov-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-fov-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-fov-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-filter">
+<span class="sig-name descname"><span class="pre">magfit-catalog-filter</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-filter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-filter" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-epoch">
+<span class="sig-name descname"><span class="pre">magfit-catalog-epoch</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-epoch</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-epoch" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-columns">
+<span class="sig-name descname"><span class="pre">magfit-catalog-columns</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-columns</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-columns" title="Link to this definition"></a></dt>
+<dd><p>The columns to include in the catalog file. Use ‘*’ to include everything.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-fov-safety-margin">
+<span class="sig-name descname"><span class="pre">magfit-catalog-fov-safety-margin</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-fov-safety-margin</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-fov-safety-margin" title="Link to this definition"></a></dt>
+<dd><p>The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-catalog-max-pointing-offset">
+<span class="sig-name descname"><span class="pre">magfit-catalog-max-pointing-offset</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-catalog-max-pointing-offset</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-catalog-max-pointing-offset" title="Link to this definition"></a></dt>
+<dd><p>The maximum difference in degrees between pointings of individual frames in the RA or Dec directions before frames are considered outliers.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-single-photref-dr-fname">
+<span class="sig-name descname"><span class="pre">single-photref-dr-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--single-photref-dr-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-single-photref-dr-fname" title="Link to this definition"></a></dt>
+<dd><p>The name of the data reduction file of the single photometric reference to use or used to start the magnitude fitting iterations.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-master-photref-fname">
+<span class="sig-name descname"><span class="pre">master-photref-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--master-photref-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-master-photref-fname" title="Link to this definition"></a></dt>
+<dd><p>The name of a master photometric reference to use. If specified, the sintgle reference is ignored and magnitude fitting proceeds without any iterations.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-master-photref-fname-format">
+<span class="sig-name descname"><span class="pre">master-photref-fname-format</span></span><span class="sig-prename descclassname"> <span class="pre">(--master-photref-fname-format</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-master-photref-fname-format" title="Link to this definition"></a></dt>
+<dd><p>A format string involving a {magfit_iteration} substitution along with any variables from the header of the single photometric reference or passed through the path_substitutions arguments, that expands to the name of the file to save the master photometric reference for a particular iteration.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magfit-stat-fname-format">
+<span class="sig-name descname"><span class="pre">magfit-stat-fname-format</span></span><span class="sig-prename descclassname"> <span class="pre">(--magfit-stat-fname-format</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magfit-stat-fname-format" title="Link to this definition"></a></dt>
+<dd><p>Similar to <code class="docutils literal notranslate"><span class="pre">master_photref_fname_format</span></code>, but defines the name to use for saving the statistics of a magnitude fitting iteration.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-correction-parametrization">
+<span class="sig-name descname"><span class="pre">correction-parametrization</span></span><span class="sig-prename descclassname"> <span class="pre">(--correction-parametrization</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-correction-parametrization" title="Link to this definition"></a></dt>
+<dd><p>A string that expands to the terms to include in the magnitude fitting correction.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-mphotref-scatter-fit-terms">
+<span class="sig-name descname"><span class="pre">mphotref-scatter-fit-terms</span></span><span class="sig-prename descclassname"> <span class="pre">(--mphotref-scatter-fit-terms</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-mphotref-scatter-fit-terms" title="Link to this definition"></a></dt>
+<dd><p>Terms to include in the fit for the scatter when deciding which stars to include in the master.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-reference-subpix">
+<span class="sig-name descname"><span class="pre">reference-subpix</span></span><span class="sig-prename descclassname"> <span class="pre">(--reference-subpix</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-reference-subpix" title="Link to this definition"></a></dt>
+<dd><p>Should the magnitude fitting correction depend on the sub-pixel position of the source in the reference frameDefault: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-fit-source-condition">
+<span class="sig-name descname"><span class="pre">fit-source-condition</span></span><span class="sig-prename descclassname"> <span class="pre">(--fit-source-condition</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-fit-source-condition" title="Link to this definition"></a></dt>
+<dd><p>An expression involving catalog, reference and/or photometry variables which evaluates to zero if a source should be excluded and any non-zero value if it  should be included in the magnitude fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-grouping">
+<span class="sig-name descname"><span class="pre">grouping</span></span><span class="sig-prename descclassname"> <span class="pre">(--grouping</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-grouping" title="Link to this definition"></a></dt>
+<dd><p>An expression using catalog, and/or photometry variables which evaluates to several distinct values. Each value defines a separate fitting group (i.e. a group of sources which participate in magnitude fitting together, excluding sources belonging to other groups). Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-error-avg">
+<span class="sig-name descname"><span class="pre">error-avg</span></span><span class="sig-prename descclassname"> <span class="pre">(--error-avg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-error-avg" title="Link to this definition"></a></dt>
+<dd><p>How to average fitting residuals for outlier rejection.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-rej-level">
+<span class="sig-name descname"><span class="pre">rej-level</span></span><span class="sig-prename descclassname"> <span class="pre">(--rej-level</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-rej-level" title="Link to this definition"></a></dt>
+<dd><p>How far away from the fit should a point be before it is rejected in units of error_avg. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-rej-iter">
+<span class="sig-name descname"><span class="pre">max-rej-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-rej-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-rej-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of rejection/re-fitting iterations to perform. If the fit has not converged by then, the latest iteration is accepted.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-noise-offset">
+<span class="sig-name descname"><span class="pre">noise-offset</span></span><span class="sig-prename descclassname"> <span class="pre">(--noise-offset</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-noise-offset" title="Link to this definition"></a></dt>
+<dd><p>Additional offset to format magnitude error estimates when they are used to determine the fitting weights.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-mag-err">
+<span class="sig-name descname"><span class="pre">max-mag-err</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-mag-err</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-mag-err" title="Link to this definition"></a></dt>
+<dd><p>The largest the formal magnitude error is allowed to be before the source is excluded. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-photref-change">
+<span class="sig-name descname"><span class="pre">max-photref-change</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-photref-change</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-photref-change" title="Link to this definition"></a></dt>
+<dd><p>The maximum square average change of photometric reference magnitudes to consider the iterations converged.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-magfit-iterations">
+<span class="sig-name descname"><span class="pre">max-magfit-iterations</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-magfit-iterations</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-magfit-iterations" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of iterations of deriving a master photometric referene and re-fitting to allow.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-fname">
+<span class="sig-name descname"><span class="pre">lc-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-fname" title="Link to this definition"></a></dt>
+<dd><p>The light curve dumping filename pattern to use.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog">
+<span class="sig-name descname"><span class="pre">lc-catalog</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog" title="Link to this definition"></a></dt>
+<dd><p>A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the <code class="docutils literal notranslate"><span class="pre">--catalog-filter</span></code> argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by <code class="docutils literal notranslate"><span class="pre">--catalog-safety-factor</span></code>, centered on the (RA * cos(Dec), Dec) of the frame rounded to <code class="docutils literal notranslate"><span class="pre">--catalog-pointing-precision</span></code>, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include <code class="docutils literal notranslate"><span class="pre">{checksum}</span></code> which will be replaced with the MD5 checksum of the parameters defining the query.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-magnitude-expression">
+<span class="sig-name descname"><span class="pre">lc-catalog-magnitude-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-magnitude-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-magnitude-expression" title="Link to this definition"></a></dt>
+<dd><p>An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-max-magnitude">
+<span class="sig-name descname"><span class="pre">lc-catalog-max-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-max-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-max-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The faintest magnitude to include in the catalog.In most cases, the photometry catalog should be used for creating lightcurves as well.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-min-magnitude">
+<span class="sig-name descname"><span class="pre">lc-catalog-min-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-min-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-min-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The brightest magnitude to include in the catalog.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-pointing-precision">
+<span class="sig-name descname"><span class="pre">lc-catalog-pointing-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-pointing-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-pointing-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-fov-precision">
+<span class="sig-name descname"><span class="pre">lc-catalog-fov-precision</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-fov-precision</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-fov-precision" title="Link to this definition"></a></dt>
+<dd><p>The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-filter">
+<span class="sig-name descname"><span class="pre">lc-catalog-filter</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-filter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-filter" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-epoch">
+<span class="sig-name descname"><span class="pre">lc-catalog-epoch</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-epoch</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-epoch" title="Link to this definition"></a></dt>
+<dd><p>An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-columns">
+<span class="sig-name descname"><span class="pre">lc-catalog-columns</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-columns</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-columns" title="Link to this definition"></a></dt>
+<dd><p>The columns to include in the catalog file. Use ‘*’ to include everything.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-fov-safety-margin">
+<span class="sig-name descname"><span class="pre">lc-catalog-fov-safety-margin</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-fov-safety-margin</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-fov-safety-margin" title="Link to this definition"></a></dt>
+<dd><p>The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-catalog-max-pointing-offset">
+<span class="sig-name descname"><span class="pre">lc-catalog-max-pointing-offset</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-catalog-max-pointing-offset</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-catalog-max-pointing-offset" title="Link to this definition"></a></dt>
+<dd><p>The maximum difference in degrees between pointings of individual frames in the RA or Dec directions before frames are considered outliers.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-num-magfit-iterations">
+<span class="sig-name descname"><span class="pre">num-magfit-iterations</span></span><span class="sig-prename descclassname"> <span class="pre">(--num-magfit-iterations</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-num-magfit-iterations" title="Link to this definition"></a></dt>
+<dd><p>The number of iterations of deriving a master photometric referene and re-fitting to copy from DR to LCs. If left as zero the number of magnitude fitting iterations of the first DR file is used instead.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-srcproj-column-names">
+<span class="sig-name descname"><span class="pre">srcproj-column-names</span></span><span class="sig-prename descclassname"> <span class="pre">(--srcproj-column-names</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-srcproj-column-names" title="Link to this definition"></a></dt>
+<dd><p>List of the source projected columns to include in the lightcurves.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-max-memory">
+<span class="sig-name descname"><span class="pre">max-memory</span></span><span class="sig-prename descclassname"> <span class="pre">(--max-memory</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-max-memory" title="Link to this definition"></a></dt>
+<dd><p>The maximum amount of memory (in bytes) to allocate for temporaririly storing source information before dumping to LC.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-mem-block-size">
+<span class="sig-name descname"><span class="pre">mem-block-size</span></span><span class="sig-prename descclassname"> <span class="pre">(--mem-block-size</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-mem-block-size" title="Link to this definition"></a></dt>
+<dd><p>The block size to use for memblocksize to use. Options are <code class="docutils literal notranslate"><span class="pre">Mb</span></code> or <code class="docutils literal notranslate"><span class="pre">Gb</span></code>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-sort-frame-by">
+<span class="sig-name descname"><span class="pre">sort-frame-by</span></span><span class="sig-prename descclassname"> <span class="pre">(--sort-frame-by</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-sort-frame-by" title="Link to this definition"></a></dt>
+<dd><p>A format string involving header keywords to sort the the lightcurve entries by (alphabetically).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-latitude-deg">
+<span class="sig-name descname"><span class="pre">latitude-deg</span></span><span class="sig-prename descclassname"> <span class="pre">(--latitude-deg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-latitude-deg" title="Link to this definition"></a></dt>
+<dd><p>A format string of header keywords specifying the latitude in degrees at which the observations of the lightcurves being generated were collected. Will be evaluated so it is OK to use mathematical functions or operators. Alternatively just specify a number.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-longitude-deg">
+<span class="sig-name descname"><span class="pre">longitude-deg</span></span><span class="sig-prename descclassname"> <span class="pre">(--longitude-deg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-longitude-deg" title="Link to this definition"></a></dt>
+<dd><p>Same as <cite>–latitude-deg</cite> but for the longitude.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-altitude-meters">
+<span class="sig-name descname"><span class="pre">altitude-meters</span></span><span class="sig-prename descclassname"> <span class="pre">(--altitude-meters</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-altitude-meters" title="Link to this definition"></a></dt>
+<dd><p>Same as <cite>–latitude-deg</cite> but for the altitude in meters.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lightcurve-catalog-fname">
+<span class="sig-name descname"><span class="pre">lightcurve-catalog-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--lightcurve-catalog-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lightcurve-catalog-fname" title="Link to this definition"></a></dt>
+<dd><p>The filename of the master catalog to create, possibly with substitutions from the header of the single photometric reference.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-bg-map-fit-terms-expression">
+<span class="sig-name descname"><span class="pre">bg-map-fit-terms-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--bg-map-fit-terms-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-bg-map-fit-terms-expression" title="Link to this definition"></a></dt>
+<dd><p>An expression involving the x and y source coordinates for the terms to include when fitting a smooth function to the background measurements.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-bg-map-error-avg">
+<span class="sig-name descname"><span class="pre">bg-map-error-avg</span></span><span class="sig-prename descclassname"> <span class="pre">(--bg-map-error-avg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-bg-map-error-avg" title="Link to this definition"></a></dt>
+<dd><p>How to average fitting residuals for outlier rejection during background smoothing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-bg-map-rej-level">
+<span class="sig-name descname"><span class="pre">bg-map-rej-level</span></span><span class="sig-prename descclassname"> <span class="pre">(--bg-map-rej-level</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-bg-map-rej-level" title="Link to this definition"></a></dt>
+<dd><p>How far away from the fit should a point be before it is rejected in units of error_avg.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-bg-map-max-rej-iter">
+<span class="sig-name descname"><span class="pre">bg-map-max-rej-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--bg-map-max-rej-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-bg-map-max-rej-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of outlier rejection/refit iterations allowed when fitting for the smooth background of an image.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-merit-function">
+<span class="sig-name descname"><span class="pre">merit-function</span></span><span class="sig-prename descclassname"> <span class="pre">(--merit-function</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-merit-function" title="Link to this definition"></a></dt>
+<dd><p>The merit function to use. High values should indicate a better candidate to serve as photometric reference. The function may use any PSF parameter as well as the following frame properties:</p>
+<blockquote>
+<div><p>z: the zenith distance of the frame center</p>
+<p>bg: the background level at the center of the frame</p>
+</div></blockquote>
+<p>In addition, for each property the standard deviation over all frames can also be used as <code class="docutils literal notranslate"><span class="pre">std_&lt;param&gt;</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">std_z</span></code>) as well as its quantile as <code class="docutils literal notranslate"><span class="pre">qnt_&lt;param&gt;</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">qnt_bg</span></code> for the background quantile).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-variables">
+<span class="sig-name descname"><span class="pre">variables</span></span><span class="sig-prename descclassname"> <span class="pre">(--variables</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-variables" title="Link to this definition"></a></dt>
+<dd><p>Define variablesto be used in –lc-points-filter-expression, –epd-terms-expression, –fit-weights, etc. Should be formatted as a <code class="docutils literal notranslate"><span class="pre">;</span></code> separated list of &lt;varname&gt; = &lt;dataset key&gt; [: &lt;substitutions&gt;]. For example: <code class="docutils literal notranslate"><span class="pre">&quot;x</span> <span class="pre">=</span> <span class="pre">srcproj.columns</span> <span class="pre">:</span> <span class="pre">src_proj_column_name</span> <span class="pre">=</span> <span class="pre">x</span>&#160; <span class="pre">&amp;</span> <span class="pre">srcproj_version</span> <span class="pre">=</span> <span class="pre">0;</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">srcproj.columns</span> <span class="pre">:</span> <span class="pre">src_proj_column_name</span> <span class="pre">=</span> <span class="pre">y&quot;</span></code>, defines <cite>x</cite> and <cite>y</cite> variables that correspond to the projected x and y positions of the source in the frame.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-lc-points-filter-expression">
+<span class="sig-name descname"><span class="pre">lc-points-filter-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--lc-points-filter-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-lc-points-filter-expression" title="Link to this definition"></a></dt>
+<dd><p>An expression using variables` which evaluates to either True or False indicating if a given point in the lightcurve should be fit and corrected. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-epd-datasets">
+<span class="sig-name descname"><span class="pre">epd-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">(--epd-datasets</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-epd-datasets" title="Link to this definition"></a></dt>
+<dd><p>A <code class="docutils literal notranslate"><span class="pre">;</span></code> separated list of the datasets to detrend. Each entry should be formatted as: <code class="docutils literal notranslate"><span class="pre">&lt;input-key&gt;</span> <span class="pre">-&gt;</span> <span class="pre">&lt;output-key&gt;</span> <span class="pre">[:</span> <span class="pre">&lt;substitution&gt;</span> <span class="pre">(=</span> <span class="pre">&lt;value&gt;|</span> <span class="pre">in</span> <span class="pre">&lt;expression&gt;)</span> <span class="pre">[&amp;</span> <span class="pre">&lt;substitution&gt;</span> <span class="pre">(=</span> <span class="pre">&lt;value&gt;</span> <span class="pre">|</span> <span class="pre">in</span> <span class="pre">&lt;expression&gt;)</span> <span class="pre">...]]</span></code>. For example: <code class="docutils literal notranslate"><span class="pre">&quot;apphot.magfit.magnitude</span> <span class="pre">-&gt;</span> <span class="pre">apphot.epd.magnitude</span> <span class="pre">:</span> <span class="pre">magfit_iteration</span> <span class="pre">=</span> <span class="pre">5</span> <span class="pre">&amp;</span> <span class="pre">aperture_index</span> <span class="pre">in</span> <span class="pre">range(39)&quot;</span></code>. White space is ignored. Literal <code class="docutils literal notranslate"><span class="pre">;</span></code> and <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> can be used in the specification of a dataset as <code class="docutils literal notranslate"><span class="pre">;;</span></code> and <code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code> respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding <code class="docutils literal notranslate"><span class="pre">&quot;.cfg.&quot;</span> <span class="pre">+</span> <span class="pre">&lt;parameter</span> <span class="pre">name&gt;</span></code> for configurations and just `` + &lt;parameter name&gt;`` for fitting statistics. For example, if the output dataset key is``”shapefit.epd.magnitude”<code class="docutils literal notranslate"><span class="pre">,</span> <span class="pre">the</span> <span class="pre">configuration</span> <span class="pre">datasets</span> <span class="pre">will</span> <span class="pre">looklike</span> <span class="pre">``&quot;shapefit.epd.cfg.fit_terms&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;shapefit.epd.residual&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-detrend-reference-avg">
+<span class="sig-name descname"><span class="pre">detrend-reference-avg</span></span><span class="sig-prename descclassname"> <span class="pre">(--detrend-reference-avg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-detrend-reference-avg" title="Link to this definition"></a></dt>
+<dd><p>How to average magnitudes to define reference point for calculating residuals.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-detrend-error-avg">
+<span class="sig-name descname"><span class="pre">detrend-error-avg</span></span><span class="sig-prename descclassname"> <span class="pre">(--detrend-error-avg</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-detrend-error-avg" title="Link to this definition"></a></dt>
+<dd><p>How to average fitting residuals for outlier rejection and perforamnce reporting.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-detrend-rej-level">
+<span class="sig-name descname"><span class="pre">detrend-rej-level</span></span><span class="sig-prename descclassname"> <span class="pre">(--detrend-rej-level</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-detrend-rej-level" title="Link to this definition"></a></dt>
+<dd><p>How far away from the fit should a point be before it is rejected in units of detrend_error_avg. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-detrend-max-rej-iter">
+<span class="sig-name descname"><span class="pre">detrend-max-rej-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--detrend-max-rej-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-detrend-max-rej-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of rejection/re-fitting iterations to perform. If the fit has not converged by then, the latest iteration is accepted. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-target-id">
+<span class="sig-name descname"><span class="pre">target-id</span></span><span class="sig-prename descclassname"> <span class="pre">(--target-id</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-target-id" title="Link to this definition"></a></dt>
+<dd><p>The lightcurve of the given source (any one of the catalogue identifiers stored in the LC file) will be fit using reconstructive detrending, starting the transit parameter fit with the values supplied, and fitting for the values allowed to vary. If not specified all LCs are fit in non-reconstructive way.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-mid-transit">
+<span class="sig-name descname"><span class="pre">mid-transit</span></span><span class="sig-prename descclassname"> <span class="pre">(--mid-transit</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-mid-transit" title="Link to this definition"></a></dt>
+<dd><p>The time of mit-transit in BJD. Default: %(default)s (from <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W">https://ui.adsabs.harvard.edu/abs/2019AJ….157…82W</a>).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-period">
+<span class="sig-name descname"><span class="pre">period</span></span><span class="sig-prename descclassname"> <span class="pre">(--period</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-period" title="Link to this definition"></a></dt>
+<dd><p>The orbital period (used to convert time to phase). Default: %(default)s (from <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W">https://ui.adsabs.harvard.edu/abs/2019AJ….157…82W</a>).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-transit-duration">
+<span class="sig-name descname"><span class="pre">transit-duration</span></span><span class="sig-prename descclassname"> <span class="pre">(--transit-duration</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-transit-duration" title="Link to this definition"></a></dt>
+<dd><p>The transit duration in hours. Default: %(default)s (from <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W">https://ui.adsabs.harvard.edu/abs/2019AJ….157…82W</a>).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-radius-ratio">
+<span class="sig-name descname"><span class="pre">radius-ratio</span></span><span class="sig-prename descclassname"> <span class="pre">(--radius-ratio</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-radius-ratio" title="Link to this definition"></a></dt>
+<dd><p>The planet to star radius ratio. Default: %(default)s (HAT-P-32).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-inclination">
+<span class="sig-name descname"><span class="pre">inclination</span></span><span class="sig-prename descclassname"> <span class="pre">(--inclination</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-inclination" title="Link to this definition"></a></dt>
+<dd><p>The inclination angle between the orbital angular momentum and the line of sight in degrees. Default: %(default)s (HAT-P-32).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-scaled-semimajor">
+<span class="sig-name descname"><span class="pre">scaled-semimajor</span></span><span class="sig-prename descclassname"> <span class="pre">(--scaled-semimajor</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-scaled-semimajor" title="Link to this definition"></a></dt>
+<dd><p>The ratio of the semimajor axis to the stellar radius. Default: %(default)s (HAT-P-32).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-limb-darkening">
+<span class="sig-name descname"><span class="pre">limb-darkening</span></span><span class="sig-prename descclassname"> <span class="pre">(--limb-darkening</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-limb-darkening" title="Link to this definition"></a></dt>
+<dd><p>The limb darkening coefficients to assume for the star (quadratic model). Default: %(default)s (HAT-P-32).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-mutable-transit-params">
+<span class="sig-name descname"><span class="pre">mutable-transit-params</span></span><span class="sig-prename descclassname"> <span class="pre">(--mutable-transit-params</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-mutable-transit-params" title="Link to this definition"></a></dt>
+<dd><p>List the transit parameters for which best-fit values should be found rather than assuming they are fixed at what is specified on the command line. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-detrending-catalog">
+<span class="sig-name descname"><span class="pre">detrending-catalog</span></span><span class="sig-prename descclassname"> <span class="pre">(--detrending-catalog</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-detrending-catalog" title="Link to this definition"></a></dt>
+<dd><p>The name of a catalogue file containing the sources in the frame. Used only to generate performance statistics reports. If not specified, performance is not reported.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-magnitude-column">
+<span class="sig-name descname"><span class="pre">magnitude-column</span></span><span class="sig-prename descclassname"> <span class="pre">(--magnitude-column</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-magnitude-column" title="Link to this definition"></a></dt>
+<dd><p>The magnitude column to use for the performance statistics. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-epd-terms-expression">
+<span class="sig-name descname"><span class="pre">epd-terms-expression</span></span><span class="sig-prename descclassname"> <span class="pre">(--epd-terms-expression</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-epd-terms-expression" title="Link to this definition"></a></dt>
+<dd><p>A fitting terms expression involving only variables from <cite>epd_variables</cite> which expands to the various terms to use in a linear least squares EPD correction.Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-fit-weights">
+<span class="sig-name descname"><span class="pre">fit-weights</span></span><span class="sig-prename descclassname"> <span class="pre">(--fit-weights</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-fit-weights" title="Link to this definition"></a></dt>
+<dd><p>An expression involving only variables from <cite>epd_variables</cite> which should evaluate to the weights to use per LC point in a linear least squares EPD correction. If left unspecified, no weighting is performed.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-skip-outlier-prerejection">
+<span class="sig-name descname"><span class="pre">skip-outlier-prerejection</span></span><span class="sig-prename descclassname"> <span class="pre">(--skip-outlier-prerejection</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-skip-outlier-prerejection" title="Link to this definition"></a></dt>
+<dd><p>If passed the initial rejection of outliers before the fit begins is not performed.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-epd-statistics-fname">
+<span class="sig-name descname"><span class="pre">epd-statistics-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--epd-statistics-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-epd-statistics-fname" title="Link to this definition"></a></dt>
+<dd><p>The statistics filename for the results of the EPD fit.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-datasets">
+<span class="sig-name descname"><span class="pre">tfa-datasets</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-datasets</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-datasets" title="Link to this definition"></a></dt>
+<dd><p>A <code class="docutils literal notranslate"><span class="pre">;</span></code> separated list of the datasets to detrend. Each entry should be formatted as: <code class="docutils literal notranslate"><span class="pre">&lt;input-key&gt;</span> <span class="pre">-&gt;</span> <span class="pre">&lt;output-key&gt;</span> <span class="pre">[:</span> <span class="pre">&lt;substitution&gt;</span> <span class="pre">(=</span> <span class="pre">&lt;value&gt;|</span> <span class="pre">in</span> <span class="pre">&lt;expression&gt;)</span> <span class="pre">[&amp;</span> <span class="pre">&lt;substitution&gt;</span> <span class="pre">(=</span> <span class="pre">&lt;value&gt;</span> <span class="pre">|</span> <span class="pre">in</span> <span class="pre">&lt;expression&gt;)</span> <span class="pre">...]]</span></code>. For example: <code class="docutils literal notranslate"><span class="pre">&quot;apphot.magfit.magnitude</span> <span class="pre">-&gt;</span> <span class="pre">apphot.epd.magnitude</span> <span class="pre">:</span> <span class="pre">magfit_iteration</span> <span class="pre">=</span> <span class="pre">5</span> <span class="pre">&amp;</span> <span class="pre">aperture_index</span> <span class="pre">in</span> <span class="pre">range(39)&quot;</span></code>. White space is ignored. Literal <code class="docutils literal notranslate"><span class="pre">;</span></code> and <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> can be used in the specification of a dataset as <code class="docutils literal notranslate"><span class="pre">;;</span></code> and <code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code> respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding <code class="docutils literal notranslate"><span class="pre">&quot;.cfg.&quot;</span> <span class="pre">+</span> <span class="pre">&lt;parameter</span> <span class="pre">name&gt;</span></code> for configurations and just `` + &lt;parameter name&gt;`` for fitting statistics. For example, if the output dataset key is``”shapefit.epd.magnitude”<code class="docutils literal notranslate"><span class="pre">,</span> <span class="pre">the</span> <span class="pre">configuration</span> <span class="pre">datasets</span> <span class="pre">will</span> <span class="pre">looklike</span> <span class="pre">``&quot;shapefit.epd.cfg.fit_terms&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;shapefit.epd.residual&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-saturation-magnitude">
+<span class="sig-name descname"><span class="pre">saturation-magnitude</span></span><span class="sig-prename descclassname"> <span class="pre">(--saturation-magnitude</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-saturation-magnitude" title="Link to this definition"></a></dt>
+<dd><p>The magnitude at which sources start to saturate. Default: %(default)s</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-forbid-saturated-templates">
+<span class="sig-name descname"><span class="pre">tfa-forbid-saturated-templates</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-forbid-saturated-templates</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-forbid-saturated-templates" title="Link to this definition"></a></dt>
+<dd><p>If passed, saturated stars are precluded from being selected as templates.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-mag-rms-dependence-order">
+<span class="sig-name descname"><span class="pre">tfa-mag-rms-dependence-order</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-mag-rms-dependence-order</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-mag-rms-dependence-order" title="Link to this definition"></a></dt>
+<dd><p>The maximum order of magnitude to include in the fit for typical rms vs magnitude. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-mag-rms-outlier-threshold">
+<span class="sig-name descname"><span class="pre">tfa-mag-rms-outlier-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-mag-rms-outlier-threshold</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-mag-rms-outlier-threshold" title="Link to this definition"></a></dt>
+<dd><p>Stars are not allowed to be in the template if their RMS is more than this many sigma away from the mag-rms fit. This is also the threshold used for rejecting outliers when doing the iterative fit for the rms as a function of magnutude. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-mag-rms-max-rej-iter">
+<span class="sig-name descname"><span class="pre">tfa-mag-rms-max-rej-iter</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-mag-rms-max-rej-iter</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-mag-rms-max-rej-iter" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of rejection fit iterations to do when deriving the rms(mag) dependence. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-max-rms">
+<span class="sig-name descname"><span class="pre">tfa-max-rms</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-max-rms</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-max-rms" title="Link to this definition"></a></dt>
+<dd><p>Stars are allowed to be in the template only if their RMS is no larger than this. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-faint-mag-limit">
+<span class="sig-name descname"><span class="pre">tfa-faint-mag-limit</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-faint-mag-limit</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-faint-mag-limit" title="Link to this definition"></a></dt>
+<dd><p>Stars fainter than this cannot be template stars. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-min-observations-quantile">
+<span class="sig-name descname"><span class="pre">tfa-min-observations-quantile</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-min-observations-quantile</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-min-observations-quantile" title="Link to this definition"></a></dt>
+<dd><p>The minimum number of observations required of template stars is the smaller of this quantile among the input collection of stars and the number per –tfa-min-observations-fraction.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-min-observations-fraction">
+<span class="sig-name descname"><span class="pre">tfa-min-observations-fraction</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-min-observations-fraction</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-min-observations-fraction" title="Link to this definition"></a></dt>
+<dd><p>The minimum number of observations required of template stars is the smaller of this number times the maximum number of observations of any star and the number per –tfa-min-observations-quantile.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-sqrt-num-templates">
+<span class="sig-name descname"><span class="pre">tfa-sqrt-num-templates</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-sqrt-num-templates</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-sqrt-num-templates" title="Link to this definition"></a></dt>
+<dd><p>The number of template stars is the square of this number. Default: %(default)s.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-observation-id">
+<span class="sig-name descname"><span class="pre">tfa-observation-id</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-observation-id</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-observation-id" title="Link to this definition"></a></dt>
+<dd><p>The datasets to use for matching observations across light curves. For example, the following works for HAT: fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-selected-plots">
+<span class="sig-name descname"><span class="pre">tfa-selected-plots</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-selected-plots</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-selected-plots" title="Link to this definition"></a></dt>
+<dd><p>Optional template for naming plots showing the template selection in action. If not specified, no such plots are generated. Should include %%(plot_id)s and %%(phot_index)d substitutions.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-radius-splits">
+<span class="sig-name descname"><span class="pre">tfa-radius-splits</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-radius-splits</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-radius-splits" title="Link to this definition"></a></dt>
+<dd><p>The threshold radius values where to split sources into groups. By default, no splitting by radius is done.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-mag-split-source-count">
+<span class="sig-name descname"><span class="pre">tfa-mag-split-source-count</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-mag-split-source-count</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-mag-split-source-count" title="Link to this definition"></a></dt>
+<dd><p>If passed, after spltting by radius (if any), sources are further split into groups by magnitude such that each group contains at least this many sources. By default, no splitting by magnitude is done.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-arg-tfa-statistics-fname">
+<span class="sig-name descname"><span class="pre">tfa-statistics-fname</span></span><span class="sig-prename descclassname"> <span class="pre">(--tfa-statistics-fname</span> <span class="pre">on</span> <span class="pre">command</span> <span class="pre">line)</span></span><a class="headerlink" href="#cmdoption-arg-tfa-statistics-fname" title="Link to this definition"></a></dt>
+<dd><p>The statistics filename for the results of the TFA fit.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="processing_steps.html" class="btn btn-neutral float-left" title="Pipeline Steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="implementation/autowisp.html" class="btn btn-neutral float-right" title="autowisp package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+autowisp.processing\_steps.generate\_epd\_statistics module
+===========================================================
+
+.. automodule:: autowisp.processing_steps.generate_epd_statistics
+   :members:
+   :show-inheritance:
+   :undoc-members:

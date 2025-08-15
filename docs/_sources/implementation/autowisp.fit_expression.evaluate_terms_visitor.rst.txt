@@ -1,0 +1,7 @@
+autowisp.fit\_expression.evaluate\_terms\_visitor module
+========================================================
+
+.. automodule:: autowisp.fit_expression.evaluate_terms_visitor
+   :members:
+   :show-inheritance:
+   :undoc-members:

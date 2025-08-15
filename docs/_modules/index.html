@@ -1,97 +1,286 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Overview: module code &#8212; SuperPhotPipeline  documentation</title>
-    
-    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview: module code &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="superphot_pipeline/astrometry/transformation.html">superphot_pipeline.astrometry.transformation</a></li>
-<li><a href="superphot_pipeline/fake_image/raw.html">superphot_pipeline.fake_image.raw</a></li>
-<li><a href="superphot_pipeline/hdf5_file.html">superphot_pipeline.hdf5_file</a></li>
-<li><a href="superphot_pipeline/image_smoothing.html">superphot_pipeline.image_smoothing</a></li>
-<li><a href="superphot_pipeline/image_utilities.html">superphot_pipeline.image_utilities</a></li>
-<li><a href="superphot_pipeline/iterative_rejection_util.html">superphot_pipeline.iterative_rejection_util</a></li>
-<li><a href="superphot_pipeline/pipeline_exceptions.html">superphot_pipeline.pipeline_exceptions</a></li>
-<li><a href="superphot_pipeline/processor.html">superphot_pipeline.processor</a></li>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
 </ul>
 
-          </div>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Kaloyan Penev.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
-    </div>
-  </body>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Overview: module code</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>All modules for which code is available</h1>
+<ul><li><a href="autowisp/astrometry/anmatch_transformation.html">autowisp.astrometry.anmatch_transformation</a></li>
+<li><a href="autowisp/astrometry/astrometry.html">autowisp.astrometry.astrometry</a></li>
+<li><a href="autowisp/astrometry/astrometry_net_client.html">autowisp.astrometry.astrometry_net_client</a></li>
+<li><a href="autowisp/astrometry/healpix_utilities.html">autowisp.astrometry.healpix_utilities</a></li>
+<li><a href="autowisp/astrometry/map_projections.html">autowisp.astrometry.map_projections</a></li>
+<li><a href="autowisp/astrometry/transformation.html">autowisp.astrometry.transformation</a></li>
+<li><a href="autowisp/catalog.html">autowisp.catalog</a></li>
+<li><a href="autowisp/data_reduction/data_reduction_file.html">autowisp.data_reduction.data_reduction_file</a></li>
+<li><a href="autowisp/data_reduction/source_extracted_psf_map.html">autowisp.data_reduction.source_extracted_psf_map</a></li>
+<li><a href="autowisp/data_reduction/utils.html">autowisp.data_reduction.utils</a></li>
+<li><a href="autowisp/database/data_model/base.html">autowisp.database.data_model.base</a></li>
+<li><a href="autowisp/database/data_model/condition.html">autowisp.database.data_model.condition</a></li>
+<li><a href="autowisp/database/data_model/condition_expression.html">autowisp.database.data_model.condition_expression</a></li>
+<li><a href="autowisp/database/data_model/configuration.html">autowisp.database.data_model.configuration</a></li>
+<li><a href="autowisp/database/data_model/hdf5_attributes.html">autowisp.database.data_model.hdf5_attributes</a></li>
+<li><a href="autowisp/database/data_model/hdf5_datasets.html">autowisp.database.data_model.hdf5_datasets</a></li>
+<li><a href="autowisp/database/data_model/hdf5_links.html">autowisp.database.data_model.hdf5_links</a></li>
+<li><a href="autowisp/database/data_model/hdf5_products.html">autowisp.database.data_model.hdf5_products</a></li>
+<li><a href="autowisp/database/data_model/hdf5_structure_versions.html">autowisp.database.data_model.hdf5_structure_versions</a></li>
+<li><a href="autowisp/database/data_model/image.html">autowisp.database.data_model.image</a></li>
+<li><a href="autowisp/database/data_model/image_type.html">autowisp.database.data_model.image_type</a></li>
+<li><a href="autowisp/database/data_model/input_master_types.html">autowisp.database.data_model.input_master_types</a></li>
+<li><a href="autowisp/database/data_model/light_curve_processing_progress.html">autowisp.database.data_model.light_curve_processing_progress</a></li>
+<li><a href="autowisp/database/data_model/light_curve_status.html">autowisp.database.data_model.light_curve_status</a></li>
+<li><a href="autowisp/database/data_model/master_files.html">autowisp.database.data_model.master_files</a></li>
+<li><a href="autowisp/database/data_model/observing_session.html">autowisp.database.data_model.observing_session</a></li>
+<li><a href="autowisp/database/data_model/processing_sequence.html">autowisp.database.data_model.processing_sequence</a></li>
+<li><a href="autowisp/database/data_model/provenance/camera.html">autowisp.database.data_model.provenance.camera</a></li>
+<li><a href="autowisp/database/data_model/provenance/camera_access.html">autowisp.database.data_model.provenance.camera_access</a></li>
+<li><a href="autowisp/database/data_model/provenance/camera_channel.html">autowisp.database.data_model.provenance.camera_channel</a></li>
+<li><a href="autowisp/database/data_model/provenance/camera_type.html">autowisp.database.data_model.provenance.camera_type</a></li>
+<li><a href="autowisp/database/data_model/provenance/mount.html">autowisp.database.data_model.provenance.mount</a></li>
+<li><a href="autowisp/database/data_model/provenance/mount_access.html">autowisp.database.data_model.provenance.mount_access</a></li>
+<li><a href="autowisp/database/data_model/provenance/mount_type.html">autowisp.database.data_model.provenance.mount_type</a></li>
+<li><a href="autowisp/database/data_model/provenance/observatory.html">autowisp.database.data_model.provenance.observatory</a></li>
+<li><a href="autowisp/database/data_model/provenance/observer.html">autowisp.database.data_model.provenance.observer</a></li>
+<li><a href="autowisp/database/data_model/provenance/telescope.html">autowisp.database.data_model.provenance.telescope</a></li>
+<li><a href="autowisp/database/data_model/provenance/telescope_access.html">autowisp.database.data_model.provenance.telescope_access</a></li>
+<li><a href="autowisp/database/data_model/provenance/telescope_type.html">autowisp.database.data_model.provenance.telescope_type</a></li>
+<li><a href="autowisp/database/data_model/step_dependencies.html">autowisp.database.data_model.step_dependencies</a></li>
+<li><a href="autowisp/database/data_model/steps_and_parameters.html">autowisp.database.data_model.steps_and_parameters</a></li>
+<li><a href="autowisp/database/data_model/target.html">autowisp.database.data_model.target</a></li>
+<li><a href="autowisp/database/hdf5_file_structure.html">autowisp.database.hdf5_file_structure</a></li>
+<li><a href="autowisp/database/image_processing.html">autowisp.database.image_processing</a></li>
+<li><a href="autowisp/database/initialize_data_reduction_structure.html">autowisp.database.initialize_data_reduction_structure</a></li>
+<li><a href="autowisp/database/initialize_database.html">autowisp.database.initialize_database</a></li>
+<li><a href="autowisp/database/initialize_light_curve_structure.html">autowisp.database.initialize_light_curve_structure</a></li>
+<li><a href="autowisp/database/lightcurve_processing.html">autowisp.database.lightcurve_processing</a></li>
+<li><a href="autowisp/database/processing.html">autowisp.database.processing</a></li>
+<li><a href="autowisp/database/user_interface.html">autowisp.database.user_interface</a></li>
+<li><a href="autowisp/evaluator.html">autowisp.evaluator</a></li>
+<li><a href="autowisp/file_utilities.html">autowisp.file_utilities</a></li>
+<li><a href="autowisp/fit_expression/FitTermsLexer.html">autowisp.fit_expression.FitTermsLexer</a></li>
+<li><a href="autowisp/fit_expression/FitTermsParser.html">autowisp.fit_expression.FitTermsParser</a></li>
+<li><a href="autowisp/fit_expression/FitTermsParserListener.html">autowisp.fit_expression.FitTermsParserListener</a></li>
+<li><a href="autowisp/fit_expression/FitTermsParserVisitor.html">autowisp.fit_expression.FitTermsParserVisitor</a></li>
+<li><a href="autowisp/fit_expression/count_terms_visitor.html">autowisp.fit_expression.count_terms_visitor</a></li>
+<li><a href="autowisp/fit_expression/evaluate_terms_visitor.html">autowisp.fit_expression.evaluate_terms_visitor</a></li>
+<li><a href="autowisp/fit_expression/interface.html">autowisp.fit_expression.interface</a></li>
+<li><a href="autowisp/fit_expression/iterative_fit.html">autowisp.fit_expression.iterative_fit</a></li>
+<li><a href="autowisp/fit_expression/list_terms_visitor.html">autowisp.fit_expression.list_terms_visitor</a></li>
+<li><a href="autowisp/fit_expression/process_terms_visitor.html">autowisp.fit_expression.process_terms_visitor</a></li>
+<li><a href="autowisp/fit_expression/used_var_finder.html">autowisp.fit_expression.used_var_finder</a></li>
+<li><a href="autowisp/fits_utilities.html">autowisp.fits_utilities</a></li>
+<li><a href="autowisp/hdf5_file.html">autowisp.hdf5_file</a></li>
+<li><a href="autowisp/image_calibration/calibrator.html">autowisp.image_calibration.calibrator</a></li>
+<li><a href="autowisp/image_calibration/fits_util.html">autowisp.image_calibration.fits_util</a></li>
+<li><a href="autowisp/image_calibration/mask_utilities.html">autowisp.image_calibration.mask_utilities</a></li>
+<li><a href="autowisp/image_calibration/master_flat_maker.html">autowisp.image_calibration.master_flat_maker</a></li>
+<li><a href="autowisp/image_calibration/master_maker.html">autowisp.image_calibration.master_maker</a></li>
+<li><a href="autowisp/image_calibration/overscan_methods.html">autowisp.image_calibration.overscan_methods</a></li>
+<li><a href="autowisp/image_smoothing.html">autowisp.image_smoothing</a></li>
+<li><a href="autowisp/image_utilities.html">autowisp.image_utilities</a></li>
+<li><a href="autowisp/iterative_rejection_util.html">autowisp.iterative_rejection_util</a></li>
+<li><a href="autowisp/light_curves/apply_correction.html">autowisp.light_curves.apply_correction</a></li>
+<li><a href="autowisp/light_curves/collect_light_curves.html">autowisp.light_curves.collect_light_curves</a></li>
+<li><a href="autowisp/light_curves/correction.html">autowisp.light_curves.correction</a></li>
+<li><a href="autowisp/light_curves/epd_correction.html">autowisp.light_curves.epd_correction</a></li>
+<li><a href="autowisp/light_curves/hashable_array.html">autowisp.light_curves.hashable_array</a></li>
+<li><a href="autowisp/light_curves/lc_data_io.html">autowisp.light_curves.lc_data_io</a></li>
+<li><a href="autowisp/light_curves/lc_data_slice.html">autowisp.light_curves.lc_data_slice</a></li>
+<li><a href="autowisp/light_curves/light_curve_file.html">autowisp.light_curves.light_curve_file</a></li>
+<li><a href="autowisp/light_curves/reconstructive_correction_transit.html">autowisp.light_curves.reconstructive_correction_transit</a></li>
+<li><a href="autowisp/light_curves/tfa_correction.html">autowisp.light_curves.tfa_correction</a></li>
+<li><a href="autowisp/light_curves/transit_model.html">autowisp.light_curves.transit_model</a></li>
+<li><a href="autowisp/magnitude_fitting/base.html">autowisp.magnitude_fitting.base</a></li>
+<li><a href="autowisp/magnitude_fitting/iterative_refit.html">autowisp.magnitude_fitting.iterative_refit</a></li>
+<li><a href="autowisp/magnitude_fitting/linear.html">autowisp.magnitude_fitting.linear</a></li>
+<li><a href="autowisp/magnitude_fitting/master_photref_collector_grcollect.html">autowisp.magnitude_fitting.master_photref_collector_grcollect</a></li>
+<li><a href="autowisp/magnitude_fitting/master_photref_collector_zarr.html">autowisp.magnitude_fitting.master_photref_collector_zarr</a></li>
+<li><a href="autowisp/magnitude_fitting/util.html">autowisp.magnitude_fitting.util</a></li>
+<li><a href="autowisp/miscellaneous.html">autowisp.miscellaneous</a></li>
+<li><a href="autowisp/multiprocessing_util.html">autowisp.multiprocessing_util</a></li>
+<li><a href="autowisp/piecewise_bicubic_psf_map.html">autowisp.piecewise_bicubic_psf_map</a></li>
+<li><a href="autowisp/pipeline_exceptions.html">autowisp.pipeline_exceptions</a></li>
+<li><a href="autowisp/processing_steps.html">autowisp.processing_steps</a></li>
+<ul><li><a href="autowisp/processing_steps/add_images_to_db.html">autowisp.processing_steps.add_images_to_db</a></li>
+<li><a href="autowisp/processing_steps/calculate_photref_merit.html">autowisp.processing_steps.calculate_photref_merit</a></li>
+<li><a href="autowisp/processing_steps/calibrate.html">autowisp.processing_steps.calibrate</a></li>
+<li><a href="autowisp/processing_steps/create_lightcurves.html">autowisp.processing_steps.create_lightcurves</a></li>
+<li><a href="autowisp/processing_steps/epd.html">autowisp.processing_steps.epd</a></li>
+<li><a href="autowisp/processing_steps/find_stars.html">autowisp.processing_steps.find_stars</a></li>
+<li><a href="autowisp/processing_steps/fit_magnitudes.html">autowisp.processing_steps.fit_magnitudes</a></li>
+<li><a href="autowisp/processing_steps/fit_source_extracted_psf_map.html">autowisp.processing_steps.fit_source_extracted_psf_map</a></li>
+<li><a href="autowisp/processing_steps/fit_star_shape.html">autowisp.processing_steps.fit_star_shape</a></li>
+<li><a href="autowisp/processing_steps/generate_epd_statistics.html">autowisp.processing_steps.generate_epd_statistics</a></li>
+<li><a href="autowisp/processing_steps/generate_tfa_statistics.html">autowisp.processing_steps.generate_tfa_statistics</a></li>
+<li><a href="autowisp/processing_steps/lc_detrending.html">autowisp.processing_steps.lc_detrending</a></li>
+<li><a href="autowisp/processing_steps/lc_detrending_argument_parser.html">autowisp.processing_steps.lc_detrending_argument_parser</a></li>
+<li><a href="autowisp/processing_steps/manual_util.html">autowisp.processing_steps.manual_util</a></li>
+<li><a href="autowisp/processing_steps/measure_aperture_photometry.html">autowisp.processing_steps.measure_aperture_photometry</a></li>
+<li><a href="autowisp/processing_steps/solve_astrometry.html">autowisp.processing_steps.solve_astrometry</a></li>
+<li><a href="autowisp/processing_steps/stack_to_master.html">autowisp.processing_steps.stack_to_master</a></li>
+<li><a href="autowisp/processing_steps/stack_to_master_flat.html">autowisp.processing_steps.stack_to_master_flat</a></li>
+<li><a href="autowisp/processing_steps/tfa.html">autowisp.processing_steps.tfa</a></li>
+</ul><li><a href="autowisp/processor.html">autowisp.processor</a></li>
+<li><a href="autowisp/source_finder.html">autowisp.source_finder</a></li>
+<li><a href="autowisp/source_finder_util.html">autowisp.source_finder_util</a></li>
+<li><a href="autowisp/split_sources.html">autowisp.split_sources</a></li>
+<li><a href="autowisp/tess_interface.html">autowisp.tess_interface</a></li>
+<li><a href="autowisp/tests.html">autowisp.tests</a></li>
+<ul><li><a href="autowisp/tests/fits_test_case.html">autowisp.tests.fits_test_case</a></li>
+<li><a href="autowisp/tests/get_test_data.html">autowisp.tests.get_test_data</a></li>
+<li><a href="autowisp/tests/h5_test_case.html">autowisp.tests.h5_test_case</a></li>
+<li><a href="autowisp/tests/test_calibrate.html">autowisp.tests.test_calibrate</a></li>
+<li><a href="autowisp/tests/test_create_lightcurves.html">autowisp.tests.test_create_lightcurves</a></li>
+<li><a href="autowisp/tests/test_detrending_stat.html">autowisp.tests.test_detrending_stat</a></li>
+<li><a href="autowisp/tests/test_epd.html">autowisp.tests.test_epd</a></li>
+<li><a href="autowisp/tests/test_find_stars.html">autowisp.tests.test_find_stars</a></li>
+<li><a href="autowisp/tests/test_fit_magnitudes.html">autowisp.tests.test_fit_magnitudes</a></li>
+<li><a href="autowisp/tests/test_fit_source_extracted_psf_map.html">autowisp.tests.test_fit_source_extracted_psf_map</a></li>
+<li><a href="autowisp/tests/test_fit_star_shape.html">autowisp.tests.test_fit_star_shape</a></li>
+<li><a href="autowisp/tests/test_measure_aperture_photometry.html">autowisp.tests.test_measure_aperture_photometry</a></li>
+<li><a href="autowisp/tests/test_solve_astrometry.html">autowisp.tests.test_solve_astrometry</a></li>
+<li><a href="autowisp/tests/test_stack_to_master.html">autowisp.tests.test_stack_to_master</a></li>
+<li><a href="autowisp/tests/test_tfa.html">autowisp.tests.test_tfa</a></li>
+</ul></ul>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

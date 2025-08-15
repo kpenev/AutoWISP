@@ -1,0 +1,5 @@
+<map id="inheritance054b0e6a06" name="inheritance054b0e6a06">
+<area shape="rect" id="node1" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker" target="_top" title="Specialize MasterMaker for making master flat frames." alt="" coords="5,155,398,181"/>
+<area shape="rect" id="node2" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="29,80,374,107"/>
+<area shape="rect" id="node3" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="103,5,300,32"/>
+</map>

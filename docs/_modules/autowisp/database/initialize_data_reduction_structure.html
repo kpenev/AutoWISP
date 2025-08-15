@@ -1,0 +1,1552 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.database.initialize_data_reduction_structure &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.database.initialize_data_reduction_structure</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.database.initialize_data_reduction_structure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=too-many-lines</span>
+<span class="sd">&quot;&quot;&quot;Define function to add defaults to all HDF5 structure tables.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="c1"># Pylint false positive due to quirky imports.</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HDF5Product</span><span class="p">,</span>
+    <span class="n">HDF5StructureVersion</span><span class="p">,</span>
+    <span class="n">HDF5Attribute</span><span class="p">,</span>
+    <span class="n">HDF5DataSet</span><span class="p">,</span>
+    <span class="n">HDF5Link</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+<span class="n">_default_paths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;srcextract&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;/SourceExtraction/Version</span><span class="si">%(srcextract_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="s2">&quot;/Sources&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;psf_map&quot;</span><span class="p">:</span> <span class="s2">&quot;/PSFMap&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;catalogue&quot;</span><span class="p">:</span> <span class="s2">&quot;/CatalogueSources/Version</span><span class="si">%(catalogue_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;skytoframe&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;/SkyToFrameTransformation/Version</span><span class="si">%(skytoframe_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coefficients&quot;</span><span class="p">:</span> <span class="s2">&quot;/ProjectedToFrameMap&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;matched&quot;</span><span class="p">:</span> <span class="s2">&quot;/MatchedSources&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;srcproj&quot;</span><span class="p">:</span> <span class="s2">&quot;/ProjectedSources/Version</span><span class="si">%(srcproj_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="s2">&quot;/Background/Version</span><span class="si">%(background_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shapefit&quot;</span><span class="p">:</span> <span class="s2">&quot;/ShapeFit/Version</span><span class="si">%(shapefit_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;apphot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;/AperturePhotometry/Version</span><span class="si">%(apphot_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apsplit&quot;</span><span class="p">:</span> <span class="s2">&quot;/Aperture</span><span class="si">%(aperture_index)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;subpixmap&quot;</span><span class="p">:</span> <span class="s2">&quot;/SubPixelMap/Version</span><span class="si">%(subpixmap_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_default_nonfinite</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="s2">&quot;f4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">min</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_get_source_extraction_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_extraction_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source_extraction_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction attributes describing source extraction.&quot;&quot;&quot;</span>
+
+    <span class="n">map_parent</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;psf_map&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">fistar_attributes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.fistar.cmdline&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FiStarCommandLine&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The command line with which fistar was invoked.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.psf_params&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Parameters&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The parameters for which smoothing was done.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.terms&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Terms&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An expression expanding to the terms to include when &quot;</span>
+            <span class="s2">&quot;smoothing the fistar PSF parameters.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.weights&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An expression that evaluates to the weight for each &quot;</span>
+            <span class="s2">&quot;source in the smoothing fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.error_avg&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ErrorAveraging&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How are the residuals after the fit averaged to &quot;</span>
+            <span class="s2">&quot;detect outlier sources?&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.rej_level&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RejectionLevel&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Sources are outliers if their residual &quot;</span>
+            <span class="s2">&quot;from the best fit is bigger than RejectionLevel * average &quot;</span>
+            <span class="s2">&quot;residuals.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.max_rej_iter&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxRejectionIterations&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum of this many outlier rejection/re-fitting &quot;</span>
+            <span class="s2">&quot;iterations are performed.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.residual&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RMSResidual&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Root of average square residuals of the fit for each &quot;</span>
+            <span class="s2">&quot;PSF parameter.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.num_fit_src&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;NumberFitSources&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of non-rejected sources used in the &quot;</span>
+            <span class="s2">&quot;accepted fit for each PSF parameter.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.software_versions&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+            <span class="s2">&quot;software elements and their versions used for source &quot;</span>
+            <span class="s2">&quot;extraction.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.software_versions&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+            <span class="s2">&quot;software elements and their versions used for source &quot;</span>
+            <span class="s2">&quot;extraction.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.cfg.binning&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ImageBinFactor&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Two values, giving the factors by which the input &quot;</span>
+            <span class="s2">&quot;image was binned in the x and y directions respectively &quot;</span>
+            <span class="s2">&quot;before passing to the source extractor. Useful for way out of &quot;</span>
+            <span class="s2">&quot;focus images.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="n">fistar_attributes</span></div>
+
+
+
+<div class="viewcode-block" id="_get_source_extraction_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_extraction_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source_extraction_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction datesets for source extraction.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.sources&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;sources&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%(srcextract_column_name)s</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A single quantity derived for each extracted source &quot;</span>
+            <span class="s2">&quot;during source extraction.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;psf_map&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The coefficients of the map giving the smoothed PSF &quot;</span>
+            <span class="s2">&quot;shape parameters.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_catalogue_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_catalogue_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_catalogue_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction attributes describing catalogue queries.&quot;&quot;&quot;</span>
+
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;catalogue&quot;</span><span class="p">]</span>
+    <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="s2">&quot;catalogue.cfg.&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The catalogue to query.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;epoch&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Epoch&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The epoch (JD) up to which source positions were &quot;</span>
+            <span class="s2">&quot;corrected when used.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Filter&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Any filtering applied to the catalogue sources, in &quot;</span>
+            <span class="s2">&quot;addition to the field selection and brightness range, before &quot;</span>
+            <span class="s2">&quot;using them.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;fov&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QuerySize&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The width and height of the field queried from the&quot;</span>
+            <span class="s2">&quot; catalogue.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;orientation&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QueryOrientation&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The minimum and maximum brightness magnitude for &quot;</span>
+            <span class="s2">&quot;catalogue sources used for finding the pre-projected to frame &quot;</span>
+            <span class="s2">&quot;transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_catalogue_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_catalogue_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_catalogue_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction datasets for catalogue_queries.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;catalogue.columns&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;catalogue&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%(catalogue_column_name)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A single catalogue column.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_skytoframe_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_skytoframe_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_skytoframe_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction attributes describing the astrometry.&quot;&quot;&quot;</span>
+
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+    <span class="n">config_attributes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.software_versions&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+            <span class="s2">&quot;software elements and their versions used for deriving the sky to &quot;</span>
+            <span class="s2">&quot;frame transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.srcextract_filter&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ExtractedSourcesFilter&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Any filtering applied to the extracted sources before &quot;</span>
+            <span class="s2">&quot;using them to derive the pre-projected to frame transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.sky_preprojection&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SkyPreProjection&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The pre-projection aronud the central coordinates used&quot;</span>
+            <span class="s2">&quot; for the sources when deriving the pre-shrunk sky to frame &quot;</span>
+            <span class="s2">&quot;transformation (&#39;arc&#39;, &#39;tan&#39;, ...).&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.frame_center&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FrameCenter&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The frame coordinates around which the pre-projected &quot;</span>
+            <span class="s2">&quot;to frame transformation is defined.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.max_match_distance&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxMatchDistance&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum distance (in pixels) between extracted and&quot;</span>
+            <span class="s2">&quot;projected source positions in ordet to still consider the sources &quot;</span>
+            <span class="s2">&quot;matched.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.weights_expression&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeightsExpression&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An expression involving catalogue and/or source &quot;</span>
+            <span class="s2">&quot;extraction columns for the weights to use for various sources &quot;</span>
+            <span class="s2">&quot;when deriving the pre-projected to frame transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">config_attributes</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.sky_center&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CenterSkyCoordinates&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The (RA, Dec) coordinates corresponding to the &quot;</span>
+            <span class="s2">&quot;frame center, around which the sky pre-projection is &quot;</span>
+            <span class="s2">&quot;performed.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.residual&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeightedResidual&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The weighted residual of the best-fit &quot;</span>
+            <span class="s2">&quot;pre-projected to sky transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.unitarity&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unitarity&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The unitarity of the best-fit pre-projected to &quot;</span>
+            <span class="s2">&quot;frame transformation..&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.type&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The type of transformation describing the &quot;</span>
+            <span class="s2">&quot;pre-projected to frame transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.terms&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Terms&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The terms in the pre-projected to frame &quot;</span>
+            <span class="s2">&quot;transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_sky_to_frame_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_sky_to_frame_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction sky to frame transformation data sets.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.matched&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;matched&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The indices within the catalogue source and the &quot;</span>
+            <span class="s2">&quot;extracted sources defining pairs of matched source.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.coefficients&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The coefficients defining the transformation from &quot;</span>
+            <span class="s2">&quot;pre-projected sky coordinates to frame coordinates.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_link">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_link">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_link</span><span class="p">(</span><span class="n">used_component</span><span class="p">,</span> <span class="n">user_component</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return link to one version of used_component within user_component group.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        used_component:    The pipeline name of the component being used.</span>
+
+<span class="sd">        user_component:    The pipeline component using used_component.</span>
+
+<span class="sd">        description:    A description of the link.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        autowisp.database.data_model.HDF5Link:</span>
+<span class="sd">            A properly constructed link signifying that user_component was</span>
+<span class="sd">            derived based on a particular version of used_component.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">used_root</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="n">used_component</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">used_root</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">used_root</span> <span class="o">=</span> <span class="n">used_root</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+
+    <span class="n">used_group_name</span><span class="p">,</span> <span class="n">version_suffix</span> <span class="o">=</span> <span class="n">used_root</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">version_suffix</span> <span class="o">==</span> <span class="s2">&quot;Version%(&quot;</span> <span class="o">+</span> <span class="n">used_component</span> <span class="o">+</span> <span class="s2">&quot;_version)03d&quot;</span>
+    <span class="k">assert</span> <span class="n">used_group_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span>
+
+    <span class="n">link_path</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="n">user_component</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link_path</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">link_path</span> <span class="o">=</span> <span class="n">link_path</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+    <span class="n">link_path</span> <span class="o">+=</span> <span class="n">used_group_name</span>
+
+    <span class="k">return</span> <span class="n">HDF5Link</span><span class="p">(</span>
+        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">user_component</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">used_component</span><span class="p">,</span>
+        <span class="n">abspath</span><span class="o">=</span><span class="n">link_path</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">used_root</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_sky_to_frame_links">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_sky_to_frame_links</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction links for sky to frame transformations.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The version of the catalogue used for deriving &quot;</span>
+            <span class="s2">&quot;this sky to frame transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;srcextract&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The version of the extracted sources used for &quot;</span>
+            <span class="s2">&quot;deriving this sky to frame transformation.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_source_projection_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_projection_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source_projection_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction attributes describing source projection.&quot;&quot;&quot;</span>
+
+    <span class="n">root_path</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcproj&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcproj.software_versions&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;&#39;S100&#39;&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+            <span class="s2">&quot;software elements and their versions used for projecting &quot;</span>
+            <span class="s2">&quot;catalogue sources to the frame.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcproj.recognized_hat_id_prefixes&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="p">(</span><span class="n">root_path</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RecognizedHATIDPrefixes&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;&#39;S100&#39;&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A list of all possible prefixes to source HAT-IDs.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_source_projection_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_projection_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source_projection_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default projected sources data reduction data sets.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcproj.columns&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcproj&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%(srcproj_column_name)s</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A single column from the projected sources used for &quot;</span>
+            <span class="s2">&quot;photometry.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_source_projection_links">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_source_projection_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source_projection_links</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction links for projected sources.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;catalogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The catalgue sources which were projected.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The sky to frame transformation used to project these &quot;</span>
+            <span class="s2">&quot;sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_background_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_background_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_background_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create default attributes in data reduction files describing BG extraction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.cfg.zero&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BackgroudIsZero&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bool_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Assume that the background has already been subtracted&quot;</span>
+            <span class="s2">&quot; from the input image?&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.cfg.model&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How was the backgroun modelled.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.cfg.annulus&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Annulus&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The inner and outer radius of the annulus centered &quot;</span>
+            <span class="s2">&quot;around each source used to estimate the background and its error.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.sofware_versions&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+            <span class="s2">&quot;software elements and their versions used for estimating the &quot;</span>
+            <span class="s2">&quot;backgrund for each source.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_background_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_background_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_background_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction data sets of background measurements.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.value&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/Value&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The best estimate of the background under each &quot;</span>
+            <span class="s2">&quot;projected source.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.error&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/Error&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An error estimate of the background under each &quot;</span>
+            <span class="s2">&quot;projected source.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.npix&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/NumberPixels&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of pixels the background value and error &quot;</span>
+            <span class="s2">&quot;estimates are based on.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_background_links">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_background_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_background_links</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction links for sky to background extraction.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;background&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The soures for which background was measured.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_magfit_key_and_path">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_magfit_key_and_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_magfit_key_and_path</span><span class="p">(</span><span class="n">photometry_mode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return start of pipeline key and path for magfit datasets/attributes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photometry_mode(str):    The method by which the raw magnitudes used for</span>
+<span class="sd">            magnitude fitting were extracted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str, str:</span>
+<span class="sd">            The start of the pipeline_key and the absolute path of the dataset</span>
+<span class="sd">            in the HDF5 file under whihc to place the fitted magnitudes and</span>
+<span class="sd">            associated attributes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="s2">&quot;magfit.&quot;</span>
+    <span class="k">if</span> <span class="n">photometry_mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;psffit&quot;</span><span class="p">,</span> <span class="s2">&quot;prffit&quot;</span><span class="p">,</span> <span class="s2">&quot;shapefit&quot;</span><span class="p">]:</span>
+        <span class="n">dset_path</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;shapefit&quot;</span><span class="p">]</span>
+        <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="s2">&quot;shapefit.&quot;</span> <span class="o">+</span> <span class="n">pipeline_key_start</span>
+    <span class="k">elif</span> <span class="n">photometry_mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;apphot&quot;</span><span class="p">:</span>
+        <span class="n">dset_path</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;apsplit&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="s2">&quot;apphot.&quot;</span> <span class="o">+</span> <span class="n">pipeline_key_start</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unrecognized photometry mode: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">photometry_mode</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">dset_path</span> <span class="o">+=</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="s2">&quot;FittedMagnitudes/Version</span><span class="si">%(magfit_version)03d</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="n">pipeline_key_start</span><span class="p">,</span> <span class="n">dset_path</span><span class="p">,</span> <span class="s2">&quot;/Iteration</span><span class="si">%(magfit_iteration)03d</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="_get_magfit_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_magfit_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_magfit_attributes</span><span class="p">(</span><span class="n">photometry_mode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a set of magnitude fitting attributes for a single photometry.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photometry_mode(str):    The method by which the raw magnitudes used for</span>
+<span class="sd">            magnitude fitting were extracted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [autowisp.database.data_model.HDF5Attribute]:</span>
+<span class="sd">            The attributes describing magnitude fitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pipeline_key_start</span><span class="p">,</span> <span class="n">dset_path</span><span class="p">,</span> <span class="n">iter_split</span> <span class="o">=</span> <span class="n">_get_magfit_key_and_path</span><span class="p">(</span>
+        <span class="n">photometry_mode</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;num_input_src&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span> <span class="o">+</span> <span class="n">iter_split</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;NumberInputSources&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of sources magnitude fitting was applied &quot;</span>
+            <span class="s2">&quot;to.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;num_fit_src&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span> <span class="o">+</span> <span class="n">iter_split</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;NumberFitSources&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of unrejected sources used in the last &quot;</span>
+            <span class="s2">&quot;iteration of this magintude fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;fit_residual&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span> <span class="o">+</span> <span class="n">iter_split</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FitResidual&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The RMS residual from the single refence magnitude &quot;</span>
+            <span class="s2">&quot;fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="n">pipeline_key_start</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.cfg.&quot;</span>
+    <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;single_photref&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SinglePhotometricReference&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The name of the DR file used as single photometric &quot;</span>
+            <span class="s2">&quot;reference to initiate magnitude fitting iterations.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;correction_type&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CorrectionType&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The type of function being fitted for now the &quot;</span>
+            <span class="s2">&quot;supported types are: linear (nonlinear and spline in the future).&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;correction&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CorrectionExpression&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The actual parametric expression for the magnitude &quot;</span>
+            <span class="s2">&quot;correction.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;require&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceFilter&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Any condition imposed on the sources used to derive &quot;</span>
+            <span class="s2">&quot;the correction function parameters.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;max_src&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxSources&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of sources to use in the fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;noise_offset&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ExtraNoiseLevel&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A constant added to the magnitude error before using &quot;</span>
+            <span class="s2">&quot;in the fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;max_mag_err&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxMagnitudeError&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Sources with estimated magnitude error larger than &quot;</span>
+            <span class="s2">&quot;this are not used in the fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;rej_level&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RejectionLevel&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Sources rej_level time average error away from the &quot;</span>
+            <span class="s2">&quot;best fit are rejected and the fit is repeated.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;max_rej_iter&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxRejectionIterations&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stop rejecting outlier sources after this number of &quot;</span>
+            <span class="s2">&quot;rejection/refitting cycles.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;error_avg&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ErrorAveraging&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How to calculate the scale for rejecting sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;count_weight_power&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;NumberMeasurementsWeightingPower&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of observations for a star/max number of &quot;</span>
+            <span class="s2">&quot;observations raised to this power is multiplied by the error based&quot;</span>
+            <span class="s2">&quot; weight when doing the magnitude fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_magfit_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_magfit_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_magfit_datasets</span><span class="p">(</span><span class="n">photometry_mode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a set of magnitude fitting data sets for a single photometry.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photometry_mode(str):    The method by which the raw magnitudes used for</span>
+<span class="sd">            magnitude fitting were extracted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [autowisp.database.data_model.HDF5DataSet]:</span>
+<span class="sd">            The datasets containing the magnitude fitting results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pipeline_key_start</span><span class="p">,</span> <span class="n">dset_path</span><span class="p">,</span> <span class="n">iter_split</span> <span class="o">=</span> <span class="n">_get_magfit_key_and_path</span><span class="p">(</span>
+        <span class="n">photometry_mode</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">dset_path</span> <span class="o">+</span> <span class="n">iter_split</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The fitted </span><span class="si">{</span><span class="n">photometry_mode</span><span class="si">}</span><span class="s2"> photometry magnitudes.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_shapefit_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_shapefit_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create the default attribute in data reduction files describing PSF fitting.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [autowisp.database.data_model.HDF5Attribute]:</span>
+<span class="sd">            All attributes related to PSF/PRF fitting to include in data</span>
+<span class="sd">            reduction files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parent_path</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;shapefit&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_attributes</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the attributes specifying the shape fitting configuration.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.gain&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Gain&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The gain (electrons per ADU) assumed for the &quot;</span>
+                <span class="s2">&quot;input image.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.magnitude_1adu&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Magnitude1ADU&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The magnitude that corresponds to a flux of &quot;</span>
+                <span class="s2">&quot;1ADU on the input image.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.model&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The model used to represent the PSF/PRF.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.terms&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Terms&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The terms the PSF/PRF is allowed to depend &quot;</span>
+                <span class="s2">&quot;on. See AstroWISP documentation for full description.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.max-chi2&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxReducedChiSquared&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The value of the reduced chi squared above &quot;</span>
+                <span class="s2">&quot;which sources are excluded from the fit.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.min_convergence_rate&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MinimumConvergenceRate&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The minimum rate of convergence required &quot;</span>
+                <span class="s2">&quot;before stopping iterations.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.max_iterations&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxIterations&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.int32&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of shape/amplitude &quot;</span>
+                <span class="s2">&quot;fitting iterations allowed during PSF/PRF fitting.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.ignore_dropped&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;DiscardDroppedSources&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bool_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;If True, sources dropped during source &quot;</span>
+                <span class="s2">&quot;selection will not have their amplitudes fit for. &quot;</span>
+                <span class="s2">&quot;Instead their shape fit fluxes/magnitudes and associated&quot;</span>
+                <span class="s2">&quot; errors will all be NaN.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.cover_bicubic_grid&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CoverGridWithPixels&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bool_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;For bicubic PSF fits, If true all pixels &quot;</span>
+                <span class="s2">&quot;that at least partially overlap with the grid are &quot;</span>
+                <span class="s2">&quot;assigned to the corresponding source.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.min_signal_to_noise&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourcePixelMinSignalToNoise&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How far above the background (in units of &quot;</span>
+                <span class="s2">&quot;RMS) should pixels be to still be considered part of a &quot;</span>
+                <span class="s2">&quot;source.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.max_aperture&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceMaxAperture&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;If this option has a positive value, pixels &quot;</span>
+                <span class="s2">&quot;are assigned to sources in circular apertures (the &quot;</span>
+                <span class="s2">&quot;smallest such that all pixels that pass the signal to &quot;</span>
+                <span class="s2">&quot;noise cut are still assigned to the source).&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.max_sat_frac&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceMaxSaturatedFraction&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;If more than this fraction of the pixels &quot;</span>
+                <span class="s2">&quot;assigned to a source are saturated, the source is &quot;</span>
+                <span class="s2">&quot;excluded from the fit.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.min_pix&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceMinPixels&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The minimum number of pixels that must be &quot;</span>
+                <span class="s2">&quot;assigned to a source in order to include the source is &quot;</span>
+                <span class="s2">&quot;the shapefit.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.max_pix&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceMaxPixels&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of pixels that must be &quot;</span>
+                <span class="s2">&quot;assigned to a source in order to include the source is &quot;</span>
+                <span class="s2">&quot;the shapefit.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.min_bg_pix&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceMinBackgroundPixels&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The minimum number of backrgound pixels required &quot;</span>
+                <span class="s2">&quot;to consider the estimates for the background value and error &quot;</span>
+                <span class="s2">&quot;reliable for the source.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.src.max_count&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxSources&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of sources to include in &quot;</span>
+                <span class="s2">&quot;the fit for the PSF shape.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.grid.x&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GridXBoundaries&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The x boundaries of the grid on which &quot;</span>
+                <span class="s2">&quot;the PSF map is defined.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.grid.y&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GridYBoundaries&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The y boundaries of the grid on which &quot;</span>
+                <span class="s2">&quot;the PSF map is defined.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.pixrej&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PixelRejectionThreshold&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Pixels with fitting residuals (normalized by&quot;</span>
+                <span class="s2">&quot; the standard deviation) bigger than this value are &quot;</span>
+                <span class="s2">&quot;excluded from the fit.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.initial_aperture&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;InitialAmplitudeAperture&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This aperture is used to derive an initial &quot;</span>
+                <span class="s2">&quot;guess for the amplitudes of sources.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;shapefit.cfg.psf.bicubic.&quot;</span> <span class="s2">&quot;max_abs_amplitude_change&quot;</span>
+                <span class="p">),</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxAbsoluteAmplitudeChange&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The absolute root of sum squares tolerance &quot;</span>
+                <span class="s2">&quot;of the source amplitude changes in order to declare the &quot;</span>
+                <span class="s2">&quot;piecewise bicubic PSF fitting converged.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;shapefit.cfg.psf.bicubic.&quot;</span> <span class="s2">&quot;max_rel_amplitude_change&quot;</span>
+                <span class="p">),</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MaxRelativeAmplitudeChange&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The relative root of sum squares tolerance of the &quot;</span>
+                <span class="s2">&quot;source amplitude changes in order to declare the piecewise &quot;</span>
+                <span class="s2">&quot;bicubic PSF fittingiiii converged.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.smoothing&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BicubicSmoothing&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The amount of smoothing used during PSF &quot;</span>
+                <span class="s2">&quot;fitting.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">get_config_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.sofware_versions&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+                <span class="s2">&quot;software elements and their versions usef during PSF/PRF&quot;</span>
+                <span class="s2">&quot; fitting.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.global_chi2&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GlobalReducedChi2&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The overall reduced chi squared of the &quot;</span>
+                <span class="s2">&quot;PSF/PRF fit.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+        <span class="o">+</span> <span class="n">_get_magfit_attributes</span><span class="p">(</span><span class="s2">&quot;shapefit&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_shapefit_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_shapefit_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the datasets to contain shape fitting results.&quot;&quot;&quot;</span>
+
+    <span class="n">root_path</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;shapefit&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.map_coef&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/MapCoefficients&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The coefficients of the derived PSF/PRF map.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.num_pixels&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/NumberPixels&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The number of pixels for each source on which PSF &quot;</span>
+            <span class="s2">&quot;fitting was performed.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.signal_to_noise&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/SignalToNoise&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The total signal to noise of all the pixels &quot;</span>
+            <span class="s2">&quot;assigned to the source for PSF fitting.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.magnitude&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/Magnitude&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The PSF/PRF fitting raw magnitudes of the &quot;</span>
+            <span class="s2">&quot;projected sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.magnitude_error&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/MagnitudeError&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Error estimates for the PSF/PRF fitting &quot;</span>
+            <span class="s2">&quot;magnitudes.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.quality_flag&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/QualityFlag&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Quality flags for the PSF fitting of the projected&quot;</span>
+            <span class="s2">&quot; sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.chi2&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/ChiSquared&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The reduced chi-squared values for PSF fitting &quot;</span>
+            <span class="s2">&quot;for the corresponding source.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="n">_get_magfit_datasets</span><span class="p">(</span><span class="s2">&quot;shapefit&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_shapefit_links">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_shapefit_links</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction links for sky to background extraction.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;subpixmap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shapefit&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The sub-pixel sensitivity map assumed for this PSF &quot;</span>
+            <span class="s2">&quot;fit.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;background&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shapefit&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The background measurement used for this PSF/PRF fit. &quot;</span>
+            <span class="s2">&quot;Also contains the projected sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_apphot_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_apphot_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create default data reduction attributes describing aperture photometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">root_path</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+    <span class="n">apsplit_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;apsplit&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.sofware_versions&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
+            <span class="s2">&quot;software elements and their versions used for aperture &quot;</span>
+            <span class="s2">&quot;photometry.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.cfg.error_floor&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ErrorFloor&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A value to add to the error estimate of pixels &quot;</span>
+            <span class="s2">&quot;(intended to represent things like readout noise, truncation &quot;</span>
+            <span class="s2">&quot;noise etc.).&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.cfg.aperture&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">apsplit_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Aperture&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The size of the aperture used for aperture &quot;</span>
+            <span class="s2">&quot;photometry.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.cfg.gain&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Gain&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The gain (electrons per ADU) assumed for the &quot;</span>
+            <span class="s2">&quot;input image.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.cfg.magnitude_1adu&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Magnitude1ADU&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The magnitude that corresponds to a flux of &quot;</span>
+            <span class="s2">&quot;1ADU on the input image.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="n">_get_magfit_attributes</span><span class="p">(</span><span class="s2">&quot;apphot&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_apphot_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_apphot_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the datasets to contain shape aperture photometry results.&quot;&quot;&quot;</span>
+
+    <span class="n">abspath_start</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;apphot&quot;</span><span class="p">][</span><span class="s2">&quot;apsplit&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.magnitude&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">abspath_start</span> <span class="o">+</span> <span class="s2">&quot;/Magnitude&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The aperture photometry raw magnitudes of the &quot;</span>
+            <span class="s2">&quot;projected sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.magnitude_error&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">abspath_start</span> <span class="o">+</span> <span class="s2">&quot;/MagnitudeError&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Error estimates for the aperture photometry &quot;</span>
+            <span class="s2">&quot;magnitudes.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.quality_flag&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">abspath_start</span> <span class="o">+</span> <span class="s2">&quot;/QualityFlag&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">replace_nonfinite</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Quality flags for the aperture photometry of the &quot;</span>
+            <span class="s2">&quot;projected sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="n">_get_magfit_datasets</span><span class="p">(</span><span class="s2">&quot;apphot&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_apphot_links">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_apphot_links</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default data reduction links for sky to background extraction.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;subpixmap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;apphot&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The sub-pixel sensitivity map assumed for this &quot;</span>
+            <span class="s2">&quot;aperture photometry.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">_get_link</span><span class="p">(</span>
+            <span class="s2">&quot;shapefit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;apphot&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The PSF/PRF fit use for this aperture photometry. &quot;</span>
+            <span class="s2">&quot;Also contains the background measurements and projected sources.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the default database attributes in data reduction HDF5 files.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">HDF5Attribute</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;repack&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Repack&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A list of the datasets deleted from the file since&quot;</span>
+                <span class="s2">&quot; the last re-packing. If not empty, indicates that the file &quot;</span>
+                <span class="s2">&quot;size can be decreased by re-packing.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="o">+</span> <span class="n">_get_source_extraction_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_catalogue_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_skytoframe_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_source_projection_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_background_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_shapefit_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_apphot_attributes</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the default database datasets in data reduction HDF5 files.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">_get_source_extraction_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_catalogue_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_sky_to_frame_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_source_projection_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_background_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_shapefit_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_apphot_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;fitsheader&quot;</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="s2">&quot;/FITSHeader&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;&#39;i1&#39;&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A binary dump of the header of the calibrated &quot;</span>
+                <span class="s2">&quot;frames corresponding to this DR file.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;subpixmap&quot;</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;subpixmap&quot;</span><span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The sub-pixel sensitivity map.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_links">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_links</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the default database links in data reduction HDF5 files.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">_get_sky_to_frame_links</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_source_projection_links</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_background_links</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_shapefit_links</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_apphot_links</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># Silence complaint about too long a name.</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+<div class="viewcode-block" id="get_default_data_reduction_structure">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure.get_default_data_reduction_structure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_default_data_reduction_structure</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the default configuration for the layout of data reduction files.&quot;&quot;&quot;</span>
+
+    <span class="n">default_structure</span> <span class="o">=</span> <span class="n">HDF5Product</span><span class="p">(</span>
+        <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;data_reduction&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Contains all per-frame processing information and &quot;</span>
+            <span class="s2">&quot;products except calibrated image/error/mask.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span> <span class="o">=</span> <span class="p">[</span><span class="n">HDF5StructureVersion</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">_get_attributes</span><span class="p">()</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="n">_get_datasets</span><span class="p">()</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">links</span> <span class="o">=</span> <span class="n">_get_links</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">default_structure</span></div>
+
+
+
+<span class="c1"># pylint: enable=invalid-name</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

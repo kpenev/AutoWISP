@@ -1,0 +1,7 @@
+autowisp.processing\_steps.find\_stars module
+=============================================
+
+.. automodule:: autowisp.processing_steps.find_stars
+   :members:
+   :show-inheritance:
+   :undoc-members:

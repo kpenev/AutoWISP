@@ -1,0 +1,7 @@
+autowisp.file\_utilities module
+===============================
+
+.. automodule:: autowisp.file_utilities
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.database.data\_model.processing\_sequence module
+=========================================================
+
+.. automodule:: autowisp.database.data_model.processing_sequence
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,1440 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.catalog &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.catalog</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.catalog</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># pylint: disable=too-many-lines</span>
+
+<span class="sd">&quot;&quot;&quot;Utilities for querying catalogs for astrometry.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">makedirs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hashlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">nullcontext</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astroquery.gaia</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaiaClass</span><span class="p">,</span> <span class="n">conf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span><span class="p">,</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry.map_projections</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">gnomonic_projection</span><span class="p">,</span>
+    <span class="n">inverse_gnomonic_projection</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">doctest</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">DefaultsFormatter</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="WISPGaia">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WISPGaia</span><span class="p">(</span><span class="n">GaiaClass</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extend queries with condition and sorting.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WISPGaia._get_result">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia._get_result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">add_propagated</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get and format the result as specified by user.&quot;&quot;&quot;</span>
+
+        <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">launch_job_async</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Gaia query result: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Gaia query result columns: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">colnames</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">colnames</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;num_obj&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;num_obj&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;ra_orig&quot;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;dec_orig&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+            <span class="n">new_colname</span> <span class="o">=</span> <span class="n">colname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">colname</span> <span class="o">!=</span> <span class="n">new_colname</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">colname</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">add_propagated</span><span class="p">:</span>
+            <span class="n">propagated</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">coord</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">))</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;propagated&quot;</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">coord</span><span class="p">,</span> <span class="n">value_str</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">],</span> <span class="n">pos</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="n">propagated</span><span class="p">[</span><span class="n">coord</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value_str</span><span class="p">)</span> <span class="o">*</span> <span class="mf">180.0</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
+
+            <span class="n">result</span><span class="o">.</span><span class="n">remove_column</span><span class="p">(</span><span class="s2">&quot;propagated&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">add_propagated</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">propagated</span><span class="p">[</span><span class="n">coord</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="WISPGaia.query_object_filtered">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.query_object_filtered">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">query_object_filtered</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">ra</span><span class="p">,</span>
+        <span class="n">dec</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">,</span>
+        <span class="n">order_by</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">order_dir</span><span class="o">=</span><span class="s2">&quot;ASC&quot;</span><span class="p">,</span>
+        <span class="n">max_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">count_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get GAIA sources within a box satisfying given condition (ADQL).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ra:   The RA of the center of the box to query, with units.</span>
+
+<span class="sd">            dec:    The declination of the center of the box to query,</span>
+<span class="sd">                with units.</span>
+
+<span class="sd">            width:    The width of the box (half goes on each side of ``ra``),</span>
+<span class="sd">                with units.</span>
+
+<span class="sd">            height:    The height of the box (half goes on each side of</span>
+<span class="sd">                ``dec``), with units.</span>
+
+<span class="sd">            order_by(str):    How should the stars be ordered.</span>
+
+<span class="sd">            condition(str):    Condition the returned sources must satisfy</span>
+<span class="sd">                (typically imposes a brightness limit)</span>
+
+<span class="sd">            epoch:    The epoch to propagate the positions to. If unspecified,</span>
+<span class="sd">                no propagation will be done.</span>
+
+<span class="sd">            columns(iterable):    List of columns to select from the catalog. If</span>
+<span class="sd">                unspecified, all columns will be returned.</span>
+
+<span class="sd">            order_dir(str):    Should the order be ascending (``&#39;ASC&#39;``) or</span>
+<span class="sd">                descending (``&#39;DESC&#39;``).</span>
+
+<span class="sd">            max_objects(int):    Maximum number of objects to return.</span>
+
+<span class="sd">            verbose(bool):    Use verbose mode when submitting querries to GAIA.</span>
+
+<span class="sd">            count_only(bool):    If ``True``, only the number of objects is</span>
+<span class="sd">                returned without actually fetching the data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            astropy Table:</span>
+<span class="sd">                The result of the query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">count_only</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="s2">&quot;COUNT(*) AS num_obj&quot;</span>
+        <span class="k">elif</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">add_propagated</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">]:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">add_propagated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+            <span class="n">columns</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">columns</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">columns</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">count_only</span><span class="p">:</span>
+            <span class="n">add_propagated</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">epoch</span> <span class="o">=</span> <span class="n">epoch</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">yr</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;EPOCH_PROP_POS(ra, dec, parallax, pmra, pmdec, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;radial_velocity, ref_epoch, </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">) AS propagated, &quot;</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="n">columns</span>
+
+        <span class="n">corners</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)])</span>
+        <span class="n">corners_xi_eta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">width</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">height</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+        <span class="n">corners_xi_eta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">corners_xi_eta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">corners_xi_eta</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">corners_xi_eta</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">inverse_gnomonic_projection</span><span class="p">(</span>
+            <span class="n">corners</span><span class="p">,</span>
+            <span class="n">corners_xi_eta</span><span class="p">,</span>
+            <span class="n">RA</span><span class="o">=</span><span class="n">ra</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+            <span class="n">Dec</span><span class="o">=</span><span class="n">dec</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE</span> <span class="ow">or</span> <span class="n">conf</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE</span>
+
+        <span class="n">select</span> <span class="o">=</span> <span class="s2">&quot;SELECT&quot;</span>
+        <span class="k">if</span> <span class="n">max_objects</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">select</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; TOP </span><span class="si">{</span><span class="n">max_objects</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">query_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">select</span><span class="si">}</span>
+<span class="s2">            </span><span class="si">{</span><span class="n">columns</span><span class="si">}</span>
+<span class="s2">            FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">            WHERE</span>
+<span class="s2">                1 = CONTAINS(</span>
+<span class="s2">                    POINT(</span>
+<span class="s2">                        </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE_RA</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE_DEC</span><span class="si">}</span>
+<span class="s2">                    ),</span>
+<span class="s2">                    POLYGON(</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Dec&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Dec&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;Dec&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="s1">&#39;Dec&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">                    )</span>
+<span class="s2">                )</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">query_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                AND</span>
+<span class="s2">                (</span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">count_only</span><span class="p">:</span>
+            <span class="n">query_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                ORDER BY</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">order_by</span><span class="si">}</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">order_dir</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_result</span><span class="p">(</span>
+            <span class="n">query_str</span><span class="p">,</span>
+            <span class="n">epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">count_only</span> <span class="ow">and</span> <span class="n">add_propagated</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: enable=too-many-locals</span>
+
+<div class="viewcode-block" id="WISPGaia.query_brightness_limited">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.query_brightness_limited">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">query_brightness_limited</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">magnitude_expression</span><span class="p">,</span> <span class="n">magnitude_limit</span><span class="p">,</span> <span class="o">**</span><span class="n">query_kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get sources within a box and a range of magnitudes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            magnitude_expression:    Expression for the relevant magnitude</span>
+<span class="sd">                involving Gaia columns.</span>
+
+<span class="sd">            magnitude_limit:    Either upper limit or lower and upper limit on</span>
+<span class="sd">                the magnitude defined by ``magnitude_expression``.</span>
+
+<span class="sd">            **query_kwargs:    Arguments passed directly to</span>
+<span class="sd">                `query_object_filtered()`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            astropy Table:</span>
+<span class="sd">                The result of the query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Querying Gaia for sources with magnitude: </span><span class="si">%s</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;limits: </span><span class="si">%s</span><span class="s2">, and kwargs: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">magnitude_expression</span><span class="p">),</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">magnitude_limit</span><span class="p">),</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">query_kwargs</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">query_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">magnitude_expression</span><span class="si">}</span><span class="s2">) AS magnitude&quot;</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">magnitude_expression</span><span class="si">}</span><span class="s2">) AS magnitude&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;order_by&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">query_kwargs</span><span class="p">:</span>
+            <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;order_by&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;magnitude&quot;</span>
+            <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;order_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ASC&quot;</span>
+
+        <span class="k">if</span> <span class="n">magnitude_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">min_mag</span><span class="p">,</span> <span class="n">max_mag</span> <span class="o">=</span> <span class="n">magnitude_limit</span>
+                <span class="n">condition</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">magnitude_expression</span><span class="si">}</span><span class="s2">) &gt; </span><span class="si">{</span><span class="n">min_mag</span><span class="si">}</span><span class="s2"> AND &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">magnitude_expression</span><span class="si">}</span><span class="s2">) &lt; </span><span class="si">{</span><span class="n">max_mag</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">condition</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">magnitude_expression</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">magnitude_limit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">condition</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">magnitude_expression</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">magnitude_limit</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="k">if</span> <span class="s2">&quot;condition&quot;</span> <span class="ow">in</span> <span class="n">query_kwargs</span><span class="p">:</span>
+                <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">) AND (</span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s1">)&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">condition</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_object_filtered</span><span class="p">(</span><span class="o">**</span><span class="n">query_kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">gaia</span> <span class="o">=</span> <span class="n">WISPGaia</span><span class="p">()</span>
+<span class="c1"># This comes from astroquery (not in our control)</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">gaia</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE</span> <span class="o">=</span> <span class="s2">&quot;gaiadr3.gaia_source&quot;</span>
+<span class="c1"># pylint: enable=invalid-name</span>
+
+
+<div class="viewcode-block" id="create_catalog_file">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.create_catalog_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_catalog_file</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">query_kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a catalog FITS file from a Gaia query.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fname(str):    Name of the catalog file to create.</span>
+
+<span class="sd">        **query_kwargs:    Arguments passed directly to</span>
+<span class="sd">            `gaia.query_brightness_limited()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">query_brightness_limited</span><span class="p">(</span><span class="o">**</span><span class="n">query_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">query_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;count_only&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of sources: &quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;DESIGNATION&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phot_variable_flag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;datalink_url&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;epoch_photometry_url&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;libname_gspphot&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">query</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">query</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;CATALOG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Gaia&quot;</span>
+    <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;CATVER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaia</span><span class="o">.</span><span class="n">MAIN_GAIA_TABLE</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">]:</span>
+        <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+    <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;EPOCH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">yr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;MAGEXPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;magnitude_expression&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">query_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;MAGMIN&quot;</span><span class="p">],</span> <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">])</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span>
+                <span class="s2">&quot;magnitude_limit&quot;</span>
+            <span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">query</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_kwargs</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">)):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+    <span class="n">query</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;fits&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_catalog_file">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.read_catalog_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_catalog_file</span><span class="p">(</span>
+    <span class="n">cat_fits</span><span class="p">,</span>
+    <span class="n">filter_expr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">sort_expr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_gnomonic_projection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read a catalog FITS file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cat_fits(str, or opened FITS file):    The file to read.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame:</span>
+<span class="sd">            The catalog information as columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cat_fits</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">cat_fits</span><span class="p">)</span> <span class="k">as</span> <span class="n">opened_cat_fits</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">read_catalog_file</span><span class="p">(</span>
+                <span class="n">opened_cat_fits</span><span class="p">,</span>
+                <span class="n">filter_expr</span><span class="p">,</span>
+                <span class="n">sort_expr</span><span class="p">,</span>
+                <span class="n">return_metadata</span><span class="p">,</span>
+                <span class="n">add_gnomonic_projection</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">fixed_dtype</span> <span class="o">=</span> <span class="n">cat_fits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">newbyteorder</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span>
+        <span class="n">cat_fits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">fixed_dtype</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="s2">&quot;source_id&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_metadata</span> <span class="ow">or</span> <span class="n">add_gnomonic_projection</span><span class="p">:</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">cat_fits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+
+    <span class="n">cat_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sort_expr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sort_val</span> <span class="o">=</span> <span class="n">cat_eval</span><span class="p">(</span><span class="n">sort_expr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filter_expr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Filter expression: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">filter_expr</span><span class="p">))</span>
+        <span class="n">filter_val</span> <span class="o">=</span> <span class="n">cat_eval</span><span class="p">(</span><span class="n">filter_expr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Filter val: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">filter_val</span><span class="p">))</span>
+        <span class="n">filter_val</span> <span class="o">=</span> <span class="n">filter_val</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">filter_val</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">sort_expr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sort_val</span> <span class="o">=</span> <span class="n">sort_val</span><span class="p">[</span><span class="n">filter_val</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">sort_expr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sort_val</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">add_gnomonic_projection</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;xi&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s2">&quot;eta&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">]:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">colname</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">gnomonic_projection</span><span class="p">(</span>
+                <span class="n">result</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">RA</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">],</span> <span class="n">Dec</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_metadata</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">metadata</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return configuration of catalog to create.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Create a catalog file from a Gaia query.&quot;</span><span class="p">,</span>
+        <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
+        <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--ra&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">118.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The right ascention (deg) of the center of the field to query.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--dec&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">2.6</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The declination (deg) of the center of the field to query.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--width&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">17.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The width (deg) of the field to query (along RA direction).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--height&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">17.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The height (deg) of the field to query (along dec direction).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--epoch&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The epoch for proper motion corrections in years. If not &quot;</span>
+        <span class="s2">&quot;specified, positions are not propagated.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--magnitude-expression&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The expression to use as the relevant magnitude estimate.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--magnitude-limit&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Either maximum magnitude or minimum and maximum magnitude limits &quot;</span>
+        <span class="s2">&quot;to impose.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--extra-condition&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An extra condition to impose on the selected sources.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print out information about the query being executed.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing catalog file.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--catalog-fname&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gaia.fits&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the catalog file to create.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--count-only&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only count the number of sources in the query.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--columns&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;source_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ra&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pmra&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pmdec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_g_n_obs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_g_mean_flux&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_g_mean_flux_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_bp_n_obs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_bp_mean_mag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_bp_mean_flux&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_bp_mean_flux_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_rp_n_obs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_rp_mean_mag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_rp_mean_flux&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_rp_mean_flux_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_proc_mode&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phot_bp_rp_excess_factor&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The columns to include in the catalog file. Use &#39;*&#39; to include &quot;</span>
+        <span class="s2">&quot;everything.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--show-stars&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show the stars in the catalog on a 3-D plot of the sky.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--run-doctests&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--test&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run the unit tests defined in the function docstrings of this &quot;</span>
+        <span class="s2">&quot;module.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_find_best_fov">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog._find_best_fov">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_best_fov</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">fov_size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find square of a given size that fits the most points.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; import numpy</span>
+<span class="sd">        &gt;&gt;&gt; from autowisp.catalog import _find_best_fov</span>
+<span class="sd">        &gt;&gt;&gt; points = numpy.array([(0.0, 0.0),</span>
+<span class="sd">        ...                       (0.1, 0.0),</span>
+<span class="sd">        ...                       (0.1, 0.1),</span>
+<span class="sd">        ...                       (3.2, 0.0),</span>
+<span class="sd">        ...                       (3.2, 3.1)],</span>
+<span class="sd">        ...                      dtype=[(&#39;RAcosDec&#39;, float), (&#39;Dec&#39;, float)])</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 1.0)</span>
+<span class="sd">        ((0.0, 0.0), 3)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 10.0)</span>
+<span class="sd">        ((0.0, 0.0), 5)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 0.11)</span>
+<span class="sd">        ((0.0, 0.0), 3)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 0.05)</span>
+<span class="sd">        ((0.0, 0.0), 1)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 3.11)</span>
+<span class="sd">        ((0.1, 0.0), 4)</span>
+<span class="sd">        &gt;&gt;&gt; points = numpy.array([(0.0, 0.0),</span>
+<span class="sd">        ...                       (0.1, 0.0),</span>
+<span class="sd">        ...                       (0.1, -0.1),</span>
+<span class="sd">        ...                       (3.2, 0.0),</span>
+<span class="sd">        ...                       (3.2, 3.0)],</span>
+<span class="sd">        ...                      dtype=[(&#39;RAcosDec&#39;, float), (&#39;Dec&#39;, float)])</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 1.0)</span>
+<span class="sd">        ((0.0, -0.1), 3)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 10.0)</span>
+<span class="sd">        ((0.0, -0.1), 5)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 0.11)</span>
+<span class="sd">        ((0.0, -0.1), 3)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 0.05)</span>
+<span class="sd">        ((0.0, 0.0), 1)</span>
+<span class="sd">        &gt;&gt;&gt; _find_best_fov(points, 3.11)</span>
+<span class="sd">        ((0.1, -0.1), 4)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">max_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">best_fov</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="c1"># Sort points for faster search</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">)</span>
+    <span class="n">sorted_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">])</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Finding best FOV for </span><span class="si">%d</span><span class="s2"> points:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">x_start_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+        <span class="c1"># No need to check further if peints beyond i are fewer than max found so</span>
+        <span class="c1"># far</span>
+        <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">x_start_index</span> <span class="o">&lt;=</span> <span class="n">max_count</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Stopping search at x_start_index=</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x_start_index</span><span class="p">)</span>
+            <span class="k">break</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">x_start_index</span><span class="p">][</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">]</span>
+        <span class="c1"># Use a more efficient x-mask by limiting the range of points we</span>
+        <span class="c1"># consider.</span>
+        <span class="c1"># Find the range in the sorted array where x is within</span>
+        <span class="c1"># [x, x + fov_size]</span>
+        <span class="n">x_end_index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
+            <span class="n">points</span><span class="p">[</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">],</span> <span class="n">x</span> <span class="o">+</span> <span class="n">fov_size</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;right&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">x_end_index</span> <span class="o">-</span> <span class="n">x_start_index</span> <span class="o">&lt;=</span> <span class="n">max_count</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">y_ind</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_dec</span><span class="p">):</span>
+            <span class="c1"># No need try higher y bounds</span>
+            <span class="k">if</span> <span class="n">sorted_dec</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">y_ind</span> <span class="o">&lt;=</span> <span class="n">max_count</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Count the points within the range [y1, y1 + fov_size]</span>
+            <span class="n">in_range</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">points</span><span class="p">[</span><span class="n">x_start_index</span><span class="p">:</span><span class="n">x_end_index</span><span class="p">][</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">,</span>
+                <span class="n">points</span><span class="p">[</span><span class="n">x_start_index</span><span class="p">:</span><span class="n">x_end_index</span><span class="p">][</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">fov_size</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">in_range</span> <span class="o">&gt;</span> <span class="n">max_count</span><span class="p">:</span>
+                <span class="n">max_count</span> <span class="o">=</span> <span class="n">in_range</span>
+                <span class="n">best_fov</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;For x=</span><span class="si">%s</span><span class="s2">, y=</span><span class="si">%s</span><span class="s2">, index range is [</span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">) with </span><span class="si">%d</span><span class="s2"> points surviving.&quot;</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>
+                <span class="n">x_start_index</span><span class="p">,</span>
+                <span class="n">x_end_index</span><span class="p">,</span>
+                <span class="n">in_range</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># No need to check further y bounds</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="o">+</span> <span class="n">fov_size</span> <span class="o">&gt;</span> <span class="n">sorted_dec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># No need to check further once right edge of window moves past last</span>
+        <span class="c1"># point</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">+</span> <span class="n">fov_size</span> <span class="o">&gt;</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Stopping search at x=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">break</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Best FOV found: </span><span class="si">%s</span><span class="s2"> &lt;= x &lt;= </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2"> &lt;= y &lt;= </span><span class="si">%s</span><span class="s2"> with </span><span class="si">%d</span><span class="s2"> points.&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">best_fov</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">best_fov</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fov_size</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">best_fov</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">best_fov</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">fov_size</span><span class="p">),</span>
+        <span class="n">max_count</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">best_fov</span><span class="p">,</span> <span class="n">max_count</span></div>
+
+
+
+<div class="viewcode-block" id="find_outliers">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.find_outliers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_outliers</span><span class="p">(</span><span class="n">center_ra_dec</span><span class="p">,</span> <span class="n">max_allowed_offset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find frames that are outliers in pointing.</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        center_ra_dec(numpy.array):    The center RA and Dec of all the frames</span>
+<span class="sd">            being considered. The data type should include columns named</span>
+<span class="sd">            ``&#39;RA&#39;`` and ``&#39;Dec&#39;``.</span>
+
+<span class="sd">        max_allowed_offset(float):    The maximum allowed offset in the RA and</span>
+<span class="sd">            Dec directions in degrees. The most outlier frames is iteratively</span>
+<span class="sd">            rejected until this criterion is satisfied.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [int]:</span>
+<span class="sd">            List of the indices within ``center_ra_dec`` that were rejected as</span>
+<span class="sd">            outliers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+        <span class="n">center_ra_dec</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)],</span>
+    <span class="p">)</span>
+    <span class="n">points</span><span class="p">[</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">center_ra_dec</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+        <span class="n">center_ra_dec</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+    <span class="p">)</span>
+    <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">center_ra_dec</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+
+    <span class="p">(</span><span class="n">min_ra_cos_dec</span><span class="p">,</span> <span class="n">min_dec</span><span class="p">),</span> <span class="n">num_inside</span> <span class="o">=</span> <span class="n">_find_best_fov</span><span class="p">(</span>
+        <span class="n">points</span><span class="p">,</span> <span class="n">max_allowed_offset</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_inside</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">center_ra_dec</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Attempting to determine field of view to cover frames with no &quot;</span>
+            <span class="s2">&quot;conssistent pointing.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">outside</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_ra_cos_dec</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;RAcosDec&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_ra_cos_dec</span> <span class="o">+</span> <span class="n">max_allowed_offset</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_dec</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_dec</span> <span class="o">+</span> <span class="n">max_allowed_offset</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">size</span><span class="p">)[</span><span class="n">outside</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># TODO: Maybe simplify later</span>
+<span class="c1"># pylint: disable=too-many-locals</span>
+<span class="c1"># pylint: disable=too-many-branches</span>
+<div class="viewcode-block" id="get_max_abs_corner_xi_eta">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.get_max_abs_corner_xi_eta">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_max_abs_corner_xi_eta</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dr_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_offset</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the max absolute values of the frame corners xi and eta.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        header (astropy.io.fits.Header): The header of the image to find corner</span>
+<span class="sd">            xi and eta of..</span>
+
+<span class="sd">        transformation: The transformation to assume applies to the image. If</span>
+<span class="sd">            not specified, transformations are read from ``dr_files`` and max is</span>
+<span class="sd">            taken over all of them.</span>
+
+<span class="sd">        dr_files: The list of DR files to read transformations from. If</span>
+<span class="sd">            transformation is not specified. Ignored if transformation is</span>
+<span class="sd">            specified.</span>
+
+<span class="sd">        center: The center to assume for the projection. If not specified, the</span>
+<span class="sd">            center is calculated as average of max and min RA and Dec for all</span>
+<span class="sd">            DR files.</span>
+
+<span class="sd">        max_offset: The largest allowed offset in the RA or Dec directions</span>
+<span class="sd">            between the centers of frames. Outliers by more than this many</span>
+<span class="sd">            degrees are flagged and excluded from consideration.</span>
+
+<span class="sd">        dr_path_substitutions: The substitutions to use when reading</span>
+<span class="sd">            transformations from DR files.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float:</span>
+<span class="sd">            The maximum absolute value of xi over all corners of all frame.</span>
+
+<span class="sd">        float:</span>
+<span class="sd">            The maximum absolute value of eta over all corners of all frame.</span>
+
+<span class="sd">        structured array:</span>
+<span class="sd">            The center around which xi, eta are defined. Returned only if center</span>
+<span class="sd">            was not specified and more than one DR file was specified.</span>
+
+<span class="sd">        array(int):</span>
+<span class="sd">            The indices within DR files that were dropped as outliers in the</span>
+<span class="sd">            pointing. Returned only if center was not specified and more than</span>
+<span class="sd">            one DR file was specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">dr_files</span> <span class="ow">or</span> <span class="n">transformation</span>
+    <span class="k">if</span> <span class="n">transformation</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">header</span>
+
+    <span class="n">center_ra_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+        <span class="mi">1</span> <span class="k">if</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_files</span><span class="p">),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)],</span>
+    <span class="p">)</span>
+    <span class="n">change_center</span> <span class="o">=</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">corner_coords</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+        <span class="mi">4</span> <span class="o">*</span> <span class="n">center_ra_dec</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">[(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">change_center</span>
+            <span class="k">else</span> <span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">corner_ind</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">this_trans</span> <span class="ow">in</span> <span class="n">dr_files</span> <span class="k">if</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">transformation</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">this_trans</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+                <span class="n">this_trans</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">()</span>
+                <span class="n">this_trans</span><span class="o">.</span><span class="n">read_transformation</span><span class="p">(</span><span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+
+        <span class="n">center_ra_dec</span><span class="p">[</span><span class="n">corner_ind</span> <span class="o">//</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">this_trans</span><span class="o">.</span><span class="n">pre_projection_center</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">])]:</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">])]:</span>
+                <span class="n">corner_coords</span><span class="p">[</span><span class="n">corner_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">this_trans</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
+                    <span class="n">x</span><span class="p">,</span>
+                    <span class="n">y</span><span class="p">,</span>
+                    <span class="n">result</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;equatorial&quot;</span> <span class="k">if</span> <span class="n">change_center</span> <span class="k">else</span> <span class="s2">&quot;pre_projected&quot;</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">corner_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">outliers</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">find_outliers</span><span class="p">(</span><span class="n">center_ra_dec</span><span class="p">,</span> <span class="n">max_offset</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">outliers</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">center_ra_dec</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">keep</span><span class="p">[</span><span class="n">outliers</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">center_ra_dec</span> <span class="o">=</span> <span class="n">center_ra_dec</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">corner_coords</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">keep</span><span class="p">[</span><span class="n">outliers</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">corner_coords</span> <span class="o">=</span> <span class="n">corner_coords</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">,</span> <span class="s2">&quot;RA&quot;</span><span class="p">]:</span>
+            <span class="n">min_coord</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">center_ra_dec</span><span class="p">[</span><span class="n">coord</span><span class="p">])</span>
+            <span class="n">max_coord</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">center_ra_dec</span><span class="p">[</span><span class="n">coord</span><span class="p">])</span>
+            <span class="n">center</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">min_coord</span> <span class="o">+</span> <span class="n">max_coord</span><span class="p">)</span>
+        <span class="n">return_center</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">return_center</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">change_center</span><span class="p">:</span>
+        <span class="n">xi_eta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="n">corner_coords</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">gnomonic_projection</span><span class="p">(</span><span class="n">corner_coords</span><span class="p">,</span> <span class="n">xi_eta</span><span class="p">,</span> <span class="o">**</span><span class="n">center</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xi_eta</span> <span class="o">=</span> <span class="n">corner_coords</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">xi_eta</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">xi_eta</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span>
+        <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">xi_eta</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">xi_eta</span><span class="p">[</span><span class="s2">&quot;eta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">40.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Observations with field of view exceeding 40 degrees are not &quot;</span>
+            <span class="s2">&quot;supported.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="p">((</span><span class="n">center</span><span class="p">,</span> <span class="n">outliers</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_center</span> <span class="k">else</span> <span class="p">())</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-locals</span>
+<span class="c1"># pylint: enable=too-many-branches</span>
+
+
+<div class="viewcode-block" id="get_catalog_info">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.get_catalog_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_catalog_info</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dr_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">configuration</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the configuration of the catalog needed for this frame.&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">dr_files</span> <span class="ow">or</span> <span class="n">transformation</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating catalog info from: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+            <span class="n">transformation</span> <span class="o">=</span> <span class="n">Transformation</span><span class="p">()</span>
+            <span class="n">transformation</span><span class="o">.</span><span class="n">read_transformation</span><span class="p">(</span><span class="n">dr_file</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dr_files</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">max_offset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_offset</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_pointing_offset&quot;</span><span class="p">]</span>
+
+    <span class="n">trans_fov</span> <span class="o">=</span> <span class="n">get_max_abs_corner_xi_eta</span><span class="p">(</span>
+        <span class="n">dr_files</span><span class="o">=</span><span class="n">dr_files</span><span class="p">,</span>
+        <span class="n">transformation</span><span class="o">=</span><span class="n">transformation</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+        <span class="n">max_offset</span><span class="o">=</span><span class="n">max_offset</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">transformation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">trans_fov</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">],</span> <span class="n">transformation</span><span class="o">.</span><span class="n">pre_projection_center</span><span class="p">)),</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span>
+        <span class="p">)</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Catalog FOV info: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">trans_fov</span><span class="p">))</span>
+
+    <span class="n">pointing_precision</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;pointing_precision&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+
+    <span class="n">catalog_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;dec_ind&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">trans_fov</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span> <span class="o">/</span> <span class="n">pointing_precision</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pointing_precision</span> <span class="o">*</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;dec_ind&quot;</span><span class="p">]</span>
+
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;ra_ind&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">trans_fov</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]))</span>
+            <span class="o">/</span> <span class="n">pointing_precision</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pointing_precision</span>
+        <span class="o">*</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;ra_ind&quot;</span><span class="p">]</span>
+        <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_expression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;magnitude_expression&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_magnitude&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;min_magnitude&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_magnitude&quot;</span><span class="p">],)</span>
+            <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;min_magnitude&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;min_magnitude&quot;</span><span class="p">],</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_magnitude&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;From transformation estimate half FOV is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">trans_fov</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">frame_fov_estimate</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span>
+                    <span class="mf">2.0</span> <span class="o">*</span> <span class="n">trans_fov</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                    <span class="n">configuration</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame_fov_estimate&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[</span><span class="n">i</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="n">pointing_precision</span>
+            <span class="p">)</span>
+            <span class="o">/</span> <span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fov_precision&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">*</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fov_precision&quot;</span><span class="p">]</span>
+        <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Determining catalog query size from: &quot;</span>
+        <span class="s2">&quot;frame_fov_estimate=</span><span class="si">%s</span><span class="s2">, &quot;</span>
+        <span class="s2">&quot;image_scale_factor=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">frame_fov_estimate</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fov_safety_margin&quot;</span><span class="p">]),</span>
+    <span class="p">)</span>
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">fov_size</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fov_safety_margin&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">fov_size</span> <span class="ow">in</span> <span class="n">frame_fov_estimate</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+        <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">header</span><span class="p">)(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">dr_files</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_files</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">Evaluator</span><span class="p">(</span><span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">())(</span>
+                            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="o">!=</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Not all data reduction files to be covered by a single&quot;</span>
+                            <span class="s2">&quot; catalog have the same epoch&quot;</span>
+                        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">header</span><span class="p">)(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">])</span>
+
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span>
+
+    <span class="n">get_checksum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">catalog_info</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">get_checksum</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+
+    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">header</span><span class="p">),</span> <span class="o">**</span><span class="n">catalog_info</span><span class="p">,</span> <span class="n">checksum</span><span class="o">=</span><span class="n">get_checksum</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Created catalog info: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">catalog_info</span><span class="p">,</span> <span class="n">trans_fov</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">trans_fov</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># No god way to simplify</span>
+<span class="c1"># pylint: disable=too-many-branches</span>
+<div class="viewcode-block" id="ensure_catalog">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.ensure_catalog">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_catalog</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dr_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transformation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">configuration</span><span class="p">,</span>
+    <span class="n">lock</span><span class="o">=</span><span class="n">nullcontext</span><span class="p">(),</span>
+    <span class="n">return_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Re-use or create astrometry catalog suitable for the given frame.&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">dr_files</span> <span class="ow">or</span> <span class="n">transformation</span>
+
+    <span class="n">catalog_info</span><span class="p">,</span> <span class="n">query_center</span><span class="p">,</span> <span class="n">outliers</span> <span class="o">=</span> <span class="n">get_catalog_info</span><span class="p">(</span>
+        <span class="n">transformation</span><span class="o">=</span><span class="n">transformation</span><span class="p">,</span>
+        <span class="n">dr_files</span><span class="o">=</span><span class="n">dr_files</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]):</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">])</span> <span class="k">as</span> <span class="n">cat_fits</span><span class="p">:</span>
+                <span class="n">catalog_header</span> <span class="o">=</span> <span class="n">cat_fits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+                <span class="c1"># pylint: disable=too-many-boolean-expressions</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                        <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;EPOCH&quot;</span><span class="p">]</span>
+                        <span class="o">-</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;yr&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mf">0.25</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;has epoch </span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;EPOCH&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">, &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;but </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> is needed&#39;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGEXPR&quot;</span><span class="p">]</span>
+                    <span class="o">!=</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_expression&quot;</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> has &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;magnitude expression </span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGEXPR&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;instead of </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_expression&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MAGMIN&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+                    <span class="ow">and</span> <span class="p">(</span>
+                        <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGMIN&quot;</span><span class="p">]</span>
+                        <span class="o">&gt;</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> excludes &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;sources brighter than </span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGMIN&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;but </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> are &#39;</span>
+                        <span class="s2">&quot;required.&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">catalog_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">]</span>
+                    <span class="o">&lt;</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> excludes &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;sources fainter than </span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> but&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> are &#39;</span>
+                        <span class="s2">&quot;required.&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;WIDTH&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+                    <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> width &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;WIDTH&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> is less than the required&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;HEIGHT&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+                    <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> height &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;HEIGHT&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> is less than the &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;required </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">query_center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+                <span class="p">)</span> <span class="o">&gt;</span> <span class="n">configuration</span><span class="p">[</span>
+                    <span class="s2">&quot;pointing_precision&quot;</span>
+                <span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> center RA &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> is too far from the &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;required RA=</span><span class="si">{</span><span class="n">query_center</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">query_center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span> <span class="o">&gt;</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;pointing_precision&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Catalog </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> center Dec &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1"> is too far from the &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;required Dec=</span><span class="si">{</span><span class="n">query_center</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]</span><span class="si">!r}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+
+                <span class="n">filter_expr</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">filter_expr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filter_expr</span><span class="p">:</span>
+                    <span class="n">filter_expr</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">filter_expr</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">filter_expr</span><span class="p">[</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">]]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MAGMIN&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGMIN&quot;</span><span class="p">]</span>
+                    <span class="o">&lt;</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">filter_expr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;(magnitude &gt; </span><span class="si">{</span><span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s1">)&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">catalog_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;MAGMAX&quot;</span><span class="p">]</span>
+                    <span class="o">&gt;</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;magnitude_limit&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">filter_expr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="s1">&#39;(magnitude &lt; </span><span class="si">{catalog_info[&quot;magnitude_limit&quot;][-1]!r}</span><span class="s1">)&#39;</span>
+                    <span class="p">)</span>
+                <span class="c1"># pylint: enable=too-many-boolean-expressions</span>
+
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="n">read_catalog_file</span><span class="p">(</span>
+                        <span class="n">cat_fits</span><span class="p">,</span>
+                        <span class="n">filter_expr</span><span class="o">=</span><span class="p">(</span>
+                            <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_expr</span><span class="p">)</span> <span class="k">if</span> <span class="n">filter_expr</span> <span class="k">else</span> <span class="kc">None</span>
+                        <span class="p">),</span>
+                        <span class="n">return_metadata</span><span class="o">=</span><span class="n">return_metadata</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">outliers</span><span class="p">,</span>
+                    <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;ra_ind&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;dec_ind&quot;</span><span class="p">]</span>
+
+        <span class="n">create_catalog_file</span><span class="p">(</span><span class="o">**</span><span class="n">catalog_info</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">read_catalog_file</span><span class="p">(</span>
+                <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">],</span> <span class="n">return_metadata</span><span class="o">=</span><span class="n">return_metadata</span>
+            <span class="p">),</span>
+            <span class="n">outliers</span><span class="p">,</span>
+            <span class="n">catalog_info</span><span class="p">[</span><span class="s2">&quot;fname&quot;</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-branches</span>
+
+
+<div class="viewcode-block" id="check_catalog_coverage">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.check_catalog_coverage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_catalog_coverage</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">catalog_header</span><span class="p">,</span> <span class="n">safety_margin</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return True iff te catalog covers the frame fully including a safety margin.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        header(dict-like):    The header of the frame being astrometried.</span>
+
+<span class="sd">        transformation(dict):    The transformation to assume applies to the</span>
+<span class="sd">            given image.  Should contain entries for ``&#39;trans_x&#39;``,</span>
+<span class="sd">            ``&#39;trans_y&#39;``, ``&#39;ra_cent&#39;`` and ``&#39;dec_cent&#39;``.</span>
+
+<span class="sd">        catalog_header(dict-like):    The header of the catalog being used for</span>
+<span class="sd">            astrometry.</span>
+
+<span class="sd">        safety_margin(float):    The absolute values of xi and eta</span>
+<span class="sd">            (relative to the catalog center) corresponding to the corners of the</span>
+<span class="sd">            frame increased by this fraction must be smaller than the field of</span>
+<span class="sd">            view of the catalogfor the frame to be considered covered.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool:</span>
+<span class="sd">            Whether the catalog covers the frame fully including the safety</span>
+<span class="sd">            margin.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">get_max_abs_corner_xi_eta</span><span class="p">(</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+        <span class="n">transformation</span><span class="o">=</span><span class="n">transformation</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;RA&quot;</span><span class="p">:</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">],</span> <span class="s2">&quot;Dec&quot;</span><span class="p">:</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">]},</span>
+    <span class="p">)</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">safety_margin</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">*=</span> <span class="n">factor</span>
+    <span class="n">height</span> <span class="o">*=</span> <span class="n">factor</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Coverage with safety requires FOV (width: </span><span class="si">%s</span><span class="s2"> deg, height: </span><span class="si">%s</span><span class="s2"> def)&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">height</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">width</span> <span class="o">&lt;</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;WIDTH&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">height</span> <span class="o">&lt;</span> <span class="n">catalog_header</span><span class="p">[</span><span class="s2">&quot;HEIGHT&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="show_stars">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.show_stars">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">show_stars</span><span class="p">(</span><span class="n">catalog_fname</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Show the stars in the catalog on a 3-D plot of the sky.&quot;&quot;&quot;</span>
+
+    <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
+        <span class="mf">0.0</span> <span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="p">:</span> <span class="mi">10</span><span class="n">j</span><span class="p">,</span> <span class="mf">0.0</span> <span class="p">:</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="p">:</span> <span class="mi">10</span><span class="n">j</span>
+    <span class="p">]</span>
+    <span class="n">sphere_x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">sphere_y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">sphere_z</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span>
+        <span class="n">sphere_x</span><span class="p">,</span>
+        <span class="n">sphere_y</span><span class="p">,</span>
+        <span class="n">sphere_z</span><span class="p">,</span>
+        <span class="n">rstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">cstride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">stars</span> <span class="o">=</span> <span class="n">read_catalog_file</span><span class="p">(</span><span class="n">catalog_fname</span><span class="p">)</span>
+
+    <span class="n">stars_x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]))</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">stars_y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]))</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">stars_z</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;Dec&quot;</span><span class="p">]))</span>
+
+    <span class="n">axes</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">stars_x</span><span class="p">,</span> <span class="n">stars_y</span><span class="p">,</span> <span class="n">stars_z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../implementation/autowisp.catalog.html#autowisp.catalog.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid polluting global namespace.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">run_doctests</span><span class="p">:</span>
+        <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ra&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">ra</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="s2">&quot;dec&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">dec</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">epoch</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">yr</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;magnitude_expression&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">magnitude_expression</span><span class="p">,</span>
+        <span class="s2">&quot;magnitude_limit&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">magnitude_limit</span><span class="p">,</span>
+        <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+        <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="s2">&quot;overwrite&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">overwrite</span><span class="p">,</span>
+        <span class="s2">&quot;count_only&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">count_only</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">extra_condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">extra_condition</span>
+    <span class="n">create_catalog_file</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">catalog_fname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">show_stars</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">count_only</span><span class="p">:</span>
+        <span class="n">show_stars</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">catalog_fname</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">main</span><span class="p">(</span><span class="n">parse_command_line</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

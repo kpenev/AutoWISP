@@ -1,0 +1,5 @@
+<map id="inheritance8c3e5c0700" name="inheritance8c3e5c0700">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="165,5,240,32"/>
+<area shape="rect" id="node3" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="44,80,361,107"/>
+<area shape="rect" id="node2" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="5,155,400,181"/>
+</map>

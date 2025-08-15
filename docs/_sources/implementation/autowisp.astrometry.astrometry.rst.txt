@@ -1,0 +1,7 @@
+autowisp.astrometry.astrometry module
+=====================================
+
+.. automodule:: autowisp.astrometry.astrometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

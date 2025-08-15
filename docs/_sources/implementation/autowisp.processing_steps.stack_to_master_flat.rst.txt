@@ -1,0 +1,7 @@
+autowisp.processing\_steps.stack\_to\_master\_flat module
+=========================================================
+
+.. automodule:: autowisp.processing_steps.stack_to_master_flat
+   :members:
+   :show-inheritance:
+   :undoc-members:

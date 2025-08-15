@@ -1,0 +1,7 @@
+autowisp.fit\_expression.interface module
+=========================================
+
+.. automodule:: autowisp.fit_expression.interface
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.database.lightcurve\_processing module
+===============================================
+
+.. automodule:: autowisp.database.lightcurve_processing
+   :members:
+   :show-inheritance:
+   :undoc-members:

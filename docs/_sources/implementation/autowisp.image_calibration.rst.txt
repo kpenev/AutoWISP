@@ -1,0 +1,20 @@
+autowisp.image\_calibration package
+===================================
+
+.. automodule:: autowisp.image_calibration
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.image_calibration.calibrator
+   autowisp.image_calibration.fits_util
+   autowisp.image_calibration.mask_utilities
+   autowisp.image_calibration.master_flat_maker
+   autowisp.image_calibration.master_maker
+   autowisp.image_calibration.overscan_methods

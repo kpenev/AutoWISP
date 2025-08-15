@@ -1,0 +1,7 @@
+autowisp.magnitude\_fitting.master\_photref\_collector\_zarr module
+===================================================================
+
+.. automodule:: autowisp.magnitude_fitting.master_photref_collector_zarr
+   :members:
+   :show-inheritance:
+   :undoc-members:

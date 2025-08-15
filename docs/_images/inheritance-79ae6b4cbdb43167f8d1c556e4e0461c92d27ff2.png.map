@@ -1,0 +1,16 @@
+<map id="inheritance500495080a" name="inheritance500495080a">
+<area shape="rect" id="node1" href="#autowisp.astrometry.astrometry_net_client.Client" target="_top" title="autowisp.astrometry.astrometry_net_client.Client" alt="" coords="5,5,311,32"/>
+<area shape="rect" id="node2" href="#autowisp.astrometry.astrometry_net_client.MalformedResponse" target="_top" title="autowisp.astrometry.astrometry_net_client.MalformedResponse" alt="" coords="334,5,726,32"/>
+<area shape="rect" id="node3" href="#autowisp.astrometry.astrometry_net_client.RequestError" target="_top" title="autowisp.astrometry.astrometry_net_client.RequestError" alt="" coords="749,5,1098,32"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/email.compat32-message.html#email.message.Message" target="_top" title="Basic message object." alt="" coords="1122,5,1288,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/email.mime.html#email.mime.base.MIMEBase" target="_top" title="Base class for MIME specializations." alt="" coords="1110,80,1299,107"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/email.mime.html#email.mime.application.MIMEApplication" target="_top" title="Class for generating application/* MIME documents." alt="" coords="937,229,1195,256"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/email.mime.html#email.mime.nonmultipart.MIMENonMultipart" target="_top" title="Base class for MIME non&#45;multipart type messages." alt="" coords="928,155,1204,181"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/email.mime.html#email.mime.multipart.MIMEMultipart" target="_top" title="Base class for MIME multipart/* type messages." alt="" coords="1228,155,1459,181"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.HTTPError" target="_top" title="Raised when HTTP error occurs, but also acts like non&#45;error return" alt="" coords="1567,229,1712,256"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" target="_top" title="urllib.error.URLError" alt="" coords="1483,155,1620,181"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/urllib.request.html#urllib.response.addinfourl" target="_top" title="class to add info() and geturl() methods to an open file." alt="" coords="1645,155,1810,181"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/urllib.request.html#urllib.request.Request" target="_top" title="urllib.request.Request" alt="" coords="1830,5,1979,32"/>
+<area shape="rect" id="node13" title="Base class for addinfo and addclosehook. Is a good idea for garbage collection." alt="" coords="1648,5,1806,32"/>
+<area shape="rect" id="node14" title="class to add an info() method to an open file." alt="" coords="1652,80,1803,107"/>
+</map>

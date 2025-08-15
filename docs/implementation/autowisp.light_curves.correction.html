@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.light_curves.correction module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.light_curves.epd_correction module" href="autowisp.light_curves.epd_correction.html" />
+    <link rel="prev" title="autowisp.light_curves.collect_light_curves module" href="autowisp.light_curves.collect_light_curves.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.light_curves.html">autowisp.light_curves package</a></li>
+      <li class="breadcrumb-item active">autowisp.light_curves.correction module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.light_curves.correction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.light_curves.correction">
+<span id="autowisp-light-curves-correction-module"></span><h1>autowisp.light_curves.correction module<a class="headerlink" href="#module-autowisp.light_curves.correction" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-d864f0cf647117377e1475151583e6d757554cdf.png" alt="Inheritance diagram of Correction" usemap="#inheritance3184f545be" class="inheritance graphviz" /></div>
+<map id="inheritance3184f545be" name="inheritance3184f545be">
+<area shape="rect" id="node1" href="#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="5,5,278,32"/>
+</map><p>Define base class for all LC de-trend algorithms.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.correction.</span></span><span class="sig-name descname"><span class="pre">Correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_progress</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">iterative_fit_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-5cc8cf5ac88ffc73cc93d8de5003dcdafb944275.png" alt="Inheritance diagram of autowisp.light_curves.correction.Correction" usemap="#inheritance4aa35e19e4" class="inheritance graphviz" /></div>
+<map id="inheritance4aa35e19e4" name="inheritance4aa35e19e4">
+<area shape="rect" id="node1" href="#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="5,5,278,32"/>
+</map><p>Functionality and interface shared by all LC de-trending corrections.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction.fit_datasets">
+<span class="sig-name descname"><span class="pre">fit_datasets</span></span><a class="headerlink" href="#autowisp.light_curves.correction.Correction.fit_datasets" title="Link to this definition"></a></dt>
+<dd><p>See __init__().</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction.iterative_fit_config">
+<span class="sig-name descname"><span class="pre">iterative_fit_config</span></span><a class="headerlink" href="#autowisp.light_curves.correction.Correction.iterative_fit_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration to use for iterative
+fitting. See iterative_fit() for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_progress</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">iterative_fit_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction.__init__" title="Link to this definition"></a></dt>
+<dd><p>Configure the fitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit_datasets</strong> (<em>[</em><em>]</em>) – A list of 3-tuples of pipeline keys
+corresponding to each variable identifying a dataset to fit and
+correct, an associated dictionary of path substitutions, and a
+pipeline key for the output dataset. Configurations of how the
+fitting was done and the resulting residual and non-rejected
+points are added to configuration datasets generated by removing
+the tail of the destination and adding <cite>‘.cfg.’ + &lt;parameter
+name&gt;</cite> for configurations and just <cite>‘.’ + &lt;parameter name&gt;</cite> for
+fitting statistics. For example, if the output dataset key is</p></li>
+<li><p><strong>'shapefit.epd.magnitude'</strong></p></li>
+<li><p><strong>look</strong> (<em>the configuration datasets will</em>)</p></li>
+<li><p><strong>'shapefit.epd.cfg.fit_terms'</strong> (<em>like</em>)</p></li>
+<li><p><strong>and</strong></p></li>
+<li><p><strong>'shapefit.epd.residual'.</strong></p></li>
+<li><p><strong>iterative_fit_config</strong> – Any other arguments to pass directly to
+iterative_fit().</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction._fix_substitutions">
+<span class="sig-name descname"><span class="pre">_fix_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction._fix_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction._fix_substitutions" title="Link to this definition"></a></dt>
+<dd><p>Fix magfit iteration in substitutions if negative.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction._get_config_key_prefix">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_config_key_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction._get_config_key_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction._get_config_key_prefix" title="Link to this definition"></a></dt>
+<dd><p>Return the prefix of the pipeline key for storing configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction._get_fit_data">
+<span class="sig-name descname"><span class="pre">_get_fit_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_fit_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction._get_fit_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction._get_fit_data" title="Link to this definition"></a></dt>
+<dd><p>Return the lightcurve points to detrend.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction._get_io_iterative_fit_config">
+<span class="sig-name descname"><span class="pre">_get_io_iterative_fit_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_key_prefix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction._get_io_iterative_fit_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction._get_io_iterative_fit_config" title="Link to this definition"></a></dt>
+<dd><p>Return the iterative fit portion of the configuration to save in the LC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pipeline_key_prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The part of the pipeline key specifying
+which configuration is being defined (i.e. everything except the
+last item in the key).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of tuples of the configuration options contained in
+<a class="reference internal" href="#autowisp.light_curves.correction.Correction.iterative_fit_config" title="autowisp.light_curves.correction.Correction.iterative_fit_config"><code class="xref py py-attr docutils literal notranslate"><span class="pre">iterative_fit_config</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[()]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction._process_fit">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_process_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_extra_predictors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction._process_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction._process_fit" title="Link to this definition"></a></dt>
+<dd><p>Incorporate the results of a single fit in final result of __call__().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit_results</strong> – The return value of the iterative_fit() used to
+calculate the correction</p></li>
+<li><p><strong>raw_values</strong> (<em>1-D array</em>) – The data to apply the correction to.
+Should already exclude any points not selected for correction.</p></li>
+<li><p><strong>predictors</strong> (<em>2-D array</em>) – The predictors to use for the correction
+(e.g. the templates for TFA fitting).</p></li>
+<li><p><strong>fit_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The index of the dataset being fit within the
+list of datasets that will be fit for this lightcurve.</p></li>
+<li><p><strong>result</strong> – The result variable for the parent update for this
+fit.</p></li>
+<li><p><strong>num_extra_predictors</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – How many extra predictors are
+there.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same structure as fit_results, but ready to pass to
+self._save_result().</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction._save_result">
+<span class="sig-name descname"><span class="pre">_save_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corrected_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_residual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_rejected_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_curve</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction._save_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction._save_result" title="Link to this definition"></a></dt>
+<dd><p>Stores the de-treneded results and configuration to the light curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The index of the dataset for which a correction
+was applied in within the list of datasets specified at init.</p></li>
+<li><p><strong>corrected_values</strong> (<em>array</em>) – The corrected data to save.</p></li>
+<li><p><strong>fit_residual</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The residual from the fit, calculated as
+specified at init.</p></li>
+<li><p><strong>non_rejected_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The number of points used in the last
+iteration of the itaritive fit.</p></li>
+<li><p><strong>fit_points</strong> (<em>bool array</em>) – Flags indicating for each entry in the
+input (uncorrected) dataset, whether it is represented in
+<cite>corrected_values</cite>.</p></li>
+<li><p><strong>configuration</strong> (<em>[</em><em>]</em>) – The configuration used for the fit, properly
+formatted to be converted to an entry in the configurations
+argument to LightCurveFile.add_configurations().</p></li>
+<li><p><strong>light_curve</strong> (<a class="reference internal" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" title="autowisp.light_curves.light_curve_file.LightCurveFile"><em>LightCurveFile</em></a>) – A light curve file opened for
+writing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.light_curves.correction.Correction.get_result_dtype">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_result_dtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_photometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_predictors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/correction.html#Correction.get_result_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.correction.Correction.get_result_dtype" title="Link to this definition"></a></dt>
+<dd><p>Return the data type for the result of __call__.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.light_curves.collect_light_curves.html" class="btn btn-neutral float-left" title="autowisp.light_curves.collect_light_curves module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.light_curves.epd_correction.html" class="btn btn-neutral float-right" title="autowisp.light_curves.epd_correction module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

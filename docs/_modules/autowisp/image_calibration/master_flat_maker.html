@@ -1,0 +1,1041 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_calibration.master_flat_maker &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.image_calibration.master_flat_maker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.image_calibration.master_flat_maker</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define classes for creating master flat frames.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.master_maker</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterMaker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_image_components</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_pointing_from_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.mask_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask_flags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_smoothing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageSmoother</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.iterative_rejection_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">iterative_rejection_average</span><span class="p">,</span>
+    <span class="n">iterative_rej_polynomial_fit</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="MasterFlatMaker">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MasterFlatMaker</span><span class="p">(</span><span class="n">MasterMaker</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Specialize MasterMaker for making master flat frames.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        stamp_statistics_config:    Dictionary configuring how stamps statistics</span>
+<span class="sd">            for stamp-based selection are extracted from the frames.</span>
+
+<span class="sd">        stamp_select_config:    Dictionary configuring how stamp-based selection</span>
+<span class="sd">            is performed. See keyword only arguments of</span>
+<span class="sd">            :meth:`configure_stamp_selection` for details.</span>
+
+<span class="sd">        large_scale_smoother:    A</span>
+<span class="sd">            :class:`autowisp.image_smoothing.ImageSmoother`</span>
+<span class="sd">            instance applied  to the ratio of a frame to the reference large</span>
+<span class="sd">            scale structure before applying it to the frame.</span>
+
+<span class="sd">        cloud_check_smoother:</span>
+<span class="sd">            :class:`autowisp.image_smoothing.ImageSmoother`</span>
+<span class="sd">            instance used for cloud detection performed on the full flat frames</span>
+<span class="sd">            after smoothing to the master large scale structure.</span>
+
+<span class="sd">        master_stack_config:    Dictionary configuring how to stack the</span>
+<span class="sd">            individual frames into a master.</span>
+
+<span class="sd">        _master_large_scale:    The large scale structure imposed on all master</span>
+<span class="sd">            flats. Dictionary with keys ``values``, ``stdev``, ``mask`` and</span>
+<span class="sd">            ``header``. If empty dictionary, nothing is imposed.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; import scipy.ndimage.filters</span>
+<span class="sd">        &gt;&gt;&gt; from autowisp.image_smoothing import\</span>
+<span class="sd">        &gt;&gt;&gt;     PolynomialImageSmoother,\</span>
+<span class="sd">        &gt;&gt;&gt;     SplineImageSmoother,\</span>
+<span class="sd">        &gt;&gt;&gt;     ChainSmoother,\</span>
+<span class="sd">        &gt;&gt;&gt;     WrapFilterAsSmoother</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Stamp statistics configuration:</span>
+<span class="sd">        &gt;&gt;&gt; #  * stamps span half the frame along each dimension</span>
+<span class="sd">        &gt;&gt;&gt; #  * stamps are detrended by a bi-quadratic polynomial with at most</span>
+<span class="sd">        &gt;&gt;&gt; #    one rejection iteration, discarding more than 3-sigma outliers.</span>
+<span class="sd">        &gt;&gt;&gt; #  * for each stamp a iterative rejection mean and variance are</span>
+<span class="sd">        &gt;&gt;&gt; #    calculated with up to 3 iterations rejecting three or more</span>
+<span class="sd">        &gt;&gt;&gt; #    sigma outliers.</span>
+<span class="sd">        &gt;&gt;&gt; stamp_statistics_config = dict(</span>
+<span class="sd">        &gt;&gt;&gt;     fraction=0.5,</span>
+<span class="sd">        &gt;&gt;&gt;     smoother=PolynomialImageSmoother(num_x_terms=3,</span>
+<span class="sd">        &gt;&gt;&gt;                                      num_y_terms=3,</span>
+<span class="sd">        &gt;&gt;&gt;                                      outlier_threshold=3.0,</span>
+<span class="sd">        &gt;&gt;&gt;                                      max_iterations=3),</span>
+<span class="sd">        &gt;&gt;&gt;     average=&#39;mean&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;     outlier_threshold=3.0,</span>
+<span class="sd">        &gt;&gt;&gt;     max_iter=3</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Stamp statistics based selection configuration:</span>
+<span class="sd">        &gt;&gt;&gt; #  * Stamps with more than 0.1% of their pixels saturated are</span>
+<span class="sd">        &gt;&gt;&gt; #    discarded</span>
+<span class="sd">        &gt;&gt;&gt; #  * if variance vs mean quadratic fit has residual of more than 5k</span>
+<span class="sd">        &gt;&gt;&gt; #    ADU^2, the entire night is considered cloudy.</span>
+<span class="sd">        &gt;&gt;&gt; #  * individual frames with stamp mean and variance deviating more</span>
+<span class="sd">        &gt;&gt;&gt; #    than 2*(fit_residual) are discarded as cloudy.</span>
+<span class="sd">        &gt;&gt;&gt; #  * high master flat will be generated from frames with stamp mean</span>
+<span class="sd">        &gt;&gt;&gt; #    &gt; 25 kADU, and low master flat from frames with stamp mean &lt; 15</span>
+<span class="sd">        &gt;&gt;&gt; #    kADU (intermediate frames are discarded).</span>
+<span class="sd">        &gt;&gt;&gt; stamp_select_config = dict(max_saturated_fraction=1e-4,</span>
+<span class="sd">        &gt;&gt;&gt;                            var_mean_fit_threshold=2.0,</span>
+<span class="sd">        &gt;&gt;&gt;                            var_mean_fit_iterations=2,</span>
+<span class="sd">        &gt;&gt;&gt;                            cloudy_night_threshold=5e3,</span>
+<span class="sd">        &gt;&gt;&gt;                            cloudy_frame_threshold=2.0,</span>
+<span class="sd">        &gt;&gt;&gt;                            min_high_mean=2.5e4,</span>
+<span class="sd">        &gt;&gt;&gt;                            max_low_mean=1.5e4)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Large scale structure smoothing configuration. For each frame, the</span>
+<span class="sd">        &gt;&gt;&gt; #large scale struture is corrected by taking the ratio of the frame</span>
+<span class="sd">        &gt;&gt;&gt; #to the reference (median of all input frames), smoothing this ratio</span>
+<span class="sd">        &gt;&gt;&gt; #and then dividing by it. The following defines how the smoothing is</span>
+<span class="sd">        &gt;&gt;&gt; #performed:</span>
+<span class="sd">        &gt;&gt;&gt; #  * shrink by a factor of 4 in each direction (16 pixels gets</span>
+<span class="sd">        &gt;&gt;&gt; #    averaged to one).</span>
+<span class="sd">        &gt;&gt;&gt; #  * Performa a box-filtering with a half-size of 6-pixels using</span>
+<span class="sd">        &gt;&gt;&gt; #    median averaging</span>
+<span class="sd">        &gt;&gt;&gt; #  * Perform a bi-cubic spline interpolation smoothing of the</span>
+<span class="sd">        &gt;&gt;&gt; #    box-filtered image.</span>
+<span class="sd">        &gt;&gt;&gt; #  * Discard more than 5-sigma outliers if any and re-smooth (no</span>
+<span class="sd">        &gt;&gt;&gt; #    further iterations allowed)</span>
+<span class="sd">        &gt;&gt;&gt; #  * Re-interpolate the image back to its original size, using</span>
+<span class="sd">        &gt;&gt;&gt; #    bicubic interpolation (see zoom_image()).</span>
+<span class="sd">        &gt;&gt;&gt; #  * The resulting image is scaled to have a mean of 1 (no</span>
+<span class="sd">        &gt;&gt;&gt; #    configuration for that).</span>
+<span class="sd">        &gt;&gt;&gt; large_scale_smoother = ChainSmoother(</span>
+<span class="sd">        &gt;&gt;&gt;     WrapFilterAsSmoother(scipy.ndimage.filters.median_filter,</span>
+<span class="sd">        &gt;&gt;&gt;                          size=12),</span>
+<span class="sd">        &gt;&gt;&gt;     SplineImageSmoother(num_x_nodes=3,</span>
+<span class="sd">        &gt;&gt;&gt;                         num_y_nodes=3,</span>
+<span class="sd">        &gt;&gt;&gt;                         outlier_threshold=5.0,</span>
+<span class="sd">        &gt;&gt;&gt;                         max_iter=1),</span>
+<span class="sd">        &gt;&gt;&gt;     bin_factor=4,</span>
+<span class="sd">        &gt;&gt;&gt;     zoom_interp_order=3</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Configuration for smoothnig when checking for clouds.</span>
+<span class="sd">        &gt;&gt;&gt; #After smoothing to the master large scale structure:</span>
+<span class="sd">        &gt;&gt;&gt; #  * extract a central stamp is extracted from each flat covering</span>
+<span class="sd">        &gt;&gt;&gt; #    3/4 of the frame along each dimension</span>
+<span class="sd">        &gt;&gt;&gt; #  * shrink the fractional deviation of that stamp from the master</span>
+<span class="sd">        &gt;&gt;&gt; #    by a factor of 4 in each dimension</span>
+<span class="sd">        &gt;&gt;&gt; #  * smooth by median box-filtering with half size of 4 shrunk</span>
+<span class="sd">        &gt;&gt;&gt; #    pixels</span>
+<span class="sd">        &gt;&gt;&gt; #  * zoom the frame back out by a factor of 4 in each dimension</span>
+<span class="sd">        &gt;&gt;&gt; #    (same factor as shrinking, no separater config), using</span>
+<span class="sd">        &gt;&gt;&gt; #    bi-quadratic interpolation.</span>
+<span class="sd">        &gt;&gt;&gt; cloud_check_smoother = WrapFilterAsSmoother(</span>
+<span class="sd">        &gt;&gt;&gt;     scipy.ndimage.filters.median_filter,</span>
+<span class="sd">        &gt;&gt;&gt;     size=8,</span>
+<span class="sd">        &gt;&gt;&gt;     bin_factor=4,</span>
+<span class="sd">        &gt;&gt;&gt;     zoom_interp_order=3</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #When stacking masters require:</span>
+<span class="sd">        &gt;&gt;&gt; #  * At least 10 input frames for a high intensity master and at</span>
+<span class="sd">        &gt;&gt;&gt; #    least 5 for a low intensity one.</span>
+<span class="sd">        &gt;&gt;&gt; #  * When creating the stack used to match large-scale structure,</span>
+<span class="sd">        &gt;&gt;&gt; #    use median averaging with outlier rejection of more than</span>
+<span class="sd">        &gt;&gt;&gt; #    4-sigma outliers with at most one reject/re-fit iteration.</span>
+<span class="sd">        &gt;&gt;&gt; #  * When creating the final master use median averaging with</span>
+<span class="sd">        &gt;&gt;&gt; #    outlier rejection of more than 2-sigma outliers in the positive</span>
+<span class="sd">        &gt;&gt;&gt; #    and more than 3-sigma in the negative direction with at most 2</span>
+<span class="sd">        &gt;&gt;&gt; #    reject/re-fit iterations. Create the master compressed and</span>
+<span class="sd">        &gt;&gt;&gt; #    raise an exception if a file with that name already exists.</span>
+<span class="sd">        &gt;&gt;&gt; master_stack_config = dict(</span>
+<span class="sd">        &gt;&gt;&gt;     min_pointing_separation=150.0,</span>
+<span class="sd">        &gt;&gt;&gt;     large_scale_deviation_threshold=0.05,</span>
+<span class="sd">        &gt;&gt;&gt;     min_high_combine=10,</span>
+<span class="sd">        &gt;&gt;&gt;     min_low_combine=5,</span>
+<span class="sd">        &gt;&gt;&gt;     large_scale_stack_options=dict(</span>
+<span class="sd">        &gt;&gt;&gt;         outlier_threshold=4,</span>
+<span class="sd">        &gt;&gt;&gt;         average_func=numpy.nanmedian,</span>
+<span class="sd">        &gt;&gt;&gt;         min_valid_values=3,</span>
+<span class="sd">        &gt;&gt;&gt;         max_iter=1,</span>
+<span class="sd">        &gt;&gt;&gt;         exclude_mask=MasterMaker.default_exclude_mask</span>
+<span class="sd">        &gt;&gt;&gt;     ),</span>
+<span class="sd">        &gt;&gt;&gt;     master_stack_options=dict(</span>
+<span class="sd">        &gt;&gt;&gt;         outlier_threshold=(2, -3),</span>
+<span class="sd">        &gt;&gt;&gt;         average_func=numpy.nanmedian,</span>
+<span class="sd">        &gt;&gt;&gt;         min_valid_values=3,</span>
+<span class="sd">        &gt;&gt;&gt;         max_iter=2,</span>
+<span class="sd">        &gt;&gt;&gt;         exclude_mask=MasterMaker.default_exclude_mask,</span>
+<span class="sd">        &gt;&gt;&gt;         compress=True,</span>
+<span class="sd">        &gt;&gt;&gt;         allow_overwrite=False</span>
+<span class="sd">        &gt;&gt;&gt;     )</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Create an object for stacking calibrated flat frames to master</span>
+<span class="sd">        &gt;&gt;&gt; #flats. In addition to the stamp-based rejections:</span>
+<span class="sd">        &gt;&gt;&gt; #  * reject flats that point within 40 arcsec of each other on the</span>
+<span class="sd">        &gt;&gt;&gt; #    sky.</span>
+<span class="sd">        &gt;&gt;&gt; #  * Require at least 10 frames to be combined into a high master</span>
+<span class="sd">        &gt;&gt;&gt; #    and at least 5 for a low master.</span>
+<span class="sd">        &gt;&gt;&gt; #  * if the smoothed cloud-check image contains pixels with absolute</span>
+<span class="sd">        &gt;&gt;&gt; #    value &gt; 5% the frame is discarded as cloudy.</span>
+<span class="sd">        &gt;&gt;&gt; make_master_flat = MasterFlatMaker(</span>
+<span class="sd">        &gt;&gt;&gt;     stamp_statistics_config=stamp_statistics_config,</span>
+<span class="sd">        &gt;&gt;&gt;     stamp_select_config=stamp_select_config,</span>
+<span class="sd">        &gt;&gt;&gt;     large_scale_smoother=large_scale_smoother,</span>
+<span class="sd">        &gt;&gt;&gt;     cloud_check_smoother=cloud_check_smoother,</span>
+<span class="sd">        &gt;&gt;&gt;     master_stack_config=master_stack_config</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Create master flat(s) from the given raw flat frames. Note that</span>
+<span class="sd">        &gt;&gt;&gt; #zero, one or two master flat frames can be created, depending on</span>
+<span class="sd">        &gt;&gt;&gt; #the input images. Assume that the raw flat frames have names like</span>
+<span class="sd">        &gt;&gt;&gt; #10-&lt;fnum&gt;_2.fits.fz, with fnum ranging from 1 to 30 inclusive.</span>
+<span class="sd">        &gt;&gt;&gt; make_master_flat(</span>
+<span class="sd">        &gt;&gt;&gt;     [&#39;10-%d_2.fits.fz&#39; % fnum for fnum in range(1, 31)],</span>
+<span class="sd">        &gt;&gt;&gt;     high_master_fname=&#39;high_master_flat.fits.fz&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;     low_master_fname=&#39;low_master_flat.fits.fz&#39;</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MasterFlatMaker._get_stamp_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker._get_stamp_statistics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_stamp_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_list</span><span class="p">,</span> <span class="o">**</span><span class="n">stamp_statistics_config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get relevant information from the stamp of a single input flat frame.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_list:    The list of frames for which to extract stamp</span>
+<span class="sd">                statistics.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy field array:</span>
+<span class="sd">                An array with fields called ``mean``, ``variance`` and</span>
+<span class="sd">                ``num_averaged`` with the obvious meanings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">stamp_statistics</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;num_averaged&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame_list</span><span class="p">):</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+            <span class="n">image</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">read_image_components</span><span class="p">(</span>
+                <span class="n">fname</span><span class="p">,</span> <span class="n">read_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_header</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="c1"># pylint: enable=unbalanced-tuple-unpacking</span>
+
+            <span class="n">y_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">])</span>
+            <span class="n">x_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">])</span>
+            <span class="n">x_off</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">y_off</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">num_saturated</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span>
+                    <span class="n">mask</span><span class="p">[</span><span class="n">y_off</span> <span class="p">:</span> <span class="n">y_off</span> <span class="o">+</span> <span class="n">y_size</span><span class="p">,</span> <span class="n">x_off</span> <span class="p">:</span> <span class="n">x_off</span> <span class="o">+</span> <span class="n">x_size</span><span class="p">],</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
+                        <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;OVERSATURATED&quot;</span><span class="p">],</span>
+                        <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
+                            <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;LEAKED&quot;</span><span class="p">],</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;SATURATED&quot;</span><span class="p">]</span>
+                        <span class="p">),</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">num_saturated</span> <span class="o">&gt;</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;max_saturated_fraction&quot;</span><span class="p">]</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">x_size</span> <span class="o">*</span> <span class="n">y_size</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">stamp_statistics</span><span class="p">[</span><span class="n">frame_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">smooth_stamp</span> <span class="o">=</span> <span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;smoother&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span>
+                    <span class="c1"># False positive</span>
+                    <span class="c1"># pylint: disable=unsubscriptable-object</span>
+                    <span class="n">image</span><span class="p">[</span><span class="n">y_off</span> <span class="p">:</span> <span class="n">y_off</span> <span class="o">+</span> <span class="n">y_size</span><span class="p">,</span> <span class="n">x_off</span> <span class="p">:</span> <span class="n">x_off</span> <span class="o">+</span> <span class="n">x_size</span><span class="p">]</span>
+                    <span class="c1"># pylint: enable=unsubscriptable-object</span>
+                <span class="p">)</span>
+
+                <span class="n">stamp_statistics</span><span class="p">[</span><span class="n">frame_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterative_rejection_average</span><span class="p">(</span>
+                    <span class="n">smooth_stamp</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                    <span class="n">average_func</span><span class="o">=</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;average&quot;</span><span class="p">],</span>
+                    <span class="n">max_iter</span><span class="o">=</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;max_iter&quot;</span><span class="p">],</span>
+                    <span class="n">outlier_threshold</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;outlier_threshold&quot;</span><span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="n">mangle_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span>
+            <span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;num_averaged&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stamp_statistics</span></div>
+
+
+    <span class="c1"># Splitting will not improve readability</span>
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="MasterFlatMaker._classify_from_stamps">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker._classify_from_stamps">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_classify_from_stamps</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">frame_list</span><span class="p">,</span> <span class="n">stamp_statistics_config</span><span class="p">,</span> <span class="n">stamp_select_config</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Classify frames by intensity: (high/low/ntermediate), or flag as cloudy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_list:    The list of frames to create masters from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (tuple):</span>
+<span class="sd">                filename list:</span>
+<span class="sd">                    The list of high intensity non-cloudy frames.</span>
+
+<span class="sd">                filename list:</span>
+<span class="sd">                    The list of low intensity non-cloudy frames.</span>
+
+<span class="sd">                filename list:</span>
+<span class="sd">                    The list of medium intensity non-cloudy frames.</span>
+
+<span class="sd">                filename list:</span>
+<span class="sd">                    The list of frames suspected of containing clouds in</span>
+<span class="sd">                    their central stamps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">stamp_statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stamp_statistics</span><span class="p">(</span>
+            <span class="n">frame_list</span><span class="p">,</span> <span class="o">**</span><span class="n">stamp_statistics_config</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_night_threshold&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_frame_threshold&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="p">(</span><span class="n">fit_coef</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">best_fit_variance</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">iterative_rej_polynomial_fit</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">],</span>
+                    <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">stamp_select_config</span><span class="p">[</span>
+                        <span class="s2">&quot;var_mean_fit_threshold&quot;</span>
+                    <span class="p">],</span>
+                    <span class="n">max_iterations</span><span class="o">=</span><span class="n">stamp_select_config</span><span class="p">[</span>
+                        <span class="s2">&quot;var_mean_fit_iterations&quot;</span>
+                    <span class="p">],</span>
+                    <span class="n">return_predicted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">stat_msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{</span><span class="s2">&quot;frame&quot;</span><span class="si">:</span><span class="s1">50s</span><span class="si">}</span><span class="s1">|</span><span class="si">{</span><span class="s2">&quot;mean&quot;</span><span class="si">:</span><span class="s1">10s</span><span class="si">}</span><span class="s1">|</span><span class="si">{</span><span class="s2">&quot;std&quot;</span><span class="si">:</span><span class="s1">10s</span><span class="si">}</span><span class="s1">|</span><span class="si">{</span><span class="s2">&quot;fitstd&quot;</span><span class="si">:</span><span class="s1">10s</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="mi">92</span> <span class="o">*</span> <span class="s2">&quot;_&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">stat</span><span class="p">,</span> <span class="n">fitvar</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">frame_list</span><span class="p">,</span> <span class="n">stamp_statistics</span><span class="p">,</span> <span class="n">best_fit_variance</span>
+            <span class="p">):</span>
+                <span class="n">stat_msg</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">fname</span><span class="si">:</span><span class="s2">50s</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">stat</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">10g</span><span class="si">}</span><span class="s2">|&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stat</span><span class="p">[</span><span class="s1">&#39;variance&#39;</span><span class="p">]</span><span class="o">**</span><span class="mf">0.5</span><span class="si">:</span><span class="s2">10g</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">fitvar</span><span class="o">**</span><span class="mf">0.5</span><span class="si">:</span><span class="s2">10g</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Flat stamp pixel statistics:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Best fit quadratic: &quot;</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2"> + </span><span class="si">%f</span><span class="s2">*m + </span><span class="si">%f</span><span class="s2">*m^2; residual=</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">fit_coef</span><span class="p">,</span>
+                <span class="n">residual</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_night_threshold&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">residual</span> <span class="o">&gt;</span> <span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_night_threshold&quot;</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="n">frame_list</span>
+
+        <span class="n">high</span> <span class="o">=</span> <span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;min_high_mean&quot;</span><span class="p">]</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;max_low_mean&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cloudy_frame_threshold&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cloudy</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">stamp_statistics</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">best_fit_variance</span><span class="p">)</span>
+                <span class="o">&gt;</span> <span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_frame_threshold&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">residual</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cloudy</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">medium</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">))[</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">high</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">low</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">cloudy</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">high</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">))[</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">cloudy</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">))[</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">cloudy</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">cloudy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">))[</span><span class="n">cloudy</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">frame_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">high</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">frame_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">low</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">frame_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">medium</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">frame_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cloudy</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: disable=too-many-locals</span>
+
+<div class="viewcode-block" id="MasterFlatMaker._find_colocated">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker._find_colocated">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_colocated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split the list of frames into well isolated ones and co-located ones.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_list:    A list of the frames to create the masters from</span>
+<span class="sd">                (FITS filenames).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (tuple):</span>
+<span class="sd">                filename list:</span>
+<span class="sd">                    The ist of frames sufficiently far in pointing from all</span>
+<span class="sd">                    other frames.</span>
+
+<span class="sd">                filename list:</span>
+<span class="sd">                    The list of frames which have at least one other</span>
+<span class="sd">                    frame too close in pointing to them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;min_pointing_separation&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">frame_list</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="n">frame_pointings</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_pointing_from_header</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frame_list</span><span class="p">]</span>
+        <span class="n">colocated</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">reference_index</span><span class="p">,</span> <span class="n">reference_pointing</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame_pointings</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">pointing</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="n">frame_pointings</span><span class="p">[</span><span class="n">reference_index</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">reference_pointing</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">pointing</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;arcsec&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;min_pointing_separation&quot;</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">colocated</span><span class="p">[</span><span class="n">reference_index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">colocated</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="n">reference_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">isolated</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">))[</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">colocated</span><span class="p">)]</span>
+        <span class="n">colocated</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">))[</span><span class="n">colocated</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">frame_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">isolated</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">frame_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">colocated</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MasterFlatMaker.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">stamp_statistics_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stamp_select_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">large_scale_smoother</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cloud_check_smoother</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">master_stack_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create object for creating master flats out of calibrated flat frames.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stamp_statistics_config:    A dictionary mith arguments to pass</span>
+<span class="sd">                to :meth:`configure_stamp_statistics`.</span>
+
+<span class="sd">            stamp_select_cofig:    A dictionary with arguments to pass</span>
+<span class="sd">                to :meth:`configure_stamp_selection`.</span>
+
+<span class="sd">            large_scale_smoother:    An ImageSmoother instance used when</span>
+<span class="sd">                matching large scale structure of individual flats to master.</span>
+
+<span class="sd">            cloud_check_smoother:    An ImageSmoother instance used when checkng</span>
+<span class="sd">                the full frames for clouds (after stamps are checked).</span>
+
+<span class="sd">            master_stack_config:    Configuration of how to stack frames to a</span>
+<span class="sd">                master after matching their large scale structure. See</span>
+<span class="sd">                example in class doc-string for details.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">large_scale_smoother</span> <span class="o">=</span> <span class="n">large_scale_smoother</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloud_check_smoother</span> <span class="o">=</span> <span class="n">cloud_check_smoother</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span> <span class="o">=</span> <span class="n">master_stack_config</span>
+
+        <span class="k">if</span> <span class="n">stamp_statistics_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configure_stamp_statistics</span><span class="p">(</span><span class="o">**</span><span class="n">stamp_statistics_config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stamp_select_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configure_stamp_selection</span><span class="p">(</span><span class="o">**</span><span class="n">stamp_select_config</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="MasterFlatMaker.configure_stamp_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker.configure_stamp_statistics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_stamp_statistics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">fraction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">smoother</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">outlier_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">average</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configure extraction of stamp satistics for rejection &amp; high/low split.</span>
+
+<span class="sd">        Any arguments left as None are not updated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fraction:    The fraction of the frame size that is included in the</span>
+<span class="sd">                stamp along each dimension (i.e. fraction=0.5 means 1/4 of all</span>
+<span class="sd">                frame pixels will be incruded in the stamp).</span>
+
+<span class="sd">            smoother:    An ImageSmoother instance used used for</span>
+<span class="sd">                de-trending the stamps before extracting statistics</span>
+
+<span class="sd">            outlier_threshold:    The threshold in units of RMS deviation from</span>
+<span class="sd">                the average above which pixels are considered outliers from the</span>
+<span class="sd">                de-trending function and discarded from its fit.</span>
+
+<span class="sd">            max_iter:    The maximum number of fit/reject iterations to perform</span>
+<span class="sd">                before declaring the de-trending function final.</span>
+
+<span class="sd">            average:    How to compute the average. Should be either ``&#39;mean&#39;``</span>
+<span class="sd">                or ``&#39;median&#39;``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">fraction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fraction</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fraction</span>
+
+        <span class="k">if</span> <span class="n">smoother</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoother</span><span class="p">,</span> <span class="n">ImageSmoother</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;smoother&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">smoother</span>
+
+        <span class="k">if</span> <span class="n">outlier_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;outlier_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">outlier_threshold</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">max_iter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_iter</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;max_iter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_iter</span>
+
+        <span class="k">if</span> <span class="n">average</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">average</span> <span class="ow">in</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span><span class="p">[</span><span class="s2">&quot;average&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">average</span></div>
+
+
+<div class="viewcode-block" id="MasterFlatMaker.configure_stamp_selection">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker.configure_stamp_selection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_stamp_selection</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">max_saturated_fraction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">var_mean_fit_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">var_mean_fit_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cloudy_night_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cloudy_frame_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_high_mean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_low_mean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configure stamp-based frame selection and high/low split.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_saturated_fraction:    The maximum fraction of stamp pixels</span>
+<span class="sd">                allowed to be saturated before discarding the frame.</span>
+
+<span class="sd">            cloudy_night_threshold:    The maximum residual of the variance vs</span>
+<span class="sd">                mean quadratic fit before a night is declared cloudy. If None,</span>
+<span class="sd">                this check is disabled.</span>
+
+<span class="sd">            cloudy_frame_threshold:    The maximum deviation in units of the RMS</span>
+<span class="sd">                residual of the fit an individual frame&#39;s variance vs mean from</span>
+<span class="sd">                the var(mean) quadratic fit before the frame is declared cloudy.</span>
+
+<span class="sd">            min_high_mean:    The minimum mean of the stamp pixels in order to</span>
+<span class="sd">                consider the frame high intensity.</span>
+
+<span class="sd">            max_low_mean:    The maximum mean of the stamp pixels in order to</span>
+<span class="sd">                consider the frame low intensity. Must not overlap</span>
+<span class="sd">                with min_high_mean.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">max_saturated_fraction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_saturated_fraction</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;max_saturated_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">max_saturated_fraction</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">var_mean_fit_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var_mean_fit_threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;var_mean_fit_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">var_mean_fit_threshold</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">var_mean_fit_iterations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">var_mean_fit_iterations</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">var_mean_fit_iterations</span><span class="p">,</span> <span class="nb">int</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;var_mean_fit_iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">var_mean_fit_iterations</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cloudy_night_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cloudy_night_threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_night_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">cloudy_night_threshold</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cloudy_frame_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cloudy_frame_threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;cloudy_frame_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">cloudy_frame_threshold</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">min_high_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_high_mean</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;min_high_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_high_mean</span>
+
+        <span class="k">if</span> <span class="n">max_low_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_low_mean</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">[</span><span class="s2">&quot;max_low_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_low_mean</span></div>
+
+
+<div class="viewcode-block" id="MasterFlatMaker.prepare_for_stacking">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker.prepare_for_stacking">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_stacking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Match image large scale to `self._master_large_scale` if not empty.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:    The image to transform large scale structure of.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            2-D array:</span>
+<span class="sd">                If :attr:`_master_large_scale` is an empty dictionary, this is</span>
+<span class="sd">                just :attr:`image`\ . Otherwise, :attr:`image` is transformed to</span>
+<span class="sd">                have the same large scale structure as</span>
+<span class="sd">                :attr:`_master_large_scale`\ , while the small scale</span>
+<span class="sd">                structure is preserved. :attr:`image` is also checked for</span>
+<span class="sd">                clouds, and discarded if cloudy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">image</span>
+
+        <span class="n">corrected_image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">large_scale_smoother</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">image</span>
+        <span class="p">)</span>
+        <span class="n">max_abs_deviation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cloud_check_smoother</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span>
+                <span class="n">corrected_image</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">max_abs_deviation</span>
+            <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;large_scale_deviation_threshold&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">corrected_image</span> <span class="o">/</span> <span class="n">corrected_image</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+
+
+    <span class="c1"># TODO: implement full header documentation.</span>
+    <span class="c1"># More configuration can be overwritten for master flats.</span>
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="MasterFlatMaker.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.MasterFlatMaker.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frame_list</span><span class="p">,</span>
+        <span class="n">high_master_fname</span><span class="p">,</span>
+        <span class="n">low_master_fname</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">stamp_statistics_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stamp_select_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">master_stack_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">custom_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># No good way to avoid</span>
+        <span class="c1"># pylint: disable=line-too-long</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Attempt to create high &amp; low master flat from the given frames.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_list:    A list of the frames to create the masters from</span>
+<span class="sd">                (FITS filenames).</span>
+
+<span class="sd">            high_master_fname:    The filename to save the generated high</span>
+<span class="sd">                intensity master flat if one is successfully created.</span>
+
+<span class="sd">            low_master_fname:    The filename to save the generated low</span>
+<span class="sd">                intensity master flat if one is successfully created.</span>
+
+<span class="sd">            compress:    Should the final result be compressed?</span>
+
+<span class="sd">            allow_overwrite:    See same name argument</span>
+<span class="sd">                to</span>
+<span class="sd">                :func:`autowisp.image_calibration.fits_util.create_result`</span>
+<span class="sd">                .</span>
+
+<span class="sd">            stamp_statistics_config(dict):    Overwrite the configuration</span>
+<span class="sd">                for extracting stamp statistics for this set of frames only.</span>
+
+<span class="sd">            stamp_select_config(dict):    Overwrite the stamp selection</span>
+<span class="sd">                configuration for this set of frames only.</span>
+
+<span class="sd">            master_stack_config(dict):    Overwrite the configuration for how to</span>
+<span class="sd">                stack frames to a master for this set of frames only.</span>
+
+<span class="sd">            custom_header:    See same name argument to</span>
+<span class="sd">                :func:`autowisp.image_calibration.master_maker.MasterMaker.__call__`</span>
+<span class="sd">                .</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                A dictionary splitting the input list of frames into</span>
+
+<span class="sd">                    high:</span>
+<span class="sd">                        All entries from :attr:`frame_list` which were deemed</span>
+<span class="sd">                        suitable for inclusion in a master high flat.</span>
+
+<span class="sd">                    low:</span>
+<span class="sd">                        All entries from :attr:`frame_list` which were deemed</span>
+<span class="sd">                        suitable for inclusion in a master low flat.</span>
+
+<span class="sd">                    medium:</span>
+<span class="sd">                        All entries from :attr:`frame_list` which were of</span>
+<span class="sd">                        intermediate intensity and thus not included in any</span>
+<span class="sd">                        master, but for which no issues were detected.</span>
+
+<span class="sd">                    colocated:</span>
+<span class="sd">                        All entries from :attr:`frame_list` which were excluded</span>
+<span class="sd">                        because they were not sufficiently isolated from their</span>
+<span class="sd">                        closest neighbor to guarantee that stars do not overlap.</span>
+
+<span class="sd">                    cloudy:</span>
+<span class="sd">                        All entries from :attr:`frame_list` which were flagged</span>
+<span class="sd">                        as cloudy either based on their stamps or on the final</span>
+<span class="sd">                        full-frame cloud check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: enable=line-too-long</span>
+
+        <span class="k">if</span> <span class="n">stamp_statistics_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">stamp_statistics_config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">stamp_select_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">stamp_select_config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">master_stack_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">master_stack_config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">custom_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">custom_header</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">stamp_statistics_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">stamp_statistics_config</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">stamp_statistics_config</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">stamp_select_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">stamp_select_config</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">stamp_select_config</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;large_scale_stack_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;large_scale_stack_options&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;custom_header&quot;</span><span class="p">:</span> <span class="n">custom_header</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">master_stack_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;large_scale_stack_options&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="p">}</span>
+        <span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;master_stack_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;master_stack_options&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;custom_header&quot;</span><span class="p">:</span> <span class="n">custom_header</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">master_stack_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;master_stack_options&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Creating master flats (high:</span><span class="si">%s</span><span class="s2">, low:</span><span class="si">%s</span><span class="s2">) with:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">stamp statistics config:</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">stamp selection config:</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">master stacking config:</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">high_master_fname</span><span class="p">,</span>
+            <span class="n">low_master_fname</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">stamp_statistics_config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">stamp_select_config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">master_stack_config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">isolated_frames</span><span class="p">,</span> <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;colocated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_colocated</span><span class="p">(</span><span class="n">frame_list</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Isolated flats:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">isolated_frames</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Colocated flats:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="s2">&quot;colocated&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span> <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span> <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;medium&quot;</span><span class="p">],</span> <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;cloudy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_classify_from_stamps</span><span class="p">(</span>
+                <span class="n">isolated_frames</span><span class="p">,</span> <span class="n">stamp_statistics_config</span><span class="p">,</span> <span class="n">stamp_select_config</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">log_msg</span> <span class="o">=</span> <span class="s2">&quot;Stamp frame classification:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">frames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">log_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">):</span><span class="se">\n\t\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">filenames</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">log_msg</span><span class="p">)</span>
+
+        <span class="n">min_combine</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="n">master_stack_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;min_high_combine&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;min_high_combine&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="n">master_stack_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;min_low_combine&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;min_low_combine&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;high&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="n">min_combine</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=missing-kwoa</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">[</span><span class="s2">&quot;stdev&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_master_large_scale</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">],</span>
+                <span class="n">discarded_frames</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span>
+                <span class="n">min_valid_frames</span><span class="o">=</span><span class="n">min_combine</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;large_scale_stack_options&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="c1"># pylint: enable=missing-kwoa</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">discarded_frames</span>
+
+            <span class="n">success</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span> <span class="n">more_cloudy_frames</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+                <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span>
+                <span class="n">high_master_fname</span><span class="p">,</span>
+                <span class="n">min_valid_frames</span><span class="o">=</span><span class="n">min_combine</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;master_stack_options&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;cloudy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">more_cloudy_frames</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">more_cloudy_frames</span><span class="p">:</span>
+                <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">min_combine</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]:</span>
+                <span class="n">success</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span> <span class="n">more_cloudy_frames</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+                    <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span>
+                    <span class="n">low_master_fname</span><span class="p">,</span>
+                    <span class="n">min_valid_frames</span><span class="o">=</span><span class="n">min_combine</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span>
+                    <span class="o">**</span><span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;master_stack_options&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;cloudy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">more_cloudy_frames</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">more_cloudy_frames</span><span class="p">:</span>
+                    <span class="n">frames</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Skipping low master flat since only </span><span class="si">%d</span><span class="s2"> frames remain, &quot;</span>
+                    <span class="s2">&quot;but </span><span class="si">%d</span><span class="s2"> are required&quot;</span><span class="p">,</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]),</span>
+                    <span class="n">min_combine</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+
+        <span class="n">log_msg</span> <span class="o">=</span> <span class="s2">&quot;Final frame classification:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">frames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">log_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">):</span><span class="se">\n\t\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">filenames</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">log_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">frames</span></div>
+</div>
+
+
+    <span class="c1"># pylint: disable=arguments-differ</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

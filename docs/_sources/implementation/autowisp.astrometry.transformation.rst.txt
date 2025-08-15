@@ -1,0 +1,7 @@
+autowisp.astrometry.transformation module
+=========================================
+
+.. automodule:: autowisp.astrometry.transformation
+   :members:
+   :show-inheritance:
+   :undoc-members:

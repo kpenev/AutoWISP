@@ -1,0 +1,7 @@
+autowisp.piecewise\_bicubic\_psf\_map module
+============================================
+
+.. automodule:: autowisp.piecewise_bicubic_psf_map
+   :members:
+   :show-inheritance:
+   :undoc-members:

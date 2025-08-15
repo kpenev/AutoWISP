@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.astrometry.astrometry module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.astrometry.astrometry_max_mag_estimate module" href="autowisp.astrometry.astrometry_max_mag_estimate.html" />
+    <link rel="prev" title="autowisp.astrometry.anmatch_transformation module" href="autowisp.astrometry.anmatch_transformation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.astrometry.html">autowisp.astrometry package</a></li>
+      <li class="breadcrumb-item active">autowisp.astrometry.astrometry module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.astrometry.astrometry.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.astrometry.astrometry">
+<span id="autowisp-astrometry-astrometry-module"></span><h1>autowisp.astrometry.astrometry module<a class="headerlink" href="#module-autowisp.astrometry.astrometry" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-2b78274d82fc148cd0442f7d839715a8066588ca.png" alt="Inheritance diagram of AstrometryNetClient, Request, TempAstrometryFiles, TemporaryDirectory, URLError" usemap="#inheritancebd861b13b6" class="inheritance graphviz" /></div>
+<map id="inheritancebd861b13b6" name="inheritancebd861b13b6">
+<area shape="rect" id="node1" href="#autowisp.astrometry.astrometry.TempAstrometryFiles" target="_top" title="Context manager for the temporary files needed for astrometry." alt="" coords="5,5,337,32"/>
+<area shape="rect" id="node2" href="autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client" target="_top" title="autowisp.astrometry.astrometry_net_client.Client" alt="" coords="361,5,666,32"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="690,5,876,32"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" target="_top" title="urllib.error.URLError" alt="" coords="900,5,1037,32"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/urllib.request.html#urllib.request.Request" target="_top" title="urllib.request.Request" alt="" coords="1061,5,1209,32"/>
+</map><p>Fit for a transformation between sky and image coordinates.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.TempAstrometryFiles">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">TempAstrometryFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('sources',</span> <span class="pre">'corr',</span> <span class="pre">'axy',</span> <span class="pre">'config')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#TempAstrometryFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.TempAstrometryFiles" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-a7c856d1875bacaa7bc6268965eb892f1dba6e82.png" alt="Inheritance diagram of autowisp.astrometry.astrometry.TempAstrometryFiles" usemap="#inheritance6264de95a0" class="inheritance graphviz" /></div>
+<map id="inheritance6264de95a0" name="inheritance6264de95a0">
+<area shape="rect" id="node1" href="#autowisp.astrometry.astrometry.TempAstrometryFiles" target="_top" title="Context manager for the temporary files needed for astrometry." alt="" coords="5,5,337,32"/>
+</map><p>Context manager for the temporary files needed for astrometry.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.TempAstrometryFiles.__enter__">
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#TempAstrometryFiles.__enter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.TempAstrometryFiles.__enter__" title="Link to this definition"></a></dt>
+<dd><p>Return the filenames of the temporary files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.TempAstrometryFiles.__exit__">
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">ignored_args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">ignored_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#TempAstrometryFiles.__exit__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.TempAstrometryFiles.__exit__" title="Link to this definition"></a></dt>
+<dd><p>Close and delete the temporary files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.TempAstrometryFiles.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('sources',</span> <span class="pre">'corr',</span> <span class="pre">'axy',</span> <span class="pre">'config')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#TempAstrometryFiles.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.TempAstrometryFiles.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create all required temporary files.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.create_config_file">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">create_config_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anet_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#create_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.create_config_file" title="Link to this definition"></a></dt>
+<dd><p>Create configuration file set up to solve imaves FOV in given range.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.create_sources_file">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">create_sources_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#create_sources_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.create_sources_file" title="Link to this definition"></a></dt>
+<dd><p>Create a FITS BinTable file with the given name containing
+the extracted sources.</p>
+<p>Returns: an array containing x-y extracted sources</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.estimate_transformation">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">estimate_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">initial_corr_kwarg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#estimate_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.estimate_transformation" title="Link to this definition"></a></dt>
+<dd><p>Attempt to estimate the sky-to-frame transformation for given DR file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.estimate_transformation_from_corr">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">estimate_transformation_from_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_corr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tweak_order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">astrometry_order</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#estimate_transformation_from_corr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.estimate_transformation_from_corr" title="Link to this definition"></a></dt>
+<dd><p>Estimate the transformation from astrometry.net correspondence file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_corr</strong> (<em>structured numpy array</em>) – The correspondence file
+containing field_x, field_y, index_ra, and index_dec</p></li>
+<li><p><strong>ra_cent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Estimate of the RA of the center of the frame</p></li>
+<li><p><strong>dec_cent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Estimate of the Dec of the center of the frame</p></li>
+<li><p><strong>tweak_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The order of the astrometry.net transformation</p></li>
+<li><p><strong>astrometry_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The order of the transformation that will be
+fit. Fills terms of higher order than <cite>tweak_order</cite> with zeros.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Estimate of the transformation x(xi, eta)</p>
+<dl class="simple">
+<dt>matrix:</dt><dd><p>Estimate of the transformation y(xi, eta)</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.find_ra_dec">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">find_ra_dec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xieta_guess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radec_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#find_ra_dec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.find_ra_dec" title="Link to this definition"></a></dt>
+<dd><p>Find the (xi, eta) that map to given coordinates in the frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xieta_guess</strong> (<em>numpy array</em>) – Starting point for the solver trying find
+(xi, eta) that map to the given coordinates.</p></li>
+<li><p><strong>trans_x</strong> (<em>numpy array</em>) – transformation matrix for x</p></li>
+<li><p><strong>trans_y</strong> (<em>numpy array</em>) – transformation matrix for y</p></li>
+<li><p><strong>radec_cent</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – The RA and Dec of the center of the gnomonic
+projection defining (xi, eta).</p></li>
+<li><p><strong>frame_x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – x coordinate for which to find RA, Dec.</p></li>
+<li><p><strong>frame_y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – y coordinate for which to find RA, Dec.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the new center function for (xi, eta)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>new_xieta_cent(numpy array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.get_initial_corr">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">get_initial_corr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">web_lock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#get_initial_corr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.get_initial_corr" title="Link to this definition"></a></dt>
+<dd><p>Attempt to estimate the sky-to-frame transformation for given DR file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.get_initial_corr_local">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">get_initial_corr_local</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tweak_order_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anet_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#get_initial_corr_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.get_initial_corr_local" title="Link to this definition"></a></dt>
+<dd><p>Get inital extracted to catalog source match using <code class="docutils literal notranslate"><span class="pre">solve-field</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.get_initial_corr_web">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">get_initial_corr_web</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tweak_order_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#get_initial_corr_web"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.get_initial_corr_web" title="Link to this definition"></a></dt>
+<dd><p>Get initial extracted to catalog source match using web astrometry.net.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.refine_transformation">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">refine_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">astrometry_order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_srcmatch_distance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ra_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec_cent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_source_safety_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#refine_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.refine_transformation" title="Link to this definition"></a></dt>
+<dd><p>Iterate the process until we get a transformation that
+its difference from the previous one is less than a threshold</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>astrometry_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The order of the transformation to fit</p></li>
+<li><p><strong>max_srcmatch_distance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The upper bound distance in the
+KD tree</p></li>
+<li><p><strong>trans_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The threshold for the difference of two
+consecutive transformations</p></li>
+<li><p><strong>trans_x</strong> (<em>numpy array</em>) – Initial estimate for the x transformation
+matrix</p></li>
+<li><p><strong>trans_y</strong> (<em>numpy array</em>) – Initial estimate for the x transformation
+matrix</p></li>
+<li><p><strong>ra_cent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Initial estimate for the RA of the center of the
+frame</p></li>
+<li><p><strong>dec_cent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Initial estimate for the Dec of the center of the
+frame</p></li>
+<li><p><strong>x_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – length of the frame in pixels</p></li>
+<li><p><strong>y_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – width of the frame in pixels</p></li>
+<li><p><strong>xy_extracted</strong> (<em>structured numpy array</em>) – x and y of the extracted
+sources of the frame</p></li>
+<li><p><strong>catalog</strong> (<em>pandas.DataFrame</em>) – The catalog of sources to match to</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>the coefficients of the x(xi, eta) transformation</p>
+<dl class="simple">
+<dt>trans_y(2D numpy array):</dt><dd><p>the coefficients of the y(xi, eta) transformation</p>
+</dd>
+<dt>cat_extracted_corr(structured numpy array):</dt><dd><p>the catalogs extracted correspondence indexes</p>
+</dd>
+</dl>
+<p>res_rms(float): the residual</p>
+<p>ratio(float): the ratio of matched to unmatched</p>
+<p>ra_cent(float): the new RA center array</p>
+<p>dec_cent(float): the new Dec center array</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trans_x(2D numpy array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry.transformation_matrix">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry.</span></span><span class="sig-name descname"><span class="pre">transformation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">astrometry_order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry.html#transformation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry.transformation_matrix" title="Link to this definition"></a></dt>
+<dd><p>Constructs the transformation matrix for a given astrometry order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>astrometry_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The order of the transformation to fit</p></li>
+<li><p><strong>xi</strong> (<em>numpy.ndarray</em>) – from projected coordinates</p></li>
+<li><p><strong>eta</strong> (<em>numpy.ndarray</em>) – from projected coordinates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>transformation matrix</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>trans_matrix(numpy.ndarray)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Ex: for astrometry_order 2: 1, xi, eta, xi^2, xi*eta, eta^2</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.astrometry.anmatch_transformation.html" class="btn btn-neutral float-left" title="autowisp.astrometry.anmatch_transformation module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.astrometry.astrometry_max_mag_estimate.html" class="btn btn-neutral float-right" title="autowisp.astrometry.astrometry_max_mag_estimate module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

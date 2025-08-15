@@ -1,0 +1,1221 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.fit_expression.FitTermsParser &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.fit_expression.FitTermsParser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.fit_expression.FitTermsParser</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: skip-file</span>
+<span class="c1"># Generated from /home/kpenev/projects/git/PhotometryPipeline/scripts/FitTermsParser.g4 by ANTLR 4.13.0</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">antlr4</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextIO</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextIO</span>
+
+
+<div class="viewcode-block" id="serializedATN">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.serializedATN">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serializedATN</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">50</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">19</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">22</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">32</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">37</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">40</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">45</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">48</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">47</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">14</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">25</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">,</span>
+        <span class="mi">31</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">33</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">41</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span>
+        <span class="mi">13</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">13</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">14</span><span class="p">,</span>
+        <span class="mi">15</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">15</span><span class="p">,</span>
+        <span class="mi">20</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">16</span><span class="p">,</span>
+        <span class="mi">17</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">17</span><span class="p">,</span>
+        <span class="mi">19</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">18</span><span class="p">,</span>
+        <span class="mi">16</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">19</span><span class="p">,</span>
+        <span class="mi">22</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">20</span><span class="p">,</span>
+        <span class="mi">18</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">20</span><span class="p">,</span>
+        <span class="mi">21</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">21</span><span class="p">,</span>
+        <span class="mi">23</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">22</span><span class="p">,</span>
+        <span class="mi">20</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">23</span><span class="p">,</span>
+        <span class="mi">24</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">24</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">25</span><span class="p">,</span>
+        <span class="mi">26</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">26</span><span class="p">,</span>
+        <span class="mi">27</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">27</span><span class="p">,</span>
+        <span class="mi">28</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">28</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">29</span><span class="p">,</span>
+        <span class="mi">32</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">30</span><span class="p">,</span>
+        <span class="mi">32</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">31</span><span class="p">,</span>
+        <span class="mi">29</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">31</span><span class="p">,</span>
+        <span class="mi">30</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">32</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">33</span><span class="p">,</span>
+        <span class="mi">38</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">34</span><span class="p">,</span>
+        <span class="mi">35</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">35</span><span class="p">,</span>
+        <span class="mi">37</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">36</span><span class="p">,</span>
+        <span class="mi">34</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">37</span><span class="p">,</span>
+        <span class="mi">40</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">38</span><span class="p">,</span>
+        <span class="mi">36</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">38</span><span class="p">,</span>
+        <span class="mi">39</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">39</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">40</span><span class="p">,</span>
+        <span class="mi">38</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">41</span><span class="p">,</span>
+        <span class="mi">46</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">42</span><span class="p">,</span>
+        <span class="mi">43</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">43</span><span class="p">,</span>
+        <span class="mi">45</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">44</span><span class="p">,</span>
+        <span class="mi">42</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">45</span><span class="p">,</span>
+        <span class="mi">48</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">46</span><span class="p">,</span>
+        <span class="mi">44</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">46</span><span class="p">,</span>
+        <span class="mi">47</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">47</span><span class="p">,</span>
+        <span class="mi">11</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">48</span><span class="p">,</span>
+        <span class="mi">46</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">20</span><span class="p">,</span>
+        <span class="mi">31</span><span class="p">,</span>
+        <span class="mi">38</span><span class="p">,</span>
+        <span class="mi">46</span><span class="p">,</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="FitTermsParser">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FitTermsParser</span><span class="p">(</span><span class="n">Parser</span><span class="p">):</span>
+
+    <span class="n">grammarFileName</span> <span class="o">=</span> <span class="s2">&quot;FitTermsParser.g4&quot;</span>
+
+    <span class="n">atn</span> <span class="o">=</span> <span class="n">ATNDeserializer</span><span class="p">()</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">serializedATN</span><span class="p">())</span>
+
+    <span class="n">decisionsToDFA</span> <span class="o">=</span> <span class="p">[</span><span class="n">DFA</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atn</span><span class="o">.</span><span class="n">decisionToState</span><span class="p">)]</span>
+
+    <span class="n">sharedContextCache</span> <span class="o">=</span> <span class="n">PredictionContextCache</span><span class="p">()</span>
+
+    <span class="n">literalNames</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&#39;{&#39;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&#39;O&#39;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&#39;*&#39;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&#39;+&#39;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&#39;}&#39;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&#39;,&#39;&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">symbolicNames</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;&lt;INVALID&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TERM_LIST_START&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UINT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;POLY_START&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CROSSPRODUCT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UNION&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;WS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TERM_LIST_END&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TERM_SEP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TERM&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">RULE_fit_term</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">RULE_fit_terms_list</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">RULE_fit_polynomial</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">RULE_fit_terms_set</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">RULE_fit_terms_set_cross_product</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">RULE_fit_terms_expression</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="n">ruleNames</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;fit_term&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fit_terms_list&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fit_polynomial&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fit_terms_set&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fit_terms_set_cross_product&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fit_terms_expression&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">EOF</span> <span class="o">=</span> <span class="n">Token</span><span class="o">.</span><span class="n">EOF</span>
+    <span class="n">TERM_LIST_START</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">UINT</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">POLY_START</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">CROSSPRODUCT</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">UNION</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">WS</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">TERM_LIST_END</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">TERM_SEP</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">TERM</span> <span class="o">=</span> <span class="mi">9</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">TokenStream</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TextIO</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkVersion</span><span class="p">(</span><span class="s2">&quot;4.13.0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interp</span> <span class="o">=</span> <span class="n">ParserATNSimulator</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decisionsToDFA</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharedContextCache</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_predicates</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_termContext">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Fit_termContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="n">ParserRuleContext</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">invokingState</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">invokingState</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_termContext.TERM">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.TERM">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">TERM</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_termContext.getRuleIndex">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.getRuleIndex">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">getRuleIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">RULE_fit_term</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_termContext.enterRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.enterRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_term&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_termContext.exitRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.exitRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_term&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_termContext.accept">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.accept">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_term&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FitTermsParser.fit_term">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_term">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">localctx</span> <span class="o">=</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_termContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterRule</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RULE_fit_term</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">12</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">RecognitionException</span> <span class="k">as</span> <span class="n">re</span><span class="p">:</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">reportError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exitRule</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">localctx</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_listContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="n">ParserRuleContext</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">invokingState</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">invokingState</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.TERM_LIST_START">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.TERM_LIST_START">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">TERM_LIST_START</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_LIST_START</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.fit_term">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.fit_term">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fit_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContexts</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_termContext</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContext</span><span class="p">(</span>
+                    <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_termContext</span><span class="p">,</span> <span class="n">i</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.TERM_LIST_END">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.TERM_LIST_END">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">TERM_LIST_END</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_LIST_END</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.TERM_SEP">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.TERM_SEP">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">TERM_SEP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTokens</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_SEP</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_SEP</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.getRuleIndex">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.getRuleIndex">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">getRuleIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">RULE_fit_terms_list</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.enterRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.enterRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_list&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.exitRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.exitRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_list&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_listContext.accept">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.accept">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_list&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FitTermsParser.fit_terms_list">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">localctx</span> <span class="o">=</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_listContext</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterRule</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RULE_fit_terms_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_la</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Token type</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">14</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_LIST_START</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">15</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_term</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">20</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">_la</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">_la</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">16</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_SEP</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">17</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_term</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">22</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">_la</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">23</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">TERM_LIST_END</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">RecognitionException</span> <span class="k">as</span> <span class="n">re</span><span class="p">:</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">reportError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exitRule</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">localctx</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Fit_polynomialContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="n">ParserRuleContext</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">invokingState</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">invokingState</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Token</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.POLY_START">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.POLY_START">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">POLY_START</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">POLY_START</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.fit_terms_list">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.fit_terms_list">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContext</span><span class="p">(</span>
+                <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_listContext</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.UINT">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.UINT">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">UINT</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">UINT</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.getRuleIndex">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.getRuleIndex">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">getRuleIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">RULE_fit_polynomial</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.enterRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.enterRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_polynomial&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.exitRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.exitRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_polynomial&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_polynomialContext.accept">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.accept">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_polynomial&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FitTermsParser.fit_polynomial">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_polynomial">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">localctx</span> <span class="o">=</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_polynomialContext</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterRule</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RULE_fit_polynomial</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">25</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">POLY_START</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">26</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">UINT</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">27</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_list</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">RecognitionException</span> <span class="k">as</span> <span class="n">re</span><span class="p">:</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">reportError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exitRule</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">localctx</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_setContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="n">ParserRuleContext</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">invokingState</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">invokingState</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.fit_terms_list">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.fit_terms_list">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContext</span><span class="p">(</span>
+                <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_listContext</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.fit_polynomial">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.fit_polynomial">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fit_polynomial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContext</span><span class="p">(</span>
+                <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_polynomialContext</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.getRuleIndex">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.getRuleIndex">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">getRuleIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">RULE_fit_terms_set</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.enterRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.enterRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_set&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.exitRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.exitRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_set&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_setContext.accept">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.accept">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_set&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FitTermsParser.fit_terms_set">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">localctx</span> <span class="o">=</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_setContext</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterRule</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RULE_fit_terms_set</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">31</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">29</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_list</span><span class="p">()</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">30</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_polynomial</span><span class="p">()</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NoViableAltException</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">RecognitionException</span> <span class="k">as</span> <span class="n">re</span><span class="p">:</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">reportError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exitRule</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">localctx</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_set_cross_productContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="n">ParserRuleContext</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">invokingState</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">invokingState</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.fit_terms_set">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.fit_terms_set">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContexts</span><span class="p">(</span>
+                    <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_setContext</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContext</span><span class="p">(</span>
+                    <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_setContext</span><span class="p">,</span> <span class="n">i</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.CROSSPRODUCT">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.CROSSPRODUCT">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">CROSSPRODUCT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTokens</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">CROSSPRODUCT</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">CROSSPRODUCT</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.getRuleIndex">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.getRuleIndex">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">getRuleIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">RULE_fit_terms_set_cross_product</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.enterRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.enterRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_set_cross_product&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.exitRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.exitRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_set_cross_product&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_set_cross_productContext.accept">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.accept">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_set_cross_product&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FitTermsParser.fit_terms_set_cross_product">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_set_cross_product">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">localctx</span> <span class="o">=</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_set_cross_productContext</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterRule</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RULE_fit_terms_set_cross_product</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_la</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Token type</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">33</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_set</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">38</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">_la</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">_la</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">34</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">CROSSPRODUCT</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">35</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_set</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">40</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">_la</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">RecognitionException</span> <span class="k">as</span> <span class="n">re</span><span class="p">:</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">reportError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exitRule</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">localctx</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Fit_terms_expressionContext</span><span class="p">(</span><span class="n">ParserRuleContext</span><span class="p">):</span>
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="s2">&quot;parser&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="n">ParserRuleContext</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">invokingState</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">invokingState</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.fit_terms_set_cross_product">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.fit_terms_set_cross_product">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_set_cross_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContexts</span><span class="p">(</span>
+                    <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_set_cross_productContext</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTypedRuleContext</span><span class="p">(</span>
+                    <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_set_cross_productContext</span><span class="p">,</span> <span class="n">i</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.UNION">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.UNION">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">UNION</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTokens</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">UNION</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToken</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">UNION</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.getRuleIndex">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.getRuleIndex">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">getRuleIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">RULE_fit_terms_expression</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.enterRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.enterRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">enterRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;enterFit_terms_expression&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">enterFit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.exitRule">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.exitRule">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exitRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ParseTreeListener</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="s2">&quot;exitFit_terms_expression&quot;</span><span class="p">):</span>
+                <span class="n">listener</span><span class="o">.</span><span class="n">exitFit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FitTermsParser.Fit_terms_expressionContext.accept">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.accept">[docs]</a>
+        <span class="k">def</span><span class="w"> </span><span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">:</span> <span class="n">ParseTreeVisitor</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">visitor</span><span class="p">,</span> <span class="s2">&quot;visitFit_terms_expression&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitFit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="FitTermsParser.fit_terms_expression">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_expression">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_terms_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">localctx</span> <span class="o">=</span> <span class="n">FitTermsParser</span><span class="o">.</span><span class="n">Fit_terms_expressionContext</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enterRule</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RULE_fit_terms_expression</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_la</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Token type</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enterOuterAlt</span><span class="p">(</span><span class="n">localctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">41</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_set_cross_product</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">46</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">_la</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">_la</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">42</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">FitTermsParser</span><span class="o">.</span><span class="n">UNION</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">43</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_terms_set_cross_product</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">48</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">_la</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="o">.</span><span class="n">LA</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">RecognitionException</span> <span class="k">as</span> <span class="n">re</span><span class="p">:</span>
+            <span class="n">localctx</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="n">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">reportError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_errHandler</span><span class="o">.</span><span class="n">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">re</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exitRule</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">localctx</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

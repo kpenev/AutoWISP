@@ -1,0 +1,7 @@
+autowisp.magnitude\_fitting.base module
+=======================================
+
+.. automodule:: autowisp.magnitude_fitting.base
+   :members:
+   :show-inheritance:
+   :undoc-members:

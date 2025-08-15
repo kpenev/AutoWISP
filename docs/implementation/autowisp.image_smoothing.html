@@ -1,0 +1,754 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_smoothing module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.image_utilities module" href="autowisp.image_utilities.html" />
+    <link rel="prev" title="autowisp.hdf5_file module" href="autowisp.hdf5_file.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.image_smoothing module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.image_smoothing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.image_smoothing">
+<span id="autowisp-image-smoothing-module"></span><h1>autowisp.image_smoothing module<a class="headerlink" href="#module-autowisp.image_smoothing" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-69f970908713866a1c7183a1fe0c24b0c491cdf8.png" alt="Inheritance diagram of ABC, ChainSmoother, ImageSmoother, PolynomialImageSmoother, SeparableLinearImageSmoother, SplineImageSmoother, WrapFilterAsSmoother" usemap="#inheritance257dc64bde" class="inheritance graphviz" /></div>
+<map id="inheritance257dc64bde" name="inheritance257dc64bde">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="450,5,524,32"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="350,80,625,107"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="5,155,279,181"/>
+<area shape="rect" id="node5" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="303,155,672,181"/>
+<area shape="rect" id="node7" href="#autowisp.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the numpy or astropy image filters in a smoother." alt="" coords="696,155,1010,181"/>
+<area shape="rect" id="node4" href="#autowisp.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="143,229,482,256"/>
+<area shape="rect" id="node6" href="#autowisp.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="506,229,818,256"/>
+</map><p>Define classes for smoothing images.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_smoothing.</span></span><span class="sig-name descname"><span class="pre">ChainSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">smoothers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother" title="autowisp.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSmoother</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-7740b1d7fddffe1c4161069d4642fb2f0cec726c.png" alt="Inheritance diagram of autowisp.image_smoothing.ChainSmoother" usemap="#inheritance0189f504a8" class="inheritance graphviz" /></div>
+<map id="inheritance0189f504a8" name="inheritance0189f504a8">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="106,5,180,32"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="5,80,281,107"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="6,155,280,181"/>
+</map><p>Combine more than one smoothers, each is applied sequentially.</p>
+<p>Works much like a list of smoothers, except it adds smooth and detrend
+methods.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.smoothing_chain">
+<span class="sig-name descname"><span class="pre">smoothing_chain</span></span><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.smoothing_chain" title="Link to this definition"></a></dt>
+<dd><p>The current list of smoothers and the order in which
+they are applied. The first will be applied to the input image, the
+second will be applied to the result of the first etc.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.__delitem__">
+<span class="sig-name descname"><span class="pre">__delitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.__delitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.__delitem__" title="Link to this definition"></a></dt>
+<dd><p>Delete smoothe at position.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">smoothers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create a chain combining the given smoothers in the given order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>smoothers</strong> – A list of the image smoothers to combine.</p></li>
+<li><p><strong>kwargs</strong> – Any arguments to pass to parent constructor.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.__setitem__">
+<span class="sig-name descname"><span class="pre">__setitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoother</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.__setitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.__setitem__" title="Link to this definition"></a></dt>
+<dd><p>Replace the smoother at position.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother._apply_smoothing">
+<span class="sig-name descname"><span class="pre">_apply_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother._apply_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother._apply_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Smooth the given image using the current chain of smoothers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoother</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.append" title="Link to this definition"></a></dt>
+<dd><p>Add a new smoother to the end of the sequence.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.clear" title="Link to this definition"></a></dt>
+<dd><p>Like list clear.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.extend">
+<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoothers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.extend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.extend" title="Link to this definition"></a></dt>
+<dd><p>Add multiple smoothers to the end of the chain.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.insert">
+<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoother</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.insert" title="Link to this definition"></a></dt>
+<dd><p>Like list insert.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.pop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.pop" title="Link to this definition"></a></dt>
+<dd><p>Like list pop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ChainSmoother.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoother</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ChainSmoother.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ChainSmoother.remove" title="Link to this definition"></a></dt>
+<dd><p>Like list remove.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_smoothing.</span></span><span class="sig-name descname"><span class="pre">ImageSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ImageSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-c87066f1c1b2e275989600d4bbdde3881423f879.png" alt="Inheritance diagram of autowisp.image_smoothing.ImageSmoother" usemap="#inheritancedd3e261ce9" class="inheritance graphviz" /></div>
+<map id="inheritancedd3e261ce9" name="inheritancedd3e261ce9">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="106,5,180,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="5,80,281,107"/>
+</map><p>Define the interface for applying smoothing algorithms to images.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother.bin_factor">
+<span class="sig-name descname"><span class="pre">bin_factor</span></span><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother.bin_factor" title="Link to this definition"></a></dt>
+<dd><p>See same name argument to <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother.smooth" title="autowisp.image_smoothing.ImageSmoother.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother.zoom_interp_order">
+<span class="sig-name descname"><span class="pre">zoom_interp_order</span></span><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother.zoom_interp_order" title="Link to this definition"></a></dt>
+<dd><p>See same name argument to <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother.smooth" title="autowisp.image_smoothing.ImageSmoother.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ImageSmoother.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother.__init__" title="Link to this definition"></a></dt>
+<dd><p>Set default pre-shrink/post-zoom bin factor and interpolation order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – All arguments except bin_factor, interp_order and padding
+mode(see <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother.smooth" title="autowisp.image_smoothing.ImageSmoother.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth()</span></code></a>) are ignored.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother._apply_smoothing">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_apply_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ImageSmoother._apply_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother._apply_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Return a smooth version of the given image (no pre-shrinking).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – The image to smooth.</p></li>
+<li><p><strong>kwargs</strong> – Any arguments configuring how smoothing is to
+be performed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The smoothed version of the image per the currently defined
+smoothing.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother.detrend">
+<span class="sig-name descname"><span class="pre">detrend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ImageSmoother.detrend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother.detrend" title="Link to this definition"></a></dt>
+<dd><p>De-trend the input image by its smooth version (see smooth).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.ImageSmoother.smooth">
+<span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom_interp_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#ImageSmoother.smooth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.ImageSmoother.smooth" title="Link to this definition"></a></dt>
+<dd><p>Sandwich smoothing between initial binning and final zoom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – The image to smooth.</p></li>
+<li><p><strong>bin_factor</strong> – The factor to pre-bin the image by (see
+<a class="reference internal" href="autowisp.image_utilities.html#autowisp.image_utilities.bin_image" title="autowisp.image_utilities.bin_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.image_utilities.bin_image()</span></code></a> for
+details). After smoothing the image is zoomed by the same factor
+to recover the original size. If None, the value defined at
+construction is used, otherwise this value appliesfor this image
+only.</p></li>
+<li><p><strong>interp_order</strong> – The interpolation order to use when zooming the
+image at the end. If None, the interpolation order defined at
+construction is used, otherwise this value applies for this
+image only.</p></li>
+<li><p><strong>padding_mode</strong> – How to pad the image to have an integer number of
+bins, if pre-binning and post-zooming is used.</p></li>
+<li><p><strong>kwargs</strong> – Any arguments configuring how smoothing is to
+be performed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The smoothed version of the image.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.PolynomialImageSmoother">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_smoothing.</span></span><span class="sig-name descname"><span class="pre">PolynomialImageSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#PolynomialImageSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.PolynomialImageSmoother" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" title="autowisp.image_smoothing.SeparableLinearImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-c17918875dbed43209954e8a9b006965527fce76.png" alt="Inheritance diagram of autowisp.image_smoothing.PolynomialImageSmoother" usemap="#inheritancefe98c31fce" class="inheritance graphviz" /></div>
+<map id="inheritancefe98c31fce" name="inheritancefe98c31fce">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="152,5,227,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="52,80,327,107"/>
+<area shape="rect" id="node4" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,155,374,181"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="20,229,359,256"/>
+</map><p>Smooth image is modeled as a polynomial in x times another polynomial in y.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_powerlaw_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#PolynomialImageSmoother._get_powerlaw_pixel_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return the integrals over one pixel dimension of x^power for each pixel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>power</strong> – The power of the corresponding coordinate of the term we
+are integrating.</p></li>
+<li><p><strong>resolution</strong> – The resolution of the image in the dimension in which
+to calculate the pixel integrlas.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array with the i-th entry being the integral of the scaled x
+coordinate to the given power over each pixel.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.PolynomialImageSmoother.get_x_pixel_integrals">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_x_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autowisp.image_smoothing.PolynomialImageSmoother.get_x_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return the integrals over one pixel dimension of x^power for each pixel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>power</strong> – The power of the corresponding coordinate of the term we
+are integrating.</p></li>
+<li><p><strong>resolution</strong> – The resolution of the image in the dimension in which
+to calculate the pixel integrlas.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array with the i-th entry being the integral of the scaled x
+coordinate to the given power over each pixel.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.PolynomialImageSmoother.get_y_pixel_integrals">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_y_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autowisp.image_smoothing.PolynomialImageSmoother.get_y_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return the integrals over one pixel dimension of x^power for each pixel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>power</strong> – The power of the corresponding coordinate of the term we
+are integrating.</p></li>
+<li><p><strong>resolution</strong> – The resolution of the image in the dimension in which
+to calculate the pixel integrlas.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array with the i-th entry being the integral of the scaled x
+coordinate to the given power over each pixel.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_smoothing.</span></span><span class="sig-name descname"><span class="pre">SeparableLinearImageSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SeparableLinearImageSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother" title="autowisp.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSmoother</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-f7d8715ae9df9217d61a80e2fef1761d84a3421c.png" alt="Inheritance diagram of autowisp.image_smoothing.SeparableLinearImageSmoother" usemap="#inheritance8ec20aa42d" class="inheritance graphviz" /></div>
+<map id="inheritance8ec20aa42d" name="inheritance8ec20aa42d">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="152,5,227,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="52,80,327,107"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,155,374,181"/>
+</map><p>Handle smoothing function = product of linear functions in each dimension.</p>
+<p>In more detail this is a base class that perform smoothing with a smoothing
+function consisting of the product of separate smoothing functions in x and
+y, each of which predicts pixel values as a linear combination of some
+parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother.num_x_terms">
+<span class="sig-name descname"><span class="pre">num_x_terms</span></span><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.num_x_terms" title="Link to this definition"></a></dt>
+<dd><p>The number of terms in the smoothing function in the x
+direction.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother.num_y_terms">
+<span class="sig-name descname"><span class="pre">num_y_terms</span></span><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.num_y_terms" title="Link to this definition"></a></dt>
+<dd><p>The number of terms in the smoothing function in the y
+direction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SeparableLinearImageSmoother.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.__init__" title="Link to this definition"></a></dt>
+<dd><p>Define the default smoothing configuration (overwritable on use).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_x_terms</strong> – See same name argument to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_apply_smoothing()</span></code></a> .</p></li>
+<li><p><strong>num_y_terms</strong> – See same name argument to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_apply_smoothing()</span></code></a>.</p></li>
+<li><p><strong>outlier_threshold</strong> – See same name argument to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_apply_smoothing()</span></code></a>.</p></li>
+<li><p><strong>max_iterations</strong> – See same name argument to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_apply_smoothing()</span></code></a>.</p></li>
+<li><p><strong>kwargs</strong> – Any arguments to pass to parent’s <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing">
+<span class="sig-name descname"><span class="pre">_apply_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SeparableLinearImageSmoother._apply_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Return a smooth version of the given image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – The image to smooth.</p></li>
+<li><p><strong>num_x_terms</strong> – The number of parameters of the x
+smoothing function.</p></li>
+<li><p><strong>num_y_terms</strong> – The number of parameters of the y
+smoothing function.</p></li>
+<li><p><strong>outlier_threshold</strong> – The threshold for discarding pixel values as
+being outliers. See same name argument
+to
+<a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.iterative_rejection_util.iterative_rej_linear_leastsq()</span></code></a>
+.</p></li>
+<li><p><strong>max_iterations</strong> – The maximum number of reject/re-fit iterations
+allowed. See same name argument
+to
+<a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.iterative_rejection_util.iterative_rej_linear_leastsq()</span></code></a>
+.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>2-D array:</dt><dd><p>The best approximation of the input image possible with the
+smoothing function.</p>
+</dd>
+<dt>float:</dt><dd><p>The root mean square residual returned by
+<a class="reference internal" href="autowisp.iterative_rejection_util.html#autowisp.iterative_rejection_util.iterative_rej_linear_leastsq" title="autowisp.iterative_rejection_util.iterative_rej_linear_leastsq"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.iterative_rejection_util.iterative_rej_linear_leastsq()</span></code></a>
+.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother._get_smoothing_matrix">
+<span class="sig-name descname"><span class="pre">_get_smoothing_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_x_terms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_terms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SeparableLinearImageSmoother._get_smoothing_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._get_smoothing_matrix" title="Link to this definition"></a></dt>
+<dd><p>Return matrix giving flattened smooth image when applied to fit params.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_x_terms</strong> – See same name argument to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_apply_smoothing()</span></code></a>.</p></li>
+<li><p><strong>num_y_terms</strong> – See same name argument to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_apply_smoothing()</span></code></a>.</p></li>
+<li><p><strong>x_resolution</strong> – The number of image columns.</p></li>
+<li><p><strong>y_resolution</strong> – The number of image rows.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An (x_res * y_res) by (num_x_terms * num_y_terms) matrix
+which when applied to a set of parameters returns the value of
+each image pixel per the smoothing function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_x_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SeparableLinearImageSmoother.get_x_pixel_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return the x smoothing func. integral over pixels for 1 nonzero param.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_ind</strong> – The index of the input parameter which is non-zero.</p></li>
+<li><p><strong>x_resolution</strong> – The resolution of the input image in the
+x direction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array with length equal to the x-resolution of the image with
+the i-th entry being the integral of the x part of the smoothing
+function over the i-th pixel.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_y_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SeparableLinearImageSmoother.get_y_pixel_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>See get_x_pixel_integrals.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SplineImageSmoother">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_smoothing.</span></span><span class="sig-name descname"><span class="pre">SplineImageSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SplineImageSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SplineImageSmoother" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" title="autowisp.image_smoothing.SeparableLinearImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-3fd926156a79ef013bf4a02fe1fa25c25d028e58.png" alt="Inheritance diagram of autowisp.image_smoothing.SplineImageSmoother" usemap="#inheritancefb6650414f" class="inheritance graphviz" /></div>
+<map id="inheritancefb6650414f" name="inheritancefb6650414f">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="152,5,227,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="52,80,327,107"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,155,374,181"/>
+<area shape="rect" id="node4" href="#autowisp.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="34,229,345,256"/>
+</map><p>Smooth image is modeled as a product of cubic splines in x and y.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SplineImageSmoother.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SplineImageSmoother.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SplineImageSmoother.__init__" title="Link to this definition"></a></dt>
+<dd><p>Set-up spline interpolation with the given number of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_x_nodes</strong> – The number of spline nodes for the x spline.</p></li>
+<li><p><strong>num_y_nodes</strong> – The number of spline nodes for the y spline.</p></li>
+<li><p><strong>kwargs</strong> – Forwarded directly to
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.__init__" title="autowisp.image_smoothing.SeparableLinearImageSmoother.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother.__init__()</span></code></a>, along with
+<strong>num_x_terms</strong> = <strong>num_x_nodes</strong> and <strong>num_y_terms</strong> =
+<strong>num_y_nodes</strong>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SplineImageSmoother._apply_smoothing">
+<span class="sig-name descname"><span class="pre">_apply_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_x_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_y_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SplineImageSmoother._apply_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SplineImageSmoother._apply_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Handle change in interpolation nodes needed by integrals functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> – See <a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="autowisp.image_smoothing.SeparableLinearImageSmoother._apply_smoothing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother._apply_smoothing()</span></code></a>
+except the names of <strong>num_x_terms</strong> and <strong>num_y_terms</strong> have
+been changed to <strong>num_x_nodes</strong> and <strong>num_y_nodes</strong>
+respectively.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SplineImageSmoother.get_spline_pixel_integrals">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_spline_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spline_degree</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SplineImageSmoother.get_spline_pixel_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SplineImageSmoother.get_spline_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return the integrals over one pixel dimension of a basis spline.</p>
+<p>The spline basis functions are defined as an interpolating spline (i.e.
+no smoothing) over y values that are one for the <cite>node_index</cite>-th node
+and zero everywhere else.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_index</strong> – The node at which the spline should evaluate to
+one. All other nodes get a value of zero.</p></li>
+<li><p><strong>resolution</strong> – The resolution of the image in the dimension in which
+to calculate the pixel integrlas.</p></li>
+<li><p><strong>num_nodes</strong> – The number of nodes in the spline. The image is scaled
+to have a dimension of (num_nodes - 1) and nodes are set at
+integer values.</p></li>
+<li><p><strong>spline_degree</strong> – The degree of the spline to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array with the i-th entry being the integral of the spline
+over the i-th pixel.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1-D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SplineImageSmoother.get_x_pixel_integrals">
+<span class="sig-name descname"><span class="pre">get_x_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SplineImageSmoother.get_x_pixel_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SplineImageSmoother.get_x_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return integrals of the param_ind-th x direction spline basis function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> – See
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals" title="autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother.get_x_pixel_integrals()</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>See <a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals" title="autowisp.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother.get_x_pixel_integrals()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.SplineImageSmoother.get_y_pixel_integrals">
+<span class="sig-name descname"><span class="pre">get_y_pixel_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_resolution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#SplineImageSmoother.get_y_pixel_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.SplineImageSmoother.get_y_pixel_integrals" title="Link to this definition"></a></dt>
+<dd><p>Return integrals of the param_ind-th y direction spline basis function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> – See
+<a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals" title="autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother.get_y_pixel_integrals()</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>See <a class="reference internal" href="#autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals" title="autowisp.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SeparableLinearImageSmoother.get_y_pixel_integrals()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.WrapFilterAsSmoother">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_smoothing.</span></span><span class="sig-name descname"><span class="pre">WrapFilterAsSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoothing_filter</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom_interp_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filter_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#WrapFilterAsSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.WrapFilterAsSmoother" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother" title="autowisp.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSmoother</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-b586aa389c197f48a85a5b5008a17bc9d4282b1e.png" alt="Inheritance diagram of autowisp.image_smoothing.WrapFilterAsSmoother" usemap="#inheritance2864c9d319" class="inheritance graphviz" /></div>
+<map id="inheritance2864c9d319" name="inheritance2864c9d319">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="125,5,200,32"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="25,80,300,107"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the numpy or astropy image filters in a smoother." alt="" coords="5,155,320,181"/>
+</map><p>Wrap one of the numpy or astropy image filters in a smoother.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.WrapFilterAsSmoother.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoothing_filter</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom_interp_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filter_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#WrapFilterAsSmoother.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.WrapFilterAsSmoother.__init__" title="Link to this definition"></a></dt>
+<dd><p>Apply the given filter through the ImageSmoother interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>smoothing_filter</strong> – The filter to apply to smooth images.</p></li>
+<li><p><strong>bin_factor</strong> – See <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother.smooth" title="autowisp.image_smoothing.ImageSmoother.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ImageSmoother.smooth()</span></code></a>.</p></li>
+<li><p><strong>zoom_interp_order</strong> – See <a class="reference internal" href="#autowisp.image_smoothing.ImageSmoother.smooth" title="autowisp.image_smoothing.ImageSmoother.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ImageSmoother.smooth()</span></code></a>.</p></li>
+<li><p><strong>filter_config</strong> – Any arguments to pass to the filter when applying,
+unless overwritten by arguments to <code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth()</span></code> or
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">detrend()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.image_smoothing.WrapFilterAsSmoother._apply_smoothing">
+<span class="sig-name descname"><span class="pre">_apply_smoothing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_smoothing.html#WrapFilterAsSmoother._apply_smoothing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_smoothing.WrapFilterAsSmoother._apply_smoothing" title="Link to this definition"></a></dt>
+<dd><p>Smooth the given image with the filter supplied on construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – The image to smooth.</p></li>
+<li><p><strong>kwargs</strong> – Additional or replacement arguments to pass to the filter
+when applying.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.hdf5_file.html" class="btn btn-neutral float-left" title="autowisp.hdf5_file module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.image_utilities.html" class="btn btn-neutral float-right" title="autowisp.image_utilities module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

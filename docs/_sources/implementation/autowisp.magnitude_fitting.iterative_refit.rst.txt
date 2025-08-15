@@ -1,0 +1,7 @@
+autowisp.magnitude\_fitting.iterative\_refit module
+===================================================
+
+.. automodule:: autowisp.magnitude_fitting.iterative_refit
+   :members:
+   :show-inheritance:
+   :undoc-members:

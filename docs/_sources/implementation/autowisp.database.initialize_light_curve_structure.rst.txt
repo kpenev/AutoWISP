@@ -1,0 +1,7 @@
+autowisp.database.initialize\_light\_curve\_structure module
+============================================================
+
+.. automodule:: autowisp.database.initialize_light_curve_structure
+   :members:
+   :show-inheritance:
+   :undoc-members:

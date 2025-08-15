@@ -1,0 +1,7 @@
+autowisp.magnitude\_fitting.tests.test\_mphotref\_collector module
+==================================================================
+
+.. automodule:: autowisp.magnitude_fitting.tests.test_mphotref_collector
+   :members:
+   :show-inheritance:
+   :undoc-members:

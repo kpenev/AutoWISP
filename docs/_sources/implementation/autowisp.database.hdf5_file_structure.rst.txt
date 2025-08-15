@@ -1,0 +1,7 @@
+autowisp.database.hdf5\_file\_structure module
+==============================================
+
+.. automodule:: autowisp.database.hdf5_file_structure
+   :members:
+   :show-inheritance:
+   :undoc-members:

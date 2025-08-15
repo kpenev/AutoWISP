@@ -1,0 +1,7 @@
+autowisp.database.data\_model.step\_dependencies module
+=======================================================
+
+.. automodule:: autowisp.database.data_model.step_dependencies
+   :members:
+   :show-inheritance:
+   :undoc-members:

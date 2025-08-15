@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.fit_expression package &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.fit_expression.FitTermsLexer module" href="autowisp.fit_expression.FitTermsLexer.html" />
+    <link rel="prev" title="autowisp.fake_image.raw module" href="autowisp.fake_image.raw.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+      <li class="breadcrumb-item active">autowisp.fit_expression package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.fit_expression.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.fit_expression">
+<span id="autowisp-fit-expression-package"></span><h1>autowisp.fit_expression package<a class="headerlink" href="#module-autowisp.fit_expression" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-13a92cb265ca4291324bd444d4d1c7da4d0c586c.png" alt="Inheritance diagram of Interface" usemap="#inheritancea593697f6a" class="inheritance graphviz" /></div>
+<map id="inheritancea593697f6a" name="inheritancea593697f6a">
+<area shape="rect" id="node1" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="5,5,273,32"/>
+</map><p>Utilities for working with fitting terms expressions.</p>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html">autowisp.fit_expression.FitTermsLexer module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.CROSSPRODUCT"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.CROSSPRODUCT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.POLY_START"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.POLY_START</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.TERM</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.TERM_LIST</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_END"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.TERM_LIST_END</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_LIST_START"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.TERM_LIST_START</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM_SEP"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.TERM_SEP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UINT"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.UINT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.UNION"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.UNION</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.WS"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.WS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.atn"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.atn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.channelNames"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.channelNames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.decisionsToDFA"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.decisionsToDFA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.grammarFileName"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.grammarFileName</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.literalNames"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.literalNames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.modeNames"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.modeNames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.ruleNames"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.ruleNames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.symbolicNames"><code class="docutils literal notranslate"><span class="pre">FitTermsLexer.symbolicNames</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.serializedATN"><code class="docutils literal notranslate"><span class="pre">serializedATN()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html">autowisp.fit_expression.FitTermsParser module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.CROSSPRODUCT"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.CROSSPRODUCT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.EOF"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.EOF</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.POLY_START"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.POLY_START()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.UINT"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.UINT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.accept"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.enterRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.enterRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.exitRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.exitRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.fit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.fit_terms_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.getRuleIndex"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.getRuleIndex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.parser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_polynomialContext.parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.TERM"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext.TERM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.accept"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext.accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.enterRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext.enterRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.exitRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext.exitRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.getRuleIndex"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext.getRuleIndex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_termContext.parser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_termContext.parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.UNION"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.UNION()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.accept"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.enterRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.enterRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.exitRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.exitRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.fit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.fit_terms_set_cross_product()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.getRuleIndex"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.getRuleIndex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_expressionContext.parser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_expressionContext.parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.TERM_LIST_END"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.TERM_LIST_END()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.TERM_LIST_START"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.TERM_LIST_START()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.TERM_SEP"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.TERM_SEP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.accept"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.enterRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.enterRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.exitRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.exitRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.fit_term"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.fit_term()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.getRuleIndex"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.getRuleIndex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_listContext.parser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_listContext.parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.accept"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.enterRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.enterRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.exitRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.exitRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.fit_polynomial"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.fit_polynomial()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.fit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.fit_terms_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.getRuleIndex"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.getRuleIndex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.parser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_setContext.parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.CROSSPRODUCT"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.CROSSPRODUCT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.accept"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.accept()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.enterRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.enterRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.exitRule"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.exitRule()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.fit_terms_set"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.fit_terms_set()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.getRuleIndex"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.getRuleIndex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_set_cross_productContext.parser"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.Fit_terms_set_cross_productContext.parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.POLY_START"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.POLY_START</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.RULE_fit_polynomial"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.RULE_fit_polynomial</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.RULE_fit_term"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.RULE_fit_term</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.RULE_fit_terms_expression"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.RULE_fit_terms_expression</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.RULE_fit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.RULE_fit_terms_list</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.RULE_fit_terms_set"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.RULE_fit_terms_set</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.RULE_fit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.RULE_fit_terms_set_cross_product</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.TERM"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.TERM</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.TERM_LIST_END"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.TERM_LIST_END</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.TERM_LIST_START"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.TERM_LIST_START</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.TERM_SEP"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.TERM_SEP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.UINT"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.UINT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.UNION"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.UNION</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.WS"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.WS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.atn"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.atn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.buildParseTrees"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.buildParseTrees</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.decisionsToDFA"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.decisionsToDFA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_polynomial"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.fit_polynomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_term"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.fit_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_expression"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.fit_terms_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.fit_terms_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_set"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.fit_terms_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.fit_terms_set_cross_product()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.grammarFileName"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.grammarFileName</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.literalNames"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.literalNames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.ruleNames"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.ruleNames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.sharedContextCache"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.sharedContextCache</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.symbolicNames"><code class="docutils literal notranslate"><span class="pre">FitTermsParser.symbolicNames</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.serializedATN"><code class="docutils literal notranslate"><span class="pre">serializedATN()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html">autowisp.fit_expression.FitTermsParserListener module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.enterFit_polynomial"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.enterFit_polynomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.enterFit_term"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.enterFit_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.enterFit_terms_expression"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.enterFit_terms_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.enterFit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.enterFit_terms_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.enterFit_terms_set"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.enterFit_terms_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.enterFit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.enterFit_terms_set_cross_product()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.exitFit_polynomial"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.exitFit_polynomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.exitFit_term"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.exitFit_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.exitFit_terms_expression"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.exitFit_terms_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.exitFit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.exitFit_terms_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.exitFit_terms_set"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.exitFit_terms_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserListener.html#autowisp.fit_expression.FitTermsParserListener.FitTermsParserListener.exitFit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">FitTermsParserListener.exitFit_terms_set_cross_product()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html">autowisp.fit_expression.FitTermsParserVisitor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor.visitFit_polynomial"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor.visitFit_polynomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor.visitFit_term"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor.visitFit_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor.visitFit_terms_expression"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor.visitFit_terms_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor.visitFit_terms_list"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor.visitFit_terms_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor.visitFit_terms_set"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor.visitFit_terms_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.FitTermsParserVisitor.html#autowisp.fit_expression.FitTermsParserVisitor.FitTermsParserVisitor.visitFit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">FitTermsParserVisitor.visitFit_terms_set_cross_product()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html">autowisp.fit_expression.count_terms_visitor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor"><code class="docutils literal notranslate"><span class="pre">CountTermsVisitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_polynomial"><code class="docutils literal notranslate"><span class="pre">CountTermsVisitor.visitFit_polynomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_terms_expression"><code class="docutils literal notranslate"><span class="pre">CountTermsVisitor.visitFit_terms_expression()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_terms_list"><code class="docutils literal notranslate"><span class="pre">CountTermsVisitor.visitFit_terms_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_terms_set"><code class="docutils literal notranslate"><span class="pre">CountTermsVisitor.visitFit_terms_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">CountTermsVisitor.visitFit_terms_set_cross_product()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html">autowisp.fit_expression.evaluate_terms_visitor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.__init__"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor._end_expansion"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor._end_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor._process_term_product"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor._process_term_product()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor._start_expansion"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor._start_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.visitFit_term"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor.visitFit_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.visitFit_terms_expression"><code class="docutils literal notranslate"><span class="pre">EvaluateTermsVisitor.visitFit_terms_expression()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.interface.html">autowisp.fit_expression.interface module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.interface.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface"><code class="docutils literal notranslate"><span class="pre">Interface</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface._number_terms"><code class="docutils literal notranslate"><span class="pre">Interface._number_terms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface.__call__"><code class="docutils literal notranslate"><span class="pre">Interface.__call__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface.__init__"><code class="docutils literal notranslate"><span class="pre">Interface.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface.get_term_str_list"><code class="docutils literal notranslate"><span class="pre">Interface.get_term_str_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface.get_var_names"><code class="docutils literal notranslate"><span class="pre">Interface.get_var_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface.number_terms"><code class="docutils literal notranslate"><span class="pre">Interface.number_terms()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.iterative_fit.html">autowisp.fit_expression.iterative_fit module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.iterative_fit.html#autowisp.fit_expression.iterative_fit.iterative_fit"><code class="docutils literal notranslate"><span class="pre">iterative_fit()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.iterative_fit.html#autowisp.fit_expression.iterative_fit.iterative_fit_qr"><code class="docutils literal notranslate"><span class="pre">iterative_fit_qr()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html">autowisp.fit_expression.list_terms_visitor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html#autowisp.fit_expression.list_terms_visitor.ListTermsVisitor"><code class="docutils literal notranslate"><span class="pre">ListTermsVisitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html#autowisp.fit_expression.list_terms_visitor.ListTermsVisitor._end_expansion"><code class="docutils literal notranslate"><span class="pre">ListTermsVisitor._end_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html#autowisp.fit_expression.list_terms_visitor.ListTermsVisitor._process_polynomial_term"><code class="docutils literal notranslate"><span class="pre">ListTermsVisitor._process_polynomial_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html#autowisp.fit_expression.list_terms_visitor.ListTermsVisitor.visitFit_term"><code class="docutils literal notranslate"><span class="pre">ListTermsVisitor.visitFit_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.list_terms_visitor.html#autowisp.fit_expression.list_terms_visitor.ListTermsVisitor.visitFit_terms_expression"><code class="docutils literal notranslate"><span class="pre">ListTermsVisitor.visitFit_terms_expression()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html">autowisp.fit_expression.process_terms_visitor module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._end_cross_product_expansion"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor._end_cross_product_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._end_polynomial_expansion"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor._end_polynomial_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._process_cross_product_term"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor._process_cross_product_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._process_polynomial_term"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor._process_polynomial_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._start_cross_product_expansion"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor._start_cross_product_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._start_polynomial_expansion"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor._start_polynomial_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_polynomial"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor.visitFit_polynomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_terms_list"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor.visitFit_terms_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_terms_set"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor.visitFit_terms_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_terms_set_cross_product"><code class="docutils literal notranslate"><span class="pre">ProcessTermsVisitor.visitFit_terms_set_cross_product()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html">autowisp.fit_expression.used_var_finder module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder"><code class="docutils literal notranslate"><span class="pre">UsedVarFinder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__contains__"><code class="docutils literal notranslate"><span class="pre">UsedVarFinder.__contains__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__getitem__"><code class="docutils literal notranslate"><span class="pre">UsedVarFinder.__getitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__init__"><code class="docutils literal notranslate"><span class="pre">UsedVarFinder.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.get_used_vars"><code class="docutils literal notranslate"><span class="pre">UsedVarFinder.get_used_vars()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.fake_image.raw.html" class="btn btn-neutral float-left" title="autowisp.fake_image.raw module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.fit_expression.FitTermsLexer.html" class="btn btn-neutral float-right" title="autowisp.fit_expression.FitTermsLexer module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

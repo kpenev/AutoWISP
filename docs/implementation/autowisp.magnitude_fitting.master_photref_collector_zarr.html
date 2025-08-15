@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.magnitude_fitting.master_photref_collector_zarr module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.magnitude_fitting.util module" href="autowisp.magnitude_fitting.util.html" />
+    <link rel="prev" title="autowisp.magnitude_fitting.master_photref_collector_grcollect module" href="autowisp.magnitude_fitting.master_photref_collector_grcollect.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.magnitude_fitting.html">autowisp.magnitude_fitting package</a></li>
+      <li class="breadcrumb-item active">autowisp.magnitude_fitting.master_photref_collector_zarr module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.magnitude_fitting.master_photref_collector_zarr">
+<span id="autowisp-magnitude-fitting-master-photref-collector-zarr-module"></span><h1>autowisp.magnitude_fitting.master_photref_collector_zarr module<a class="headerlink" href="#module-autowisp.magnitude_fitting.master_photref_collector_zarr" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-ea2bd69310fceba26773fad208c02d1d836328a6.png" alt="Inheritance diagram of FitTermsInterface, MasterPhotrefCollector, chain" usemap="#inheritancef060db9c6e" class="inheritance graphviz" /></div>
+<map id="inheritancef060db9c6e" name="inheritancef060db9c6e">
+<area shape="rect" id="node1" href="autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface" target="_top" title="Interface class for working with fit terms expressions." alt="" coords="5,5,273,32"/>
+<area shape="rect" id="node2" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="296,5,787,32"/>
+</map><p>Define class for collecting statistics and making a master photref.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.master_photref_collector_zarr.</span></span><span class="sig-name descname"><span class="pre">MasterPhotrefCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_photometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-f4a8e1baf53257ac850bc1c28904f95c96410751.png" alt="Inheritance diagram of autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" usemap="#inheritance9edb6adfcb" class="inheritance graphviz" /></div>
+<map id="inheritance9edb6adfcb" name="inheritance9edb6adfcb">
+<area shape="rect" id="node1" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="5,5,496,32"/>
+</map><p>Class collecting magfit output to generate a master photometric reference.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._statistics_fname">
+<span class="sig-name descname"><span class="pre">_statistics_fname</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._statistics_fname" title="Link to this definition"></a></dt>
+<dd><p>The file name to save the collected statistics
+under.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._grcollect">
+<span class="sig-name descname"><span class="pre">_grcollect</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._grcollect" title="Link to this definition"></a></dt>
+<dd><p>The running <code class="docutils literal notranslate"><span class="pre">grcollect</span></code> process responsible for
+generating the statistics.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._dimensions">
+<span class="sig-name descname"><span class="pre">_dimensions</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._dimensions" title="Link to this definition"></a></dt>
+<dd><p>How many photometry measurements are being fit based on
+how many images, and what is the total number of coluns included in
+the statistics (usually twice the number of photometries).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._source_name_format">
+<span class="sig-name descname"><span class="pre">_source_name_format</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._source_name_format" title="Link to this definition"></a></dt>
+<dd><p>A %-substitution string for turning a source ID
+tuple to as string in the statistics file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._stat_quantities">
+<span class="sig-name descname"><span class="pre">_stat_quantities</span></span><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._stat_quantities" title="Link to this definition"></a></dt>
+<dd><p>The quantities that <code class="docutils literal notranslate"><span class="pre">grcollect</span></code> is told to
+calculate for each input magnitude and error estimate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_photometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.__init__" title="Link to this definition"></a></dt>
+<dd><p>Prepare for collecting magfit results for master photref creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statistics_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename where to save the statistics
+relevant for creating a master photometric reference.</p></li>
+<li><p><strong>num_photometries</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The number of photometric measurements
+available for each star (e.g. number of apertures + 1 if psf
+fitting + …).</p></li>
+<li><p><strong>outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – A threshold value for outlier
+rejection. The units of this are determined by the
+<code class="docutils literal notranslate"><span class="pre">rejection_units</span></code> argument.</p></li>
+<li><p><strong>max_rejection_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The maximum number of iterations
+between rejecting outliers and re-deriving the statistics to
+allow.</p></li>
+<li><p><strong>temp_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A location in the file system to use for
+storing temporary files during statistics colletion.</p></li>
+<li><p><strong>rejection_center</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Outliers are define around some central
+value, either <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'median'</span></code>.</p></li>
+<li><p><strong>rejection_units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The units of the outlier rejection
+threshold. One of <code class="docutils literal notranslate"><span class="pre">'stddev'</span></code>, <code class="docutils literal notranslate"><span class="pre">'meddev'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code>.</p></li>
+<li><p><strong>max_memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The maximum amount of RAM the statistics process
+is allowed to use (if exceeded intermediate results are dumped
+to files in <code class="docutils literal notranslate"><span class="pre">temp_dir</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._add_catalog_info">
+<span class="sig-name descname"><span class="pre">_add_catalog_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._add_catalog_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._add_catalog_info" title="Link to this definition"></a></dt>
+<dd><p>Add the catalog data for each source to the statistics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._calculate_statistics">
+<span class="sig-name descname"><span class="pre">_calculate_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._calculate_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._calculate_statistics" title="Link to this definition"></a></dt>
+<dd><p>Calculate and fill in the statics from all input collected so far.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._create_reference">
+<span class="sig-name descname"><span class="pre">_create_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residual_scatter</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">enough_counts_flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_average</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._create_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._create_reference" title="Link to this definition"></a></dt>
+<dd><p>Create the master photometric reference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statistics</strong> – The return value of _read_statistics().</p></li>
+<li><p><strong>residual_scatter</strong> – The return value of _fit_scatter().</p></li>
+<li><p><strong>enough_counts_flags</strong> (<em>bool array</em>) – Flag for each photometry for
+each star indicating whether sufficient number of points
+remained after rejection to use in the master.</p></li>
+<li><p><strong>outlier_average</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_outlier_average</span></code> argument to
+generate_master().</p></li>
+<li><p><strong>outlier_threshold</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_outlier_threshold</span></code> argument to
+generate_master().</p></li>
+<li><p><strong>reference_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name to use for the generated master
+photometric reference file.</p></li>
+<li><p><strong>primary_header</strong> (<em>fits.Header</em>) – The header to use for the primary
+(non-table) HDU of the resulting master FITS file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._fit_scatter">
+<span class="sig-name descname"><span class="pre">_fit_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_terms_expression</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">enough_counts_flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_average</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rej_iter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_quantity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'medianmeddev'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._fit_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._fit_scatter" title="Link to this definition"></a></dt>
+<dd><p>Fit for the dependence of scatter on source properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>statistics</strong> – The return value of _read_statistics().</p></li>
+<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A fitting terms expression to use to
+generate the terms to include in the fit of the scatter.</p></li>
+<li><p><strong>min_counts</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The smallest number of observations to require
+for a source to participate in the fit.</p></li>
+<li><p><strong>outlier_average</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_outlier_average</span></code> argument to
+generate_master().</p></li>
+<li><p><strong>outlier_threshold</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_outlier_threshold</span></code> argument to
+generate_master().</p></li>
+<li><p><strong>max_rej_iter</strong> – See <code class="docutils literal notranslate"><span class="pre">fit_max_rej_iter</span></code> argument to
+generate_master().</p></li>
+<li><p><strong>scatter_quantity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the field in <code class="docutils literal notranslate"><span class="pre">statistics</span></code>
+which contains the estimated scatter to fit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The residuals of the scatter from <code class="docutils literal notranslate"><span class="pre">statistics</span></code> from the
+best-fit values found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_enough_count_flags">
+<span class="sig-name descname"><span class="pre">_get_enough_count_flags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_nobs_median_fraction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._get_enough_count_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_enough_count_flags" title="Link to this definition"></a></dt>
+<dd><p>Return median number of observations per source in the stat. file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_stat_dtype">
+<span class="sig-name descname"><span class="pre">_get_stat_dtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">catalog_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._get_stat_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_stat_dtype" title="Link to this definition"></a></dt>
+<dd><p>Return the dtype to use for statistics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._init_data">
+<span class="sig-name descname"><span class="pre">_init_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._init_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._init_data" title="Link to this definition"></a></dt>
+<dd><p>Create the file-based array for holding magfit data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._save_statistics">
+<span class="sig-name descname"><span class="pre">_save_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector._save_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._save_statistics" title="Link to this definition"></a></dt>
+<dd><p>Save the given statistics as a master statistics file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.add_input">
+<span class="sig-name descname"><span class="pre">add_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit_results</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector.add_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.add_input" title="Link to this definition"></a></dt>
+<dd><p>Ingest a fitted frame’s photometry into the statistics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.generate_master">
+<span class="sig-name descname"><span class="pre">generate_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_reference_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_terms_expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_source_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_nobs_median_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_outlier_average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'median'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_outlier_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_max_rej_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/master_photref_collector_zarr.html#MasterPhotrefCollector.generate_master"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.generate_master" title="Link to this definition"></a></dt>
+<dd><p>Finish the work of the object and generate a master.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master_reference_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The file name to use for the newly
+created master photometric reference.</p></li>
+<li><p><strong>catalog</strong> – See <code class="docutils literal notranslate"><span class="pre">master_catalog</span></code> argument to
+MagnitudeFit.__init__().</p></li>
+<li><p><strong>fit_terms_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – An expression expanding to the terms
+to include in the scatter fit. May use any catalog column.</p></li>
+<li><p><strong>parse_source_id</strong> (<em>callable</em>) – Should convert a string source ID into
+the source ID format expected by the catalog.</p></li>
+<li><p><strong>min_nobs_median_fraction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The minimum fraction of the
+median number of observations a source must have to be inclruded
+in the master.</p></li>
+<li><p><strong>fit_outlier_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The averaging method to use for scaling
+averaging residuals from scatter fit. The result is used as the
+unit for <code class="docutils literal notranslate"><span class="pre">fit_outlier_threshold</span></code>.</p></li>
+<li><p><strong>fit_outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – A factor to multiply the
+<code class="docutils literal notranslate"><span class="pre">fit_outlier_average</span></code> averaged residual from scatter fit in
+order to get the threshold to consider a scatter point an
+outlier, and hence discard from cantributing to the reference.</p></li>
+<li><p><strong>fit_max_rej_iter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The maximum number of iterations to allow
+for fitting/rejecting outliers. If this number is reached, the
+last result is accepted.</p></li>
+<li><p><strong>extra_header</strong> (<em>None</em><em> or </em><em>dict-like</em>) – Header keywords to add to the
+generated FITS header in addition to the ones describing the
+master fit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.magnitude_fitting.master_photref_collector_grcollect.html" class="btn btn-neutral float-left" title="autowisp.magnitude_fitting.master_photref_collector_grcollect module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.magnitude_fitting.util.html" class="btn btn-neutral float-right" title="autowisp.magnitude_fitting.util module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.database.initialize_data_reduction_structure module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.database.initialize_database module" href="autowisp.database.initialize_database.html" />
+    <link rel="prev" title="autowisp.database.image_processing module" href="autowisp.database.image_processing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.database.html">autowisp.database package</a></li>
+      <li class="breadcrumb-item active">autowisp.database.initialize_data_reduction_structure module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.database.initialize_data_reduction_structure.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.database.initialize_data_reduction_structure">
+<span id="autowisp-database-initialize-data-reduction-structure-module"></span><h1>autowisp.database.initialize_data_reduction_structure module<a class="headerlink" href="#module-autowisp.database.initialize_data_reduction_structure" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-5b8ec0efde3d1ca4148c46642cfda9960b921d4c.png" alt="Inheritance diagram of HDF5Attribute, HDF5DataSet, HDF5Link, HDF5Product, HDF5StructureVersion" usemap="#inheritanceea43f22ff3" class="inheritance graphviz" /></div>
+<map id="inheritanceea43f22ff3" name="inheritanceea43f22ff3">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="806,229,1136,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute" target="_top" title="The table describing how to add attributes in HDF5 files." alt="" coords="5,304,385,331"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.hdf5_datasets.html#autowisp.database.data_model.hdf5_datasets.HDF5DataSet" target="_top" title="The table describing how to include datasets in HDF5 files." alt="" coords="409,304,784,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.hdf5_links.html#autowisp.database.data_model.hdf5_links.HDF5Link" target="_top" title="Table describing links of chosen versions of products in HDF5 files." alt="" coords="807,304,1135,331"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.hdf5_products.html#autowisp.database.data_model.hdf5_products.HDF5Product" target="_top" title="The types of pipeline products stored as HDF5 files." alt="" coords="1159,304,1530,331"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.hdf5_structure_versions.html#autowisp.database.data_model.hdf5_structure_versions.HDF5StructureVersion" target="_top" title="The versions of structures for the HDF5 pipeline products." alt="" coords="1554,304,2033,331"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="918,5,1024,32"/>
+</map><p>Define function to add defaults to all HDF5 structure tables.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_apphot_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_apphot_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_apphot_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_apphot_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction attributes describing aperture photometry.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_apphot_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_apphot_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_apphot_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_apphot_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create the datasets to contain shape aperture photometry results.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_apphot_links">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_apphot_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_apphot_links"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_apphot_links" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction links for sky to background extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create the default database attributes in data reduction HDF5 files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_background_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_background_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_background_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_background_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create default attributes in data reduction files describing BG extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_background_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_background_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_background_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_background_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction data sets of background measurements.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_background_links">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_background_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_background_links"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_background_links" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction links for sky to background extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_catalogue_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_catalogue_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_catalogue_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_catalogue_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction attributes describing catalogue queries.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_catalogue_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_catalogue_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_catalogue_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_catalogue_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction datasets for catalogue_queries.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create the default database datasets in data reduction HDF5 files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_link">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">used_component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_link" title="Link to this definition"></a></dt>
+<dd><p>Return link to one version of used_component within user_component group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>used_component</strong> – The pipeline name of the component being used.</p></li>
+<li><p><strong>user_component</strong> – The pipeline component using used_component.</p></li>
+<li><p><strong>description</strong> – A description of the link.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A properly constructed link signifying that user_component was
+derived based on a particular version of used_component.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link" title="autowisp.database.data_model.HDF5Link">autowisp.database.data_model.HDF5Link</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_links">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_links"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_links" title="Link to this definition"></a></dt>
+<dd><p>Create the default database links in data reduction HDF5 files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_magfit_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_magfit_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photometry_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_magfit_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_magfit_attributes" title="Link to this definition"></a></dt>
+<dd><p>Return a set of magnitude fitting attributes for a single photometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>photometry_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The method by which the raw magnitudes used for
+magnitude fitting were extracted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The attributes describing magnitude fitting.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute" title="autowisp.database.data_model.HDF5Attribute">autowisp.database.data_model.HDF5Attribute</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_magfit_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_magfit_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photometry_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_magfit_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_magfit_datasets" title="Link to this definition"></a></dt>
+<dd><p>Return a set of magnitude fitting data sets for a single photometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>photometry_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The method by which the raw magnitudes used for
+magnitude fitting were extracted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The datasets containing the magnitude fitting results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet" title="autowisp.database.data_model.HDF5DataSet">autowisp.database.data_model.HDF5DataSet</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_magfit_key_and_path">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_magfit_key_and_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photometry_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_magfit_key_and_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_magfit_key_and_path" title="Link to this definition"></a></dt>
+<dd><p>Return start of pipeline key and path for magfit datasets/attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>photometry_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The method by which the raw magnitudes used for
+magnitude fitting were extracted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The start of the pipeline_key and the absolute path of the dataset
+in the HDF5 file under whihc to place the fitted magnitudes and
+associated attributes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_shapefit_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_shapefit_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_shapefit_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_shapefit_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create the default attribute in data reduction files describing PSF fitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>All attributes related to PSF/PRF fitting to include in data
+reduction files.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute" title="autowisp.database.data_model.HDF5Attribute">autowisp.database.data_model.HDF5Attribute</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_shapefit_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_shapefit_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_shapefit_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_shapefit_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create the datasets to contain shape fitting results.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_shapefit_links">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_shapefit_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_shapefit_links"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_shapefit_links" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction links for sky to background extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_sky_to_frame_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_sky_to_frame_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction sky to frame transformation data sets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_links">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_sky_to_frame_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_sky_to_frame_links"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_sky_to_frame_links" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction links for sky to frame transformations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_skytoframe_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_skytoframe_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_skytoframe_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_skytoframe_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction attributes describing the astrometry.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_source_extraction_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_source_extraction_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_source_extraction_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_source_extraction_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction attributes describing source extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_source_extraction_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_source_extraction_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_source_extraction_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_source_extraction_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction datesets for source extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_source_projection_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_source_projection_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_source_projection_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_source_projection_attributes" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction attributes describing source projection.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_source_projection_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_source_projection_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_source_projection_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_source_projection_datasets" title="Link to this definition"></a></dt>
+<dd><p>Create default projected sources data reduction data sets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure._get_source_projection_links">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">_get_source_projection_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#_get_source_projection_links"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure._get_source_projection_links" title="Link to this definition"></a></dt>
+<dd><p>Create default data reduction links for projected sources.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_data_reduction_structure.get_default_data_reduction_structure">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_data_reduction_structure.</span></span><span class="sig-name descname"><span class="pre">get_default_data_reduction_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_data_reduction_structure.html#get_default_data_reduction_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_data_reduction_structure.get_default_data_reduction_structure" title="Link to this definition"></a></dt>
+<dd><p>Add the default configuration for the layout of data reduction files.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.database.image_processing.html" class="btn btn-neutral float-left" title="autowisp.database.image_processing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.database.initialize_database.html" class="btn btn-neutral float-right" title="autowisp.database.initialize_database module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

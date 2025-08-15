@@ -1,0 +1,7 @@
+autowisp.database.initialize\_data\_reduction\_structure module
+===============================================================
+
+.. automodule:: autowisp.database.initialize_data_reduction_structure
+   :members:
+   :show-inheritance:
+   :undoc-members:

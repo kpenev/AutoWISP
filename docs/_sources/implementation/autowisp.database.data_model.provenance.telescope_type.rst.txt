@@ -1,0 +1,7 @@
+autowisp.database.data\_model.provenance.telescope\_type module
+===============================================================
+
+.. automodule:: autowisp.database.data_model.provenance.telescope_type
+   :members:
+   :show-inheritance:
+   :undoc-members:

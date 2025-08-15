@@ -1,90 +1,126 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Low Level Image Calibration Interface &#8212; SuperPhotPipeline  documentation</title>
-    
-    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Level Image Calibration Interface &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Low Level Master Stack Interface" href="low_level_master_stack.html" />
-    <link rel="prev" title="Logging" href="logging.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="low_level_master_stack.html" title="Low Level Master Stack Interface"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="logging.html" title="Logging"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="logging.html"
-                        title="previous chapter">Logging</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="low_level_master_stack.html"
-                        title="next chapter">Low Level Master Stack Interface</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/PythonModules/low_level_image_calibration.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="low-level-image-calibration-interface">
-<h1>Low Level Image Calibration Interface<a class="headerlink" href="#low-level-image-calibration-interface" title="Permalink to this headline">¶</a></h1>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Low Level Image Calibration Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/PythonModules/low_level_image_calibration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="low-level-image-calibration-interface">
+<h1>Low Level Image Calibration Interface<a class="headerlink" href="#low-level-image-calibration-interface" title="Link to this heading"></a></h1>
 <p>In the first release of the pipeline all images are assumed to be in FITS format
 and only FITS images are produced. As described in the image calibration step of
 the <a class="reference internal" href="../processing_steps.html"><span class="doc">Pipeline Steps</span></a> image calibration produces two images for each
@@ -92,79 +128,82 @@ input image. Those are stored as a two-extension FITS files. The first extension
 is the calibrated image and the second extension are the error estimates for
 each pixel. While the input images can be either integer or floating point, the
 calibrated images are always floating point.</p>
-<p>The ImageCalibration python module defines a class (Calibrator) that provides
-the lowest level interface for performing calibrations. The calibration requires
-specifying overscan area(s) to use, overscan correction method(s), master
-bias/dark/flat, and gain to assume for the input raw frames (single floating
-point value), the area in the image which actually contains image pixels (must
-match the dimensions of the masters). We will refer to these as calibration
-parameters from now on.</p>
+<p>The <a class="reference internal" href="../implementation/autowisp.image_calibration.html#module-autowisp.image_calibration" title="autowisp.image_calibration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">image_calibration</span></code></a> module
+defines a class
+(<a class="reference internal" href="../implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator" title="autowisp.image_calibration.Calibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibrator</span></code></a>) that
+provides the lowest level interface for performing calibrations. The calibration
+requires specifying overscan area(s) to use, overscan correction method(s),
+master bias/dark/flat, and gain to assume for the input raw frames (single
+floating point value), the area in the image which actually contains image
+pixels (must match the dimensions of the masters). We will refer to these as
+calibration parameters from now on.</p>
 <p>The typical work flow is as follows:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Create a Calibrator instance, optionally specifying calibration
-parameters.</li>
-<li>Optionally, specify further or overwrite previously specified calibration
-parameters as attributes to the object.</li>
-<li>Call the object with the  filename of the image to calibrate and the
+<li><p>Create a Calibrator instance, optionally specifying calibration
+parameters.</p></li>
+<li><p>Optionally, specify further or overwrite previously specified calibration
+parameters as attributes to the object.</p></li>
+<li><p>Call the object with the  filename of the image to calibrate and the
 output filename for the calibrated image. All calibration parameters
 can be replaced, for this image only, through additional keyword
 arguments. Any masters not specified or set to None are not applied.
-Hence to calibrate a raw flat frame, set master_flat = None.</li>
-<li>Repeat steps 2 and 3 for all images which need calibrating.</li>
+Hence to calibrate a raw flat frame, set master_flat = None.</p></li>
+<li><p>Repeat steps 2 and 3 for all images which need calibrating.</p></li>
 </ol>
 </div></blockquote>
-<p>For example, in order to calibrate flat frames called raw1.fits and raw2.fits
-(with a resolution of 4096x4116) with overscan region consisting of the first 20
-rows applied by subtracting a simple median:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">SuperPhotPipeline.ImageCalibration</span> <span class="k">import</span> <span class="n">Calibrator</span><span class="p">,</span> <span class="n">OverscanMethods</span>
+<p>For example, in order to calibrate flat frames called <code class="docutils literal notranslate"><span class="pre">raw1.fits</span></code> and
+<code class="docutils literal notranslate"><span class="pre">raw2.fits</span></code> (with a resolution of 4096x4116) with overscan region consisting
+of the first 20 rows applied by subtracting a simple median:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">super_phot_pipeline.image_calibration</span><span class="w"> </span><span class="kn">import</span>\
+    <span class="n">Calibrator</span><span class="p">,</span>\
+    <span class="n">overscan_methods</span>
 
 <span class="n">calibrate</span> <span class="o">=</span> <span class="n">Calibrator</span><span class="p">(</span>
-    <span class="n">overscans</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)],</span>
-    <span class="n">overscan_method</span> <span class="o">=</span> <span class="n">OverscanMethos</span><span class="o">.</span><span class="n">median</span><span class="p">,</span>
-    <span class="n">master_bias</span> <span class="o">=</span> <span class="s1">&#39;masters/master_bias1.fits&#39;</span><span class="p">,</span>
-    <span class="n">gain</span> <span class="o">=</span> <span class="mf">16.0</span><span class="p">,</span>
-    <span class="n">image_area</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mi">4116</span>
+    <span class="n">saturation_threshold</span><span class="o">=</span><span class="mf">64000.0</span><span class="p">,</span>
+    <span class="n">overscans</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)],</span>
+    <span class="n">overscan_method</span><span class="o">=</span><span class="n">overscan_methos</span><span class="o">.</span><span class="n">median</span><span class="p">,</span>
+    <span class="n">master_bias</span><span class="o">=</span><span class="s1">&#39;masters/master_bias1.fits&#39;</span><span class="p">,</span>
+    <span class="n">gain</span><span class="o">=</span><span class="mf">16.0</span><span class="p">,</span>
+    <span class="n">image_area</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">4116</span>
 <span class="p">)</span>
-<span class="n">calibrate</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span><span class="n">dark</span> <span class="o">=</span> <span class="s1">&#39;masters/master_dark3.fits&#39;</span><span class="p">)</span>
-<span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span> <span class="o">=</span> <span class="s1">&#39;raw1.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span> <span class="o">=</span> <span class="s1">&#39;calib1.fits&#39;</span><span class="p">)</span>
-<span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span> <span class="o">=</span> <span class="s1">&#39;raw2.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span> <span class="o">=</span> <span class="s1">&#39;calib2.fits&#39;</span><span class="p">,</span> <span class="n">gain</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">)</span>
+<span class="n">calibrate</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span><span class="n">dark</span><span class="o">=</span><span class="s1">&#39;masters/master_dark3.fits&#39;</span><span class="p">)</span>
+<span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">&#39;raw1.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span><span class="o">=</span><span class="s1">&#39;calib1.fits&#39;</span><span class="p">)</span>
+<span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="s1">&#39;raw2.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span><span class="o">=</span><span class="s1">&#39;calib2.fits&#39;</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">8.0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Users can define their own overscan methods. All that is required is a function
 that takes the input image (numpy array-like object), an overscans dictionary
 defining the overscan area and returns the overscan corrected image as a numpy
 floating point array-like object.</p>
-</div>
+</section>
 
 
+           </div>
           </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="low_level_master_stack.html" title="Low Level Master Stack Interface"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="logging.html" title="Logging"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Kaloyan Penev.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
-    </div>
-  </body>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

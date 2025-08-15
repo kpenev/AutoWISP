@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.stack_to_master &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.stack_to_master</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.stack_to_master</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Stack a collection of images to a master frame.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">exists</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Action</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.mask_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask_flags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.master_maker</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterMaker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ManualStepArgumentParser</span><span class="p">,</span>
+    <span class="n">ignore_progress</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_fits_fnames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_primary_header</span>
+
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;calibrated&quot;</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">fail_reasons</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;discarded&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">}</span>
+
+
+<span class="c1"># Interface define by argparse</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="ParseAverageAction">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.ParseAverageAction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParseAverageAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the specification of the averaging function on the command line.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ParseAverageAction.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.ParseAverageAction.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the callable to use for averaging.&quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span> <span class="o">+</span> <span class="n">func</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">level</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+
+
+<div class="viewcode-block" id="get_command_line_parser">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.get_command_line_parser">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_command_line_parser</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">default_threshold</span><span class="o">=</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,),</span>
+    <span class="n">single_master</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">default_min_valid_values</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">default_max_iter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a command line parser with all arguments added.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--average-func&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span> <span class="o">+</span> <span class="n">f</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The function to use for calculating the average of pixel values &quot;</span>
+        <span class="s2">&quot;accross images. For quantile and percentile, the desired level is &quot;</span>
+        <span class="s2">&quot;specified by adding ``:&lt;q&gt;`` at the end of the function name(e.g.&quot;</span>
+        <span class="s2">&quot;``quantile:0.7``).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--outlier-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">default_threshold</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When averaging the values of a given pixel among the input &quot;</span>
+        <span class="s2">&quot;images, values that are further than this value times the root mean &quot;</span>
+        <span class="s2">&quot;square devitaion from the average are rejected and the average is &quot;</span>
+        <span class="s2">&quot;recomputed iteratively until convergence or maximum number of &quot;</span>
+        <span class="s2">&quot;iterations.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--min-valid-values&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">default_min_valid_values</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If rejecting outlier pixels results in fewer than this many &quot;</span>
+        <span class="s2">&quot;surviving pixels, the corresponding pixel gets a bad pixel mask in the&quot;</span>
+        <span class="s2">&quot;master.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max-iter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">default_max_iter</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of outlier rejection/averaging iterations to &quot;</span>
+        <span class="s2">&quot;allow. If not converged before then, a warning is issued and the &quot;</span>
+        <span class="s2">&quot;average if the last iteration is used.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--exclude-mask&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">mask_flags</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">MasterMaker</span><span class="o">.</span><span class="n">default_exclude_mask</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A list of mask flags, any of which result in the corresponding &quot;</span>
+        <span class="s2">&quot;pixels being excluded from the averaging. Any mask flags not specified&quot;</span>
+        <span class="s2">&quot;are ignored, treated as clean. Note that ``&#39;BAD&#39;`` means any kind of&quot;</span>
+        <span class="s2">&quot; problem (e.g. saturated, hot/cold pixel, leaked etc.).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--compress&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If zero, the final result is not compressed. Otherwise,&quot;</span>
+        <span class="s2">&quot;this is the quantization level used for compressing the image (see &quot;</span>
+        <span class="s2">&quot;`astropy.io.fits` documentation).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--add-averaged-keywords&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify any numeric-valued header keywords that should be &quot;</span>
+        <span class="s2">&quot;generated for the master by averaging the corresponding values from &quot;</span>
+        <span class="s2">&quot;the input frames using the same averaging as pixel values. By default &quot;</span>
+        <span class="s2">&quot;the outlier rejected average JD of the input frames is added.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">single_master</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--min-valid-frames&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If there are fewer than this number of suitable frames to &quot;</span>
+            <span class="s2">&quot;stack in a given master, that master is not generated.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--stacked-master-fname&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;MASTERS/</span><span class="si">{IMAGE_TYPE}</span><span class="s2">_</span><span class="si">{CAMSN}</span><span class="s2">_</span><span class="si">{CLRCHNL}</span><span class="s2">_{OBS-SESN}.fits.fz&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for the master to generate if successful. Can &quot;</span>
+            <span class="s2">&quot;involve header substitutions, but should produce the same filename&quot;</span>
+            <span class="s2">&quot; for all input frames. If not, the behavior is undefined.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">get_command_line_parser</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_master_fname">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.get_master_fname">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_master_fname</span><span class="p">(</span>
+    <span class="n">image_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">fname_key</span><span class="o">=</span><span class="s2">&quot;stacked_master_fname&quot;</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the name of the master the given image should contribute to.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">first_image</span><span class="p">:</span>
+        <span class="n">substitutions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">get_primary_header</span><span class="p">(</span><span class="n">first_image</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">substitutions</span><span class="p">:</span>
+            <span class="n">substitutions</span><span class="p">[</span><span class="n">arg</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">configuration</span><span class="p">[</span><span class="n">fname_key</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="stack_to_master">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.stack_to_master">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stack_to_master</span><span class="p">(</span>
+    <span class="n">image_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stack the given frames to produce a single master frame.&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
+        <span class="n">mark_start</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
+    <span class="n">master_fname</span> <span class="o">=</span> <span class="n">get_master_fname</span><span class="p">(</span><span class="n">image_collection</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">configuration</span><span class="p">)</span>
+    <span class="n">success</span><span class="p">,</span> <span class="n">discarded_frames</span> <span class="o">=</span> <span class="n">MasterMaker</span><span class="p">(</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;outlier_threshold&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;average_func&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;min_valid_frames&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;min_valid_values&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_iter&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;exclude_mask&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compress&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;add_averaged_keywords&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">)(</span><span class="n">image_collection</span><span class="p">,</span> <span class="n">master_fname</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
+        <span class="n">mark_end</span><span class="p">(</span>
+            <span class="n">image_fname</span><span class="p">,</span>
+            <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;discarded&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">discarded_frames</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">exists</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">master_fname</span><span class="p">,</span>
+            <span class="s2">&quot;preference_order&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;JD_OBS - </span><span class="si">{</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="cleanup_interrupted">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.cleanup_interrupted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup file system after partially creating stacked image(s).&quot;&quot;&quot;</span>
+
+    <span class="n">master_fname</span> <span class="o">=</span> <span class="n">get_master_fname</span><span class="p">(</span><span class="n">interrupted</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">configuration</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Cleaning up partially created stack </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">master_fname</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">interrupted</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">master_fname</span> <span class="o">==</span> <span class="n">get_master_fname</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">master_fname</span><span class="p">):</span>
+        <span class="n">remove</span><span class="p">(</span><span class="n">master_fname</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
+
+    <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">stack_to_master</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">find_fits_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="p">[</span><span class="s2">&quot;calibrated_images&quot;</span><span class="p">])),</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmdline_config</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

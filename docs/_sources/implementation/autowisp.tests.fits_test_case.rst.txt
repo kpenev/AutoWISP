@@ -1,0 +1,7 @@
+autowisp.tests.fits\_test\_case module
+======================================
+
+.. automodule:: autowisp.tests.fits_test_case
+   :members:
+   :show-inheritance:
+   :undoc-members:

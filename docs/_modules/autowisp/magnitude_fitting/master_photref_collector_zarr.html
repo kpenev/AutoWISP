@@ -1,0 +1,889 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.magnitude_fitting.master_photref_collector_zarr &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.magnitude_fitting.master_photref_collector_zarr</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.magnitude_fitting.master_photref_collector_zarr</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Define class for collecting statistics and making a master photref.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zarr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rechunker</span><span class="w"> </span><span class="kn">import</span> <span class="n">rechunk</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fit_expression</span><span class="w"> </span><span class="kn">import</span> <span class="n">Interface</span> <span class="k">as</span> <span class="n">FitTermsInterface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fit_expression</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_fit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.iterative_rejection_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_rejection_average</span>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MasterPhotrefCollector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class collecting magfit output to generate a master photometric reference.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _statistics_fname:    The file name to save the collected statistics</span>
+<span class="sd">            under.</span>
+
+<span class="sd">        _grcollect:    The running ``grcollect`` process responsible for</span>
+<span class="sd">            generating the statistics.</span>
+
+<span class="sd">        _dimensions:    How many photometry measurements are being fit based on</span>
+<span class="sd">            how many images, and what is the total number of coluns included in</span>
+<span class="sd">            the statistics (usually twice the number of photometries).</span>
+
+<span class="sd">        _source_name_format:    A %-substitution string for turning a source ID</span>
+<span class="sd">            tuple to as string in the statistics file.</span>
+
+<span class="sd">        _stat_quantities:    The quantities that ``grcollect`` is told to</span>
+<span class="sd">            calculate for each input magnitude and error estimate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">_default_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;outlier_threshold&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+        <span class="s2">&quot;max_rejection_iterations&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;rejection_center&quot;</span><span class="p">:</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rejection_units&quot;</span><span class="p">:</span> <span class="s2">&quot;medmeddev&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_memory&quot;</span><span class="p">:</span> <span class="s2">&quot;2g&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;source_name_format&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">_stat_quantities</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;full_count&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rejected_count&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mediandev&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;medianmeddev&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="MasterPhotrefCollector._get_stat_dtype">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_stat_dtype">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_stat_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_columns</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the dtype to use for statistics.&quot;&quot;&quot;</span>
+
+        <span class="n">special_dtypes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;phqual&quot;</span><span class="p">:</span> <span class="s2">&quot;S3&quot;</span><span class="p">,</span> <span class="s2">&quot;magsrcflag&quot;</span><span class="p">:</span> <span class="s2">&quot;S9&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="n">stat_quantity</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="n">numpy</span><span class="o">.</span><span class="n">intc</span>
+                        <span class="k">if</span> <span class="n">stat_quantity</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span>
+                    <span class="p">),</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">],),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">stat_quantity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stat_quantities</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">special_dtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">catalog_columns</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector._calculate_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._calculate_statistics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statistics</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate and fill in the statics from all input collected so far.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Planning the rechunking.&quot;</span><span class="p">)</span>
+        <span class="n">rechunked_store</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">TempStore</span><span class="p">()</span>
+        <span class="n">chunk_stars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
+        <span class="p">)</span>
+        <span class="n">chunk_stars</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">chunk_stars</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">rechunk_plan</span> <span class="o">=</span> <span class="n">rechunk</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">chunk_stars</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">],</span>
+            <span class="n">rechunked_store</span><span class="p">,</span>
+            <span class="n">temp_store</span><span class="o">=</span><span class="n">zarr</span><span class="o">.</span><span class="n">TempStore</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Rechunking&quot;</span><span class="p">)</span>
+        <span class="n">rechunked_data</span> <span class="o">=</span> <span class="n">rechunk_plan</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Calculating statistics for </span><span class="si">%d</span><span class="s2"> chunks of </span><span class="si">%d</span><span class="s2"> stars.&quot;</span><span class="p">,</span>
+            <span class="n">rechunked_data</span><span class="o">.</span><span class="n">cdata_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">chunk_stars</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rechunked_data</span><span class="o">.</span><span class="n">cdata_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">res_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">block</span> <span class="o">*</span> <span class="n">chunk_stars</span><span class="p">,</span> <span class="p">(</span><span class="n">block</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">chunk_stars</span><span class="p">)</span>
+            <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;full_count&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span>
+                <span class="n">rechunked_data</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="n">block</span><span class="p">][</span>
+                    <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">(</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:],</span>
+                <span class="n">average_dev</span><span class="p">,</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:],</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">iterative_rejection_average</span><span class="p">(</span>
+                <span class="n">rechunked_data</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="n">block</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;outlier_threshold&quot;</span><span class="p">],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">average_func</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;nan</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s1">&#39;rejection_center&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">),</span>
+                <span class="n">deviation_average</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;rejection_units&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;meddev&quot;</span>
+                    <span class="k">else</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmean</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;rejection_units&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;meddev&quot;</span><span class="p">:</span>
+                <span class="p">(</span>
+                    <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;mediandev&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:],</span>
+                    <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:],</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="n">average_dev</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;rejection_units&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;medmeddev&quot;</span>
+                <span class="p">(</span>
+                    <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:],</span>
+                    <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;mediandev&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:],</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="n">average_dev</span>
+
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mediandev&quot;</span><span class="p">,</span> <span class="s2">&quot;medianmeddev&quot;</span><span class="p">]:</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">*=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                    <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">][</span><span class="n">res_slice</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector._save_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._save_statistics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statistics</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the given statistics as a master statistics file.&quot;&quot;&quot;</span>
+
+        <span class="n">save_column_fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{stat_quantity}</span><span class="s2">_</span><span class="si">{phot_quantity}</span><span class="s2">_</span><span class="si">{phot_i:d}</span><span class="s2">&quot;</span>
+        <span class="n">save_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;u8&quot;</span><span class="p">))]</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">save_column_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">stat_quantity</span><span class="o">=</span><span class="n">stat_quantity</span><span class="p">,</span>
+                    <span class="n">phot_quantity</span><span class="o">=</span><span class="n">phot_quantity</span><span class="p">,</span>
+                    <span class="n">phot_i</span><span class="o">=</span><span class="n">phot_i</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="nb">int</span> <span class="k">if</span> <span class="n">stat_quantity</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">phot_quantity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;mag_err&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">stat_quantity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stat_quantities</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Dtype for saving: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">save_dtype</span><span class="p">))</span>
+        <span class="n">save_stat</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">statistics</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">save_dtype</span><span class="p">)</span>
+        <span class="n">save_fmt</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%25d</span><span class="s2"> &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%10d</span><span class="s2"> </span><span class="si">%10d</span><span class="s2"> </span><span class="si">%25.16e</span><span class="s2"> </span><span class="si">%25.16e</span><span class="s2"> </span><span class="si">%25.16e</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">save_stat</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]</span>
+        <span class="n">quantity_column</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">phot_quantity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;mag_err&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">stat_quantity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stat_quantities</span><span class="p">:</span>
+                    <span class="n">save_stat</span><span class="p">[</span>
+                        <span class="n">save_column_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">stat_quantity</span><span class="o">=</span><span class="n">stat_quantity</span><span class="p">,</span>
+                            <span class="n">phot_quantity</span><span class="o">=</span><span class="n">phot_quantity</span><span class="p">,</span>
+                            <span class="n">phot_i</span><span class="o">=</span><span class="n">phot_i</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="n">stat_quantity</span><span class="p">][:,</span> <span class="n">quantity_column</span><span class="p">]</span>
+                <span class="n">quantity_column</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">destination_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_statistics_fname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">destination_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">destination_dir</span><span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_statistics_fname</span><span class="p">,</span> <span class="n">save_stat</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">save_fmt</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_statistics_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stat_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Statistics file:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stat_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector._add_catalog_info">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._add_catalog_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_catalog_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">statistics</span><span class="p">,</span> <span class="n">catalog_columns</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the catalog data for each source to the statistics.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">source_index</span><span class="p">,</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]):</span>
+            <span class="n">catalog_source</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span>
+                <span class="n">source_id</span> <span class="k">if</span> <span class="n">source_id</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">()</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">catalog_columns</span><span class="p">:</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="n">colname</span><span class="p">][</span><span class="n">source_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog_source</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector._get_enough_count_flags">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_enough_count_flags">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_enough_count_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statistics</span><span class="p">,</span> <span class="n">min_nobs_median_fraction</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return median number of observations per source in the stat. file.&quot;&quot;&quot;</span>
+
+        <span class="n">count_col</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;rejected_count&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;rejected_count&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stat_quantities</span>
+            <span class="k">else</span> <span class="s2">&quot;full_count&quot;</span>
+        <span class="p">)</span>
+        <span class="n">min_counts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">statistics</span><span class="p">[</span><span class="n">count_col</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">min_nobs_median_fraction</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">statistics</span><span class="p">[</span><span class="n">count_col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_counts</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span></div>
+
+
+    <span class="c1"># Can&#39;t simplify further</span>
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="MasterPhotrefCollector._fit_scatter">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._fit_scatter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_scatter</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">statistics</span><span class="p">,</span>
+        <span class="n">fit_terms_expression</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">enough_counts_flags</span><span class="p">,</span>
+        <span class="n">outlier_average</span><span class="p">,</span>
+        <span class="n">outlier_threshold</span><span class="p">,</span>
+        <span class="n">max_rej_iter</span><span class="p">,</span>
+        <span class="n">scatter_quantity</span><span class="o">=</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit for the dependence of scatter on source properties.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            statistics:    The return value of _read_statistics().</span>
+
+<span class="sd">            fit_terms_expression(str):    A fitting terms expression to use to</span>
+<span class="sd">                generate the terms to include in the fit of the scatter.</span>
+
+<span class="sd">            min_counts(int):    The smallest number of observations to require</span>
+<span class="sd">                for a source to participate in the fit.</span>
+
+<span class="sd">            outlier_average:    See ``fit_outlier_average`` argument to</span>
+<span class="sd">                generate_master().</span>
+
+<span class="sd">            outlier_threshold:    See ``fit_outlier_threshold`` argument to</span>
+<span class="sd">                generate_master().</span>
+
+<span class="sd">            max_rej_iter:    See ``fit_max_rej_iter`` argument to</span>
+<span class="sd">                generate_master().</span>
+
+<span class="sd">            scatter_quantity(str):    The name of the field in ``statistics``</span>
+<span class="sd">                which contains the estimated scatter to fit.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy array:</span>
+<span class="sd">                The residuals of the scatter from ``statistics`` from the</span>
+<span class="sd">                best-fit values found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">predictors</span> <span class="o">=</span> <span class="n">FitTermsInterface</span><span class="p">(</span><span class="n">fit_terms_expression</span><span class="p">)(</span><span class="n">statistics</span><span class="p">)</span>
+        <span class="n">residuals</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">statistics</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">phot_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]):</span>
+            <span class="n">usable</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">statistics</span><span class="p">[</span><span class="n">scatter_quantity</span><span class="p">][:,</span> <span class="n">phot_ind</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">predictors</span><span class="p">:</span>
+                <span class="n">usable</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">usable</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
+            <span class="n">usable</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">enough_counts_flags</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">],</span> <span class="n">usable</span><span class="p">)</span>
+            <span class="n">phot_predictors</span> <span class="o">=</span> <span class="n">predictors</span><span class="p">[:,</span> <span class="n">usable</span><span class="p">]</span>
+            <span class="n">target_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="n">scatter_quantity</span><span class="p">][</span><span class="n">usable</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">coefficients</span> <span class="o">=</span> <span class="n">iterative_fit</span><span class="p">(</span>
+                <span class="n">phot_predictors</span><span class="p">,</span>
+                <span class="n">target_values</span><span class="p">,</span>
+                <span class="n">error_avg</span><span class="o">=</span><span class="n">outlier_average</span><span class="p">,</span>
+                <span class="n">rej_level</span><span class="o">=</span><span class="n">outlier_threshold</span><span class="p">,</span>
+                <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">max_rej_iter</span><span class="p">,</span>
+                <span class="n">fit_identifier</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;Generating master photometric reference, &quot;</span>
+                    <span class="s2">&quot;photometry #&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot_ind</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">coefficients</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Calculating residual for scatter (</span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Fit scatter (</span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Predictors (</span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Coefficients (</span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="n">scatter_quantity</span><span class="p">][:,</span> <span class="n">phot_ind</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">statistics</span><span class="p">[</span><span class="n">scatter_quantity</span><span class="p">][:,</span> <span class="n">phot_ind</span><span class="p">]),</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">coefficients</span><span class="p">,</span> <span class="n">predictors</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">coefficients</span><span class="p">,</span> <span class="n">predictors</span><span class="p">)),</span>
+                <span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="p">),</span>
+                <span class="n">coefficients</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">coefficients</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">residuals</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
+                <span class="n">statistics</span><span class="p">[</span><span class="n">scatter_quantity</span><span class="p">][:,</span> <span class="n">phot_ind</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">coefficients</span><span class="p">,</span> <span class="n">predictors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">residuals</span></div>
+
+
+    <span class="c1"># pylint: enable=too-many-locals</span>
+
+<div class="viewcode-block" id="MasterPhotrefCollector._create_reference">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._create_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_reference</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">statistics</span><span class="p">,</span>
+        <span class="n">residual_scatter</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">enough_counts_flags</span><span class="p">,</span>
+        <span class="n">outlier_average</span><span class="p">,</span>
+        <span class="n">outlier_threshold</span><span class="p">,</span>
+        <span class="n">reference_fname</span><span class="p">,</span>
+        <span class="n">primary_header</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the master photometric reference.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            statistics:    The return value of _read_statistics().</span>
+
+<span class="sd">            residual_scatter:    The return value of _fit_scatter().</span>
+
+<span class="sd">            enough_counts_flags(bool array):    Flag for each photometry for</span>
+<span class="sd">                each star indicating whether sufficient number of points</span>
+<span class="sd">                remained after rejection to use in the master.</span>
+
+<span class="sd">            outlier_average:    See ``fit_outlier_average`` argument to</span>
+<span class="sd">                generate_master().</span>
+
+<span class="sd">            outlier_threshold:    See ``fit_outlier_threshold`` argument to</span>
+<span class="sd">                generate_master().</span>
+
+<span class="sd">            reference_fname(str):    The name to use for the generated master</span>
+<span class="sd">                photometric reference file.</span>
+
+<span class="sd">            primary_header(fits.Header):    The header to use for the primary</span>
+<span class="sd">                (non-table) HDU of the resulting master FITS file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_phot_reference_data</span><span class="p">(</span><span class="n">phot_ind</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return the reference magnitude fit data as numpy structured array.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Generating master photometric reference for phot #</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">phot_ind</span>
+            <span class="p">)</span>
+            <span class="n">max_scatter</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span> <span class="o">+</span> <span class="n">outlier_average</span><span class="p">)(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual_scatter</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="o">*</span> <span class="n">outlier_threshold</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Max sctter allowed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">max_scatter</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Sufficient observations flags: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">enough_counts_flags</span>
+            <span class="p">)</span>
+            <span class="n">include_source</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">enough_counts_flags</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">],</span>
+                <span class="n">residual_scatter</span><span class="p">[:,</span> <span class="n">phot_ind</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">max_scatter</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">num_phot_sources</span> <span class="o">=</span> <span class="n">include_source</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Suitable master photometric reference sources </span><span class="si">%d</span><span class="s2">/</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">num_phot_sources</span><span class="p">,</span>
+                <span class="n">include_source</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">column_map</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;full_count&quot;</span><span class="p">,</span> <span class="s2">&quot;full_count&quot;</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">,</span> <span class="s2">&quot;rejected_count&quot;</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;magnitude&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;mediandev&quot;</span><span class="p">,</span> <span class="s2">&quot;mediandev&quot;</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">,</span> <span class="s2">&quot;medianmeddev&quot;</span><span class="p">,</span> <span class="n">phot_ind</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="n">result_dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="s2">&quot;u8&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result_dtype</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;IDprefix&quot;</span><span class="p">,</span> <span class="s2">&quot;i1&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;IDfield&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">intc</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;IDsource&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">intc</span><span class="p">),</span>
+                <span class="p">]</span>
+                <span class="n">column_map</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span><span class="s2">&quot;IDprefix&quot;</span><span class="p">,</span> <span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;IDfield&quot;</span><span class="p">,</span> <span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                        <span class="p">(</span><span class="s2">&quot;IDsource&quot;</span><span class="p">,</span> <span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+            <span class="n">result_dtype</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;full_count&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;magnitude&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;mediandev&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;scatter_excess&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="n">reference_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_phot_sources</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">result_dtype</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+                <span class="n">reference_data</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span>
+                    <span class="n">include_source</span><span class="p">,</span>
+                <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">reference_column</span><span class="p">,</span> <span class="n">stat_column</span><span class="p">,</span> <span class="n">stat_index</span> <span class="ow">in</span> <span class="n">column_map</span><span class="p">:</span>
+                <span class="n">reference_data</span><span class="p">[</span><span class="n">reference_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="n">stat_column</span><span class="p">][</span>
+                    <span class="n">include_source</span><span class="p">,</span> <span class="n">stat_index</span>
+                <span class="p">]</span>
+            <span class="n">reference_data</span><span class="p">[</span><span class="s2">&quot;scatter_excess&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">residual_scatter</span><span class="p">[</span>
+                <span class="n">include_source</span><span class="p">,</span> <span class="n">phot_ind</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="n">reference_data</span>
+
+        <span class="n">primary_hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">primary_header</span><span class="p">)</span>
+        <span class="n">master_hdus</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">fits</span><span class="o">.</span><span class="n">BinTableHDU</span><span class="p">(</span><span class="n">get_phot_reference_data</span><span class="p">(</span><span class="n">phot_ind</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">phot_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">([</span><span class="n">primary_hdu</span><span class="p">]</span> <span class="o">+</span> <span class="n">master_hdus</span><span class="p">)</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">reference_fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector._init_data">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._init_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the file-based array for holding magfit data.&quot;&quot;&quot;</span>
+
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">image_chunk</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">],</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">//</span> <span class="p">(</span>
+            <span class="n">num_sources</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Initializing zarr array with </span><span class="si">%d</span><span class="s2"> images per chunk.&quot;</span><span class="p">,</span> <span class="n">image_chunk</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">num_sources</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">image_chunk</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">store</span><span class="o">=</span><span class="n">zarr</span><span class="o">.</span><span class="n">TempStore</span><span class="p">(),</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Zarr storage directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">dir_path</span><span class="p">()),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">statistics_fname</span><span class="p">,</span>
+        <span class="n">num_photometries</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="p">,</span>
+        <span class="n">temp_directory</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare for collecting magfit results for master photref creation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            statistics_fname(str):    The filename where to save the statistics</span>
+<span class="sd">                relevant for creating a master photometric reference.</span>
+
+<span class="sd">            num_photometries(int):    The number of photometric measurements</span>
+<span class="sd">                available for each star (e.g. number of apertures + 1 if psf</span>
+<span class="sd">                fitting + ...).</span>
+
+<span class="sd">            outlier_threshold(float):    A threshold value for outlier</span>
+<span class="sd">                rejection. The units of this are determined by the</span>
+<span class="sd">                ``rejection_units`` argument.</span>
+
+<span class="sd">            max_rejection_iterations(int):    The maximum number of iterations</span>
+<span class="sd">                between rejecting outliers and re-deriving the statistics to</span>
+<span class="sd">                allow.</span>
+
+<span class="sd">            temp_directory(str):    A location in the file system to use for</span>
+<span class="sd">                storing temporary files during statistics colletion.</span>
+
+<span class="sd">            rejection_center(str):    Outliers are define around some central</span>
+<span class="sd">                value, either ``&#39;mean&#39;``, or ``&#39;median&#39;``.</span>
+
+<span class="sd">            rejection_units(str):    The units of the outlier rejection</span>
+<span class="sd">                threshold. One of ``&#39;stddev&#39;``, ``&#39;meddev&#39;``, or ``&#39;absolute&#39;``.</span>
+
+<span class="sd">            max_memory(str):    The maximum amount of RAM the statistics process</span>
+<span class="sd">                is allowed to use (if exceeded intermediate results are dumped</span>
+<span class="sd">                to files in ``temp_dir``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">mem_unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mem_unit</span> <span class="o">==</span> <span class="s2">&quot;g&quot;</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">mem_unit</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">mem_unit</span> <span class="o">==</span> <span class="s2">&quot;k&quot;</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">1024</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">mem_unit</span> <span class="o">==</span> <span class="s2">&quot;b&quot;</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;photometries&quot;</span><span class="p">:</span> <span class="n">num_photometries</span><span class="p">,</span>
+            <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">num_photometries</span><span class="p">,</span>
+            <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">num_frames</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_added_frames</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_statistics_fname</span> <span class="o">=</span> <span class="n">statistics_fname</span></div>
+
+
+<div class="viewcode-block" id="MasterPhotrefCollector.add_input">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.add_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_results</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ingest a fitted frame&#39;s photometry into the statistics.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span> <span class="ow">in</span> <span class="n">fit_results</span><span class="p">:</span>
+
+            <span class="n">formal_errors</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">phot_flags</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;phot_flag&quot;</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">finite</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">formal_errors</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">phot</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">finite</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">continue</span>
+
+            <span class="n">phot</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+            <span class="n">formal_errors</span> <span class="o">=</span> <span class="n">formal_errors</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+
+            <span class="n">source_sorter</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">])</span>
+            <span class="n">phot</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="n">source_sorter</span><span class="p">]</span>
+            <span class="n">fitted</span> <span class="o">=</span> <span class="n">fitted</span><span class="p">[</span><span class="n">source_sorter</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_init_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                <span class="n">source_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">source_sorter</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">)</span>
+                <span class="n">source_indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">,</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">],</span> <span class="n">sorter</span><span class="o">=</span><span class="n">source_sorter</span>
+                <span class="p">)</span>
+                <span class="n">source_indices</span><span class="p">[</span><span class="n">source_indices</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="n">source_indices</span> <span class="o">=</span> <span class="n">source_sorter</span><span class="p">[</span><span class="n">source_indices</span><span class="p">]</span>
+                <span class="n">new_sources</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">[</span><span class="n">source_indices</span><span class="p">]</span> <span class="o">!=</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">new_sources</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                    <span class="n">source_indices</span><span class="p">[</span><span class="n">new_sources</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="n">new_sources</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="p">,</span> <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">new_sources</span><span class="p">])</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">],</span>
+                    <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Adding </span><span class="si">%d</span><span class="s2"> magfit sources for master.&quot;</span><span class="p">,</span> <span class="n">fitted</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span><span class="p">[</span>
+                <span class="n">source_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_added_frames</span><span class="p">,</span> <span class="p">:</span> <span class="n">fitted</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">fitted</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_magfit_data</span><span class="p">[</span>
+                <span class="n">source_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_added_frames</span><span class="p">,</span> <span class="n">fitted</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">formal_errors</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_added_frames</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished adding fit data.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># TODO: Add support for scatter cut based on quantile of fit residuals.</span>
+<div class="viewcode-block" id="MasterPhotrefCollector.generate_master">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector.generate_master">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_master</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">master_reference_fname</span><span class="p">,</span>
+        <span class="n">catalog</span><span class="p">,</span>
+        <span class="n">fit_terms_expression</span><span class="p">,</span>
+        <span class="n">parse_source_id</span><span class="p">,</span>
+        <span class="n">min_nobs_median_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">fit_outlier_average</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="n">fit_outlier_threshold</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+        <span class="n">fit_max_rej_iter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">extra_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finish the work of the object and generate a master.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            master_reference_fname(str):   The file name to use for the newly</span>
+<span class="sd">                created master photometric reference.</span>
+
+<span class="sd">            catalog:     See ``master_catalog`` argument to</span>
+<span class="sd">                MagnitudeFit.__init__().</span>
+
+<span class="sd">            fit_terms_expression(str):    An expression expanding to the terms</span>
+<span class="sd">                to include in the scatter fit. May use any catalog column.</span>
+
+<span class="sd">            parse_source_id(callable):    Should convert a string source ID into</span>
+<span class="sd">                the source ID format expected by the catalog.</span>
+
+<span class="sd">            min_nobs_median_fraction(float):    The minimum fraction of the</span>
+<span class="sd">                median number of observations a source must have to be inclruded</span>
+<span class="sd">                in the master.</span>
+
+<span class="sd">            fit_outlier_average(str):    The averaging method to use for scaling</span>
+<span class="sd">                averaging residuals from scatter fit. The result is used as the</span>
+<span class="sd">                unit for ``fit_outlier_threshold``.</span>
+
+<span class="sd">            fit_outlier_threshold(float):    A factor to multiply the</span>
+<span class="sd">                ``fit_outlier_average`` averaged residual from scatter fit in</span>
+<span class="sd">                order to get the threshold to consider a scatter point an</span>
+<span class="sd">                outlier, and hence discard from cantributing to the reference.</span>
+
+<span class="sd">            fit_max_rej_iter(int):    The maximum number of iterations to allow</span>
+<span class="sd">                for fitting/rejecting outliers. If this number is reached, the</span>
+<span class="sd">                last result is accepted.</span>
+
+<span class="sd">            extra_header(None or dict-like):    Header keywords to add to the</span>
+<span class="sd">                generated FITS header in addition to the ones describing the</span>
+<span class="sd">                master fit.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">catalog_columns</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">catalog</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_stat_dtype</span><span class="p">(</span><span class="n">catalog_columns</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_statistics</span><span class="p">(</span><span class="n">statistics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_catalog_info</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">statistics</span><span class="p">,</span> <span class="n">catalog_columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_statistics</span><span class="p">(</span><span class="n">statistics</span><span class="p">)</span>
+
+        <span class="n">enough_counts_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_enough_count_flags</span><span class="p">(</span>
+            <span class="n">statistics</span><span class="p">,</span> <span class="n">min_nobs_median_fraction</span>
+        <span class="p">)</span>
+        <span class="n">residual_scatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_scatter</span><span class="p">(</span>
+            <span class="n">statistics</span><span class="p">,</span>
+            <span class="n">fit_terms_expression</span><span class="p">,</span>
+            <span class="n">enough_counts_flags</span><span class="o">=</span><span class="n">enough_counts_flags</span><span class="p">,</span>
+            <span class="n">outlier_average</span><span class="o">=</span><span class="n">fit_outlier_average</span><span class="p">,</span>
+            <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">fit_outlier_threshold</span><span class="p">,</span>
+            <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">fit_max_rej_iter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">residual_scatter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Failed to generate master photometric reference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">master_reference_fname</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">primary_header</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">extra_header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">primary_header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra_header</span><span class="p">)</span>
+        <span class="n">primary_header</span><span class="p">[</span><span class="s2">&quot;FITTERMS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_terms_expression</span>
+        <span class="n">primary_header</span><span class="p">[</span><span class="s2">&quot;MINOBSFR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_nobs_median_fraction</span>
+        <span class="n">primary_header</span><span class="p">[</span><span class="s2">&quot;OUTL_AVG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_outlier_average</span>
+        <span class="n">primary_header</span><span class="p">[</span><span class="s2">&quot;OUTL_THR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_outlier_threshold</span>
+        <span class="n">primary_header</span><span class="p">[</span><span class="s2">&quot;MAXREJIT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_max_rej_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_reference</span><span class="p">(</span>
+            <span class="n">statistics</span><span class="o">=</span><span class="n">statistics</span><span class="p">,</span>
+            <span class="n">residual_scatter</span><span class="o">=</span><span class="n">residual_scatter</span><span class="p">,</span>
+            <span class="n">enough_counts_flags</span><span class="o">=</span><span class="n">enough_counts_flags</span><span class="p">,</span>
+            <span class="n">outlier_average</span><span class="o">=</span><span class="n">fit_outlier_average</span><span class="p">,</span>
+            <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">fit_outlier_threshold</span><span class="p">,</span>
+            <span class="n">reference_fname</span><span class="o">=</span><span class="n">master_reference_fname</span><span class="p">,</span>
+            <span class="n">primary_header</span><span class="o">=</span><span class="n">primary_header</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

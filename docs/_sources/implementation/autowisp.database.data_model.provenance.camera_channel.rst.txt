@@ -1,0 +1,7 @@
+autowisp.database.data\_model.provenance.camera\_channel module
+===============================================================
+
+.. automodule:: autowisp.database.data_model.provenance.camera_channel
+   :members:
+   :show-inheritance:
+   :undoc-members:

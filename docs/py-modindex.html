@@ -1,159 +1,910 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Python Module Index &#8212; SuperPhotPipeline  documentation</title>
-    
-    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Module Index &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
 
 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="#" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python Module Index</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
 
    <h1>Python Module Index</h1>
 
    <div class="modindex-jumpbox">
-   <a href="#cap-s"><strong>s</strong></a>
+   <a href="#cap-a"><strong>a</strong></a>
    </div>
 
    <table class="indextable modindextable">
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-s"><td></td><td>
-       <strong>s</strong></td><td></td></tr>
+     <tr class="cap" id="cap-a"><td></td><td>
+       <strong>a</strong></td><td></td></tr>
      <tr>
        <td><img src="_static/minus.png" class="toggler"
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
-       <a href="implementation/superphot_pipeline.html#module-superphot_pipeline"><code class="xref">superphot_pipeline</code></a></td><td>
+       <a href="implementation/autowisp.html#module-autowisp"><code class="xref">autowisp</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.astrometry.html#module-superphot_pipeline.astrometry"><code class="xref">superphot_pipeline.astrometry</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.html#module-autowisp.astrometry"><code class="xref">autowisp.astrometry</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.astrometry.transformation.html#module-superphot_pipeline.astrometry.transformation"><code class="xref">superphot_pipeline.astrometry.transformation</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.anmatch_transformation.html#module-autowisp.astrometry.anmatch_transformation"><code class="xref">autowisp.astrometry.anmatch_transformation</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.fake_image.html#module-superphot_pipeline.fake_image"><code class="xref">superphot_pipeline.fake_image</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.astrometry.html#module-autowisp.astrometry.astrometry"><code class="xref">autowisp.astrometry.astrometry</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.fake_image.raw.html#module-superphot_pipeline.fake_image.raw"><code class="xref">superphot_pipeline.fake_image.raw</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.astrometry_net_client.html#module-autowisp.astrometry.astrometry_net_client"><code class="xref">autowisp.astrometry.astrometry_net_client</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.hdf5_file.html#module-superphot_pipeline.hdf5_file"><code class="xref">superphot_pipeline.hdf5_file</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.healpix_utilities.html#module-autowisp.astrometry.healpix_utilities"><code class="xref">autowisp.astrometry.healpix_utilities</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.image_smoothing.html#module-superphot_pipeline.image_smoothing"><code class="xref">superphot_pipeline.image_smoothing</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.map_projections.html#module-autowisp.astrometry.map_projections"><code class="xref">autowisp.astrometry.map_projections</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.image_utilities.html#module-superphot_pipeline.image_utilities"><code class="xref">superphot_pipeline.image_utilities</code></a></td><td>
+       <a href="implementation/autowisp.astrometry.transformation.html#module-autowisp.astrometry.transformation"><code class="xref">autowisp.astrometry.transformation</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.iterative_rejection_util.html#module-superphot_pipeline.iterative_rejection_util"><code class="xref">superphot_pipeline.iterative_rejection_util</code></a></td><td>
+       <a href="implementation/autowisp.catalog.html#module-autowisp.catalog"><code class="xref">autowisp.catalog</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.pipeline_exceptions.html#module-superphot_pipeline.pipeline_exceptions"><code class="xref">superphot_pipeline.pipeline_exceptions</code></a></td><td>
+       <a href="implementation/autowisp.data_reduction.html#module-autowisp.data_reduction"><code class="xref">autowisp.data_reduction</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="implementation/superphot_pipeline.processor.html#module-superphot_pipeline.processor"><code class="xref">superphot_pipeline.processor</code></a></td><td>
+       <a href="implementation/autowisp.data_reduction.data_reduction_file.html#module-autowisp.data_reduction.data_reduction_file"><code class="xref">autowisp.data_reduction.data_reduction_file</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.data_reduction.source_extracted_psf_map.html#module-autowisp.data_reduction.source_extracted_psf_map"><code class="xref">autowisp.data_reduction.source_extracted_psf_map</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.data_reduction.utils.html#module-autowisp.data_reduction.utils"><code class="xref">autowisp.data_reduction.utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.html#module-autowisp.database"><code class="xref">autowisp.database</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.html#module-autowisp.database.data_model"><code class="xref">autowisp.database.data_model</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.base.html#module-autowisp.database.data_model.base"><code class="xref">autowisp.database.data_model.base</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.condition.html#module-autowisp.database.data_model.condition"><code class="xref">autowisp.database.data_model.condition</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.condition_expression.html#module-autowisp.database.data_model.condition_expression"><code class="xref">autowisp.database.data_model.condition_expression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.configuration.html#module-autowisp.database.data_model.configuration"><code class="xref">autowisp.database.data_model.configuration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.hdf5_attributes.html#module-autowisp.database.data_model.hdf5_attributes"><code class="xref">autowisp.database.data_model.hdf5_attributes</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.hdf5_datasets.html#module-autowisp.database.data_model.hdf5_datasets"><code class="xref">autowisp.database.data_model.hdf5_datasets</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.hdf5_links.html#module-autowisp.database.data_model.hdf5_links"><code class="xref">autowisp.database.data_model.hdf5_links</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.hdf5_products.html#module-autowisp.database.data_model.hdf5_products"><code class="xref">autowisp.database.data_model.hdf5_products</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.hdf5_structure_versions.html#module-autowisp.database.data_model.hdf5_structure_versions"><code class="xref">autowisp.database.data_model.hdf5_structure_versions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.image.html#module-autowisp.database.data_model.image"><code class="xref">autowisp.database.data_model.image</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.image_type.html#module-autowisp.database.data_model.image_type"><code class="xref">autowisp.database.data_model.image_type</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.input_master_types.html#module-autowisp.database.data_model.input_master_types"><code class="xref">autowisp.database.data_model.input_master_types</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#module-autowisp.database.data_model.light_curve_processing_progress"><code class="xref">autowisp.database.data_model.light_curve_processing_progress</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.light_curve_status.html#module-autowisp.database.data_model.light_curve_status"><code class="xref">autowisp.database.data_model.light_curve_status</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.master_files.html#module-autowisp.database.data_model.master_files"><code class="xref">autowisp.database.data_model.master_files</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.observing_session.html#module-autowisp.database.data_model.observing_session"><code class="xref">autowisp.database.data_model.observing_session</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.processing_sequence.html#module-autowisp.database.data_model.processing_sequence"><code class="xref">autowisp.database.data_model.processing_sequence</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.html#module-autowisp.database.data_model.provenance"><code class="xref">autowisp.database.data_model.provenance</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.camera.html#module-autowisp.database.data_model.provenance.camera"><code class="xref">autowisp.database.data_model.provenance.camera</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.camera_access.html#module-autowisp.database.data_model.provenance.camera_access"><code class="xref">autowisp.database.data_model.provenance.camera_access</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.camera_channel.html#module-autowisp.database.data_model.provenance.camera_channel"><code class="xref">autowisp.database.data_model.provenance.camera_channel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.camera_type.html#module-autowisp.database.data_model.provenance.camera_type"><code class="xref">autowisp.database.data_model.provenance.camera_type</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.mount.html#module-autowisp.database.data_model.provenance.mount"><code class="xref">autowisp.database.data_model.provenance.mount</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.mount_access.html#module-autowisp.database.data_model.provenance.mount_access"><code class="xref">autowisp.database.data_model.provenance.mount_access</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.mount_type.html#module-autowisp.database.data_model.provenance.mount_type"><code class="xref">autowisp.database.data_model.provenance.mount_type</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.observatory.html#module-autowisp.database.data_model.provenance.observatory"><code class="xref">autowisp.database.data_model.provenance.observatory</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.observer.html#module-autowisp.database.data_model.provenance.observer"><code class="xref">autowisp.database.data_model.provenance.observer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.telescope.html#module-autowisp.database.data_model.provenance.telescope"><code class="xref">autowisp.database.data_model.provenance.telescope</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.telescope_access.html#module-autowisp.database.data_model.provenance.telescope_access"><code class="xref">autowisp.database.data_model.provenance.telescope_access</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.provenance.telescope_type.html#module-autowisp.database.data_model.provenance.telescope_type"><code class="xref">autowisp.database.data_model.provenance.telescope_type</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.step_dependencies.html#module-autowisp.database.data_model.step_dependencies"><code class="xref">autowisp.database.data_model.step_dependencies</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.steps_and_parameters.html#module-autowisp.database.data_model.steps_and_parameters"><code class="xref">autowisp.database.data_model.steps_and_parameters</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.data_model.target.html#module-autowisp.database.data_model.target"><code class="xref">autowisp.database.data_model.target</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.hdf5_file_structure.html#module-autowisp.database.hdf5_file_structure"><code class="xref">autowisp.database.hdf5_file_structure</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.image_processing.html#module-autowisp.database.image_processing"><code class="xref">autowisp.database.image_processing</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.initialize_data_reduction_structure.html#module-autowisp.database.initialize_data_reduction_structure"><code class="xref">autowisp.database.initialize_data_reduction_structure</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.initialize_database.html#module-autowisp.database.initialize_database"><code class="xref">autowisp.database.initialize_database</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.initialize_light_curve_structure.html#module-autowisp.database.initialize_light_curve_structure"><code class="xref">autowisp.database.initialize_light_curve_structure</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.interface.html#module-autowisp.database.interface"><code class="xref">autowisp.database.interface</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.lightcurve_processing.html#module-autowisp.database.lightcurve_processing"><code class="xref">autowisp.database.lightcurve_processing</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.manually_fill_tables.html#module-autowisp.database.manually_fill_tables"><code class="xref">autowisp.database.manually_fill_tables</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.processing.html#module-autowisp.database.processing"><code class="xref">autowisp.database.processing</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.database.user_interface.html#module-autowisp.database.user_interface"><code class="xref">autowisp.database.user_interface</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.Dump2hdf5.html#module-autowisp.Dump2hdf5"><code class="xref">autowisp.Dump2hdf5</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.evaluator.html#module-autowisp.evaluator"><code class="xref">autowisp.evaluator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.file_utilities.html#module-autowisp.file_utilities"><code class="xref">autowisp.file_utilities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.html#module-autowisp.fit_expression"><code class="xref">autowisp.fit_expression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.count_terms_visitor.html#module-autowisp.fit_expression.count_terms_visitor"><code class="xref">autowisp.fit_expression.count_terms_visitor</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.evaluate_terms_visitor.html#module-autowisp.fit_expression.evaluate_terms_visitor"><code class="xref">autowisp.fit_expression.evaluate_terms_visitor</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.FitTermsLexer.html#module-autowisp.fit_expression.FitTermsLexer"><code class="xref">autowisp.fit_expression.FitTermsLexer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.FitTermsParser.html#module-autowisp.fit_expression.FitTermsParser"><code class="xref">autowisp.fit_expression.FitTermsParser</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.FitTermsParserListener.html#module-autowisp.fit_expression.FitTermsParserListener"><code class="xref">autowisp.fit_expression.FitTermsParserListener</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.FitTermsParserVisitor.html#module-autowisp.fit_expression.FitTermsParserVisitor"><code class="xref">autowisp.fit_expression.FitTermsParserVisitor</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.interface.html#module-autowisp.fit_expression.interface"><code class="xref">autowisp.fit_expression.interface</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.iterative_fit.html#module-autowisp.fit_expression.iterative_fit"><code class="xref">autowisp.fit_expression.iterative_fit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.list_terms_visitor.html#module-autowisp.fit_expression.list_terms_visitor"><code class="xref">autowisp.fit_expression.list_terms_visitor</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.process_terms_visitor.html#module-autowisp.fit_expression.process_terms_visitor"><code class="xref">autowisp.fit_expression.process_terms_visitor</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fit_expression.used_var_finder.html#module-autowisp.fit_expression.used_var_finder"><code class="xref">autowisp.fit_expression.used_var_finder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.fits_utilities.html#module-autowisp.fits_utilities"><code class="xref">autowisp.fits_utilities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.hdf5_file.html#module-autowisp.hdf5_file"><code class="xref">autowisp.hdf5_file</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.html#module-autowisp.image_calibration"><code class="xref">autowisp.image_calibration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.calibrator.html#module-autowisp.image_calibration.calibrator"><code class="xref">autowisp.image_calibration.calibrator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.fits_util.html#module-autowisp.image_calibration.fits_util"><code class="xref">autowisp.image_calibration.fits_util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.mask_utilities.html#module-autowisp.image_calibration.mask_utilities"><code class="xref">autowisp.image_calibration.mask_utilities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.master_flat_maker.html#module-autowisp.image_calibration.master_flat_maker"><code class="xref">autowisp.image_calibration.master_flat_maker</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.master_maker.html#module-autowisp.image_calibration.master_maker"><code class="xref">autowisp.image_calibration.master_maker</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_calibration.overscan_methods.html#module-autowisp.image_calibration.overscan_methods"><code class="xref">autowisp.image_calibration.overscan_methods</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_smoothing.html#module-autowisp.image_smoothing"><code class="xref">autowisp.image_smoothing</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.image_utilities.html#module-autowisp.image_utilities"><code class="xref">autowisp.image_utilities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.iterative_rejection_util.html#module-autowisp.iterative_rejection_util"><code class="xref">autowisp.iterative_rejection_util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.html#module-autowisp.light_curves"><code class="xref">autowisp.light_curves</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.apply_correction.html#module-autowisp.light_curves.apply_correction"><code class="xref">autowisp.light_curves.apply_correction</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.collect_light_curves.html#module-autowisp.light_curves.collect_light_curves"><code class="xref">autowisp.light_curves.collect_light_curves</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.correction.html#module-autowisp.light_curves.correction"><code class="xref">autowisp.light_curves.correction</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.epd_correction.html#module-autowisp.light_curves.epd_correction"><code class="xref">autowisp.light_curves.epd_correction</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.hashable_array.html#module-autowisp.light_curves.hashable_array"><code class="xref">autowisp.light_curves.hashable_array</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.lc_data_io.html#module-autowisp.light_curves.lc_data_io"><code class="xref">autowisp.light_curves.lc_data_io</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.lc_data_slice.html#module-autowisp.light_curves.lc_data_slice"><code class="xref">autowisp.light_curves.lc_data_slice</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.light_curve_file.html#module-autowisp.light_curves.light_curve_file"><code class="xref">autowisp.light_curves.light_curve_file</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.reconstructive_correction_transit.html#module-autowisp.light_curves.reconstructive_correction_transit"><code class="xref">autowisp.light_curves.reconstructive_correction_transit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.tfa_correction.html#module-autowisp.light_curves.tfa_correction"><code class="xref">autowisp.light_curves.tfa_correction</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.light_curves.transit_model.html#module-autowisp.light_curves.transit_model"><code class="xref">autowisp.light_curves.transit_model</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.html#module-autowisp.magnitude_fitting"><code class="xref">autowisp.magnitude_fitting</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.base.html#module-autowisp.magnitude_fitting.base"><code class="xref">autowisp.magnitude_fitting.base</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.iterative_refit.html#module-autowisp.magnitude_fitting.iterative_refit"><code class="xref">autowisp.magnitude_fitting.iterative_refit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.linear.html#module-autowisp.magnitude_fitting.linear"><code class="xref">autowisp.magnitude_fitting.linear</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#module-autowisp.magnitude_fitting.master_photref_collector_grcollect"><code class="xref">autowisp.magnitude_fitting.master_photref_collector_grcollect</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#module-autowisp.magnitude_fitting.master_photref_collector_zarr"><code class="xref">autowisp.magnitude_fitting.master_photref_collector_zarr</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.magnitude_fitting.util.html#module-autowisp.magnitude_fitting.util"><code class="xref">autowisp.magnitude_fitting.util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.miscellaneous.html#module-autowisp.miscellaneous"><code class="xref">autowisp.miscellaneous</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.multiprocessing_util.html#module-autowisp.multiprocessing_util"><code class="xref">autowisp.multiprocessing_util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.piecewise_bicubic_psf_map.html#module-autowisp.piecewise_bicubic_psf_map"><code class="xref">autowisp.piecewise_bicubic_psf_map</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.pipeline_exceptions.html#module-autowisp.pipeline_exceptions"><code class="xref">autowisp.pipeline_exceptions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.html#module-autowisp.processing_steps"><code class="xref">autowisp.processing_steps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.add_images_to_db.html#module-autowisp.processing_steps.add_images_to_db"><code class="xref">autowisp.processing_steps.add_images_to_db</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.calculate_photref_merit.html#module-autowisp.processing_steps.calculate_photref_merit"><code class="xref">autowisp.processing_steps.calculate_photref_merit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.calibrate.html#module-autowisp.processing_steps.calibrate"><code class="xref">autowisp.processing_steps.calibrate</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.create_lightcurves.html#module-autowisp.processing_steps.create_lightcurves"><code class="xref">autowisp.processing_steps.create_lightcurves</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.epd.html#module-autowisp.processing_steps.epd"><code class="xref">autowisp.processing_steps.epd</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.find_stars.html#module-autowisp.processing_steps.find_stars"><code class="xref">autowisp.processing_steps.find_stars</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.fit_magnitudes.html#module-autowisp.processing_steps.fit_magnitudes"><code class="xref">autowisp.processing_steps.fit_magnitudes</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#module-autowisp.processing_steps.fit_source_extracted_psf_map"><code class="xref">autowisp.processing_steps.fit_source_extracted_psf_map</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.fit_star_shape.html#module-autowisp.processing_steps.fit_star_shape"><code class="xref">autowisp.processing_steps.fit_star_shape</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.generate_epd_statistics.html#module-autowisp.processing_steps.generate_epd_statistics"><code class="xref">autowisp.processing_steps.generate_epd_statistics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.generate_tfa_statistics.html#module-autowisp.processing_steps.generate_tfa_statistics"><code class="xref">autowisp.processing_steps.generate_tfa_statistics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.lc_detrending.html#module-autowisp.processing_steps.lc_detrending"><code class="xref">autowisp.processing_steps.lc_detrending</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#module-autowisp.processing_steps.lc_detrending_argument_parser"><code class="xref">autowisp.processing_steps.lc_detrending_argument_parser</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.manual_util.html#module-autowisp.processing_steps.manual_util"><code class="xref">autowisp.processing_steps.manual_util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.measure_aperture_photometry.html#module-autowisp.processing_steps.measure_aperture_photometry"><code class="xref">autowisp.processing_steps.measure_aperture_photometry</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.solve_astrometry.html#module-autowisp.processing_steps.solve_astrometry"><code class="xref">autowisp.processing_steps.solve_astrometry</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.stack_to_master.html#module-autowisp.processing_steps.stack_to_master"><code class="xref">autowisp.processing_steps.stack_to_master</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.stack_to_master_flat.html#module-autowisp.processing_steps.stack_to_master_flat"><code class="xref">autowisp.processing_steps.stack_to_master_flat</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processing_steps.tfa.html#module-autowisp.processing_steps.tfa"><code class="xref">autowisp.processing_steps.tfa</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.processor.html#module-autowisp.processor"><code class="xref">autowisp.processor</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.source_finder.html#module-autowisp.source_finder"><code class="xref">autowisp.source_finder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.source_finder_util.html#module-autowisp.source_finder_util"><code class="xref">autowisp.source_finder_util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.split_sources.html#module-autowisp.split_sources"><code class="xref">autowisp.split_sources</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tess_interface.html#module-autowisp.tess_interface"><code class="xref">autowisp.tess_interface</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.html#module-autowisp.tests"><code class="xref">autowisp.tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.fits_test_case.html#module-autowisp.tests.fits_test_case"><code class="xref">autowisp.tests.fits_test_case</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.get_test_data.html#module-autowisp.tests.get_test_data"><code class="xref">autowisp.tests.get_test_data</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.h5_test_case.html#module-autowisp.tests.h5_test_case"><code class="xref">autowisp.tests.h5_test_case</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_calibrate.html#module-autowisp.tests.test_calibrate"><code class="xref">autowisp.tests.test_calibrate</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_create_lightcurves.html#module-autowisp.tests.test_create_lightcurves"><code class="xref">autowisp.tests.test_create_lightcurves</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_detrending_stat.html#module-autowisp.tests.test_detrending_stat"><code class="xref">autowisp.tests.test_detrending_stat</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_epd.html#module-autowisp.tests.test_epd"><code class="xref">autowisp.tests.test_epd</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_find_stars.html#module-autowisp.tests.test_find_stars"><code class="xref">autowisp.tests.test_find_stars</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_fit_magnitudes.html#module-autowisp.tests.test_fit_magnitudes"><code class="xref">autowisp.tests.test_fit_magnitudes</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_fit_source_extracted_psf_map.html#module-autowisp.tests.test_fit_source_extracted_psf_map"><code class="xref">autowisp.tests.test_fit_source_extracted_psf_map</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_fit_star_shape.html#module-autowisp.tests.test_fit_star_shape"><code class="xref">autowisp.tests.test_fit_star_shape</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_measure_aperture_photometry.html#module-autowisp.tests.test_measure_aperture_photometry"><code class="xref">autowisp.tests.test_measure_aperture_photometry</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_solve_astrometry.html#module-autowisp.tests.test_solve_astrometry"><code class="xref">autowisp.tests.test_solve_astrometry</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_stack_to_master.html#module-autowisp.tests.test_stack_to_master"><code class="xref">autowisp.tests.test_stack_to_master</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="implementation/autowisp.tests.test_tfa.html#module-autowisp.tests.test_tfa"><code class="xref">autowisp.tests.test_tfa</code></a></td><td>
        <em></em></td></tr>
    </table>
 
 
+           </div>
           </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="#" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Kaloyan Penev.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
-    </div>
-  </body>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

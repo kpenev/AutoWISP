@@ -1,0 +1,4 @@
+<map id="inheritance8ecc055bff" name="inheritance8ecc055bff">
+<area shape="rect" id="node1" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="33,5,306,32"/>
+<area shape="rect" id="node2" href="#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="5,80,334,107"/>
+</map>

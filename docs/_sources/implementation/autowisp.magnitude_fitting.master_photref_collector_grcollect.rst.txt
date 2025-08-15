@@ -1,0 +1,7 @@
+autowisp.magnitude\_fitting.master\_photref\_collector\_grcollect module
+========================================================================
+
+.. automodule:: autowisp.magnitude_fitting.master_photref_collector_grcollect
+   :members:
+   :show-inheritance:
+   :undoc-members:

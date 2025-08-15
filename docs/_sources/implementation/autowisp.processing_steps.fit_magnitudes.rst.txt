@@ -1,0 +1,7 @@
+autowisp.processing\_steps.fit\_magnitudes module
+=================================================
+
+.. automodule:: autowisp.processing_steps.fit_magnitudes
+   :members:
+   :show-inheritance:
+   :undoc-members:

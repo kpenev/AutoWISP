@@ -1,0 +1,7 @@
+autowisp.database.data\_model.light\_curve\_processing\_progress module
+=======================================================================
+
+.. automodule:: autowisp.database.data_model.light_curve_processing_progress
+   :members:
+   :show-inheritance:
+   :undoc-members:

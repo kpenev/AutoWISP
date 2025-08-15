@@ -1,0 +1,447 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.fit_expression.iterative_fit &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.fit_expression.iterative_fit</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.fit_expression.iterative_fit</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define a function doing iterative re-fitting of terms from an expression.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exc</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
+
+
+<span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="iterative_fit_qr">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.iterative_fit.html#autowisp.fit_expression.iterative_fit.iterative_fit_qr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">iterative_fit_qr</span><span class="p">(</span>
+    <span class="n">weighted_predictors</span><span class="p">,</span>
+    <span class="n">weighted_qrp</span><span class="p">,</span>
+    <span class="n">weighted_target</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_downdates</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">error_avg</span><span class="p">,</span>
+    <span class="n">rej_level</span><span class="p">,</span>
+    <span class="n">max_rej_iter</span><span class="p">,</span>
+    <span class="n">fit_identifier</span><span class="p">,</span>
+    <span class="n">pre_reject</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Same as iterative_fit() but using the QR decomposition of predictors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        weighted_predictors(2-D array):    The matrix of predictors, with</span>
+<span class="sd">            weights already applied (used for calculating residuals and if too</span>
+<span class="sd">            many poinst get rejected, see `max_downdates`).</span>
+
+<span class="sd">        weighted_qrp(2-D array):    The QR decomposition of</span>
+<span class="sd">            `weighted_predictors` with pivoting. Should be exactly the output of</span>
+<span class="sd">            `scipy.linalg.qr(weighted_predictors, pivoting=True)`, possibly with</span>
+<span class="sd">            `mode=&#39;economic&#39;`.</span>
+
+<span class="sd">        weighted_target(1-D array):    The vector of values to reproduce as a</span>
+<span class="sd">            linear combination of predictors. Should also already be weighted.</span>
+
+<span class="sd">        max_downdates:    See iterative_fit().</span>
+
+<span class="sd">        weights:    See iterative_fit(). Only used for outlier detection.</span>
+
+<span class="sd">        error_avg:    See iterative_fit().</span>
+
+<span class="sd">        rej_level:    See iterative_fit().</span>
+
+<span class="sd">        max_rej_iter:    See iterative_fit().</span>
+
+<span class="sd">        fit_identifier:    See iterative_fit().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        See iterative_fit_qr()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rejected_indices</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return indices of outlier sources and squared fit residual.&quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Weigthed difference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Weigths: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+
+        <span class="k">assert</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">weights</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+        <span class="n">fit_diff2</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span>
+            <span class="n">weighted_fit_diff</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">weights</span><span class="p">),</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Square difference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">fit_diff2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">error_avg</span> <span class="o">==</span> <span class="s2">&quot;weightedmean&quot;</span><span class="p">:</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">res2</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">error_avg</span><span class="p">)(</span><span class="n">fit_diff2</span><span class="p">)</span>
+        <span class="n">max_diff2</span> <span class="o">=</span> <span class="n">rej_level</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">res2</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;max square difference: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">max_diff2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">res2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">fit_identifier</span><span class="p">),</span>
+                        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Negative square residual: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">res2</span><span class="p">),</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Weights (min, max): (&quot;</span>
+                            <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+                            <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
+                            <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+                            <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                        <span class="p">),</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">weighted_fit_diff (min, max): (&quot;</span>
+                            <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
+                            <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
+                            <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">weighted_fit_diff</span><span class="p">))</span>
+                            <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+                        <span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">fit_diff2</span> <span class="o">&gt;</span> <span class="n">max_diff2</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">res2</span>
+
+    <span class="n">num_free_coef</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">weighted_predictors</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">max_downdates</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">max_downdates</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">max_downdates</span> <span class="o">*</span> <span class="n">weighted_target</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+    <span class="n">bad_ind</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bad_ind</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">bad_ind</span><span class="p">,</span> <span class="n">weights</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">bad_ind</span> <span class="o">=</span> <span class="n">bad_ind</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">permutation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Original QRP = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">rej_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">pre_reject</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max_rej_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">weighted_target</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">,</span> <span class="n">bad_ind</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_free_coef</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s2">&quot;Iteration </span><span class="si">%d</span><span class="s2"> has too few sources: </span><span class="si">%d</span><span class="s2"> to fit for </span><span class="si">%d</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;coefficients.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">rej_iter</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">),</span>
+                <span class="n">num_free_coef</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="n">weighted_predictors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">weighted_predictors</span><span class="p">,</span> <span class="n">bad_ind</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">bad_ind</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Iteration </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> sources, </span><span class="si">%d</span><span class="s2"> coefficients</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">rej_iter</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">),</span>
+            <span class="n">num_free_coef</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bad_ind</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="n">max_downdates</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Rederiving QR-Decomposition&quot;</span><span class="p">)</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=unexpected-keyword-arg</span>
+            <span class="n">weighted_qrp</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span>
+                <span class="n">weighted_predictors</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">permutation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="c1"># pylint: enable=unexpected-keyword-arg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Downdating QR-Decomposition&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">bad_ind</span><span class="p">):</span>
+                <span class="c1"># False positive</span>
+                <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">weighted_qrp</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="o">*</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr_delete</span><span class="p">(</span><span class="o">*</span><span class="n">weighted_qrp</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">i</span><span class="p">),</span>
+                    <span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="c1"># pylint: enable=no-member</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;After deleting row </span><span class="si">%d</span><span class="s2">, QRP = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rej_iter</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">best_fit_coef</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_free_coef</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># False positive</span>
+                <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">best_fit_coef</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve_triangular</span><span class="p">(</span>
+                    <span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">weighted_qrp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">weighted_target</span><span class="p">),</span>
+                <span class="p">)[</span><span class="n">permutation</span><span class="p">]</span>
+                <span class="c1"># pylint: enable=no-member</span>
+            <span class="k">except</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                    <span class="s2">&quot;Linear least squares fit failed:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">format_exc</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">bad_ind</span><span class="p">,</span> <span class="n">fit_res2</span> <span class="o">=</span> <span class="n">rejected_indices</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">best_fit_coef</span><span class="p">,</span> <span class="n">weighted_predictors</span><span class="p">)</span> <span class="o">-</span> <span class="n">weighted_target</span><span class="p">,</span>
+            <span class="n">weights</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Fit: coef = </span><span class="si">%s</span><span class="s2">, square residual = </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> rejected&quot;</span><span class="p">,</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">best_fit_coef</span><span class="p">),</span>
+            <span class="nb">repr</span><span class="p">(</span><span class="n">fit_res2</span><span class="p">),</span>
+            <span class="n">bad_ind</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bad_ind</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rej_iter</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">best_fit_coef</span><span class="p">,</span> <span class="n">fit_res2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">best_fit_coef</span><span class="p">,</span> <span class="n">fit_res2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">weighted_target</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-locals</span>
+
+
+<div class="viewcode-block" id="iterative_fit">
+<a class="viewcode-back" href="../../../implementation/autowisp.fit_expression.iterative_fit.html#autowisp.fit_expression.iterative_fit.iterative_fit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">iterative_fit</span><span class="p">(</span>
+    <span class="n">predictors</span><span class="p">,</span>
+    <span class="n">target_values</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">max_downdates</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">error_avg</span><span class="p">,</span>
+    <span class="n">rej_level</span><span class="p">,</span>
+    <span class="n">max_rej_iter</span><span class="p">,</span>
+    <span class="n">fit_identifier</span><span class="p">,</span>
+    <span class="n">pre_reject</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find least squares coefficients reproducing target_values using predictors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        predictors:    The derivatives w.r.t. to the fit coefficients of</span>
+<span class="sd">            the predicted values (i.e. the matrix defining the fitting</span>
+<span class="sd">            problem, apart from weighting).</span>
+
+<span class="sd">        target_values:    The values wey are trying to reproduce.</span>
+
+<span class="sd">        max_downdates(float or int):    The maximum number of deletions to</span>
+<span class="sd">            handle by downdating the QR decomposition, either as a fraction of</span>
+<span class="sd">            the size of `weighted_target` (if `max_downdates` is a floating</span>
+<span class="sd">            point between 0 and 1), or as an absolute value (if `max_downdates`</span>
+<span class="sd">            is a positive integer). If an operation results in a larger number</span>
+<span class="sd">            of deletions, the original matrix is re-constructed, the</span>
+<span class="sd">            corresponding rows are deleted and a new QR decomposition is derived</span>
+<span class="sd">            from scratch.</span>
+
+<span class="sd">        weights:    The weight to give to each entry in `target_values`. If</span>
+<span class="sd">            None, no weighting is done.</span>
+
+<span class="sd">        phot_ind:    The index of the photometry being fit (only used for</span>
+<span class="sd">            reporting errors).</span>
+
+<span class="sd">        error_avg(str):    How to average fitting residuals for outlier</span>
+<span class="sd">            rejection. Should be a scipy/numpy top-level function (e.g. mean,</span>
+<span class="sd">            nanmedian etc).</span>
+
+<span class="sd">        rej_level(float):    How far away from the fit should a point be before</span>
+<span class="sd">            it is rejected in units of error_avg.</span>
+
+<span class="sd">        max_rej_iter:    The maximum number of rejection/re-fitting iterations</span>
+<span class="sd">            to perform. If the fit has not converged by then, the latest</span>
+<span class="sd">            iteration is accepted.</span>
+
+<span class="sd">        fit_identifier:    Identifier of what is being fit. Only used in logging</span>
+<span class="sd">            messages.</span>
+
+<span class="sd">        pre_reject:    Should a rejection iteration be performed before even the</span>
+<span class="sd">            first fit is attempted (i.e. discard outliers even from the first</span>
+<span class="sd">            fit).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array:</span>
+<span class="sd">            The best fit coefficients.</span>
+
+<span class="sd">        float:</span>
+<span class="sd">            The average square residual of the best fit.</span>
+
+<span class="sd">        int:</span>
+<span class="sd">            The number of non-rejected points used in the last fit iteration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">predictors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">predictors</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="n">target_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">target_values</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Performing QR decomposition for predictors of shape: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># False positive</span>
+    <span class="c1"># pylint: disable=unexpected-keyword-arg</span>
+    <span class="n">qrp</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;economic&quot;</span><span class="p">,</span> <span class="n">pivoting</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># pylint: enable=unexpected-keyword-arg</span>
+
+    <span class="k">return</span> <span class="n">iterative_fit_qr</span><span class="p">(</span>
+        <span class="n">predictors</span><span class="p">,</span>
+        <span class="n">qrp</span><span class="p">,</span>
+        <span class="n">target_values</span><span class="p">,</span>
+        <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+        <span class="n">max_downdates</span><span class="o">=</span><span class="n">max_downdates</span><span class="p">,</span>
+        <span class="n">error_avg</span><span class="o">=</span><span class="n">error_avg</span><span class="p">,</span>
+        <span class="n">rej_level</span><span class="o">=</span><span class="n">rej_level</span><span class="p">,</span>
+        <span class="n">max_rej_iter</span><span class="o">=</span><span class="n">max_rej_iter</span><span class="p">,</span>
+        <span class="n">fit_identifier</span><span class="o">=</span><span class="n">fit_identifier</span><span class="p">,</span>
+        <span class="n">pre_reject</span><span class="o">=</span><span class="n">pre_reject</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

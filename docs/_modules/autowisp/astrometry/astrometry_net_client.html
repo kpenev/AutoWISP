@@ -1,0 +1,917 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.astrometry.astrometry_net_client &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.astrometry.astrometry_net_client</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.astrometry.astrometry_net_client</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="c1"># Copyright (c) 2006-2015, Astrometry.net Developers</span>
+<span class="c1">#</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are</span>
+<span class="c1"># met:</span>
+<span class="c1">#</span>
+<span class="c1"># * Redistributions of source code must retain the above copyright</span>
+<span class="c1">#  notice, this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright</span>
+<span class="c1">#  notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#  documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># * Neither the name of the Astrometry.net Team nor the names of its</span>
+<span class="c1">#  contributors may be used to endorse or promote products derived from</span>
+<span class="c1">#  this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c1"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c1"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR</span>
+<span class="c1"># A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT</span>
+<span class="c1"># HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</span>
+<span class="c1"># SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</span>
+<span class="c1"># LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c1"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c1"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c1"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="c1"># pylint: disable=all</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_exc</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># py3</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">quote</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># py2</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">urllib</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">quote</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">urllib2</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
+
+<span class="c1"># from exceptions import Exception</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">email.mime.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIMEBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">email.mime.multipart</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIMEMultipart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">email.mime.application</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIMEApplication</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">email.encoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">encode_noop</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+
+<div class="viewcode-block" id="json2python">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.json2python">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">json2python</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="n">python2json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span>
+
+
+<div class="viewcode-block" id="MalformedResponse">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.MalformedResponse">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MalformedResponse</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="RequestError">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.RequestError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RequestError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="Client">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Client</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">default_url</span> <span class="o">=</span> <span class="s2">&quot;https://nova.astrometry.net/api/&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">apiurl</span><span class="o">=</span><span class="n">default_url</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apiurl</span> <span class="o">=</span> <span class="n">apiurl</span>
+
+<div class="viewcode-block" id="Client.get_url">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.get_url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">apiurl</span> <span class="o">+</span> <span class="n">service</span></div>
+
+
+<div class="viewcode-block" id="Client.send_request">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.send_request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">{},</span> <span class="n">file_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        service: string</span>
+<span class="sd">        args: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;session&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Python: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="n">json</span> <span class="o">=</span> <span class="n">python2json</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending json: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">json</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending to URL: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="c1"># If we&#39;re sending a file, format a multipart/form-data</span>
+        <span class="k">if</span> <span class="n">file_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+            <span class="n">boundary_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="s2">&quot;0123456789&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">19</span><span class="p">)]</span>
+            <span class="p">)</span>
+            <span class="n">boundary</span> <span class="o">=</span> <span class="s2">&quot;===============</span><span class="si">%s</span><span class="s2">==&quot;</span> <span class="o">%</span> <span class="n">boundary_key</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s1">&#39;multipart/form-data; boundary=&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">boundary</span>
+            <span class="p">}</span>
+            <span class="n">data_pre</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;--&quot;</span>
+                <span class="o">+</span> <span class="n">boundary</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Content-Type: text/plain</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;MIME-Version: 1.0</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s1">&#39;Content-disposition: form-data; name=&quot;request-json&quot;</span><span class="se">\r\n</span><span class="s1">&#39;</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="n">json</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;--&quot;</span>
+                <span class="o">+</span> <span class="n">boundary</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Content-Type: application/octet-stream</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;MIME-Version: 1.0</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s1">&#39;Content-disposition: form-data; name=&quot;file&quot;; filename=&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span>
+                <span class="o">%</span> <span class="n">file_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">data_post</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="n">boundary</span> <span class="o">+</span> <span class="s2">&quot;--</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data_pre</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">+</span> <span class="n">file_args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">data_post</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Else send x-www-form-encoded</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;request-json&quot;</span><span class="p">:</span> <span class="n">json</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending form data: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending data: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># Add session cookie if available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s1">&#39;Cookie&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;session=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Optionally add Referer header as well</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s1">&#39;Referer&#39;</span><span class="p">,</span> <span class="s1">&#39;https://nova.astrometry.net/api/login&#39;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got reply HTTP status code: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got json: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">json2python</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got result: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+                <span class="n">stat</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got status: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                    <span class="n">errstr</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errormessage&quot;</span><span class="p">,</span> <span class="s2">&quot;(none)&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">RequestError</span><span class="p">(</span><span class="s2">&quot;server error message: &quot;</span> <span class="o">+</span> <span class="n">errstr</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;HTTPError:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">print_exc</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Retrying...&quot;</span><span class="p">)</span>
+                <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.login">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.login">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">apikey</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;apikey&quot;</span><span class="p">:</span> <span class="n">apikey</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;login&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="n">sess</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;session&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got session: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sess</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sess</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RequestError</span><span class="p">(</span><span class="s2">&quot;no session in result&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">sess</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_upload_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">typ</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;allow_commercial_use&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;allow_modifications&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;publicly_visible&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;scale_units&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;scale_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;scale_lower&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;scale_upper&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;scale_est&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;scale_err&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;center_ra&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;center_dec&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;parity&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;downsample_factor&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;positional_error&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;crpix_center&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;invert&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;image_width&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;image_height&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;album&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+        <span class="p">]:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">typ</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span><span class="p">})</span>
+            <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">default</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Upload args: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">args</span>
+
+<div class="viewcode-block" id="Client.url_upload">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.url_upload">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">url_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_upload_args</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;url_upload&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Client.upload">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.upload">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_upload_args</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">file_args</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+                <span class="n">file_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">%s</span><span class="s2"> does not exist&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+                <span class="k">raise</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;upload&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">file_args</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.submission_images">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.submission_images">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">submission_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subid</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;submission_images&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;subid&quot;</span><span class="p">:</span> <span class="n">subid</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_ids&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.overlay_plot">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.overlay_plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">overlay_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">astrometry.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">util</span> <span class="k">as</span> <span class="n">anutil</span>
+
+        <span class="n">wcs</span> <span class="o">=</span> <span class="n">anutil</span><span class="o">.</span><span class="n">Tan</span><span class="p">(</span><span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">crval1</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">crval</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">crval2</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">crval</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">crpix1</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">crpix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">crpix2</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">crpix</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">cd11</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">cd</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">cd12</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">cd</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">cd21</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">cd</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">cd22</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">cd</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="n">imagew</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">imagew</span><span class="p">,</span>
+            <span class="n">imageh</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">imageh</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;wcs&quot;</span><span class="p">:</span> <span class="n">params</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Result status: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">])</span>
+        <span class="n">plotdata</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;plot&quot;</span><span class="p">]</span>
+        <span class="n">plotdata</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">plotdata</span><span class="p">)</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">plotdata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wrote </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">outfn</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.sdss_plot">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.sdss_plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sdss_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlay_plot</span><span class="p">(</span><span class="s2">&quot;sdss_image_for_wcs&quot;</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.galex_plot">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.galex_plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">galex_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlay_plot</span><span class="p">(</span><span class="s2">&quot;galex_image_for_wcs&quot;</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.myjobs">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.myjobs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">myjobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;myjobs/&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Client.job_status">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.job_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">job_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">justdict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/calibration&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calibration: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/tags&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Tags: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/machine_tags&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Machine Tags: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/objects_in_field&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Objects in field: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/annotations&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Annotations: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/info&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calibration: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stat</span></div>
+
+
+<div class="viewcode-block" id="Client.annotate_data">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.annotate_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param job_id: id of job</span>
+<span class="sd">        :return: return data for annotations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/annotations&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Client.sub_status">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.sub_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sub_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_id</span><span class="p">,</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;submissions/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sub_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">justdict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Client.jobs_by_tag">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.jobs_by_tag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">jobs_by_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>
+        <span class="n">exact_option</span> <span class="o">=</span> <span class="s2">&quot;exact=yes&quot;</span> <span class="k">if</span> <span class="n">exact</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span>
+            <span class="s2">&quot;jobs_by_tag?query=</span><span class="si">%s</span><span class="s2">&amp;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">quote</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span> <span class="n">exact_option</span><span class="p">),</span>
+            <span class="p">{},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running with args </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">optparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--server&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;server&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Client</span><span class="o">.</span><span class="n">default_url</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set server base URL (eg, </span><span class="si">%d</span><span class="s2">efault)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--apikey&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-k&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;apikey&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;API key for Astrometry.net web service; if not given will check AN_API_KEY environment variable&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;--upload&quot;</span><span class="p">,</span> <span class="s2">&quot;-u&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Upload a file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--upload-xy&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;upload_xy&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Upload a FITS x,y table as JSON&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--wait&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-w&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;wait&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;After submitting, monitor job status&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--wcs&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;wcs&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download resulting wcs.fits file, saving to given filename; implies --wait if --urlupload or --upload&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--newfits&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;newfits&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download resulting new-image.fits file, saving to given filename; implies --wait if --urlupload or --upload&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--corr&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;corr&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download resulting corr.fits file, saving to given filename; implies --wait if --urlupload or --upload&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--kmz&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;kmz&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download resulting kmz file, saving to given filename; implies --wait if --urlupload or --upload&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--annotate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-a&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;annotate&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;store information about annotations in give file, JSON format; implies --wait if --urlupload or --upload&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--urlupload&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-U&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;upload_url&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Upload a file at specified url&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--scale-units&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;scale_units&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;arcsecperpix&quot;</span><span class="p">,</span> <span class="s2">&quot;arcminwidth&quot;</span><span class="p">,</span> <span class="s2">&quot;degwidth&quot;</span><span class="p">,</span> <span class="s2">&quot;focalmm&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Units for scale estimate (&quot;arcsecperpix&quot;, &quot;arcminwidth&quot;, &quot;degwidth&quot;, or &quot;focalmm&quot;)&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># parser.add_option(&#39;--scale-type&#39;, dest=&#39;scale_type&#39;,</span>
+    <span class="c1">#                  choices=(&#39;ul&#39;, &#39;ev&#39;), help=&#39;Scale bounds: lower/upper or estimate/error&#39;)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--scale-lower&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;scale_lower&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Scale lower-bound&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--scale-upper&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;scale_upper&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Scale upper-bound&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--scale-est&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;scale_est&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Scale estimate&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--scale-err&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;scale_err&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Scale estimate error (in PERCENT), eg &quot;10&quot; if you estimate can be off by 10%&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;--ra&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;center_ra&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;RA center&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;--dec&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;center_dec&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Dec center&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--radius&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search radius around RA,Dec center&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--downsample&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;downsample_factor&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Downsample image by this factor&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--positional_error&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;positional_error&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How many pixels a star may be from where it should be.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--parity&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;parity&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Parity (flip) of image&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--tweak-order&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;SIP distortion order (default: 2)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--crpix-center&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;crpix_center&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set reference point to center of image?&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--invert&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Invert image before detecting sources -- for white-sky, black-stars images&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--image-width&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set image width for x,y lists&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--image-height&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set image height for x,y lists&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--album&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add image to album with given title string&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--sdss&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sdss_wcs&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot SDSS image for the given WCS file; write plot to given PNG filename&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--galex&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;galex_wcs&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Plot GALEX image for the given WCS file; write plot to given PNG filename&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--jobid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;solved_id&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;retrieve result for jobId instead of submitting new image&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--substatus&quot;</span><span class="p">,</span> <span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sub_id&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get status of a submission&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--jobstatus&quot;</span><span class="p">,</span> <span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;job_id&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get status of a job&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--jobs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-J&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;myjobs&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get all my jobs&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--jobsbyexacttag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-T&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;jobs_by_exact_tag&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get a list of jobs associated with a given tag--exact match&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--jobsbytag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;jobs_by_tag&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get a list of jobs associated with a given tag&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--private&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;public&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Hide this submission from other users&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--allow_mod_sa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;allow_mod&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;sa&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Select license to allow derivative works of submission, but only if shared under same conditions of original license&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--no_mod&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-M&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;allow_mod&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Select license to disallow derivative works of submission&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s2">&quot;--no_commercial&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;allow_commercial&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Select license to disallow commercial use of submission&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">opt</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">apikey</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># try the environment</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">apikey</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AN_API_KEY&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">apikey</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You must either specify --apikey or set AN_API_KEY&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">args</span><span class="p">[</span><span class="s2">&quot;apiurl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">server</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">apikey</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">upload</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">upload_url</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">upload_xy</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">wcs</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">kmz</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">newfits</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">corr</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">annotate</span><span class="p">:</span>
+            <span class="n">opt</span><span class="o">.</span><span class="n">wait</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">allow_commercial_use</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">allow_commercial</span><span class="p">,</span>
+            <span class="n">allow_modifications</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">allow_mod</span><span class="p">,</span>
+            <span class="n">publicly_visible</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">public</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_lower</span> <span class="ow">and</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_upper</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">scale_lower</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">scale_lower</span><span class="p">,</span>
+                <span class="n">scale_upper</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">scale_upper</span><span class="p">,</span>
+                <span class="n">scale_type</span><span class="o">=</span><span class="s2">&quot;ul&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_est</span> <span class="ow">and</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_err</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">scale_est</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">scale_est</span><span class="p">,</span>
+                <span class="n">scale_err</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">scale_err</span><span class="p">,</span>
+                <span class="n">scale_type</span><span class="o">=</span><span class="s2">&quot;ev&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_lower</span> <span class="ow">or</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_upper</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scale_type</span><span class="o">=</span><span class="s2">&quot;ul&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_lower</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scale_lower</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">scale_lower</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">scale_upper</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scale_upper</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">scale_upper</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;scale_units&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;center_ra&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;center_dec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;radius&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;downsample_factor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;positional_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tweak_order&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;crpix_center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;album&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">parity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parity</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">parity</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">upload</span><span class="p">:</span>
+            <span class="n">upres</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">upload</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">upload_xy</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">astrometry.util.fits</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits_table</span>
+
+            <span class="n">T</span> <span class="o">=</span> <span class="n">fits_table</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">upload_xy</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">T</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">T</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
+            <span class="n">upres</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">upload_url</span><span class="p">:</span>
+            <span class="n">upres</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">url_upload</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">upload_url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">upres</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">stat</span> <span class="o">!=</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Upload failed: status&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">upres</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">opt</span><span class="o">.</span><span class="n">sub_id</span> <span class="o">=</span> <span class="n">upres</span><span class="p">[</span><span class="s2">&quot;subid&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">wait</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">sub_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Can&#39;t --wait without a submission id or job id!&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">stat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">sub_status</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">sub_id</span><span class="p">,</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got status:&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span>
+                <span class="n">jobs</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selecting job id&quot;</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+                        <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span> <span class="o">=</span> <span class="n">j</span>
+                        <span class="k">break</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">stat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">job_status</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span><span class="p">,</span> <span class="n">justdict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got job status:&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">]:</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="n">stat</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">stat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;failure&quot;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Image solving failed&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span><span class="p">:</span>
+        <span class="c1"># we have a jobId for retrieving results</span>
+        <span class="n">retrieveurls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">wcs</span><span class="p">:</span>
+            <span class="c1"># We don&#39;t need the API for this, just construct URL</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/api/&quot;</span><span class="p">,</span> <span class="s2">&quot;/wcs_file/</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span><span class="p">)</span>
+            <span class="n">retrieveurls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">wcs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">kmz</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/api/&quot;</span><span class="p">,</span> <span class="s2">&quot;/kml_file/</span><span class="si">%i</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span><span class="p">)</span>
+            <span class="n">retrieveurls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">kmz</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">newfits</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s2">&quot;/api/&quot;</span><span class="p">,</span> <span class="s2">&quot;/new_fits_file/</span><span class="si">%i</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span>
+            <span class="p">)</span>
+            <span class="n">retrieveurls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">newfits</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">corr</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/api/&quot;</span><span class="p">,</span> <span class="s2">&quot;/corr_file/</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span><span class="p">)</span>
+            <span class="n">retrieveurls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">corr</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">url</span><span class="p">,</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">retrieveurls</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Retrieving file from&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote to&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">annotate</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">annotate_data</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">solved_id</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">annotate</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">python2json</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">wait</span><span class="p">:</span>
+        <span class="c1"># behaviour as in old implementation</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">sub_id</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">sdss_wcs</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">wcsfn</span><span class="p">,</span> <span class="n">outfn</span><span class="p">)</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">sdss_wcs</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">sdss_plot</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">galex_wcs</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">wcsfn</span><span class="p">,</span> <span class="n">outfn</span><span class="p">)</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">galex_wcs</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">galex_plot</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">sub_id</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">sub_status</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">sub_id</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">job_id</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">job_status</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">job_id</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">jobs_by_tag</span><span class="p">:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">jobs_by_tag</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">jobs_by_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">jobs_by_exact_tag</span><span class="p">:</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">jobs_by_exact_tag</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">jobs_by_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">myjobs</span><span class="p">:</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">myjobs</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

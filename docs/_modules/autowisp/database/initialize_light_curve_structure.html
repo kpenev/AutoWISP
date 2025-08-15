@@ -1,0 +1,1248 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.database.initialize_light_curve_structure &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.database.initialize_light_curve_structure</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.database.initialize_light_curve_structure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=too-many-lines</span>
+<span class="sd">&quot;&quot;&quot;Define function to add defaults to all light curve structure tables.&quot;&quot;&quot;</span>
+
+<span class="c1"># TODO: Figure out proper structure with multiple versions of all components.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="c1"># Pylint false positive due to quirky imports.</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HDF5Product</span><span class="p">,</span>
+    <span class="n">HDF5StructureVersion</span><span class="p">,</span>
+    <span class="n">HDF5Attribute</span><span class="p">,</span>
+    <span class="n">HDF5DataSet</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_data_reduction_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_default_paths</span> <span class="k">as</span> <span class="n">_dr_default_paths</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_version_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;/Version%\([a-zA-Z_]*\)[0-9]*d&quot;</span><span class="p">)</span>
+
+<span class="n">_default_paths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;srcextract_psf_map&quot;</span><span class="p">:</span> <span class="s2">&quot;/SourceExtraction/PSFMap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;catalogue&quot;</span><span class="p">:</span> <span class="s2">&quot;/SkyToFrameTransformation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;magfit&quot;</span><span class="p">:</span> <span class="s2">&quot;/MagnitudeFitting&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sky_position&quot;</span><span class="p">:</span> <span class="s2">&quot;/SkyPosition&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_default_nonfinite</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="s2">&quot;f4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">min</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_structure_version_id</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s2">&quot;data_reduction&quot;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">HDF5StructureVersion</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">HDF5StructureVersion</span><span class="o">.</span><span class="n">hdf5_product_id</span> <span class="o">==</span> <span class="n">HDF5Product</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">HDF5Product</span><span class="o">.</span><span class="n">pipeline_key</span> <span class="o">==</span> <span class="n">product</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">one</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="_get_source_extraction_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_source_extraction_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source_extraction_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the default datasets for source extraction data.&quot;&quot;&quot;</span>
+
+    <span class="n">psf_map_key_start</span> <span class="o">=</span> <span class="s2">&quot;srcextract.psf_map.&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_configuration_datasets</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the datasets containing the config. for source exatraction.&quot;&quot;&quot;</span>
+
+        <span class="n">config_path_start</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_map&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/Configuration/&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="n">psf_map_key_start</span> <span class="o">+</span> <span class="s2">&quot;software_versions&quot;</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="n">config_path_start</span> <span class="o">+</span> <span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of software &quot;</span>
+                <span class="s2">&quot;elements and their versions used for source extraction.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_per_source_datasets</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return datasets containing source extraction data for each source.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="n">psf_map_key_start</span> <span class="o">+</span> <span class="s2">&quot;eval&quot;</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_map&quot;</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%(srcextract_psf_param)s</span><span class="s2">/Value&quot;</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The values of the psf parameters for source &quot;</span>
+                <span class="s2">&quot;extraction based PSF for each source.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">get_configuration_datasets</span><span class="p">()</span> <span class="o">+</span> <span class="n">get_per_source_datasets</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_get_catalogue_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_catalogue_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_catalogue_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the attributes for catalogue information for this source.&quot;&quot;&quot;</span>
+
+    <span class="n">key_start</span> <span class="o">=</span> <span class="s2">&quot;catalogue.&quot;</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">key_start</span> <span class="o">+</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Catalogue&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The catalogue from which this source information was &quot;</span>
+            <span class="s2">&quot;queried.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">key_start</span> <span class="o">+</span> <span class="s2">&quot;epoch&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CatalogueEpoch&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The epoch (JD) up to which catalogue positions were &quot;</span>
+            <span class="s2">&quot;corrected.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="n">key_start</span> <span class="o">+</span> <span class="s2">&quot;information&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Catalogue_</span><span class="si">%(catalogue_column_name)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A single catalogue value for this source.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_frame_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_frame_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_frame_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all datasets containing FITS header keywords.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_per_frame_datasets</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the datasets of header keywords with one entry per LC pt.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">dset_name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;FNUM&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FrameNumber&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="s2">&quot;u4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">),</span>
+                <span class="s2">&quot;The number of the frame corresponding to this datapoint in&quot;</span>
+                <span class="s2">&quot; the light curve.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;RAWFNAME&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;RawFileName&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;The filename of the RAW image that contributed this &quot;</span>
+                <span class="s2">&quot;datapoint in the light curve.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;FOCUS&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FocusSetting&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;The focus setting of the telescope for this observation.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;WIND&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;WindSpeed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;The wind speed in m/s&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;WINDDIR&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;WindDirection&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Wind direction [degrees] reported for this observation.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;AIRPRESS&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;AirPressure&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Air pressure [Pa] for this observation.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;AIRTEMP&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;AirTemperature&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Air temperature [C]&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;HUMIDITY&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Humidity&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Relative humidity [%]&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;DEWPT&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;DewPoint&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Dew point [C]&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SUNDIST&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SunDistance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Distance from Sun [deg] (frame center)&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SUNELEV&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SunElevation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Elevation of Sun [deg]&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;MOONDIST&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MoonDistance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Distance from Moon [deg] (frame center)&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;MOONPH&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MoonPhase&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Phase of Moon&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;MOONELEV&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MoonElevation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="n">_default_nonfinite</span><span class="p">,</span>
+                <span class="s2">&quot;Elevation of Moon [deg]&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;pipeline_key&quot;</span><span class="p">:</span> <span class="s2">&quot;fitsheader.&quot;</span> <span class="o">+</span> <span class="n">keyword</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                <span class="s2">&quot;abspath&quot;</span><span class="p">:</span> <span class="s2">&quot;/FrameInformation/&quot;</span> <span class="o">+</span> <span class="n">dset_name</span><span class="p">,</span>
+                <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">,</span>
+                <span class="s2">&quot;replace_nonfinite&quot;</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;numpy.float64&quot;</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gzip&quot;</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;compression_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;9&quot;</span>
+
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HDF5DataSet</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_datasets</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the datasets of header keywords treated as configuration.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">dset_name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">scaleoffset</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;STID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;StationID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;ID of station that took this observation.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ColorChannel&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;The color of the channel contributing this datapoint.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SITEID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SiteID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;ID of the site where this observation took place.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SITELAT&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SiteLatitude&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="mi">6</span><span class="p">,</span>
+                <span class="s2">&quot;Observing site latitude [deg].&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SITELONG&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SiteLongitude&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="mi">6</span><span class="p">,</span>
+                <span class="s2">&quot;Observing site longitude [deg].&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SITEALT&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SiteALtitude&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">,</span>
+                <span class="s2">&quot;Observing site altitude above sea level [m].&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;MTID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MointID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;ID of the mount used for this observing session.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;MTVER&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MointVersion&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;Version of the mount used for this observing session.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;CMID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CameraID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;ID of the camera used for this observing session.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;CMVER&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CameraVersion&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;Version of the camera used for this observing session,&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;TELID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;TelescopeID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;ID of the telescopes used for this observing session.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;TELVER&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;TelescopeVersion&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;Version of the telescopes used for this observing session.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;MNTSTATE&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PSFBroadeningPattern&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;The PSF broadening pattern followed during exposure.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;PROJID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ProjectID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;ID of the project this observing session is part of.&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;NRACA&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;TargetedRA&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">,</span>
+                <span class="s2">&quot;Nominal RA of midexpo [hr] (averaged field center)&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;NDECCA&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;TargetedDec&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">,</span>
+                <span class="s2">&quot;Nominal Dec of midexpo [hr] (averaged field center)&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;pipeline_key&quot;</span><span class="p">:</span> <span class="s2">&quot;fitsheader.cfg.&quot;</span> <span class="o">+</span> <span class="n">keyword</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                <span class="s2">&quot;abspath&quot;</span><span class="p">:</span> <span class="s2">&quot;/FrameInformation/Configuration/&quot;</span> <span class="o">+</span> <span class="n">dset_name</span><span class="p">,</span>
+                <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">scaleoffset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gzip&quot;</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;compression_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;9&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaleoffset</span>
+
+            <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;numpy.float64&quot;</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;replace_nonfinite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_default_nonfinite</span>
+
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HDF5DataSet</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">get_per_frame_datasets</span><span class="p">()</span> <span class="o">+</span> <span class="n">get_config_datasets</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="transform_dr_to_lc_path">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure.transform_dr_to_lc_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform_dr_to_lc_path</span><span class="p">(</span><span class="n">pipeline_key</span><span class="p">,</span> <span class="n">dr_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path in a light curve file corresponding to a DR file path.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pipeline_key</span> <span class="o">==</span> <span class="s2">&quot;srcextract.cfg.binning&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;/SourceExtraction/PSFMap&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">_version_rex</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">dr_path</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">dr_string</span><span class="p">,</span> <span class="n">lc_string</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;/FittedMagnitudes&quot;</span><span class="p">,</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;magfit&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;/ProjectedSources&quot;</span><span class="p">,</span> <span class="s2">&quot;/ProjectedPosition&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;/SourceExtraction/.*/PSFMap&quot;</span><span class="p">,</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_map&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;/ProjectedToFrameMap&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;/CatalogueSources&quot;</span><span class="p">,</span> <span class="s2">&quot;/SkyToFrameTransformation&quot;</span><span class="p">),</span>
+        <span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;/MagnitudeFitting/Iteration%\(magfit_iteration\)03d&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;/MagnitudeFitting&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">dr_string</span><span class="p">,</span> <span class="n">lc_string</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pipeline_key</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;srcextract.psf_map.residual&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;srcextract.psf_map.num_fit_src&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;/</span><span class="si">%(srcextract_psf_param)s</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_get_data_reduction_attribute_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_data_reduction_attribute_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_data_reduction_attribute_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all datasets from attributes in data reduction files.&quot;&quot;&quot;</span>
+
+    <span class="n">dr_structure_version_id</span> <span class="o">=</span> <span class="n">_get_structure_version_id</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pipeline_key</span><span class="p">,</span> <span class="n">scaleoffset</span><span class="p">,</span> <span class="n">is_config</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.sky_center&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.residual&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.unitarity&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.global_chi2&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.num_input_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.num_fit_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.fit_residual&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.num_input_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.num_fit_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.fit_residual&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.cfg.binning&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.cfg.psf_params&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.cfg.terms&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.cfg.weights&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.cfg.error_avg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.cfg.rej_level&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.cfg.max_rej_iter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.residual&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;srcextract.psf_map.num_fit_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.cfg.srcextract_filter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.cfg.sky_preprojection&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.cfg.frame_center&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.cfg.max_match_distance&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;skytoframe.cfg.weights_expression&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;bg.cfg.zero&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;bg.cfg.model&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;bg.cfg.annulus&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.gain&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.magnitude_1adu&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.model&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.terms&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.max-chi2&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.min_convergence_rate&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.max_iterations&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.ignore_dropped&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.cover_bicubic_grid&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.min_signal_to_noise&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.max_aperture&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.max_sat_frac&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.min_pix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.max_pix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.min_bg_pix&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.src.max_count&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.grid.x&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.grid.y&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.pixrej&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.initial_aperture&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.max_rel_amplitude_change&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.cfg.psf.bicubic.smoothing&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.single_photref&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.correction_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.correction&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.require&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.max_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.noise_offset&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.max_mag_err&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.rej_level&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.max_rej_iter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.error_avg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;shapefit.magfit.cfg.count_weight_power&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.cfg.error_floor&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.cfg.gain&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.cfg.magnitude_1adu&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.single_photref&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.correction_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.correction&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.require&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.max_src&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.noise_offset&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.max_mag_err&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.rej_level&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.max_rej_iter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.error_avg&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;apphot.magfit.cfg.count_weight_power&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;catalogue.cfg.orientation&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;catalogue.cfg.filter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;catalogue.cfg.name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;catalogue.cfg.fov&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;catalogue.cfg.epoch&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="n">dr_attribute</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">HDF5Attribute</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+                <span class="n">hdf5_structure_version_id</span><span class="o">=</span><span class="n">dr_structure_version_id</span><span class="p">,</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">lc_path</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">transform_dr_to_lc_path</span><span class="p">(</span><span class="n">pipeline_key</span><span class="p">,</span> <span class="n">dr_attribute</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;/Configuration&quot;</span> <span class="k">if</span> <span class="n">is_config</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+            <span class="o">+</span> <span class="n">dr_attribute</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;pipeline_key&quot;</span><span class="p">:</span> <span class="n">pipeline_key</span><span class="p">,</span>
+            <span class="s2">&quot;abspath&quot;</span><span class="p">:</span> <span class="n">lc_path</span><span class="p">,</span>
+            <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">dr_attribute</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">dr_attribute</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">scaleoffset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;compression&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gzip&quot;</span>
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;compression_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;9&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;scaleoffset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaleoffset</span>
+            <span class="k">if</span> <span class="n">dr_attribute</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;numpy.float64&quot;</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">[</span><span class="s2">&quot;replace_nonfinite&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_default_nonfinite</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HDF5DataSet</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_get_data_reduction_dataset_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_data_reduction_dataset_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_data_reduction_dataset_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return datasets built from entries for the source in DR datasets.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">magfit_datasets</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">dr_structure_version_id</span> <span class="o">=</span> <span class="n">_get_structure_version_id</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pipeline_key</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;srcproj.columns&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bg.value&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bg.error&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bg.npix&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.num_pixels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.signal_to_noise&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.magnitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.magnitude_error&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.quality_flag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.chi2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shapefit.magfit.magnitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apphot.magnitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apphot.magnitude_error&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apphot.quality_flag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apphot.magfit.magnitude&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">dr_dataset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">HDF5DataSet</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+                <span class="n">hdf5_structure_version_id</span><span class="o">=</span><span class="n">dr_structure_version_id</span><span class="p">,</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">lc_path</span> <span class="o">=</span> <span class="n">transform_dr_to_lc_path</span><span class="p">(</span><span class="n">pipeline_key</span><span class="p">,</span> <span class="n">dr_dataset</span><span class="o">.</span><span class="n">abspath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pipeline_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;magfit.magnitude&quot;</span><span class="p">):</span>
+            <span class="n">lc_path</span> <span class="o">+=</span> <span class="s2">&quot;/Magnitude&quot;</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="n">lc_path</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+                <span class="n">compression_options</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">compression_options</span><span class="p">,</span>
+                <span class="n">scaleoffset</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">scaleoffset</span><span class="p">,</span>
+                <span class="n">shuffle</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span>
+                <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">dr_dataset</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pipeline_key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;magfit.magnitude&quot;</span><span class="p">):</span>
+            <span class="n">magfit_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">magfit_datasets</span></div>
+
+
+
+<div class="viewcode-block" id="_get_sky_position_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_sky_position_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_sky_position_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return datasets describing when and where on the sky the source is.&quot;&quot;&quot;</span>
+
+    <span class="n">path_start</span> <span class="o">=</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;sky_position&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skypos.per_source&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">path_start</span> <span class="o">+</span> <span class="s2">&quot;PerSource&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bool_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Were sky position quantities calcualated individually &quot;</span>
+            <span class="s2">&quot;for each source, as opposed to assuming the values for the frame &quot;</span>
+            <span class="s2">&quot;center apply to all sources in the frame.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skypos.BJD&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">path_start</span> <span class="o">+</span> <span class="s2">&quot;BJD&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The barycentric Julian Date of this light curve data &quot;</span>
+            <span class="s2">&quot;point.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skypos.hour_angle&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">path_start</span> <span class="o">+</span> <span class="s2">&quot;HourAngle&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The hour angle of the source for this light curve data&quot;</span>
+            <span class="s2">&quot; point.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skypos.a180&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">path_start</span> <span class="o">+</span> <span class="s2">&quot;Azimuth180&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The azimuth angle of the source for this light curve &quot;</span>
+            <span class="s2">&quot;data point in degrees in the range (-180, 180].&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5DataSet</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skypos.zenith_distance&quot;</span><span class="p">,</span>
+            <span class="n">abspath</span><span class="o">=</span><span class="n">path_start</span> <span class="o">+</span> <span class="s2">&quot;ZenithDistance&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The zenith distance of the source for this light curve&quot;</span>
+            <span class="s2">&quot; data point in degrees.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_detrended_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_detrended_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_detrended_datasets</span><span class="p">(</span><span class="n">magfit_datasets</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;epd&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create the default datasets for storing detrending results.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        magfit_datasets(dict):    The light curve datasets containing the</span>
+<span class="sd">            magnitude fitted magnitudes indexed by the photometry method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">magfit_dset</span> <span class="ow">in</span> <span class="n">magfit_datasets</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Magfit dataset: </span><span class="si">{</span><span class="n">magfit_dset</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">magfit_tail</span> <span class="o">=</span> <span class="s2">&quot;/MagnitudeFitting/Magnitude&quot;</span>
+        <span class="k">assert</span> <span class="n">magfit_dset</span><span class="o">.</span><span class="n">abspath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">magfit_tail</span><span class="p">)</span>
+        <span class="n">root_path</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">magfit_dset</span><span class="o">.</span><span class="n">abspath</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">magfit_tail</span><span class="p">)]</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">mode</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+        <span class="p">)</span>
+        <span class="n">detrend_key</span> <span class="o">=</span> <span class="n">magfit_dset</span><span class="o">.</span><span class="n">pipeline_key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s2">&quot;.magfit.&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">property_key_prefix</span> <span class="o">=</span> <span class="n">detrend_key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">config_key_prefix</span> <span class="o">=</span> <span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.cfg.&quot;</span>
+        <span class="n">cfg_path</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;FitProperties/&quot;</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="n">detrend_key</span><span class="p">,</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;Magnitude&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">magfit_dset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                    <span class="n">scaleoffset</span><span class="o">=</span><span class="n">magfit_dset</span><span class="o">.</span><span class="n">scaleoffset</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="n">magfit_dset</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="n">magfit_dset</span><span class="o">.</span><span class="n">compression_options</span><span class="p">,</span>
+                    <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">magfit_dset</span><span class="o">.</span><span class="n">replace_nonfinite</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> corrected magnitude fitted magnitudes.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span><span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.fit_residual&quot;</span><span class="p">),</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;FitResidual&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">magfit_dset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                    <span class="n">scaleoffset</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">replace_nonfinite</span><span class="o">=</span><span class="n">_default_nonfinite</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;The residual of the last iteration of the iterative &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;rejction </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span><span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.num_fit_points&quot;</span><span class="p">),</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;NumberFitPoints&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;The number of points used in the last iteration of the &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;iterative rejction </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;error_avg&quot;</span><span class="p">,</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;ErrorAveraging&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How to calculate the scale for rejecting sources.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;rej_level&quot;</span><span class="p">,</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;RejectionLevel&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Points rej_level times average error away from the&quot;</span>
+                    <span class="s2">&quot; best fit are rejected and the fit is repeated.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;max_rej_iter&quot;</span><span class="p">,</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MaxRejectionIterations&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stop rejecting outlier points after this number &quot;</span>
+                    <span class="s2">&quot;of rejection/refitting cycles.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span><span class="n">property_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;.cfg_index&quot;</span><span class="p">),</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;FitPropertiesIndex&quot;</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The index within the datasets containing </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit &quot;</span>
+                        <span class="s2">&quot;properties applicable to each data point.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;epd&quot;</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;variables&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;Variables&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The list of variables and the datasets they &quot;</span>
+                        <span class="s2">&quot;correspond to used in the fitting.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_terms&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;CorrectionExpression&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The expression that expands to the terms to &quot;</span>
+                        <span class="s2">&quot;include in the EPD fit.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_filter&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;Filter&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Filtering applied to select points to which to&quot;</span>
+                        <span class="s2">&quot; apply the correction.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_weights&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;WeightsExpression&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                            <span class="s2">&quot;The expression that expands to the weights used for &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;each point in the </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> fit.&quot;</span>
+                        <span class="p">),</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;tfa&quot;</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;saturation_magnitude&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;SaturationMagnitude&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The magnitude below which sources are &quot;</span>
+                        <span class="s2">&quot;considered saturated and hence are excused from the rms vs&quot;</span>
+                        <span class="s2">&quot; magnitude fit.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span>
+                        <span class="o">+</span> <span class="s2">&quot;mag_rms_dependence_order&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MagnitudeRMSDependenceOrder&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The polynomial order of the dependence to fit &quot;</span>
+                        <span class="s2">&quot;for RMS (after EPD) vs magnitude, when identifying quiet &quot;</span>
+                        <span class="s2">&quot;stars.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;mag_rms_outlier_threshold&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MagRMSOutlierThreshold&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stars are not allowed to be in the template if&quot;</span>
+                        <span class="s2">&quot; their RMS is more than this many sigma away from the &quot;</span>
+                        <span class="s2">&quot;mag-rms fit. This is also the threshold used for rejecting&quot;</span>
+                        <span class="s2">&quot; outliers when doing the iterative fit for the rms as a &quot;</span>
+                        <span class="s2">&quot;function of magnutude.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;mag_rms_max_rej_iter&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MaxMagRMSRejectionIterations&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection fit iterations&quot;</span>
+                        <span class="s2">&quot; to do when deriving the rms(mag) dependence.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;max_rms&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MaxRMS&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stars are allowed to be in the template only &quot;</span>
+                        <span class="s2">&quot;if their RMS is no larger than this.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;faint_mag_limit&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;FaintMagnitudeLimit&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stars fainter than this cannot be template &quot;</span>
+                        <span class="s2">&quot;stars.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;min_observations_quantile&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MinimumObservationsQuantile&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The minimum number of observations required of&quot;</span>
+                        <span class="s2">&quot; template stars is the smaller of this quantile among the &quot;</span>
+                        <span class="s2">&quot;input collection of stars and that determined by &quot;</span>
+                        <span class="s2">&quot;MinimumObservationsFraction.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;min_observations_fraction&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;MinimumObservationsFraction&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The minimum number of observations required of&quot;</span>
+                        <span class="s2">&quot; template stars is the smaller this fraction of the &quot;</span>
+                        <span class="s2">&quot;longest lightcurve and that determined by &quot;</span>
+                        <span class="s2">&quot;MinimumObservationsQuantile&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;num_templates&quot;</span><span class="p">,</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;NumberTemplates&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The maximum number of template stars to use.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span><span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;variables&quot;</span><span class="p">),</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;PointsFilterVariables&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The variables to use for selecting which &quot;</span>
+                        <span class="s2">&quot;points from a LC can be part of a template or can &quot;</span>
+                        <span class="s2">&quot;participate in the de-trending fit.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">HDF5DataSet</span><span class="p">(</span>
+                        <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">config_key_prefix</span> <span class="o">+</span> <span class="s2">&quot;fit_points_filter_expression&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">abspath</span><span class="o">=</span><span class="p">(</span><span class="n">cfg_path</span> <span class="o">+</span> <span class="s2">&quot;PointsFilterExpression&quot;</span><span class="p">),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                        <span class="n">compression_options</span><span class="o">=</span><span class="s2">&quot;9&quot;</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The expression defining which points from a LC&quot;</span>
+                        <span class="s2">&quot; can be part of a template or can participate in the &quot;</span>
+                        <span class="s2">&quot;de-trending fit.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_get_configuration_index_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_configuration_index_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_configuration_index_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a list of datasets of indicies within configuration datasets.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">storage_options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;compression&quot;</span><span class="p">:</span> <span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;compression_options&quot;</span><span class="p">:</span> <span class="s2">&quot;9&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The index within the configuration datasets containing &quot;</span>
+            <span class="s2">&quot;the configuration used for this light curve point.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">key_tail</span> <span class="o">=</span> <span class="s2">&quot;.cfg_index&quot;</span>
+    <span class="n">path_tail</span> <span class="o">=</span> <span class="s2">&quot;/ConfigurationIndex&quot;</span>
+
+    <span class="n">dr_structure_version_id</span> <span class="o">=</span> <span class="n">_get_structure_version_id</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">photometry_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;shapefit&quot;</span><span class="p">,</span> <span class="s2">&quot;apphot&quot;</span><span class="p">]:</span>
+        <span class="n">magfit_dataset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">HDF5DataSet</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+                <span class="n">hdf5_structure_version_id</span><span class="o">=</span><span class="n">dr_structure_version_id</span><span class="p">,</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="n">photometry_method</span> <span class="o">+</span> <span class="s2">&quot;.magfit.magnitude&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">magfit_path</span> <span class="o">=</span> <span class="n">transform_dr_to_lc_path</span><span class="p">(</span>
+            <span class="n">magfit_dataset</span><span class="o">.</span><span class="n">pipeline_key</span><span class="p">,</span> <span class="n">magfit_dataset</span><span class="o">.</span><span class="n">abspath</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="n">photometry_method</span> <span class="o">+</span> <span class="n">key_tail</span><span class="p">,</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;/&quot;</span>
+                        <span class="o">+</span> <span class="n">magfit_path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="n">path_tail</span>
+                    <span class="p">),</span>
+                    <span class="o">**</span><span class="n">storage_options</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">HDF5DataSet</span><span class="p">(</span>
+                    <span class="n">pipeline_key</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">magfit_dataset</span><span class="o">.</span><span class="n">pipeline_key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">key_tail</span>
+                    <span class="p">),</span>
+                    <span class="n">abspath</span><span class="o">=</span><span class="n">magfit_path</span> <span class="o">+</span> <span class="n">path_tail</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">storage_options</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map&quot;</span> <span class="o">+</span> <span class="n">key_tail</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_map&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">path_tail</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">storage_options</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;fitsheader&quot;</span> <span class="o">+</span> <span class="n">key_tail</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="s2">&quot;/FrameInformation&quot;</span> <span class="o">+</span> <span class="n">path_tail</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">storage_options</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe&quot;</span> <span class="o">+</span> <span class="n">key_tail</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">_dr_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">path_tail</span>
+                <span class="p">),</span>
+                <span class="o">**</span><span class="n">storage_options</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">HDF5DataSet</span><span class="p">(</span>
+                <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg&quot;</span> <span class="o">+</span> <span class="n">key_tail</span><span class="p">,</span>
+                <span class="n">abspath</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">_dr_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">path_tail</span>
+                <span class="p">),</span>
+                <span class="o">**</span><span class="n">storage_options</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="_get_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_attributes</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a list of all attributes of light cuves.&quot;&quot;&quot;</span>
+
+    <span class="n">aperture_size_attribute</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">HDF5Attribute</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+            <span class="n">hdf5_structure_version_id</span><span class="o">=</span><span class="n">_get_structure_version_id</span><span class="p">(</span><span class="n">db_session</span><span class="p">),</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.cfg.aperture&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">one</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_get_catalogue_attributes</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;confirmed_lc_length&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LightCurveLength&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.uint&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How many data points are currently present in the &quot;</span>
+            <span class="s2">&quot;lightcurve.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.cfg.aperture&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">transform_dr_to_lc_path</span><span class="p">(</span>
+                <span class="s2">&quot;apphot.cfg.aperture&quot;</span><span class="p">,</span> <span class="n">aperture_size_attribute</span><span class="o">.</span><span class="n">parent</span>
+            <span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">aperture_size_attribute</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">aperture_size_attribute</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">aperture_size_attribute</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="_get_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a list of all datasets in light curves.&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">dr_dataset_datasets</span><span class="p">,</span> <span class="n">magfit_datasets</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_get_data_reduction_dataset_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">_get_source_extraction_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_frame_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_data_reduction_attribute_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">dr_dataset_datasets</span>
+        <span class="o">+</span> <span class="n">_get_configuration_index_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">_get_sky_position_datasets</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_detrended_datasets</span><span class="p">(</span><span class="n">magfit_datasets</span><span class="p">,</span> <span class="s2">&quot;epd&quot;</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">_get_detrended_datasets</span><span class="p">(</span><span class="n">magfit_datasets</span><span class="p">,</span> <span class="s2">&quot;tfa&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_default_light_curve_structure">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure.get_default_light_curve_structure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_default_light_curve_structure</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default configuration for the layout of light curve files.&quot;&quot;&quot;</span>
+
+    <span class="n">default_structure</span> <span class="o">=</span> <span class="n">HDF5Product</span><span class="p">(</span>
+        <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;light_curve&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Contains all per-source processing information.&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span> <span class="o">=</span> <span class="p">[</span><span class="n">HDF5StructureVersion</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">_get_attributes</span><span class="p">(</span>
+        <span class="n">db_session</span>
+    <span class="p">)</span>
+    <span class="n">default_structure</span><span class="o">.</span><span class="n">structure_versions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="n">_get_datasets</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">default_structure</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

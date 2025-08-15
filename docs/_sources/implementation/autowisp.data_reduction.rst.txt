@@ -1,0 +1,17 @@
+autowisp.data\_reduction package
+================================
+
+.. automodule:: autowisp.data_reduction
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.data_reduction.data_reduction_file
+   autowisp.data_reduction.source_extracted_psf_map
+   autowisp.data_reduction.utils

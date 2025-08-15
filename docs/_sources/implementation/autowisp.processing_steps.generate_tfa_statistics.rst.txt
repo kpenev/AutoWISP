@@ -1,0 +1,7 @@
+autowisp.processing\_steps.generate\_tfa\_statistics module
+===========================================================
+
+.. automodule:: autowisp.processing_steps.generate_tfa_statistics
+   :members:
+   :show-inheritance:
+   :undoc-members:

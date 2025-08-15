@@ -1,0 +1,7 @@
+autowisp.processing\_steps.add\_images\_to\_db module
+=====================================================
+
+.. automodule:: autowisp.processing_steps.add_images_to_db
+   :members:
+   :show-inheritance:
+   :undoc-members:

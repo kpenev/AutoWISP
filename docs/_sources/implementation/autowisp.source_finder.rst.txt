@@ -1,0 +1,7 @@
+autowisp.source\_finder module
+==============================
+
+.. automodule:: autowisp.source_finder
+   :members:
+   :show-inheritance:
+   :undoc-members:

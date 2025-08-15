@@ -1,0 +1,7 @@
+autowisp.astrometry.anmatch\_transformation module
+==================================================
+
+.. automodule:: autowisp.astrometry.anmatch_transformation
+   :members:
+   :show-inheritance:
+   :undoc-members:

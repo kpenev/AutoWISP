@@ -1,0 +1,7 @@
+autowisp.catalog module
+=======================
+
+.. automodule:: autowisp.catalog
+   :members:
+   :show-inheritance:
+   :undoc-members:

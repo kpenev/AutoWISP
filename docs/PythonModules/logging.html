@@ -1,104 +1,128 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Logging &#8212; SuperPhotPipeline  documentation</title>
-    
-    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logging &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Low Level Image Calibration Interface" href="low_level_image_calibration.html" />
-    <link rel="prev" title="Image Calibration Implementation" href="image_calibration.html" /> 
-  </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="low_level_image_calibration.html" title="Low Level Image Calibration Interface"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="image_calibration.html" title="Image Calibration Implementation"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Logging</a><ul>
-<li><a class="reference internal" href="#common-logger-mechanism">Common logger mechanism</a></li>
-<li><a class="reference internal" href="#adding-context-information">Adding context information</a><ul>
-<li><a class="reference internal" href="#identifying-information-of-the-data-being-processed">1. Identifying information of the data being processed.</a></li>
-<li><a class="reference internal" href="#identifying-information-about-the-processing-going-on">2. Identifying information about the processing going on.</a></li>
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="image_calibration.html"
-                        title="previous chapter">Image Calibration Implementation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="low_level_image_calibration.html"
-                        title="next chapter">Low Level Image Calibration Interface</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/PythonModules/logging.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
+    </nav>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="logging">
-<h1>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h1>
-<p>## Design considerations</p>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Logging</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/PythonModules/logging.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="logging">
+<h1>Logging<a class="headerlink" href="#logging" title="Link to this heading"></a></h1>
+<section id="design-considerations">
+<h2>Design considerations<a class="headerlink" href="#design-considerations" title="Link to this heading"></a></h2>
 <p>Logging all steps taken by a pipeline is a critical task to allow users to
 monitor progress, debug and tune the various steps. Designing a logging system
 which is flexible enough to handle all the various tasks that the pipeline will
@@ -110,81 +134,80 @@ headaches down the line.</p>
 satisfy are:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Offer a unifom mechanism to provide a logger and context information to
-each pipeline processor.</li>
-<li>Handle parallel processing without mangling the log.</li>
-<li>Allow configuring the formatting of log files and/or logging to database
-in a uniform way for all pipeline processors.</li>
+<li><p>Offer a unifom mechanism to provide a logger and context information to
+each pipeline processor.</p></li>
+<li><p>Handle parallel processing without mangling the log.</p></li>
+<li><p>Allow configuring the formatting of log files and/or logging to database
+in a uniform way for all pipeline processors.</p></li>
 </ol>
 </div></blockquote>
-<div class="section" id="common-logger-mechanism">
-<h2>Common logger mechanism<a class="headerlink" href="#common-logger-mechanism" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="common-logger-mechanism">
+<h2>Common logger mechanism<a class="headerlink" href="#common-logger-mechanism" title="Link to this heading"></a></h2>
 <p>Since the logging module ensures that a logger with the same name always returns
-the same instance, the common <code class="docutils literal"><span class="pre">__init__</span></code> method of all pipeline processors
+the same instance, the common <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method of all pipeline processors
 simply need to create child loggers in a tree leading to the same base logger.
 This is trivially accomplished by each module using a logger with a name given
-by <code class="docutils literal"><span class="pre">__name__</span></code>.</p>
-</div>
-<div class="section" id="adding-context-information">
-<h2>Adding context information<a class="headerlink" href="#adding-context-information" title="Permalink to this headline">¶</a></h2>
+by <code class="docutils literal notranslate"><span class="pre">__name__</span></code>.</p>
+</section>
+<section id="adding-context-information">
+<h2>Adding context information<a class="headerlink" href="#adding-context-information" title="Link to this heading"></a></h2>
 <p>This is also handled by the python logging module. In fact there are <a class="reference external" href="https://docs.python.org/3/howto/logging-cookbook.html#context-info">two
 mechanisms</a> to choose
-from: LoggerAdapters and Filters. In the SuperPhot pipeline we will use Filters,
-since it results in easier handling of the extra contextual information by
-formatters and handlers.</p>
+from: LoggerAdapters and Filters. In AutoWISP we will use Filters, since it
+results in easier handling of the extra contextual information by formatters and
+handlers.</p>
 <p>What remains to decide is what contextual information to add. Some possibilities
 include:</p>
-<div class="section" id="identifying-information-of-the-data-being-processed">
-<h3>1. Identifying information of the data being processed.<a class="headerlink" href="#identifying-information-of-the-data-being-processed" title="Permalink to this headline">¶</a></h3>
+<section id="identifying-information-of-the-data-being-processed">
+<h3>1. Identifying information of the data being processed.<a class="headerlink" href="#identifying-information-of-the-data-being-processed" title="Link to this heading"></a></h3>
 <p>This could be for example the frame being calibrated/astrometried/photometered,
 the lightcurve being dumped/EPD-d/TFA-d. However, some steps work on collections
 of data (e.g. stacking frames to a master, multi-frame PSF/PRF fitting, dumping
 lightcurves for multiple sources from multiple frames). So the exact format and
 entries become processor specific.</p>
 <p>One possibily of handling this difficulty is to define a super-set of fields and
-simply have some set to <code class="docutils literal"><span class="pre">None</span></code> depending on the situation.</p>
+simply have some set to <code class="docutils literal notranslate"><span class="pre">None</span></code> depending on the situation.</p>
 <p>Another possibility is to define a formatt for each separate set of
 possibilities. If this is chosen, there should be some identifying flag in the
 message identifying the formatter used to allow for easy automatic parsing.</p>
-</div>
-<div class="section" id="identifying-information-about-the-processing-going-on">
-<h3>2. Identifying information about the processing going on.<a class="headerlink" href="#identifying-information-about-the-processing-going-on" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="identifying-information-about-the-processing-going-on">
+<h3>2. Identifying information about the processing going on.<a class="headerlink" href="#identifying-information-about-the-processing-going-on" title="Link to this heading"></a></h3>
 <p>This could be for example identifying whether an image being read was requested
 by the image calibration or astrometry or photometry module. However, how much
 granularity do we want. Do we specify that an image was requested by the mask
 creation vs the bias subtraction part of the image calibration module.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
+           </div>
           </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="low_level_image_calibration.html" title="Low Level Image Calibration Interface"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="image_calibration.html" title="Image Calibration Implementation"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2018, Kaloyan Penev.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
-    </div>
-  </body>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

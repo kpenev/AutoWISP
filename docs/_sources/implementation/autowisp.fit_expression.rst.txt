@@ -1,0 +1,25 @@
+autowisp.fit\_expression package
+================================
+
+.. automodule:: autowisp.fit_expression
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.fit_expression.FitTermsLexer
+   autowisp.fit_expression.FitTermsParser
+   autowisp.fit_expression.FitTermsParserListener
+   autowisp.fit_expression.FitTermsParserVisitor
+   autowisp.fit_expression.count_terms_visitor
+   autowisp.fit_expression.evaluate_terms_visitor
+   autowisp.fit_expression.interface
+   autowisp.fit_expression.iterative_fit
+   autowisp.fit_expression.list_terms_visitor
+   autowisp.fit_expression.process_terms_visitor
+   autowisp.fit_expression.used_var_finder

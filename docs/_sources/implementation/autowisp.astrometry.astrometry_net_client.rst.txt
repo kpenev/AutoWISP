@@ -1,0 +1,7 @@
+autowisp.astrometry.astrometry\_net\_client module
+==================================================
+
+.. automodule:: autowisp.astrometry.astrometry_net_client
+   :members:
+   :show-inheritance:
+   :undoc-members:

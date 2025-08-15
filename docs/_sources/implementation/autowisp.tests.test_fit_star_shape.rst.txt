@@ -1,0 +1,7 @@
+autowisp.tests.test\_fit\_star\_shape module
+============================================
+
+.. automodule:: autowisp.tests.test_fit_star_shape
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.light\_curves.transit\_model module
+============================================
+
+.. automodule:: autowisp.light_curves.transit_model
+   :members:
+   :show-inheritance:
+   :undoc-members:

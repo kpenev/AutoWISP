@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.split_sources &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.split_sources</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.split_sources</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define a class for splitting sources in groups for PRF fitting.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">inf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+
+<span class="c1"># Pylint does not count __init__ and __call__, but should.</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="SplitSources">
+<a class="viewcode-back" href="../../implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SplitSources</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split sources in groups based on user-defined conditions.</span>
+
+<span class="sd">    Currently splitting by distance from the center of the frame and by</span>
+<span class="sd">    magnitude are supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SplitSources._find_mag_splits">
+<a class="viewcode-back" href="../../implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources._find_mag_splits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_mag_splits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sorted_magnitudes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the magnitude boundaries that satisfy the source count limits.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sorted_magnitudes:    The sorted magnitudes of the sources which</span>
+<span class="sd">                pass the current radius selection.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            boundaries:    The values ofthe magnitudes where to split the input</span>
+<span class="sd">                list of sources in order to ensure that groups have exactly the</span>
+<span class="sd">                minimum number of sources specified at construction, except the</span>
+<span class="sd">                group containing the faintest sources which could be up to two</span>
+<span class="sd">                time larger in order to ensure no sources are left without a</span>
+<span class="sd">                group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="n">sorted_magnitudes</span><span class="p">[</span><span class="n">split_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">sorted_magnitudes</span><span class="p">[</span><span class="n">split_index</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="mf">2.0</span>
+                <span class="k">for</span> <span class="n">split_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mag_split_min_sources</span><span class="p">,</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">sorted_magnitudes</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_split_min_sources</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mag_split_min_sources</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">inf</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SplitSources.__init__">
+<a class="viewcode-back" href="../../implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">magnitude_column</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">radius_splits</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">manual_mag_splits</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">mag_split_by_source_count</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set-up the splitting.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            magnitude_column:    The filter in which to do the splitting by</span>
+<span class="sd">                magnitude. Should be one of the columns available in</span>
+<span class="sd">                the the input sources.</span>
+
+<span class="sd">            radius_splits:    The boundaries in radius (measured in pixels) at</span>
+<span class="sd">                which to split fit groups.</span>
+
+<span class="sd">            manual_mag_splits:    The boundaries in magnitude at which to split</span>
+<span class="sd">                fit groups. It is an error to specify both manual_mag_splits</span>
+<span class="sd">                and mag_split_by_source_count.</span>
+
+<span class="sd">            mag_split_by_source_count:    If specied, magnitude splitting is</span>
+<span class="sd">                done to ensure at least this many sources in each group. It is</span>
+<span class="sd">                an error to specify both manual_mag_splits</span>
+<span class="sd">                and mag_split_by_source_count.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_column</span> <span class="o">=</span> <span class="n">magnitude_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_splits</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">radius_splits</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">inf</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">manual_mag_splits</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">mag_split_by_source_count</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_splits</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">([</span><span class="o">-</span><span class="n">inf</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">manual_mag_splits</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">inf</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mag_split_by_source_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mag_splits</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="p">,</span> <span class="n">inf</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_split_min_sources</span> <span class="o">=</span> <span class="n">mag_split_by_source_count</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_splits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+
+    <span class="c1"># TODO: See if it can be simplified</span>
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="SplitSources.__call__">
+<a class="viewcode-back" href="../../implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">image_resolution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an array of integers grouping PRF fitting sources as specified.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sources(structured array or pandas.DataFrame):    The sources to</span>
+<span class="sd">                split. Must define at least `&#39;ID&#39;`, ``&#39;x&#39;`, `&#39;y&#39;`, `&#39;phqual&#39;`,</span>
+<span class="sd">                `&#39;objtype&#39;`, and `&#39;doublestar&#39;` fields as well as any magnitudes</span>
+<span class="sd">                on which splitting is to be done.</span>
+
+<span class="sd">            image_resolution:    The resolution of the image in pixels (y, x).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            grouping:    A numpy integer array indicating for each</span>
+<span class="sd">                source the PRF fitting group it is in. The grouping of sources</span>
+<span class="sd">                is controlled by the splitting arguments specified at</span>
+<span class="sd">                construction time with each group of sources getting a unique</span>
+<span class="sd">                positive integer. Sources which should not be used for PRF</span>
+<span class="sd">                fitting are assigned a group ID of `-1`.</span>
+
+<span class="sd">            in_frame:    A numpy boolean array indicating for each source</span>
+<span class="sd">                whether it&#39;s center lies inside the frame or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Splitting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> sources&quot;</span><span class="p">)</span>
+
+        <span class="n">in_frame</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">image_resolution</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">image_resolution</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">good_sources</span> <span class="o">=</span> <span class="n">in_frame</span>
+        <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;phqual&quot;</span><span class="p">,</span> <span class="s2">&quot;AAA&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;objtype&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;doublestar&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">good_sources</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="n">good_sources</span><span class="p">,</span> <span class="n">sources</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="n">square_radius</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span>
+            <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_resolution</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_resolution</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+        <span class="n">grouping</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">grouping</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">good_sources</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="n">group_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">min_radius</span><span class="p">,</span> <span class="n">max_radius</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">radius_splits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="p">):</span>
+
+            <span class="n">radius_group_sources</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="n">square_radius</span> <span class="o">&gt;=</span> <span class="n">min_radius</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">square_radius</span> <span class="o">&lt;</span> <span class="n">max_radius</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">good_sources</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_split_min_sources</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">magnitude_splits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_splits</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">magnitude_splits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_mag_splits</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
+                        <span class="n">sources</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_column</span><span class="p">][</span><span class="n">radius_group_sources</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">min_magnitude</span><span class="p">,</span> <span class="n">max_magnitude</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">magnitude_splits</span><span class="p">,</span> <span class="n">magnitude_splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="p">):</span>
+                <span class="n">group_sources</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                        <span class="n">sources</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_column</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_magnitude</span><span class="p">,</span>
+                        <span class="n">sources</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_column</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">max_magnitude</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">radius_group_sources</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">grouping</span><span class="p">[</span><span class="n">group_sources</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_id</span>
+                <span class="n">group_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">grouping</span><span class="p">,</span> <span class="n">in_frame</span></div>
+</div>
+
+
+    <span class="c1"># pylint: enable=too-many-locals</span>
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

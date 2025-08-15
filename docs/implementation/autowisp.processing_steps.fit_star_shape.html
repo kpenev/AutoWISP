@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.fit_star_shape module &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="autowisp.processing_steps.generate_epd_statistics module" href="autowisp.processing_steps.generate_epd_statistics.html" />
+    <link rel="prev" title="autowisp.processing_steps.fit_source_extracted_psf_map module" href="autowisp.processing_steps.fit_source_extracted_psf_map.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="autowisp.html">autowisp package</a></li>
+          <li class="breadcrumb-item"><a href="autowisp.processing_steps.html">autowisp.processing_steps package</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.fit_star_shape module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/implementation/autowisp.processing_steps.fit_star_shape.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-autowisp.processing_steps.fit_star_shape">
+<span id="autowisp-processing-steps-fit-star-shape-module"></span><h1>autowisp.processing_steps.fit_star_shape module<a class="headerlink" href="#module-autowisp.processing_steps.fit_star_shape" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-050492c09e11cd82ce4569a8c11eddd3f6b3c064.png" alt="Inheritance diagram of DataReductionFile, Evaluator, ManualStepArgumentParser, PiecewiseBicubicPSFMap, SourceListCreator, SplitSources, Transformation, nullcontext, partial" usemap="#inheritance07f94e8e50" class="inheritance graphviz" /></div>
+<map id="inheritance07f94e8e50" name="inheritance07f94e8e50">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="452,453,527,480"/>
+<area shape="rect" id="node7" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="147,528,334,555"/>
+<area shape="rect" id="node21" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractAsyncContextManager" target="_top" title="An abstract base class for asynchronous context managers." alt="" coords="358,528,621,555"/>
+<area shape="rect" id="node22" href="https://docs.python.org/3/library/contextlib.html#contextlib.AbstractContextManager" target="_top" title="An abstract base class for context managers." alt="" coords="646,528,872,555"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="765,5,934,32"/>
+<area shape="rect" id="node8" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="976,80,1166,107"/>
+<area shape="rect" id="node4" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="1181,5,1497,32"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="47,677,434,704"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="35,603,446,629"/>
+<area shape="rect" id="node10" href="autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap" target="_top" title="Fit and use piecewise bicubic PSF maps." alt="" coords="1521,5,1920,32"/>
+<area shape="rect" id="node11" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator" target="_top" title="Class for creating PRF fitting source lists for a single frame." alt="" coords="1944,5,2318,32"/>
+<area shape="rect" id="node12" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="642,155,1058,181"/>
+<area shape="rect" id="node14" href="autowisp.split_sources.html#autowisp.split_sources.SplitSources" target="_top" title="Split sources in groups based on user&#45;defined conditions." alt="" coords="2343,5,2575,32"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
+<area shape="rect" id="node20" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
+</map><p>Fit a model for the shape of stars (PSF or PRF) in images.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.SourceListCreator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">SourceListCreator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_faint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dr_path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#SourceListCreator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-d5e750caf406f098221f8941696627de2ca0e79f.png" alt="Inheritance diagram of autowisp.processing_steps.fit_star_shape.SourceListCreator" usemap="#inheritance47ff49ca6e" class="inheritance graphviz" /></div>
+<map id="inheritance47ff49ca6e" name="inheritance47ff49ca6e">
+<area shape="rect" id="node1" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator" target="_top" title="Class for creating PRF fitting source lists for a single frame." alt="" coords="5,5,380,32"/>
+</map><p>Class for creating PRF fitting source lists for a single frame.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.SourceListCreator.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#SourceListCreator.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator.__call__" title="Link to this definition"></a></dt>
+<dd><p>Return the <cite>fitpsf</cite>/<cite>fitprf</cite> source list for this frame.
+:param frame_fname: The filename of the frame to get PRF fitting</p>
+<blockquote>
+<div><p>sources of.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The values of all source variables PSF/PRF fitting will use for
+each fitting group. Each entry is suitable as input to
+FitStarShape.fit(), with only one fitting group enabled.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>[numpy record array]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.SourceListCreator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_faint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dr_path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#SourceListCreator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Set up to create source lists for PSF/PRF fitting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>catalog_fname</strong> – The filename containing a list of catalog
+sources to fit the shape and measure the brightness of.</p></li>
+<li><p><strong>extra_fit_variables</strong> – See –map-variables command line argument.</p></li>
+<li><p><strong>grouping</strong> – A splitting of the input sources in groups, each of
+which is enabled separately during PRF fitting. Should be a
+callable taking the input projected sources, catalog
+information, frame header and extra fit variables and returning
+A numpy integer array indicating for each source the PRF fitting
+group it is in. Sources assigned to negative group IDs are never
+enabled.</p></li>
+<li><p><strong>grouping_frame</strong> – If None, grouping is derived for each input
+frames separately, potentially resulting in a different set of
+sources enabled for each frame. If not None, it should specify
+the filename of a FITS frame on which to derive the grouping
+once and all subsequent fits are based on the same exact
+sources, regardless of where on the frame they appear, as long
+as they are within the frame.</p></li>
+<li><p><strong>discard_faint</strong> – See <cite>–discard-faint</cite> command line argument.</p></li>
+<li><p><strong>remove_group_id</strong> – See ‘–remove-group-id’ command line argument.</p></li>
+<li><p><strong>dr_path_substitutions</strong> – Any keywords needed to specify unique
+paths in the data reduction files for the inputs and output
+required for shape fitting.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.SourceListCreator._group_and_flag_in_frame">
+<span class="sig-name descname"><span class="pre">_group_and_flag_in_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#SourceListCreator._group_and_flag_in_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator._group_and_flag_in_frame" title="Link to this definition"></a></dt>
+<dd><p>Return the group each source belongs to and flag for is source in frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>header</strong> – The FITS header of the frame being fit.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>The group index for each source</p>
+<dl class="simple">
+<dt>numpy.array(bool):</dt><dd><p>True iff the source center is inside the frame boundaries</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.SourceListCreator._project_sources">
+<span class="sig-name descname"><span class="pre">_project_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#SourceListCreator._project_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator._project_sources" title="Link to this definition"></a></dt>
+<dd><p>Add to <cite>self._sources</cite> the projected positions and extra fit variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>header</strong> – The header of the FITS frame currently being processed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.add_background_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">add_background_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#add_background_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.add_background_options" title="Link to this definition"></a></dt>
+<dd><p>Add options configuring the background extraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.add_fitting_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">add_fitting_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#add_fitting_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.add_fitting_options" title="Link to this definition"></a></dt>
+<dd><p>Add options controlling the fitting process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.add_grouping_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">add_grouping_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#add_grouping_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.add_grouping_options" title="Link to this definition"></a></dt>
+<dd><p>Add options controlling splitting of sources into fitting groups.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.add_shape_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">add_shape_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#add_shape_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.add_shape_options" title="Link to this definition"></a></dt>
+<dd><p>Add options defining how the PSF/PRF shape will be modeled.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.add_source_selction_options">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">add_source_selction_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#add_source_selction_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.add_source_selction_options" title="Link to this definition"></a></dt>
+<dd><p>Add options configuring the selection of sources for fitting.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.cleanup_interrupted">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">cleanup_interrupted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interrupted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#cleanup_interrupted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.cleanup_interrupted" title="Link to this definition"></a></dt>
+<dd><p>Remove star shape fit datasets from the DR file of the given image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.create_source_list_creator">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">create_source_list_creator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_lock</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#create_source_list_creator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.create_source_list_creator" title="Link to this definition"></a></dt>
+<dd><p>Return a fully configured instance of SourceListCreator.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.fit_frame_set">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">fit_frame_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_lock=&lt;contextlib.nullcontext</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#fit_frame_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.fit_frame_set" title="Link to this definition"></a></dt>
+<dd><p>Perform a simultaneous fit of all frames included in frame_filenames.
+:param frame_filenames: The list of FITS file containting calibrated</p>
+<blockquote>
+<div><p>frames to fit. The files must include at least 3 extensions: the
+calibrated pixel values, estimated errors for the pixel values and
+the pixel quality mask.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configuration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – The configuration to use for PSF/PRF fitting,
+background extraction etc.</p></li>
+<li><p><strong>mark_start</strong> (<em>callable</em>) – Called for each frame in the set before
+processing begins.</p></li>
+<li><p><strong>mark_end</strong> (<em>callable</em>) – Called for each frame in the set after
+processing ends.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.fit_star_shape">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">fit_star_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#fit_star_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.fit_star_shape" title="Link to this definition"></a></dt>
+<dd><p>Find the best-fit model for the PSF/PRF in the given images.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.get_dr_substitutions">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">get_dr_substitutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#get_dr_substitutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.get_dr_substitutions" title="Link to this definition"></a></dt>
+<dd><p>Return the substitutions to use for DR file paths.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.get_shape_fitter_config">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">get_shape_fitter_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#get_shape_fitter_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.get_shape_fitter_config" title="Link to this definition"></a></dt>
+<dd><p>Return a fully configured instance of FitStarShape.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.has_astrometry">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">has_astrometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#has_astrometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.has_astrometry" title="Link to this definition"></a></dt>
+<dd><p>Check if the DR file contains a sky-to-frame transformation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.main" title="Link to this definition"></a></dt>
+<dd><p>Run the step for fitting star shapes from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.parse_command_line">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.parse_command_line" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed command line arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.parse_grid_arg">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">parse_grid_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#parse_grid_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.parse_grid_arg" title="Link to this definition"></a></dt>
+<dd><p>Parse the string specifying the grid on which to model PSF/PRF.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autowisp.processing_steps.fit_source_extracted_psf_map.html" class="btn btn-neutral float-left" title="autowisp.processing_steps.fit_source_extracted_psf_map module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autowisp.processing_steps.generate_epd_statistics.html" class="btn btn-neutral float-right" title="autowisp.processing_steps.generate_epd_statistics module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

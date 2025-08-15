@@ -1,0 +1,509 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_calibration.fits_util &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.image_calibration.fits_util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.image_calibration.fits_util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define a generic function to make 3-hdu FITS images (image, error, mask).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">makedirs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span><span class="p">,</span> <span class="n">TimeISO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_image_components</span><span class="p">,</span> <span class="n">get_primary_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.mask_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_masks</span>
+
+
+<div class="viewcode-block" id="TimeISOTNoSep">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeISOTNoSep</span><span class="p">(</span><span class="n">TimeISO</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to parse ISO times without any separators.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;isotnosep&quot;</span>
+    <span class="n">subfmts</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;date_hms&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">T%H%M%S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{year:d}{mon:02d}{day:02d}</span><span class="s2">T</span><span class="si">{hour:02d}{min:02d}{sec:02d}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;date_hm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">T%H%M&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{year:d}{mon:02d}{day:02d}</span><span class="s2">T</span><span class="si">{hour:02d}{min:02d}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{year:d}{mon:02d}{day:02d}</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># See TimeISO for explanation</span>
+    <span class="n">fast_parser_pars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;delims&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">&quot;starts&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+        <span class="s2">&quot;stops&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="c1"># Break allowed *before*</span>
+        <span class="c1">#                 y  m  d  h  m  s  f</span>
+        <span class="s2">&quot;break_allowed&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">&quot;has_day_of_year&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1"># pylint: disable=too-many-branches</span>
+<div class="viewcode-block" id="assemble_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.assemble_channels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assemble_channels</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">hdu</span><span class="p">,</span> <span class="n">split_channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assemble the channels in the pattern they have in raw frames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename(str or dict):    Either a single filename (if each channel</span>
+<span class="sd">            is stored in a different HDU or if there is only one channel or</span>
+<span class="sd">            if channels have not been split yet) or a dictionary indexed by</span>
+<span class="sd">            channel name (if different channels are in different files).</span>
+
+<span class="sd">        hdu(int or dict or ``&#39;components&#39;`` or ``&#39;masks&#39;``):</span>
+
+<span class="sd">            * A single HDU index if channels are in separate files or there</span>
+<span class="sd">              is only one channel or the channels have not been split yet.</span>
+
+<span class="sd">            * dictionary indexed by channel (if channels are in seprate HDUs</span>
+<span class="sd">              of the same file).</span>
+
+<span class="sd">            * The string ``&#39;components&#39;`` if assembling a assembling files</span>
+<span class="sd">              with image, error, and mask HDUs</span>
+
+<span class="sd">        split_channels(dict):    See same name attribute of</span>
+<span class="sd">            :class:`Calibrator`_.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        One or three numpy arrays constructed by staggering the individual</span>
+<span class="sd">        channels as they were in the raw image. If hdu is ``&#39;components&#39;``,</span>
+<span class="sd">        the input image is assumed already to be trimmed to the image area.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hdu</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">split_channels</span>
+    <span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">hdu</span> <span class="o">==</span> <span class="s2">&quot;components&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">read_image_components</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">read_header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hdu</span> <span class="o">==</span> <span class="s2">&quot;masks&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">read_image_components</span><span class="p">(</span>
+                <span class="n">filename</span><span class="p">,</span> <span class="n">read_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_header</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">image</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">image</span><span class="p">[</span><span class="n">hdu</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_channels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Assumbling multi-channel image from </span><span class="si">%s</span><span class="s2"> with HDUs: </span><span class="si">%s</span><span class="s2">, split_channels: &quot;</span>
+        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">hdu</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">split_channels</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="n">split_channels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">filename</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">filename</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;readonly&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">image</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;components&quot;</span><span class="p">,</span> <span class="s2">&quot;masks&quot;</span><span class="p">]:</span>
+                <span class="n">data_hdu</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hdu</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">data_hdu</span> <span class="o">=</span> <span class="n">hdu</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_hdu</span> <span class="o">=</span> <span class="n">hdu</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span>
+                    <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="p">(</span><span class="n">channel_slice</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">data_hdu</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">channel_slice</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">step</span>
+                    <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hdu</span> <span class="o">==</span> <span class="s2">&quot;masks&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="n">split_channels</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">channel_slice</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_masks</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="n">channel_name</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">if</span> <span class="n">hdu</span> <span class="o">==</span> <span class="s2">&quot;components&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="n">split_channels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">hdu</span> <span class="o">==</span> <span class="s2">&quot;components&quot;</span><span class="p">:</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+            <span class="p">(</span>
+                <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">channel_slice</span><span class="p">],</span>
+                <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">channel_slice</span><span class="p">],</span>
+                <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">channel_slice</span><span class="p">],</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">read_image_components</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="n">channel_name</span><span class="p">],</span> <span class="n">read_header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># pylint: enable=unbalanced-tuple-unpacking</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">filename</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="n">filename</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;readonly&quot;</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">image</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">channel_slice</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span>
+                    <span class="n">hdu</span><span class="p">[</span><span class="n">channel_name</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hdu</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">hdu</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-branches</span>
+
+
+<div class="viewcode-block" id="add_required_keywords">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_required_keywords">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_required_keywords</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">calibration_params</span><span class="p">,</span> <span class="n">for_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add keywords required by the pipeline to the given header.&quot;&quot;&quot;</span>
+
+    <span class="n">jd_keyword</span> <span class="o">=</span> <span class="s2">&quot;JD_OBS&quot;</span> <span class="k">if</span> <span class="n">for_eval</span> <span class="k">else</span> <span class="s2">&quot;JD-OBS&quot;</span>
+    <span class="n">header_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exposure_start_utc&quot;</span><span class="p">):</span>
+        <span class="n">header</span><span class="p">[</span><span class="n">jd_keyword</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+            <span class="n">header_eval</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;exposure_start_utc&quot;</span><span class="p">])</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">jd</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exposure_start_jd&quot;</span><span class="p">)</span>
+        <span class="n">header</span><span class="p">[</span><span class="n">jd_keyword</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+            <span class="n">header_eval</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;exposure_start_jd&quot;</span><span class="p">]),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">jd</span>
+
+    <span class="n">header</span><span class="p">[</span><span class="n">jd_keyword</span><span class="p">]</span> <span class="o">+=</span> <span class="n">header_eval</span><span class="p">(</span>
+        <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;exposure_seconds&quot;</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="mf">3600.0</span><span class="p">)</span>
+
+    <span class="n">header</span><span class="p">[</span><span class="s2">&quot;FNUM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">header</span><span class="p">)(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;fnum&quot;</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="get_raw_header">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.get_raw_header">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_raw_header</span><span class="p">(</span><span class="n">raw_image</span><span class="p">,</span> <span class="n">calibration_params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the raw header to base the calibrated frame header on.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">raw_image</span><span class="p">,</span> <span class="n">add_filename_keywords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">calibration_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;combine_headers&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">raw_hdu</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">[</span><span class="n">calibration_params</span><span class="p">[</span><span class="s2">&quot;raw_hdu&quot;</span><span class="p">]]</span>
+        <span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">raw_image</span><span class="p">[</span><span class="n">raw_hdu</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+    <span class="n">add_required_keywords</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">calibration_params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="add_channel_keywords">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_channel_keywords">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_channel_keywords</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the extra keywords describing channel to header.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">channel_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CLRCHNL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_name</span>
+        <span class="c1"># False positive</span>
+        <span class="c1"># pylint: disable=unsubscriptable-object</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLXOFF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_slice</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLXSTP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_slice</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">step</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLYOFF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_slice</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLYSTP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_slice</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">step</span>
+        <span class="c1"># pylint: enable=unsubscriptable-object</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLXOFF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLXSTP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLYOFF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;CHNLYSTP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="create_result">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.create_result">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_result</span><span class="p">(</span>
+    <span class="n">image_list</span><span class="p">,</span>
+    <span class="n">header</span><span class="p">,</span>
+    <span class="n">result_fname</span><span class="p">,</span>
+    <span class="n">compress</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">split_channels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">fname_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a 3-extension FITS file out of 3 numpy images and header.</span>
+
+<span class="sd">    All FITS files produced during calibration (calibrated frames and masters)</span>
+<span class="sd">    contain 3 header data units:</span>
+
+<span class="sd">        * the actual image and header,</span>
+<span class="sd">        * an error estimate</span>
+<span class="sd">        * a bad pixel mask.</span>
+
+<span class="sd">    Which one is which is identified by the IMAGETYP keyword in the</span>
+<span class="sd">    corresponding header. The image HDU can have an arbitrary IMAGETYP, while</span>
+<span class="sd">    the mask and error HDU have &#39;IMAGETYP&#39;=&#39;mask&#39; and &#39;IMAGETYP&#39;=&#39;error&#39;</span>
+<span class="sd">    respectively.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image_list:    A list with 3 entries of image data for the output</span>
+<span class="sd">            file. Namely, the calibrated image, an estimate of the error and a</span>
+<span class="sd">            mask image. The images are saved as extensions in this</span>
+<span class="sd">            same order.</span>
+
+<span class="sd">        header:    The header to use for the the primary (calibrated) image.</span>
+
+<span class="sd">        result_fname:    See Calibrator.__call__.</span>
+
+<span class="sd">        compress:    Should the created image be compressed? If the value</span>
+<span class="sd">            converts to True, compression is enabled and this parameter</span>
+<span class="sd">            specifies the quantization level of the compression.</span>
+
+<span class="sd">        allow_overwrite:    If a file named **result_fname** already exists,</span>
+<span class="sd">            should it be overwritten (otherwise throw an exception).</span>
+
+<span class="sd">        fname_substitutions:   Any parameters in addition to header entries</span>
+<span class="sd">            required to generate the output filename.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">split_channels</span><span class="p">:</span>
+        <span class="n">split_channels</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)}</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">check_image</span> <span class="ow">in</span> <span class="n">image_list</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">check_image</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="n">image_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_slice</span> <span class="ow">in</span> <span class="n">split_channels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">header_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">header</span> <span class="k">if</span> <span class="n">channel_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">header</span><span class="p">[</span><span class="n">channel_name</span><span class="p">],</span>
+            <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">(),</span>
+            <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">(),</span>
+        <span class="p">]</span>
+        <span class="n">header_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+        <span class="n">header_list</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mask&quot;</span>
+
+        <span class="n">header_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;BITPIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;BITPIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">32</span>
+        <span class="n">header_list</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;BITPIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Slice for </span><span class="si">%s</span><span class="s2"> channel: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">channel_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">channel_slice</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">hdu_list</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">channel_slice</span><span class="p">]),</span> <span class="n">header_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">channel_slice</span><span class="p">]),</span> <span class="n">header_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_list</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">channel_slice</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">),</span>
+                    <span class="n">header_list</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">hdu_list</span><span class="p">:</span>
+            <span class="n">hdu</span><span class="o">.</span><span class="n">update_header</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Compression level: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">compress</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">compress</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating compressed HDU&quot;</span><span class="p">)</span>
+            <span class="n">hdu_list</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">()]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="n">fits</span><span class="o">.</span><span class="n">CompImageHDU</span><span class="p">(</span>
+                        <span class="n">hdu</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">hdu</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">quantize_level</span><span class="o">=</span><span class="n">compress</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">hdu</span> <span class="ow">in</span> <span class="n">hdu_list</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="n">fname_substitutions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">header_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">output_fname</span> <span class="o">=</span> <span class="n">result_fname</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">fname_substitutions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)):</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output_fname</span><span class="p">))</span>
+        <span class="n">hdu_list</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">output_fname</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

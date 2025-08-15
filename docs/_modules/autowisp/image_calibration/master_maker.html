@@ -1,0 +1,607 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.image_calibration.master_maker &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.image_calibration.master_maker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.image_calibration.master_maker</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define classes for creating master calibration frames.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">exists</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_image_components</span><span class="p">,</span> <span class="n">update_stack_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.iterative_rejection_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_rejection_average</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.mask_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask_flags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.fits_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_result</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Processor</span>
+
+
+<span class="c1"># pylint does not count __call__ but should.</span>
+<span class="c1"># pylint: disable=too-few-public-methods</span>
+<div class="viewcode-block" id="MasterMaker">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MasterMaker</span><span class="p">(</span><span class="n">Processor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implement the simplest &amp; fully generalizable procedure for making a master.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        default_exclude_mask:    The default bit-mask indicating all flags which</span>
+<span class="sd">            should result in a pixel being excluded from the averaging.</span>
+
+<span class="sd">        stacking_options:    A dictionary with the default configuration of how</span>
+<span class="sd">            to perform the stacking. The expected keys exactly match the keyword</span>
+<span class="sd">            only arguments of the :meth:`stack` method.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; #Create an object for stacking frames to masters, overwriting the</span>
+<span class="sd">        &gt;&gt;&gt; #default outlier threshold and requiring at least 10 frames be</span>
+<span class="sd">        &gt;&gt;&gt; #stacked</span>
+<span class="sd">        &gt;&gt;&gt; make_master = MasterMaker(outlier_threshold=10.0,</span>
+<span class="sd">        &gt;&gt;&gt;                           min_valid_frames=10)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Stack a set of frames to a master, allowing no more than 3</span>
+<span class="sd">        &gt;&gt;&gt; #averaging/outlier rejection iterations and allowing a minimum of 3</span>
+<span class="sd">        &gt;&gt;&gt; #valid source pixels to make a master, for this master only.</span>
+<span class="sd">        &gt;&gt;&gt; make_master(</span>
+<span class="sd">        &gt;&gt;&gt;     [&#39;f1.fits.fz&#39;, &#39;f2.fits.fz&#39;, &#39;f3.fits.fz&#39;, &#39;f4.fits.fz&#39;],</span>
+<span class="sd">        &gt;&gt;&gt;     &#39;master.fits.fz&#39;,</span>
+<span class="sd">        &gt;&gt;&gt;     max_iter=3,</span>
+<span class="sd">        &gt;&gt;&gt;     min_valid_values=3</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="n">default_exclude_mask</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;BAD&quot;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="MasterMaker.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">outlier_threshold</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">average_func</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">,</span>
+        <span class="n">min_valid_frames</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">min_valid_values</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="n">exclude_mask</span><span class="o">=</span><span class="n">default_exclude_mask</span><span class="p">,</span>
+        <span class="n">compress</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">add_averaged_keywords</span><span class="o">=</span><span class="p">(),</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a master maker with the given default stacking configuration.</span>
+
+<span class="sd">        Keyword Args:</span>
+<span class="sd">            compress:    If None or False, the final result is not</span>
+<span class="sd">                compressed. Otherwise, this is the quantization level used for</span>
+<span class="sd">                compressing the image (see `astropy.io.fits` documentation).</span>
+
+<span class="sd">            all oothers:    See the keyword only arguments to the :meth:`stack`</span>
+<span class="sd">                method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stacking_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;outlier_threshold&quot;</span><span class="p">:</span> <span class="n">outlier_threshold</span><span class="p">,</span>
+            <span class="s2">&quot;average_func&quot;</span><span class="p">:</span> <span class="n">average_func</span><span class="p">,</span>
+            <span class="s2">&quot;min_valid_frames&quot;</span><span class="p">:</span> <span class="n">min_valid_frames</span><span class="p">,</span>
+            <span class="s2">&quot;min_valid_values&quot;</span><span class="p">:</span> <span class="n">min_valid_values</span><span class="p">,</span>
+            <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">,</span>
+            <span class="s2">&quot;exclude_mask&quot;</span><span class="p">:</span> <span class="n">exclude_mask</span><span class="p">,</span>
+            <span class="s2">&quot;add_averaged_keywords&quot;</span><span class="p">:</span> <span class="n">add_averaged_keywords</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compress</span> <span class="o">=</span> <span class="n">compress</span></div>
+
+
+<div class="viewcode-block" id="MasterMaker.prepare_for_stacking">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.prepare_for_stacking">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_stacking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override with any useful pre-processing of images before stacking.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:    One of the images to include in the stack.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            same type as image:</span>
+<span class="sd">                The image to actually include in the stack. Return None if the</span>
+<span class="sd">                image should be excluded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">image</span></div>
+
+
+    <span class="c1"># Re-factoring to reduce locals will make things less readable.</span>
+    <span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="MasterMaker.stack">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.stack">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frame_list</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">min_valid_frames</span><span class="p">,</span>
+        <span class="n">outlier_threshold</span><span class="p">,</span>
+        <span class="n">average_func</span><span class="p">,</span>
+        <span class="n">min_valid_values</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="p">,</span>
+        <span class="n">exclude_mask</span><span class="p">,</span>
+        <span class="n">add_averaged_keywords</span><span class="p">,</span>
+        <span class="n">custom_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># No way to avoid</span>
+        <span class="c1"># pylint: disable=line-too-long</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a master by stacking a list of frames.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_list:    The frames to stack. Should be a list of</span>
+<span class="sd">                FITS filenames.</span>
+
+<span class="sd">            min_valid_frames:    The smallest number of frames from which to</span>
+<span class="sd">                create a master. This could be broken if either the input list</span>
+<span class="sd">                is not long enough or if too many frames are discarded by</span>
+<span class="sd">                :meth:`prepare_for_stacking`.</span>
+
+<span class="sd">            outlier_threshold:    See same name argument to</span>
+<span class="sd">                :func:`autowisp.iterative_rejection_util.iterative_rejection_average`</span>
+<span class="sd">                .</span>
+
+<span class="sd">            average_func:    See same name argument to</span>
+<span class="sd">                :func:`autowisp.iterative_rejection_util.iterative_rejection_average`</span>
+<span class="sd">                .</span>
+
+<span class="sd">            min_valid_values:    The minimum number of valid values to average</span>
+<span class="sd">                for each pixel. If outlier rejection or masks results in fewer</span>
+<span class="sd">                than this, the corresponding pixel gets a bad pixel mask.</span>
+
+<span class="sd">            max_iter:    See same name argument to</span>
+<span class="sd">                :func:`autowisp.iterative_rejection_util.iterative_rejection_average`</span>
+<span class="sd">                .</span>
+
+<span class="sd">            exclude_mask:    A bitwise or of mask flags, any of which result in</span>
+<span class="sd">                the corresponding pixels being excluded from the averaging.</span>
+<span class="sd">                Other mask flags in the input frames are ignored, treated</span>
+<span class="sd">                as clean.</span>
+
+<span class="sd">            add_averaged_keywords:    Any keywords listed will be added to the</span>
+<span class="sd">                master header with a value calculated using the same averaging</span>
+<span class="sd">                procedure as the image pixels.</span>
+
+<span class="sd">            custom_header:    See same name argument to __call__().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (tuple):</span>
+<span class="sd">                2-D array:</span>
+<span class="sd">                    The best estimate for the values of the maseter at</span>
+<span class="sd">                    each pixel. None if stacking failed.</span>
+
+<span class="sd">                2-D array:</span>
+<span class="sd">                    The best estimate of the standard deviation of the</span>
+<span class="sd">                    master pixels. None if stacking failed.</span>
+
+<span class="sd">                2-D array:</span>
+<span class="sd">                    The pixel quality mask for the master. None if</span>
+<span class="sd">                    stacking failed.</span>
+
+<span class="sd">                fits.Header:</span>
+<span class="sd">                    The header to use for the newly created master frame. None</span>
+<span class="sd">                    if stacking failed.</span>
+
+<span class="sd">                [&lt;FITS filenames&gt;]:</span>
+<span class="sd">                    List of the frames that were excluded by</span>
+<span class="sd">                    self.prepare_for_stacking().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: enable=line-too-long</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">document_in_header</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Document how the stacking was done in the given header.</span>
+
+<span class="sd">            The following extra keywords are added::</span>
+
+<span class="sd">                NUMFCOMB: The number of frames combined in this master.</span>
+
+<span class="sd">                ORIGF%04d: The base filename of each original frame added. The</span>
+<span class="sd">                    keyword will get %-substituted with the frame index.</span>
+
+<span class="sd">                OUTLTHRS: The threshold for marking pixel values as outliers in</span>
+<span class="sd">                    units of RMS deviation from final value.</span>
+
+<span class="sd">                AVRGFUNC: The __name__ attribute of the averaging function used.</span>
+
+<span class="sd">                MINAVGPX: The minimum number of valid pixel values</span>
+<span class="sd">                    contributing to a pixel&#39;s average required to consider the</span>
+<span class="sd">                    resulting master pixel valid.</span>
+
+<span class="sd">                MAXREJIT: The maximum number of rejection/averaging iterations</span>
+<span class="sd">                    allowed.</span>
+
+<span class="sd">                XCLUDMSK: Pixels with masks or-ing to true with this value were</span>
+<span class="sd">                    excluded from the average.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                header:    The header to add the stacking configuration to.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NUMFCOMB&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">),</span>
+                <span class="s2">&quot;Number frames combined in master&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frame_list</span><span class="p">):</span>
+                <span class="n">header</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ORIGF</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">fname</span><span class="p">,</span>
+                    <span class="s2">&quot;Original frame contributing to master&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OUTLTHRS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">outlier_threshold</span><span class="p">),</span>
+                <span class="s2">&quot;The threshold for discarding outlier pixels&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;AVRGFUNC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">average_func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;The averaging function used used for stacking&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;MINAVGPX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">min_valid_values</span><span class="p">,</span>
+                <span class="s2">&quot;The minimum number of valid pixels required.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;MAXREJIT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">max_iter</span> <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_iter</span><span class="p">),</span>
+                <span class="s2">&quot;Max number of rejection/averaging iterations&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;XCLUDMSK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exclude_mask</span><span class="p">),</span>
+                <span class="s2">&quot;Pixels matching any of this mask were excluded&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;master&quot;</span> <span class="o">+</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span>
+
+        <span class="c1"># pylint: enable=anomalous-backslash-in-string</span>
+
+        <span class="k">if</span> <span class="n">custom_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">custom_header</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_valid_frames</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="n">pixel_values</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">header_values</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">master_header</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span><span class="n">custom_header</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">frame_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">discarded_frames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">first_frame</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">exclude_mask_bits</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">bits</span><span class="p">,</span> <span class="n">pix_condition</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_or</span><span class="p">(</span>
+                <span class="n">bits</span><span class="p">,</span> <span class="n">mask_flags</span><span class="p">[</span><span class="n">pix_condition</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">exclude_mask</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">frame_fname</span> <span class="ow">in</span> <span class="n">frame_list</span><span class="p">:</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+            <span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="n">read_image_components</span><span class="p">(</span>
+                <span class="n">frame_fname</span><span class="p">,</span> <span class="n">read_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">read_header</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="c1"># pylint: enable=unbalanced-tuple-unpacking</span>
+
+            <span class="n">stack_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_for_stacking</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stack_image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">discarded_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame_fname</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">update_stack_header</span><span class="p">(</span>
+                    <span class="n">master_header</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">frame_fname</span><span class="p">,</span> <span class="n">first_frame</span>
+                <span class="p">)</span>
+                <span class="n">first_frame</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="n">pixel_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pixel_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">),)</span> <span class="o">+</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">header_values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">header_values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                        <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_list</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">add_averaged_keywords</span><span class="p">))</span>
+                    <span class="p">)</span>
+
+                <span class="n">pixel_values</span><span class="p">[</span><span class="n">frame_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_image</span>
+                <span class="n">exclude_pix</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">exclude_mask_bits</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                    <span class="nb">bool</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">exclude_pix</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="n">pixel_values</span><span class="p">[</span><span class="n">frame_index</span><span class="p">][</span><span class="n">exclude_pix</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Excluding </span><span class="si">%d</span><span class="s2"> masked pixels from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">exclude_pix</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+                        <span class="n">frame_fname</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">for</span> <span class="n">kw_index</span><span class="p">,</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">add_averaged_keywords</span><span class="p">):</span>
+                    <span class="c1"># False positive</span>
+                    <span class="c1"># pylint: disable=unsubscriptable-object</span>
+                    <span class="n">header_values</span><span class="p">[</span><span class="n">frame_index</span><span class="p">,</span> <span class="n">kw_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="n">keyword</span><span class="p">]</span>
+                    <span class="c1"># pylint: enable=unsubscriptable-object</span>
+                <span class="n">frame_index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">frame_index</span> <span class="o">&lt;</span> <span class="n">min_valid_frames</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">discarded_frames</span>
+
+        <span class="n">pixel_values</span> <span class="o">=</span> <span class="n">pixel_values</span><span class="p">[:</span><span class="n">frame_index</span><span class="p">]</span>
+
+        <span class="n">master_values</span><span class="p">,</span> <span class="n">master_stdev</span><span class="p">,</span> <span class="n">master_num_averaged</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">iterative_rejection_average</span><span class="p">(</span>
+                <span class="n">pixel_values</span><span class="p">,</span>
+                <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">outlier_threshold</span><span class="p">,</span>
+                <span class="n">average_func</span><span class="o">=</span><span class="n">average_func</span><span class="p">,</span>
+                <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">mangle_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">averaged_header</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">iterative_rejection_average</span><span class="p">(</span>
+            <span class="n">header_values</span><span class="p">,</span>
+            <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">outlier_threshold</span><span class="p">,</span>
+            <span class="n">average_func</span><span class="o">=</span><span class="n">average_func</span><span class="p">,</span>
+            <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">mangle_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">master_mask</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+            <span class="n">pixel_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;CLEAR&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int8&quot;</span>
+        <span class="p">)</span>
+        <span class="n">master_mask</span><span class="p">[</span><span class="n">master_num_averaged</span> <span class="o">&lt;</span> <span class="n">min_valid_values</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_flags</span><span class="p">[</span><span class="s2">&quot;BAD&quot;</span><span class="p">]</span>
+
+        <span class="n">document_in_header</span><span class="p">(</span><span class="n">master_header</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">add_averaged_keywords</span><span class="p">,</span> <span class="n">averaged_header</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">keyword</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">master_header</span>
+            <span class="n">master_header</span><span class="p">[</span><span class="n">keyword</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">master_values</span><span class="p">,</span>
+            <span class="n">master_stdev</span><span class="p">,</span>
+            <span class="n">master_mask</span><span class="p">,</span>
+            <span class="n">master_header</span><span class="p">,</span>
+            <span class="n">discarded_frames</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: enable=too-many-locals</span>
+
+<div class="viewcode-block" id="MasterMaker.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frame_list</span><span class="p">,</span>
+        <span class="n">output_fname</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">custom_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">compress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">stacking_options</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a master by stacking the given frames.</span>
+
+<span class="sd">        The header of the craeted frame contains all keywords that are</span>
+<span class="sd">        common and with consistent value from the input frames. In addition the</span>
+<span class="sd">        following keywords are added:</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame_list:    A list of the frames to stack (FITS filenames).</span>
+
+<span class="sd">            output_fname:    The name of the output file to create. Can involve</span>
+<span class="sd">                substitutions of any header keywords of the generated file.</span>
+
+<span class="sd">            compress:    See :meth:`__init__`</span>
+
+<span class="sd">            allow_overwrite:    See same name argument</span>
+<span class="sd">                to autowisp.image_calibration.fits_util.create_result.</span>
+
+<span class="sd">            custom_header(dict):    A collection of keywords to use in addition</span>
+<span class="sd">                to/instead of what is in the input frames header.</span>
+
+<span class="sd">            stacking_options:    Keyword only arguments allowing overriding the</span>
+<span class="sd">                stacking configuration specified at construction for this</span>
+<span class="sd">                stack only.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool:</span>
+<span class="sd">                Whether creating the master succeeded.</span>
+
+<span class="sd">            [&lt;FITS filenames&gt;]:</span>
+<span class="sd">                Frames which were discarded during stacking.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">custom_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">custom_header</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">option_name</span><span class="p">,</span> <span class="n">default_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stacking_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">option_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stacking_options</span><span class="p">:</span>
+                <span class="n">stacking_options</span><span class="p">[</span><span class="n">option_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_value</span>
+
+        <span class="c1"># pylint false positive</span>
+        <span class="c1"># pylint: disable=missing-kwoa</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">stdev</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">discarded_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="n">frame_list</span><span class="p">,</span> <span class="n">custom_header</span><span class="o">=</span><span class="n">custom_header</span><span class="p">,</span> <span class="o">**</span><span class="n">stacking_options</span>
+        <span class="p">)</span>
+        <span class="c1"># pylint: enable=missing-kwoa</span>
+
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Failed to create master </span><span class="si">%s</span><span class="s2">!&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">create_result</span><span class="p">(</span>
+                <span class="n">image_list</span><span class="o">=</span><span class="p">[</span><span class="n">values</span><span class="p">,</span> <span class="n">stdev</span><span class="p">,</span> <span class="n">mask</span><span class="p">],</span>
+                <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+                <span class="n">result_fname</span><span class="o">=</span><span class="n">output_fname</span><span class="p">,</span>
+                <span class="n">compress</span><span class="o">=</span><span class="n">compress</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">compress</span><span class="p">,</span>
+                <span class="n">allow_overwrite</span><span class="o">=</span><span class="n">allow_overwrite</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">assert</span> <span class="n">exists</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">discarded_frames</span></div>
+</div>
+
+
+
+<span class="c1"># pylint: enable=too-few-public-methods</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">make_master</span> <span class="o">=</span> <span class="n">MasterMaker</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">make_master</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

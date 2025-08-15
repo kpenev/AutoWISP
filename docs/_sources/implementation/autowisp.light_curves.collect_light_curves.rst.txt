@@ -1,0 +1,7 @@
+autowisp.light\_curves.collect\_light\_curves module
+====================================================
+
+.. automodule:: autowisp.light_curves.collect_light_curves
+   :members:
+   :show-inheritance:
+   :undoc-members:

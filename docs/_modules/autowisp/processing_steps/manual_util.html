@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.manual_util &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.manual_util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.manual_util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Collection of functions used by many processing steps.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">argv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">DefaultsFormatter</span>
+
+
+<div class="viewcode-block" id="ManualStepArgumentParser">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ManualStepArgumentParser</span><span class="p">(</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Incorporate boiler plate handling of command line arguments.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ManualStepArgumentParser._add_version_args">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_version_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_version_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add arguments to select versions of the given components.&quot;&quot;&quot;</span>
+
+        <span class="n">version_arg_help</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;srcextract&quot;</span><span class="p">:</span> <span class="s2">&quot;The version of the extracted sources to use/create.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;catalogue&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The version of the input catalogue of sources in the DR file &quot;</span>
+                <span class="s2">&quot;to use/create.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The vesrion of the astrometry solution in the DR file.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The version of the datasets containing projected photometry &quot;</span>
+                <span class="s2">&quot;sources to use/create.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The version identifier of background measurements to &quot;</span>
+                <span class="s2">&quot;use/create.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;shapefit&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The version identifier of PSF/PRF map fit to use/create.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;apphot&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The version identifier of aperture photometry to use/create.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;magfit&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;The version of magnitude fitting to use/create.&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="n">comp</span> <span class="o">+</span> <span class="s2">&quot;-version&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="n">version_arg_help</span><span class="p">[</span><span class="n">comp</span><span class="p">],</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ManualStepArgumentParser._add_catalog_args">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_catalog_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_catalog_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catalog_config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add arguments to specify a catalog query.&quot;&quot;&quot;</span>
+
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">catalog_config</span><span class="p">[</span><span class="s2">&quot;prefix&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fname&quot;</span><span class="p">,</span> <span class="s2">&quot;Gaia/</span><span class="si">{checksum:s}</span><span class="s2">.fits&quot;</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A file containing (approximately) all the same stars that &quot;</span>
+            <span class="s2">&quot;were extracted from the frame for the area of the sky covered by &quot;</span>
+            <span class="s2">&quot;the image. It is perferctly fine to include a larger area of sky &quot;</span>
+            <span class="s2">&quot;and fainter brightness limit. Different brightness limits can then&quot;</span>
+            <span class="s2">&quot; be imposed for each color channel using the ``--catalog-filter`` &quot;</span>
+            <span class="s2">&quot;argument. If the file does not exist one is automatically &quot;</span>
+            <span class="s2">&quot;generated to cover an area larger than the field of view by &quot;</span>
+            <span class="s2">&quot;``--catalog-safety-factor``, centered on the (RA * cos(Dec), Dec) &quot;</span>
+            <span class="s2">&quot;of the frame rounded to ``--catalog-pointing-precision``, and to &quot;</span>
+            <span class="s2">&quot;have magnitude range set by. The filename can be a format string &quot;</span>
+            <span class="s2">&quot;which will be substituted with the any header keywords or &quot;</span>
+            <span class="s2">&quot;configuration for the query. It may also include ``</span><span class="si">{checksum}</span><span class="s2">`` &quot;</span>
+            <span class="s2">&quot;which will be replaced with the MD5 checksum of the parameters &quot;</span>
+            <span class="s2">&quot;defining the query.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-magnitude-expression&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-magnitude-expression&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-mag-expression&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;magnitude_expression&quot;</span><span class="p">,</span> <span class="s2">&quot;phot_g_mean_mag&quot;</span>
+            <span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression involving the catalog columns that correlates &quot;</span>
+            <span class="s2">&quot;as closely as possible with the brightness of the star in the &quot;</span>
+            <span class="s2">&quot;images in units of magnitude. Only relevant if the catalog does &quot;</span>
+            <span class="s2">&quot;not exist.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">max_mag_extra_help</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;astrometry&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This should approximately correspond to the &quot;</span>
+                <span class="s2">&quot;:option:`brightness-threshold` argument used for source &quot;</span>
+                <span class="s2">&quot;extraction. This can be automatically determined in most cases&quot;</span>
+                <span class="s2">&quot; using ``wisp-tune-astromety-max-mag``.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;photometry&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This determines the faintest stars that will receive flux &quot;</span>
+                <span class="s2">&quot;measuremets from AutoWISP. Going too deep will result in &quot;</span>
+                <span class="s2">&quot;excessive number of stars being photometerd, producing large &quot;</span>
+                <span class="s2">&quot;files and slow processing. Especially for wide-field images.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;magfit&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;In most cases, the photometry catalog should be used for &quot;</span>
+                <span class="s2">&quot;magnitude fitting as well.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;lc&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;In most cases, the photometry catalog should be used for &quot;</span>
+                <span class="s2">&quot;creating lightcurves as well.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-max-magnitude&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-max-magnitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-max-mag&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_magnitude&quot;</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The faintest magnitude to include in the catalog.&quot;</span>
+            <span class="o">+</span> <span class="n">max_mag_extra_help</span><span class="p">[</span><span class="n">prefix</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-min-magnitude&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-min-magnitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-min-mag&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_magnitude&quot;</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The brightest magnitude to include in the catalog.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-pointing-precision&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-pointing-precision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-pointing-precision&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pointing_precision&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The precision with which to round the center of the frame to &quot;</span>
+            <span class="s2">&quot;determine the center of the catalog to use in degrees. The catalog&quot;</span>
+            <span class="s2">&quot; FOV is also expanded by this amount to ensure coverage&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-fov-precision&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-fov-precision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-fov-precision&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fov_precision&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The precision with which to round the center of the frame to &quot;</span>
+            <span class="s2">&quot;determine the center of the catalog to use in degrees.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-filter&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-filter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-filter&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;CHANNEL:EXPRESSION&quot;</span><span class="p">),</span>
+            <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">),</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression to evaluate for each catalog source to &quot;</span>
+            <span class="s2">&quot;determine if the source should be used for astrometry of a given &quot;</span>
+            <span class="s2">&quot;channel. If filter for a given channel is not specified, the full &quot;</span>
+            <span class="s2">&quot;catalog is used for that channel.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-epoch&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-epoch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-epoch&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;epoch&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;(JD_OBS // 365.25 - 4711.5) * units.yr&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression to evaluate for each catalog source to &quot;</span>
+            <span class="s2">&quot;determine the epoch to which to propagate star positions.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-columns&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-columns&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-columns&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;columns&quot;</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;source_id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ra&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;dec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;pmra&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;pmdec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_g_n_obs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_g_mean_flux&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_g_mean_flux_error&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_bp_n_obs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_bp_mean_mag&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_bp_mean_flux&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_bp_mean_flux_error&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_rp_n_obs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_rp_mean_mag&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_rp_mean_flux&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_rp_mean_flux_error&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_proc_mode&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;phot_bp_rp_excess_factor&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The columns to include in the catalog file. Use &#39;*&#39; to &quot;</span>
+            <span class="s2">&quot;include everything.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-fov-safety-margin&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalogue-fov-safety-margin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--cat-fov-safety&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fov_safety_margin&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The fractional safety margin to require of the field of view &quot;</span>
+            <span class="s2">&quot;of the catalog. More specifically, the absolute valueso f xi and &quot;</span>
+            <span class="s2">&quot;eta of the corners of the frame times this factor must be less &quot;</span>
+            <span class="s2">&quot;than the half width and half height of the catalog respectively.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lc&quot;</span><span class="p">,</span> <span class="s2">&quot;magfit&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">-catalog-max-pointing-offset&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="n">catalog_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_pointing_offset&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum difference in degrees between pointings of &quot;</span>
+                <span class="s2">&quot;individual frames in the RA or Dec directions before frames &quot;</span>
+                <span class="s2">&quot;are considered outliers.&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ManualStepArgumentParser._add_exposure_timing">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_exposure_timing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_exposure_timing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add command line arguments to determine exposure start &amp; duration.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--exposure-start-utc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--start-time-utc&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s1">&#39;DATE_OBS + &quot;T&quot; + TIME_OBS&#39;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The UTC time at which the exposure started. Can be arbitrary &quot;</span>
+            <span class="s2">&quot;expression involving header keywords.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--exposure-start-jd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--start-time-jd&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The JD at which the exposure started. Can be arbitrary &quot;</span>
+            <span class="s2">&quot;expression involving header keywords.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--exposure-seconds&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;EXPTIME&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The length of the exposure in seconds. Can be arbitrary &quot;</span>
+            <span class="s2">&quot;expression involving header keywords.&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ManualStepArgumentParser.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">,</span>
+        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">add_catalog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">add_photref</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">inputs_help_extra</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">allow_parallel_processing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">convert_to_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">add_lc_fname_arg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">add_exposure_timing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">skip_io</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the praser with options common to all manual steps.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_type(str):    What kind of files does the step process.</span>
+<span class="sd">                Possible values are ``&#39;raw&#39;``, ``&#39;calibrated&#39;``, ``&#39;dr&#39;``,</span>
+<span class="sd">                or ``&#39;calibrated + dr&#39;``.</span>
+
+<span class="sd">            description(str):    The description of the processing step to add</span>
+<span class="sd">                to the help message.</span>
+
+<span class="sd">            add_component_versions(str iterable):    A list of DR file version</span>
+<span class="sd">                numbers the step needs to know. For example ``(&#39;srcextract&#39;,)``.</span>
+
+<span class="sd">            add_catalog(False or dict):    Whether to add an arguments to</span>
+<span class="sd">                specify a catalog query. If not False should specify defaults</span>
+<span class="sd">                for some or all of the option values and a prefix for the</span>
+<span class="sd">                option names.</span>
+
+<span class="sd">            inputs_help_extra(str):    Additional text to append to the help</span>
+<span class="sd">                string for the input files. Usually describing what requirements</span>
+<span class="sd">                they must satisfy.</span>
+
+<span class="sd">            allow_parallel_processing(bool):    Should an argument be added to</span>
+<span class="sd">                specify the number of paralllel processes to use.</span>
+
+<span class="sd">            convert_to_dict(bool):    Whether to return the parsed configuration</span>
+<span class="sd">                as a dictionary (True) or attributes of a namespace (False).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">argument_descriptions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_dict</span> <span class="o">=</span> <span class="n">convert_to_dict</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
+            <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+            <span class="n">is_config_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="c1"># default=config_file,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify a configuration file in liu of using command line &quot;</span>
+            <span class="s2">&quot;options. Any option can still be overriden on the command line.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--extra-config-file&quot;</span><span class="p">,</span>
+            <span class="n">is_config_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Hack around limitation of configargparse to allow for &quot;</span>
+            <span class="s2">&quot;setting a second config file.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+            <span class="n">input_name</span> <span class="o">=</span> <span class="s2">&quot;raw_images&quot;</span>
+        <span class="k">elif</span> <span class="n">input_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;calibrated&quot;</span><span class="p">):</span>
+            <span class="n">input_name</span> <span class="o">=</span> <span class="s2">&quot;calibrated_images&quot;</span>
+        <span class="k">elif</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;dr&quot;</span><span class="p">:</span>
+            <span class="n">input_name</span> <span class="o">=</span> <span class="s2">&quot;dr_files&quot;</span>
+        <span class="k">elif</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;lc&quot;</span><span class="p">:</span>
+            <span class="n">input_name</span> <span class="o">=</span> <span class="s2">&quot;lc_files&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">input_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="n">input_name</span><span class="p">,</span>
+                <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                    <span class="c1"># Would not work with calculated arngument</span>
+                    <span class="c1"># pylint: disable=consider-using-f-string</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot;A combination of individual </span><span class="si">{0}</span><span class="s2">s and </span><span class="si">{0}</span><span class="s2"> directories &quot;</span>
+                        <span class="s2">&quot;to process. Directories are not searched recursively.&quot;</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">input_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">))</span>
+                    <span class="c1"># pylint: enable=consider-using-f-string</span>
+                    <span class="o">+</span> <span class="n">inputs_help_extra</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;+&quot;</span> <span class="ow">in</span> <span class="n">input_type</span> <span class="ow">and</span> <span class="n">input_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;dr&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--data-reduction-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;DR/</span><span class="si">{RAWFNAME}</span><span class="s2">.h5&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Format string to generate the filename(s) of the data &quot;</span>
+                <span class="s2">&quot;reduction files where extracted sources are saved. Replacement&quot;</span>
+                <span class="s2">&quot; fields can be anything from the header of the calibrated &quot;</span>
+                <span class="s2">&quot;image.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">allow_parallel_processing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--num-parallel-processes&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of simultaneous fitpsf/fitprf processes to &quot;</span>
+                <span class="s2">&quot;run.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_version_args</span><span class="p">(</span><span class="n">add_component_versions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_lc_fname_arg</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--lc-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;LC/GDR3_</span><span class="si">{:d}</span><span class="s2">.h5&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The light curve dumping filename pattern to use.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_io</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--std-out-err-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{processing_step:s}</span><span class="s2">_</span><span class="si">{task:s}</span><span class="s2">_</span><span class="si">{now:s}</span><span class="s2">_pid</span><span class="si">{pid:d}</span><span class="s2">.outerr&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The filename pattern to redirect stdout and stderr during&quot;</span>
+                <span class="s2">&quot;multiprocessing. Should include substitutions to distinguish &quot;</span>
+                <span class="s2">&quot;output from different multiprocessing processes. May include &quot;</span>
+                <span class="s2">&quot;substitutions for any configuration arguments for a given &quot;</span>
+                <span class="s2">&quot;processing step.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--fname-datetime-format&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to format date and time as part of filenames (e.g. when &quot;</span>
+                <span class="s2">&quot;creating output files for multiprocessing.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--logging-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{processing_step:s}</span><span class="s2">_</span><span class="si">{task:s}</span><span class="s2">_</span><span class="si">{now:s}</span><span class="s2">_pid</span><span class="si">{pid:d}</span><span class="s2">.log&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The filename pattern to use for log files. Should include&quot;</span>
+                <span class="s2">&quot; substitutions to distinguish logs from different &quot;</span>
+                <span class="s2">&quot;multiprocessing processes. May include substitutions for any &quot;</span>
+                <span class="s2">&quot;configuration arguments for a given processing step.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;critical&quot;</span><span class="p">],</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The type of verbosity of logger.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--logging-message-format&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(name)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2"> | &quot;</span>
+                    <span class="s2">&quot;</span><span class="si">%(pathname)s</span><span class="s2">.</span><span class="si">%(funcName)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">&quot;</span>
+                <span class="p">),</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The format string to use for log messages. See python logging&quot;</span>
+                <span class="s2">&quot; module for details.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--logging-datetime-format&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to format date and time as part of filenames (e.g. when &quot;</span>
+                <span class="s2">&quot;creating output files for multiprocessing.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_catalog</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_catalog_args</span><span class="p">(</span><span class="n">add_catalog</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">add_exposure_timing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_exposure_timing</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">add_photref</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">&quot;--single-photref-dr-fname&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s2">&quot;single_photref.hdf5.0&quot;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the data reduction file of the single &quot;</span>
+                <span class="s2">&quot;photometric reference to use or used to start the magnitude &quot;</span>
+                <span class="s2">&quot;fitting iterations.&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ManualStepArgumentParser.add_argument">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser.add_argument">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store each argument&#39;s description in self.argument_descriptions.&quot;&quot;&quot;</span>
+
+        <span class="n">argument_name</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;store_false&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argument_descriptions</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;rename&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dest&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;help&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argument_descriptions</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;help&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;default&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">nargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nargs&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;store_true&quot;</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;False&quot;</span>
+                <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;store_false&quot;</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dest&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">argument_name</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span>
+                    <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="s2">&quot;store_false&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">nargs</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Non-string default value (</span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">) and &#39;</span>
+                        <span class="sa">f</span><span class="s2">&quot;no type specified for </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;append&quot;</span><span class="p">,</span>
+                <span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">nargs</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">nargs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span><span class="p">[</span><span class="n">argument_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="s2">&quot;[&quot;</span>
+                            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                <span class="p">[</span>
+                                    <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+                                <span class="p">]</span>
+                            <span class="p">)</span>
+                            <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span><span class="p">[</span><span class="n">argument_name</span><span class="p">])</span>
+                        <span class="o">!=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Could not convert default value of &quot;</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s1"> for DB: </span><span class="si">{</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: disable=signature-differs</span>
+<div class="viewcode-block" id="ManualStepArgumentParser.parse_args">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser.parse_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set-up logging and return cleaned up dict instead of namespace.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;wisp-&quot;</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">processing_step</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logging_level</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">verbose</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+                <span class="n">level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+                <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(name)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2"> | &quot;</span>
+                <span class="s2">&quot;</span><span class="si">%(pathname)s</span><span class="s2">.</span><span class="si">%(funcName)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.engine&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_dict</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;extra_config_file&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">result</span><span class="o">.</span><span class="n">config_file</span>
+            <span class="k">del</span> <span class="n">result</span><span class="o">.</span><span class="n">extra_config_file</span>
+            <span class="k">del</span> <span class="n">result</span><span class="o">.</span><span class="n">verbose</span>
+
+        <span class="k">if</span> <span class="n">args</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;argument_descriptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_descriptions</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;argument_defaults&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_defaults</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+    <span class="c1"># pylint: enable=signature-differs</span>
+
+
+<div class="viewcode-block" id="add_image_options">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.add_image_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_image_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;subpixmap&quot;</span><span class="p">,</span> <span class="s2">&quot;gain&quot;</span><span class="p">,</span> <span class="s2">&quot;magnitude-1adu&quot;</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add options specifying the properties of the image.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;subpixmap&quot;</span> <span class="ow">in</span> <span class="n">include</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--subpixmap&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The sub-pixel sensitivity map to assume. If not specified &quot;</span>
+            <span class="s2">&quot;uniform sensitivy is assumed. This is especially important if &quot;</span>
+            <span class="s2">&quot;processing images from color cameras. For a standard Bayer array, &quot;</span>
+            <span class="s2">&quot;the built-in map called ``dslr_subpixmap.fits`` can be used.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;gain&quot;</span> <span class="ow">in</span> <span class="n">include</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--gain&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The gain to assume for the input images.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;magnitude-1adu&quot;</span> <span class="ow">in</span> <span class="n">include</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--magnitude-1adu&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The magnitude which corresponds to a source flux of 1ADU&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_subpixmap">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.read_subpixmap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_subpixmap</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the sub-pixel sensitivity map from a FITS file.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fits_fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="s2">&quot;readonly&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">subpixmap_file</span><span class="p">:</span>
+        <span class="c1"># False positive, pylint does not see data member.</span>
+        <span class="c1"># pylint: disable=no-member</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">subpixmap_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span></div>
+
+        <span class="c1"># pylint: enable=no-member</span>
+
+
+<span class="c1"># These must be acceptable as keyword arguments</span>
+<span class="c1"># pylint: disable=unused-argument</span>
+<div class="viewcode-block" id="ignore_progress">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ignore_progress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ignore_progress</span><span class="p">(</span><span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dummy function to replace progress tracking of auto processing.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span></div>
+
+
+
+<span class="c1"># pylint: enable=unused-argument</span>
+
+
+<div class="viewcode-block" id="get_catalog_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.get_catalog_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_catalog_config</span><span class="p">(</span><span class="n">cmdline_args</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the configuration for querrying a catalog per command line.&quot;&quot;&quot;</span>
+
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;_catalog&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;fname&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">prefix</span> <span class="k">else</span> <span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="s2">&quot;frame_fov_estimate&quot;</span> <span class="ow">in</span> <span class="n">cmdline_args</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;frame_fov_estimate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="p">[</span><span class="s2">&quot;frame_fov_estimate&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

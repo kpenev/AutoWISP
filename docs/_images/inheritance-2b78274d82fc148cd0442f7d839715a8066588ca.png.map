@@ -1,0 +1,7 @@
+<map id="inheritancebd861b13b6" name="inheritancebd861b13b6">
+<area shape="rect" id="node1" href="#autowisp.astrometry.astrometry.TempAstrometryFiles" target="_top" title="Context manager for the temporary files needed for astrometry." alt="" coords="5,5,337,32"/>
+<area shape="rect" id="node2" href="autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client" target="_top" title="autowisp.astrometry.astrometry_net_client.Client" alt="" coords="361,5,666,32"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="690,5,876,32"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" target="_top" title="urllib.error.URLError" alt="" coords="900,5,1037,32"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/urllib.request.html#urllib.request.Request" target="_top" title="urllib.request.Request" alt="" coords="1061,5,1209,32"/>
+</map>

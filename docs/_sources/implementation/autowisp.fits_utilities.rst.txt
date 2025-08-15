@@ -1,0 +1,7 @@
+autowisp.fits\_utilities module
+===============================
+
+.. automodule:: autowisp.fits_utilities
+   :members:
+   :show-inheritance:
+   :undoc-members:

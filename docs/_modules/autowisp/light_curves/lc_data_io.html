@@ -1,0 +1,1606 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.light_curves.lc_data_io &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.light_curves.lc_data_io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.light_curves.lc_data_io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=too-many-lines</span>
+<span class="sd">&quot;&quot;&quot;Define a class for collecting LC data from DR files.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Value</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exception</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">exists</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ctypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">memset</span><span class="p">,</span> <span class="n">sizeof</span><span class="p">,</span> <span class="n">c_char_p</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkyCoord</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">AltAz</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.magnitude_fitting.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_master_catalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_hat_source_id_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_source_extracted_psf_map</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.light_curve_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveFile</span><span class="p">,</span> <span class="n">_config_dset_key_rex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.lc_data_slice</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_lc_data_slice_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.hashable_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">HashableArray</span>
+
+
+<span class="c1"># TODO: Add catalogue information as top-level attributes.</span>
+<span class="c1"># TODO: Add xi and eta as config datasets.</span>
+<div class="viewcode-block" id="LCDataIO">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LCDataIO</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A callable class which gathers a slice of LC data from frames/DR files.</span>
+
+<span class="sd">    Suitable for multiprocessing.</span>
+
+<span class="sd">    Two instances of this class should never be created simultaneously!</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        %(something)s_config:    Attributes containing the configurations for</span>
+<span class="sd">            the various components for which configuration was defined in the</span>
+<span class="sd">            processed frames and values which are in turn dictionaries indexed</span>
+<span class="sd">            by the configurations found for this component as frozenset suitable</span>
+<span class="sd">            for directly passing to LightCurve.add_configuration and values</span>
+<span class="sd">            giving the number assigned to those configurations in the</span>
+<span class="sd">            LCDataSlice structure that was filled.</span>
+
+<span class="sd">        lc_data_slice (LCDataSlice):    An object which will be filled with</span>
+<span class="sd">            data as it is being read from data reduction files.</span>
+
+
+<span class="sd">        dataset_dimensions (dict):    Identifiers for the dimensions of</span>
+<span class="sd">            datasets. The keys are the pipeline keys of lightcurve datasets and</span>
+<span class="sd">            the values are tuples containing some of: `&#39;frame&#39;`,</span>
+<span class="sd">            `&#39;source&#39;`, `&#39;srcproj_column_name&#39;`, `&#39;aperture_index&#39;`,</span>
+<span class="sd">            `&#39;magfit_iteration&#39;`, `&#39;srcextract_psf_param&#39;` identifying what the</span>
+<span class="sd">            entries in the dataset depend on. It also contains a special dataset</span>
+<span class="sd">            `&#39;source_in_frame&#39;` which indicates which sources have observations</span>
+<span class="sd">            in which frames.</span>
+
+<span class="sd">        header_datasets (dict):    The set of datasets which contain FITS header</span>
+<span class="sd">            keywords. The index is the pipeline key identifying the dataset, and</span>
+<span class="sd">            the value is the corresponding header keyword.</span>
+
+<span class="sd">        max_dimension_size (dict):    A dictionary with keys the various</span>
+<span class="sd">            dimensions on which datasets can depend (see dataset_dimensions) and</span>
+<span class="sd">            entries the maximum size for each dimension.</span>
+
+<span class="sd">        source_destinations(dict):    Key: (field, source). Value: the offset of</span>
+<span class="sd">            the given source in the LCDataSlice arrays that are per-source.</span>
+
+<span class="sd">        config_components(dict):    Keys: all configuration components that can</span>
+<span class="sd">            be defined. Values: 2-tuple:</span>
+
+<span class="sd">                * a tuple of the keywords required to resolve the path to the</span>
+<span class="sd">                  configuration index dataset for this component for which all</span>
+<span class="sd">                  values found must be dumped.</span>
+
+<span class="sd">                * a set of the datasets belonging to this component</span>
+
+<span class="sd">        [_ra_dec]:    Optional. Only exists if one of BJD, Z or HA quantities</span>
+<span class="sd">            are evaluated per source instead of using the values for the frame</span>
+<span class="sd">            center.</span>
+
+<span class="sd">        _config:    The configuration of how to perform the LC dumping.</span>
+
+<span class="sd">        _path_substitutions:    See path_substitutions argument to create().</span>
+
+<span class="sd">        _organized_config(dict):    The keys are configuration components and</span>
+<span class="sd">            the values are dictionaries with keys the coordinates along each</span>
+<span class="sd">            dimension of the configuration index dataset and values lists of the</span>
+<span class="sd">            configurations for the component with indices in the list</span>
+<span class="sd">            corresponding to the entries added to the config ID columns in</span>
+<span class="sd">            ReadLCData.lc_data_slice. Gets initialized by prepare_for_writing().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">dataset_dimensions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">header_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">config_components</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">max_dimension_size</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_catalogue</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_ra_dec</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_path_substitutions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_multivalued_entry_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sky_coord&quot;</span><span class="p">]</span>
+    <span class="n">cfg_index_id</span> <span class="o">=</span> <span class="s2">&quot;cfg_index&quot;</span>
+    <span class="n">_organized_config</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># TODO: perhaps worth simplifying later.</span>
+    <span class="c1"># pylint: disable=too-many-statements</span>
+<div class="viewcode-block" id="LCDataIO._classify_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._classify_datasets">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_classify_datasets</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lc_example</span><span class="p">,</span> <span class="n">ignore_splits</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set dataset_dimensions, header_datasets, &amp; config_components attributes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lc_example(LightCurveFile):    A fully configured instance of</span>
+<span class="sd">                LightCurveFile to serve as an example of the structure of</span>
+<span class="sd">                lightcurve files to expect.</span>
+
+<span class="sd">            ignore_splits:    See path_substitutions argument of create().</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO: perhaps worth simplifying later.</span>
+        <span class="c1"># pylint: disable=too-many-branches</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">organize_datasets</span><span class="p">():</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Set dataset_dimensions and header_datasets attributes.&quot;&quot;&quot;</span>
+
+            <span class="n">config_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">config_components</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">substitution_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*?%[(](?P&lt;substitution&gt;.*?)[)]&quot;</span><span class="p">)</span>
+            <span class="n">ignore_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\.epd\.|\.tfa\.&quot;</span><span class="p">)</span>
+            <span class="n">key_rex</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">_config_dset_key_rex</span><span class="p">,</span>
+                <span class="s2">&quot;perframe&quot;</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                    <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="sa">r</span><span class="s2">&quot;skytoframe\.(sky_center|residual|unitarity)$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^shapefit\.global_chi2$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;magfit\.(num_input_src|num_fit_src|fit_residual)$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^fitsheader\.(?!cfg\.)&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;\.cfg_index$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^catalogue\.cfg\.(epoch|fov|orientation)$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^srcextract.psf_map.(residual|num_fit_src)$&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;persource&quot;</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                    <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="sa">r</span><span class="s2">&quot;^srcextract\.psf_map\.eval&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^srcproj\.columns$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^bg\.(value|error|npix)$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;^shapefit\.(chi2|num_pixels|signal_to_noise)$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;\.(magnitude|magnitude_error|quality_flag)$&quot;</span><span class="p">,</span>
+                            <span class="sa">r</span><span class="s2">&quot;skypos\..*&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">lc_quantity</span> <span class="ow">in</span> <span class="n">lc_example</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Organizing LC quantity: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">ignore_rex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">):</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Skipping: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">))</span>
+                    <span class="k">continue</span>
+
+                <span class="n">split_quantity</span> <span class="o">=</span> <span class="n">lc_quantity</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">split_quantity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;fitsheader&quot;</span><span class="p">:</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">header_datasets</span><span class="p">[</span><span class="n">lc_quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_quantity</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="n">path_template</span> <span class="o">=</span> <span class="n">lc_example</span><span class="o">.</span><span class="n">get_element_path</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">)</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">path_template</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="n">substitution_rex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">path_template</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="n">ignore_splits</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">dimensions</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">split</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)))</span>
+
+                <span class="n">found_match</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">key_type</span><span class="p">,</span> <span class="n">type_rex</span> <span class="ow">in</span> <span class="n">key_rex</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">type_rex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">):</span>
+                        <span class="k">assert</span> <span class="ow">not</span> <span class="n">found_match</span>
+                        <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">if</span> <span class="n">key_type</span> <span class="o">==</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_datasets</span><span class="p">:</span>
+                                <span class="n">config_datasets</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                            <span class="n">config_datasets</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">dimensions</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">,)</span>
+                        <span class="k">if</span> <span class="n">key_type</span> <span class="o">==</span> <span class="s2">&quot;persource&quot;</span><span class="p">:</span>
+                            <span class="n">dimensions</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,)</span>
+
+                <span class="k">if</span> <span class="n">lc_quantity</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;skytoframe.cfg.frame_center&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;skytoframe.sky_center&quot;</span><span class="p">,</span>
+                <span class="p">]:</span>
+                    <span class="n">dimensions</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;sky_coord&quot;</span><span class="p">,)</span>
+
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Dimensions for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">lc_quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimensions</span>
+
+                <span class="k">if</span> <span class="n">lc_quantity</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cfg_index_id</span><span class="p">):</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is configuration quantity.&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">)</span>
+                    <span class="p">)</span>
+
+                    <span class="n">config_group</span> <span class="o">=</span> <span class="n">parent</span> <span class="o">+</span> <span class="s2">&quot;/Configuration&quot;</span>
+                    <span class="k">assert</span> <span class="n">config_group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_components</span>
+                    <span class="n">config_components</span><span class="p">[</span><span class="n">config_group</span><span class="p">]</span> <span class="o">=</span> <span class="n">lc_quantity</span><span class="p">[</span>
+                        <span class="p">:</span> <span class="o">-</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">cfg_index_id</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">]</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="s2">&quot;source_in_frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">config_datasets</span><span class="p">,</span> <span class="n">config_components</span>
+
+        <span class="c1"># pylint: enable=too-many-branches</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">organize_config</span><span class="p">(</span><span class="n">config_datasets</span><span class="p">,</span> <span class="n">config_components</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill the :attr:`config_components` attribute.&quot;&quot;&quot;</span>
+
+            <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">config_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">component_dsets</span> <span class="o">=</span> <span class="n">config_datasets</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span>
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">component_dsets</span><span class="p">))]</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">dimensions</span>
+                    <span class="ow">and</span> <span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_multivalued_entry_datasets</span>
+                <span class="p">):</span>
+                    <span class="n">dimensions</span> <span class="o">=</span> <span class="n">dimensions</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">component_dsets</span><span class="p">:</span>
+                    <span class="n">dset_dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">dset</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">dset_dimensions</span> <span class="ow">and</span> <span class="n">dset_dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span>
+                        <span class="bp">cls</span><span class="o">.</span><span class="n">_multivalued_entry_datasets</span>
+                    <span class="p">):</span>
+                        <span class="n">dset_dimensions</span> <span class="o">=</span> <span class="n">dset_dimensions</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">assert</span> <span class="n">dset_dimensions</span> <span class="o">==</span> <span class="n">dimensions</span>
+                <span class="k">assert</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span>
+                    <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cfg_index_id</span>
+                <span class="p">]</span> <span class="o">==</span> <span class="n">dimensions</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">,)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">config_components</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">component_dsets</span><span class="p">)</span>
+
+        <span class="n">organize_config</span><span class="p">(</span><span class="o">*</span><span class="n">organize_datasets</span><span class="p">())</span></div>
+
+
+    <span class="c1"># pylint: enable=too-many-statements</span>
+
+<div class="viewcode-block" id="LCDataIO.create">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.create">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">catalog_sources</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">source_id_parser</span><span class="p">,</span>
+        <span class="n">dr_fname_parser</span><span class="p">,</span>
+        <span class="n">source_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">optional_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">observatory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configure the class for use in multiprocessing LC collection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config:    The configuratoin of how to generate the lightcurves,</span>
+<span class="sd">                usually as parsed from the command line. In the latter case, the</span>
+<span class="sd">                configuration should contain the following attributes:</span>
+
+<span class="sd">                    - max_apertures: The maximum number of photometriec</span>
+<span class="sd">                      apertures in any input frame.</span>
+
+<span class="sd">                    - num_magfit_iterations: The maximum number of magnitude</span>
+<span class="sd">                      fitting iterations in any input frame.</span>
+
+<span class="sd">                    - lcdump_catalogue: The filename of a catalogue file</span>
+<span class="sd">                      containing at least RA and Dec.</span>
+
+<span class="sd">                    - single_photref_dr_fname: The filename of the single</span>
+<span class="sd">                      photometric reference used for magfit of input images.</span>
+
+<span class="sd">                    - srcextract_psf_params: List of the parameters describing</span>
+<span class="sd">                      PSF shapes of the extracted sources.</span>
+
+<span class="sd">                    - srcproj_column_names: List of the projected source columns</span>
+<span class="sd">                      to transfer to the collected lightcurves.</span>
+
+<span class="sd">                    - memblocksize: The maximum amount of memory (in bytes) to</span>
+<span class="sd">                      allocate for temporaririly storing source information</span>
+<span class="sd">                      before dumping to LC.</span>
+
+<span class="sd">            source_id_parser:    A callable that can convert string source IDs</span>
+<span class="sd">                to the corresponding tuple of integers source IDs.</span>
+
+<span class="sd">            dr_fname_parser:    A callable that parser the filename of DR files</span>
+<span class="sd">                returning extra keywrds to add to the header.</span>
+
+<span class="sd">            source_list:    A list that includes all sources for which</span>
+<span class="sd">                lightcurves will be generated. Sources not in this list are</span>
+<span class="sd">                ignored. If None, the sources in the catalogue are used instead.</span>
+
+<span class="sd">            optional_header: Indicate which header keywords could</span>
+<span class="sd">                be missing from the FITS header. Missing keywors will</span>
+<span class="sd">                be replaced by appropriate values indicating an unknown</span>
+<span class="sd">                value. Should be in one of 3 formats:</span>
+
+<span class="sd">                    - `None`: all expected header keywords must be present</span>
+<span class="sd">                      in every frame.</span>
+
+<span class="sd">                    - `&#39;all&#39;`: No header keywords are required.</span>
+
+<span class="sd">                    - iterable of strings: to be querried by the python</span>
+<span class="sd">                      `in` keyword.</span>
+
+<span class="sd">            observatory(None or dict):    If specified, should be a dictionary</span>
+<span class="sd">                with keys `&#39;SITELAT&#39;`, `&#39;SITELONG&#39;`, and `&#39;SITEALT&#39;` which</span>
+<span class="sd">                overwrite or add the header information for the observatory&#39;s</span>
+<span class="sd">                location on earth.</span>
+
+<span class="sd">            path_substitutions:    Path substitutions to be kept fixed during</span>
+<span class="sd">                the entire lightcurve dumping process. Used to resolve paths</span>
+<span class="sd">                both within the input data reduction files and with the</span>
+<span class="sd">                generated lightcurves.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;lc_data_slice&quot;</span><span class="p">):</span>
+            <span class="k">del</span> <span class="bp">cls</span><span class="o">.</span><span class="n">lc_data_slice</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_path_substitutions</span> <span class="o">=</span> <span class="n">path_substitutions</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_catalogue</span> <span class="o">=</span> <span class="n">format_master_catalog</span><span class="p">(</span>
+            <span class="n">catalog_sources</span><span class="p">,</span> <span class="n">source_id_parser</span>
+        <span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">dr_fname_parser</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">dr_fname_parser</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">source_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">source_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_catalogue</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Creating LC Data IO with source list: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">source_list</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">no_light_curve</span><span class="p">:</span>
+            <span class="n">num_sources</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">source_list</span><span class="p">)</span>
+
+            <span class="bp">cls</span><span class="o">.</span><span class="n">source_destinations</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">source</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">source_list</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">num_sources</span><span class="p">,</span>
+                <span class="s2">&quot;aperture_index&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_apertures&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;srcextract_psf_param&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;srcproj_column_name&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;srcproj_column_names&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;sky_coord&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_magfit_iterations&quot;</span><span class="p">]:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span>
+                    <span class="s2">&quot;num_magfit_iterations&quot;</span>
+                <span class="p">]</span>
+
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_classify_datasets</span><span class="p">(</span><span class="n">no_light_curve</span><span class="p">,</span> <span class="n">path_substitutions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="p">(</span><span class="n">LCDataSlice</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">create_lc_data_slice_type</span><span class="p">(</span>
+                    <span class="n">get_dtype</span><span class="o">=</span><span class="n">no_light_curve</span><span class="o">.</span><span class="n">get_dtype</span><span class="p">,</span>
+                    <span class="n">dataset_dimensions</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">,</span>
+                    <span class="n">max_dimension_size</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">,</span>
+                    <span class="n">max_mem</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_memory&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">lc_data_slice</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="n">LCDataSlice</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_optional_header</span> <span class="o">=</span> <span class="n">optional_header</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_observatory</span> <span class="o">=</span> <span class="n">observatory</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_ra_dec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">src_index</span><span class="p">,</span> <span class="n">src</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">source_list</span><span class="p">):</span>
+            <span class="c1"># False positve</span>
+            <span class="c1"># pylint: disable=invalid-sequence-index</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[:,</span> <span class="n">src_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_catalogue</span><span class="p">[</span><span class="n">src</span><span class="p">][</span><span class="s2">&quot;RA&quot;</span><span class="p">],</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_catalogue</span><span class="p">[</span><span class="n">src</span><span class="p">][</span><span class="s2">&quot;Dec&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="c1"># pylint: enable=invalid-sequence-index</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Max dimension size: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span></div>
+
+
+    <span class="c1"># Handling the many branches is exactly the point.</span>
+    <span class="c1"># pylint: disable=too-many-branches</span>
+<div class="viewcode-block" id="LCDataIO._config_to_lc_format">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._config_to_lc_format">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_config_to_lc_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lc_quantity</span><span class="p">,</span> <span class="n">lc_dtype</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return value as it would be read from the LC.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">lc_dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Not changing dtype of </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">lc_dtype</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;NaN&quot;</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">elif</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;i&quot;</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
+                <span class="k">elif</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;u&quot;</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+                <span class="k">elif</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;NaN&quot;</span>
+                <span class="k">elif</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span>
+                    <span class="ow">or</span> <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">))</span> <span class="ow">is</span> <span class="nb">str</span>
+                <span class="p">):</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">HashableArray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;NaN&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lc_dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lc_dtype</span><span class="p">)</span>
+                <span class="n">vlen_type</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">lc_dtype</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">vlen_type</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">vlen_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">lc_dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="n">HashableArray</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">HashableArray</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vlen_type</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="c1"># pylint: disable=broad-exception-raised</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()))</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">While converting to LC type: </span><span class="si">{</span><span class="n">lc_quantity</span><span class="si">!s}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+
+            <span class="c1"># pylint: enable=broad-exception-raised</span>
+
+    <span class="c1"># pylint: enable=too-many-branches</span>
+
+<div class="viewcode-block" id="LCDataIO._get_dimensions_iterator">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_dimensions_iterator">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_dimensions_iterator</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">dimensions</span><span class="p">,</span>
+        <span class="n">contract_multivalue</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">skip_dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">),</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return iterator over all possible values for a set of dimensions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dimensions(str or iterable):    Either the name of dataset for which</span>
+<span class="sd">                to iterate over all dimensions other than `&#39;frame&#39;` and</span>
+<span class="sd">                `&#39;source&#39;` or a tuple contaning all dimensions to iterate over.</span>
+
+<span class="sd">            contract_multivalue(bool):    If true, multi-valued dimensions are</span>
+<span class="sd">                treated as if they have a size of 1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            iterator:</span>
+<span class="sd">                Covering all possible combinatinos of values for each dimensions</span>
+<span class="sd">                identified by `dimensions`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dimensions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">dimensions</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span>
+                    <span class="mi">1</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">contract_multivalue</span>
+                        <span class="ow">and</span> <span class="n">dim</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_multivalued_entry_datasets</span>
+                    <span class="p">)</span>
+                    <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">dim</span><span class="p">:</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_dimensions</span><span class="p">,</span> <span class="n">dimensions</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._get_substitutions">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_substitutions">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_substitutions</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">dimension_values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return dict of path substitutions to fully resolve path to quantity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dimensions:    See _get_dimensions_iterator().</span>
+
+<span class="sd">            dimension_values(tuple(int)):    The values for the various dataset</span>
+<span class="sd">                dimensions which to turn to substitutions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                Ready to be passed to functions needing it to resolve path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dimensions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">dimensions</span><span class="p">]</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">dim</span><span class="p">:</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">],</span> <span class="n">dimensions</span><span class="p">),</span>
+                <span class="n">dimension_values</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_path_substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">multicolumn_quantity</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;srcextract_psf_param&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcproj_column_name&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">if</span> <span class="n">multicolumn_quantity</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">multicolumn_quantity</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span>
+                    <span class="n">multicolumn_quantity</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span>
+                <span class="p">][</span><span class="n">result</span><span class="p">[</span><span class="n">multicolumn_quantity</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._get_field_index">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_field_index">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_field_index</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">source_index</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the index within the field for the specified entry.&quot;&quot;&quot;</span>
+
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dimensions</span> <span class="ow">and</span> <span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;frame&quot;</span>
+            <span class="k">assert</span> <span class="n">source_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="n">dimensions</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">)</span>
+            <span class="n">dim_values</span> <span class="o">+=</span> <span class="p">(</span><span class="n">source_index</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="n">dimensions</span>
+                <span class="ow">or</span> <span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;frame&quot;</span>
+                <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_multivalued_entry_datasets</span>
+                    <span class="ow">and</span> <span class="n">dimensions</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;frame&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">dim_values</span> <span class="o">+=</span> <span class="p">(</span><span class="n">frame_index</span><span class="p">,)</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">coord</span><span class="p">,</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dim_values</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">*</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">+</span> <span class="n">coord</span>
+
+        <span class="k">return</span> <span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._get_num_entries">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_num_entries">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_num_entries</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return how many entries are in a single value for the given dims.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">dimension_name</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">dimensions</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dimension_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">dimension_name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_multivalued_entry_datasets</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="n">dimension_name</span><span class="p">]</span>
+                <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._set_field_entry">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_field_entry</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">source_index</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the correct index within the field for the specified entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            quantity(str):    The pipeline key of the dataset being filled.</span>
+
+<span class="sd">            value:    The value to set to the field. Must have the correct</span>
+<span class="sd">                type.</span>
+
+<span class="sd">            frame_index:    See _add_to_data_slice().</span>
+
+<span class="sd">            dim_values(tuple(int,...)):    The value for each dimension of</span>
+<span class="sd">                the dataset.</span>
+
+<span class="sd">            source_index(int or None):    For source dependent datasets</span>
+<span class="sd">                only, the index of the source in the data_slice.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_field_index</span><span class="p">(</span>
+            <span class="n">quantity</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">source_index</span>
+        <span class="p">)</span>
+
+        <span class="n">num_entries</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_num_entries</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_entries</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">num_entries</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">param_index</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_get_slice_field</span><span class="p">(</span><span class="n">quantity</span><span class="p">)[</span>
+                    <span class="n">index</span> <span class="o">*</span> <span class="n">num_entries</span> <span class="o">+</span> <span class="n">param_index</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">param_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_get_slice_field</span><span class="p">(</span><span class="n">quantity</span><span class="p">)[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._get_lc_data">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_lc_data">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_lc_data</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">dimension_values</span><span class="p">,</span> <span class="n">source_index</span><span class="p">,</span> <span class="n">defined_indices</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the data that should be added to an LC dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            quantity(str):    The pipeline key of the LC quantity that</span>
+<span class="sd">                will be extended.</span>
+
+<span class="sd">            dimension_values(tuple(int)):    The values of the dimensions on</span>
+<span class="sd">                which the dataset depends.</span>
+
+<span class="sd">            source_index(int):    The index of the source for which the LC is</span>
+<span class="sd">                being updated within the LCDataReader.lc_data_slice.</span>
+
+<span class="sd">            defined_indices:    See _add_configurations().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array:</span>
+<span class="sd">                The data to pass to LightCurveFile.extend_dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;frame&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">quantity</span><span class="si">!s}</span><span class="s2"> dataset, which does not depend on frame&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">num_entries</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_num_entries</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span>
+
+        <span class="n">num_frames</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
+
+        <span class="n">first_index</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_get_field_index</span><span class="p">(</span>
+                <span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">,</span>
+                <span class="n">dim_values</span><span class="o">=</span><span class="n">dimension_values</span><span class="p">,</span>
+                <span class="n">frame_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">source_index</span><span class="o">=</span><span class="n">source_index</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="n">num_entries</span>
+        <span class="p">)</span>
+
+        <span class="n">slice_data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_slice_field</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span>
+        <span class="c1"># pylint: disable=protected-access</span>
+        <span class="k">if</span> <span class="n">slice_data</span><span class="o">.</span><span class="n">_type_</span> <span class="o">==</span> <span class="n">c_char_p</span><span class="p">:</span>
+            <span class="n">source_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="n">slice_data</span><span class="p">[</span>
+                    <span class="n">first_index</span> <span class="p">:</span> <span class="n">first_index</span> <span class="o">+</span> <span class="n">num_frames</span> <span class="o">*</span> <span class="n">num_entries</span>
+                <span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;S70&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">source_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span>
+                <span class="n">slice_data</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">slice_data</span><span class="o">.</span><span class="n">_type_</span><span class="p">)</span><span class="o">.</span><span class="n">base</span>
+            <span class="p">)[</span><span class="n">first_index</span> <span class="p">:</span> <span class="n">first_index</span> <span class="o">+</span> <span class="n">num_frames</span> <span class="o">*</span> <span class="n">num_entries</span><span class="p">]</span>
+            <span class="n">source_data</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">num_frames</span><span class="p">,</span> <span class="n">num_entries</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_entries</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="n">num_frames</span><span class="p">,)</span>
+            <span class="p">)</span>
+        <span class="c1"># pylint: enable=protected-access</span>
+
+        <span class="k">if</span> <span class="n">defined_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">source_data</span>
+
+        <span class="k">if</span> <span class="n">num_entries</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">source_data</span><span class="p">[</span><span class="n">defined_indices</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">source_data</span><span class="p">[</span><span class="n">defined_indices</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._get_configurations">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_configurations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_reduction</span><span class="p">,</span> <span class="n">frame_header</span><span class="p">,</span> <span class="n">get_lc_dtype</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract all configurations from the given data reduction file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_reduction(DataReductionFile):    An opened (at least for</span>
+<span class="sd">                reading) data reduction file for the frame being processed.</span>
+
+<span class="sd">            frame_header(dict-like):    A pyfits header or the equivalent</span>
+<span class="sd">                dictionary for the frame being processed.</span>
+
+<span class="sd">            get_lc_dtype(callable):    Should return the data type of a dataset</span>
+<span class="sd">                within light curves.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                The keys are the various components for which configuration is</span>
+<span class="sd">                defined in the given data reduction file/frame. The values are</span>
+<span class="sd">                lists of 2-tuples:</span>
+
+<span class="sd">                    * a tuple of the coordinates along each dataset dimension</span>
+<span class="sd">                      for which the configuration applies.</span>
+
+<span class="sd">                    * a frozen set of 2-tuples:</span>
+
+<span class="sd">                        - the pipeline key of the configuration quantity</span>
+
+<span class="sd">                        - The value of the configuration parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_component_config</span><span class="p">(</span><span class="n">component_dsets</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return the configuration for a component/substitution combo.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                component_dsets(iterable of strings):    The datasets which make</span>
+<span class="sd">                    up the configuration component.</span>
+
+<span class="sd">                substitutions(dict):    Substitutions required to fully resolve</span>
+<span class="sd">                    the light curve paths of the datasets.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                frozenset or None:</span>
+<span class="sd">                    The frozen set part of the result of the parent function if</span>
+<span class="sd">                    at least one of the datasets had an entry for the given</span>
+<span class="sd">                    substitutions. Otherwise None.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">found_config</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">config_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="n">component_dsets</span><span class="p">:</span>
+                <span class="n">dset_dtype</span> <span class="o">=</span> <span class="n">get_lc_dtype</span><span class="p">(</span><span class="n">dset_key</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1">#                    if dset_key.endswith(&#39;.magfit.cfg.single_photref&#39;):</span>
+                    <span class="c1">#                        value = self._config[&#39;single_photref_dr_fname&#39;]</span>
+                    <span class="c1">#                    el</span>
+                    <span class="k">if</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">frame_header</span><span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="p">[</span><span class="n">dset_key</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                        <span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                            <span class="n">dset_key</span><span class="p">,</span>
+                            <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="n">found_config</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optional_header</span> <span class="k">else</span> <span class="ne">OSError</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">dset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span>
+                        <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optional_header</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span>
+                        <span class="ow">and</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="p">[</span><span class="n">dset_key</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                            <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optional_header</span>
+                        <span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="k">raise</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Failed to read </span><span class="si">%s</span><span class="s2"> from DR file for </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                        <span class="n">dset_key</span><span class="p">,</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">substitutions</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="n">config_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">dset_key</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_config_to_lc_format</span><span class="p">(</span><span class="n">dset_key</span><span class="p">,</span> <span class="n">dset_dtype</span><span class="p">,</span> <span class="n">value</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">config_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">found_config</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="p">(</span>
+            <span class="n">dimensions</span><span class="p">,</span>
+            <span class="n">component_dsets</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">dim_values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dimensions_iterator</span><span class="p">(</span><span class="n">dimensions</span><span class="p">):</span>
+                <span class="n">substitutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_substitutions</span><span class="p">(</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">)</span>
+
+                <span class="n">configuration</span> <span class="o">=</span> <span class="n">get_component_config</span><span class="p">(</span>
+                    <span class="n">component_dsets</span><span class="p">,</span> <span class="n">substitutions</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">configuration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">component</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dim_values</span><span class="p">,</span> <span class="n">configuration</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._get_slice_field">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_slice_field">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_slice_field</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pipeline_key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the field in the data slice containing the given quantity.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">lc_data_slice</span><span class="p">,</span> <span class="n">pipeline_key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">))</span></div>
+
+
+    <span class="c1"># Split internally into sub-functions for readability</span>
+    <span class="c1"># pylint: disable=too-many-locals</span>
+    <span class="c1"># pylint: disable=too-many-statements</span>
+<div class="viewcode-block" id="LCDataIO._add_to_data_slice">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._add_to_data_slice">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_data_slice</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">data_reduction</span><span class="p">,</span> <span class="n">frame_header</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">lc_example</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the information from a single frame to the LCDataSlice.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_reduction(DataReductionFile):    An opened (at least for</span>
+<span class="sd">                reading) data reduction file for the frame being processed.</span>
+
+<span class="sd">            frame_header(dict-like):    A pyfits header or the equivalent</span>
+<span class="sd">                dictionary for the frame being processed.</span>
+
+<span class="sd">            frame_index(int):    The index at which to place this frame&#39;s data</span>
+<span class="sd">                  in the LCDataSlice object being filled.</span>
+
+<span class="sd">            lc_example(LightCurveFile):    See _classify_datasets().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            []:</span>
+<span class="sd">                The of sources IDs (as tuples of integers) between (exclusive)</span>
+<span class="sd">                self.last_source_below and self.first_source_above found in at</span>
+<span class="sd">                least some of the frames which were not included in the</span>
+<span class="sd">                LCDataSlice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_header_keywords</span><span class="p">():</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill the non-config datasets equal to header keywords.&quot;&quot;&quot;</span>
+
+            <span class="k">for</span> <span class="n">lc_quantity</span><span class="p">,</span> <span class="n">hdr_quantity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="s2">&quot;frame&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">lc_quantity</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">hdr_quantity</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg_index_id</span>
+                <span class="p">):</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">lc_quantity</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">header_key</span> <span class="o">=</span> <span class="n">hdr_quantity</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">frame_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">header_key</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="p">(</span>
+                        <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optional_header</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span>
+                        <span class="ow">or</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_optional_header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                            <span class="ow">and</span> <span class="n">header_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optional_header</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">lc_dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span>
+                            <span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_get_slice_field</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">)[</span><span class="n">frame_index</span><span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">lc_dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+                        <span class="k">elif</span> <span class="n">lc_dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+                        <span class="k">elif</span> <span class="n">lc_dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">]:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">elif</span> <span class="n">lc_dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_slice_field</span><span class="p">(</span><span class="n">lc_quantity</span><span class="p">)[</span><span class="n">frame_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_dset_default</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Return a value to fill undefined entries datasets with.&quot;&quot;&quot;</span>
+
+            <span class="n">creation_args</span> <span class="o">=</span> <span class="n">lc_example</span><span class="o">.</span><span class="n">get_dataset_creation_args</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span>
+            <span class="n">default_value</span> <span class="o">=</span> <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fillvalue&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">quantity</span> <span class="o">==</span> <span class="s2">&quot;catalogue.cfg.epoch&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="mf">2451545.0</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]))</span>
+                    <span class="ow">is</span> <span class="nb">str</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">return</span> <span class="n">default_value</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_from_attribute</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill the value of a quantity equal to a DR attribute.&quot;&quot;&quot;</span>
+
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">dim_values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dimensions_iterator</span><span class="p">(</span>
+                <span class="n">dimensions</span><span class="p">,</span>
+                <span class="n">skip_dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;srcextract_psf_param&quot;</span><span class="p">),</span>
+            <span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">attribute_value</span> <span class="o">=</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                        <span class="n">quantity</span><span class="p">,</span>
+                        <span class="n">default_value</span><span class="o">=</span><span class="n">get_dset_default</span><span class="p">(</span><span class="n">quantity</span><span class="p">),</span>
+                        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_substitutions</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Attribute </span><span class="si">%s</span><span class="s2"> not found in </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">quantity</span><span class="p">,</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">data_reduction</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_substitutions</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="s2">&quot;srcextract_psf_param&quot;</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">)</span>
+                        <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_param&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="k">assert</span> <span class="ow">not</span> <span class="n">dim_values</span>
+                    <span class="k">for</span> <span class="n">param_index</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_set_field_entry</span><span class="p">(</span>
+                            <span class="n">quantity</span><span class="p">,</span>
+                            <span class="n">param_value</span><span class="p">,</span>
+                            <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span>
+                            <span class="n">dim_values</span><span class="o">=</span><span class="p">(</span><span class="n">param_index</span><span class="p">,),</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_set_field_entry</span><span class="p">(</span>
+                        <span class="n">quantity</span><span class="p">,</span>
+                        <span class="n">attribute_value</span><span class="p">,</span>
+                        <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span>
+                        <span class="n">dim_values</span><span class="o">=</span><span class="n">dim_values</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_source_field</span><span class="p">(</span>
+            <span class="n">quantity</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">data_slice_source_indices</span>
+        <span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill a single per-source field from a sequence of values.&quot;&quot;&quot;</span>
+
+            <span class="k">for</span> <span class="n">source_value</span><span class="p">,</span> <span class="n">data_slice_src_ind</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">values</span><span class="p">,</span> <span class="n">data_slice_source_indices</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">data_slice_src_ind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_field_entry</span><span class="p">(</span>
+                    <span class="n">quantity</span><span class="p">,</span>
+                    <span class="n">source_value</span><span class="p">,</span>
+                    <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span>
+                    <span class="n">dim_values</span><span class="o">=</span><span class="n">dim_values</span><span class="p">,</span>
+                    <span class="n">source_index</span><span class="o">=</span><span class="n">data_slice_src_ind</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_from_dataset</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Fill the value of a quantity equal to a DR dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                quantity(str):    The pipeline key of the dataset to fill.</span>
+
+<span class="sd">                data_slice_source_indices:    See fill_direct_from_dr().</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">num_sources</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">dim_values</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dimensions_iterator</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+                <span class="n">substitutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_substitutions</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">fill_source_field</span><span class="p">(</span>
+                        <span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">,</span>
+                        <span class="n">values</span><span class="o">=</span><span class="n">data_reduction</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span>
+                            <span class="n">quantity</span><span class="p">,</span>
+                            <span class="n">expected_shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_sources</span><span class="p">,),</span>
+                            <span class="o">**</span><span class="n">substitutions</span><span class="p">,</span>
+                        <span class="p">),</span>
+                        <span class="n">dim_values</span><span class="o">=</span><span class="n">dim_values</span><span class="p">,</span>
+                        <span class="n">data_slice_source_indices</span><span class="o">=</span><span class="n">data_slice_source_indices</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Dataset identified by </span><span class="si">%s</span><span class="s2"> does not exist in </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">quantity</span><span class="p">,</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">data_reduction</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">substitutions</span><span class="p">),</span>
+                    <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_direct_from_dr</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Fill all quantities coming directly from DR files.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                data_slice_source_indices(iterable of int):    The indices</span>
+<span class="sd">                    within data_slice of the sources in the DR currently being</span>
+<span class="sd">                    processed</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                None</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">non_header_or_config</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">config_quantity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">non_header_or_config</span> <span class="o">-=</span> <span class="n">config_quantity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">non_header_or_config</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="p">[</span><span class="n">quantity</span><span class="p">]:</span>
+                    <span class="k">assert</span> <span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+                    <span class="k">assert</span> <span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;link&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]:</span>
+                        <span class="n">fill_from_attribute</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;attribute&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">quantity</span> <span class="ow">in</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+                        <span class="ow">or</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="s2">&quot;link&quot;</span><span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="n">fill_from_dataset</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_sky_position_datasets</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill all datasets with pipeline key prefix `&#39;skypos&#39;`.&quot;&quot;&quot;</span>
+
+            <span class="n">num_sources</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
+
+            <span class="c1"># False positive, pylint does not see units attributes</span>
+            <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">location</span> <span class="o">=</span> <span class="n">EarthLocation</span><span class="p">(</span>
+                <span class="n">lat</span><span class="o">=</span><span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;SITELAT&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">lon</span><span class="o">=</span><span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;SITELONG&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;SITEALT&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">obs_time</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+                <span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span>
+            <span class="p">)</span>
+
+            <span class="n">source_coords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+                <span class="n">ra</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">dec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">alt_az</span> <span class="o">=</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span>
+                <span class="n">AltAz</span><span class="p">(</span><span class="n">obstime</span><span class="o">=</span><span class="n">obs_time</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;a180&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">180.0</span> <span class="o">+</span> <span class="n">alt_az</span><span class="o">.</span><span class="n">az</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;a180&quot;</span><span class="p">][</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;a180&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">180.0</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">360</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;zenith_distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">alt_az</span><span class="o">.</span><span class="n">alt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="c1"># pylint: enable=no-member</span>
+
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;BJD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">obs_time</span><span class="o">.</span><span class="n">tdb</span> <span class="o">+</span> <span class="n">obs_time</span><span class="o">.</span><span class="n">light_travel_time</span><span class="p">(</span><span class="n">source_coords</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">jd</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hour_angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">obs_time</span><span class="o">.</span><span class="n">sidereal_time</span><span class="p">(</span><span class="s2">&quot;apparent&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">hourangle</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">15.0</span>
+            <span class="p">)</span>
+            <span class="c1"># pylint: enable=no-member</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;per_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_sources</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">fill_source_field</span><span class="p">(</span>
+                    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;skypos.&quot;</span> <span class="o">+</span> <span class="n">quantity</span><span class="p">,</span>
+                    <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">dim_values</span><span class="o">=</span><span class="p">(),</span>
+                    <span class="n">data_slice_source_indices</span><span class="o">=</span><span class="n">data_slice_source_indices</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fill_srcextract_psf_map</span><span class="p">(</span><span class="n">source_data</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill all datasets containing the source exatrction PSF map.&quot;&quot;&quot;</span>
+
+            <span class="n">psf_map</span> <span class="o">=</span> <span class="n">get_source_extracted_psf_map</span><span class="p">(</span>
+                <span class="n">data_reduction</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_path_substitutions</span>
+            <span class="p">)</span>
+            <span class="n">psf_param_values</span> <span class="o">=</span> <span class="n">psf_map</span><span class="p">(</span><span class="n">source_data</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">psf_param_values</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">param_index</span><span class="p">,</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">fill_source_field</span><span class="p">(</span>
+                    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.eval&quot;</span><span class="p">,</span>
+                    <span class="n">values</span><span class="o">=</span><span class="n">psf_param_values</span><span class="p">[</span><span class="n">param_name</span><span class="p">],</span>
+                    <span class="n">dim_values</span><span class="o">=</span><span class="p">(</span><span class="n">param_index</span><span class="p">,),</span>
+                    <span class="n">data_slice_source_indices</span><span class="o">=</span><span class="n">data_slice_source_indices</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">fill_header_keywords</span><span class="p">()</span>
+        <span class="n">source_data</span> <span class="o">=</span> <span class="n">data_reduction</span><span class="o">.</span><span class="n">get_source_data</span><span class="p">(</span>
+            <span class="n">string_source_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">all_numeric_source_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">shape_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">apphot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">shape_map_variables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">background</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_path_substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">data_slice_source_indices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source_destinations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">src_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">src_id</span> <span class="ow">in</span> <span class="n">source_data</span><span class="o">.</span><span class="n">index</span>
+        <span class="p">]</span>
+
+        <span class="n">skipped_sources</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">skip_src</span><span class="p">,</span> <span class="n">slice_ind</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">source_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">data_slice_source_indices</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">slice_ind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">skipped_sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skip_src</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">skipped_sources</span><span class="p">:</span>
+            <span class="n">source_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">skipped_sources</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">fill_direct_from_dr</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
+        <span class="n">fill_sky_position_datasets</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
+        <span class="n">fill_srcextract_psf_map</span><span class="p">(</span><span class="n">source_data</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">)</span>
+        <span class="n">fill_source_field</span><span class="p">(</span>
+            <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;source_in_frame&quot;</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+            <span class="n">dim_values</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">data_slice_source_indices</span><span class="o">=</span><span class="n">data_slice_source_indices</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">skipped_sources</span></div>
+
+
+    <span class="c1"># pylint: enable=too-many-locals</span>
+    <span class="c1"># pylint: enable=too-many-statements</span>
+
+<div class="viewcode-block" id="LCDataIO.prepare_for_reading">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_reading">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_reading</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Must be called every time a new batch of frames is being read.&quot;&quot;&quot;</span>
+
+        <span class="n">to_reset</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_slice_field</span><span class="p">(</span><span class="s2">&quot;source_in_frame&quot;</span><span class="p">)</span>
+        <span class="n">memset</span><span class="p">(</span><span class="n">to_reset</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">to_reset</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO.prepare_for_writing">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.prepare_for_writing">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_writing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">configurations_collection</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare for writing after a slice of data has been read.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configurations_collection:    The list of configurations returned by</span>
+<span class="sd">                LCDataReader for the data currently in the slice. It is assumed</span>
+<span class="sd">                that the configurations follow the same order as the data slice</span>
+<span class="sd">                entries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">component</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">config_components</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">configurations</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">configurations_collection</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">component_config</span> <span class="ow">in</span> <span class="n">configurations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">component_config</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">dim_values</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">[</span><span class="n">component</span><span class="p">]:</span>
+                        <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">[</span><span class="n">component</span><span class="p">][</span><span class="n">dim_values</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">if</span> <span class="n">config</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">[</span><span class="n">component</span><span class="p">][</span><span class="n">dim_values</span><span class="p">]:</span>
+                        <span class="n">config_id</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">[</span><span class="n">component</span><span class="p">][</span>
+                            <span class="n">dim_values</span>
+                        <span class="p">][</span><span class="n">config</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">config_id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                            <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">[</span><span class="n">component</span><span class="p">][</span><span class="n">dim_values</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">[</span><span class="n">component</span><span class="p">][</span><span class="n">dim_values</span><span class="p">][</span>
+                            <span class="n">config</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="n">config_id</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_set_field_entry</span><span class="p">(</span>
+                        <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cfg_index_id</span><span class="p">,</span>
+                        <span class="n">config_id</span><span class="p">,</span>
+                        <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span>
+                        <span class="n">dim_values</span><span class="o">=</span><span class="n">dim_values</span><span class="p">,</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO.print_organized_configurations">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.print_organized_configurations">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_organized_configurations</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the result of organize_configurations() nicely formatted.&quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Organized configurations:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">component_config</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">config_list</span> <span class="ow">in</span> <span class="n">component_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">dim_id</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span>
+                        <span class="nb">filter</span><span class="p">(</span>
+                            <span class="k">lambda</span> <span class="n">dim</span><span class="p">:</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">],</span>
+                            <span class="bp">cls</span><span class="o">.</span><span class="n">config_components</span><span class="p">[</span><span class="n">component</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="p">),</span>
+                        <span class="n">dim_values</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dim_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_id</span> <span class="ow">in</span> <span class="n">config_list</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; -&gt; &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._write_configurations">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._write_configurations">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_configurations</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">light_curve</span><span class="p">,</span>
+        <span class="n">source_index</span><span class="p">,</span>
+        <span class="n">defined_indices</span><span class="p">,</span>
+        <span class="n">resolve_lc_size</span><span class="o">=</span><span class="s2">&quot;confirmed&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add all configurations to the LC and fix their config_ids in slice.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            light_curve(LightCurveFile):    The light curve to update.</span>
+
+<span class="sd">            source_index(int):    The index of the source for which the</span>
+<span class="sd">                lightcurve is being updated within the slice.</span>
+
+<span class="sd">            defined_indices(numpy.array(dtype=bool)):    Array of flags</span>
+<span class="sd">                indicating for each entry in the data slice should be included</span>
+<span class="sd">                in this light curve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="s2">&quot;Call prepare_for_writing() method after each slice &quot;</span>
+                <span class="s2">&quot;input is complete.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">component_config</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_organized_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">index_pipeline_key</span> <span class="o">=</span> <span class="n">component</span> <span class="o">+</span> <span class="s2">&quot;.cfg_index&quot;</span>
+            <span class="k">for</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">config_list</span> <span class="ow">in</span> <span class="n">component_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="n">config_ids</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_lc_data</span><span class="p">(</span>
+                    <span class="n">quantity</span><span class="o">=</span><span class="n">index_pipeline_key</span><span class="p">,</span>
+                    <span class="n">dimension_values</span><span class="o">=</span><span class="n">dim_values</span><span class="p">,</span>
+                    <span class="n">source_index</span><span class="o">=</span><span class="n">source_index</span><span class="p">,</span>
+                    <span class="n">defined_indices</span><span class="o">=</span><span class="n">defined_indices</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">config_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">config</span><span class="p">,</span> <span class="n">slice_config_id</span> <span class="ow">in</span> <span class="n">config_list</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">slice_config_id</span> <span class="ow">in</span> <span class="n">config_ids</span><span class="p">:</span>
+                        <span class="n">config_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+                <span class="n">light_curve</span><span class="o">.</span><span class="n">add_configurations</span><span class="p">(</span>
+                    <span class="n">component</span><span class="p">,</span>
+                    <span class="n">config_to_add</span><span class="p">,</span>
+                    <span class="n">config_ids</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_substitutions</span><span class="p">(</span><span class="n">index_pipeline_key</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">),</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO._write_slice_data">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._write_slice_data">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_slice_data</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">light_curve</span><span class="p">,</span> <span class="n">source_index</span><span class="p">,</span> <span class="n">defined_indices</span><span class="p">,</span> <span class="n">resolve_lc_size</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add all non-configuration datasets to the light curve.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">dimensions</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dataset_dimensions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">quantity</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cfg_index_id</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="s2">&quot;frame&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dimensions</span>
+                <span class="ow">or</span> <span class="n">quantity</span> <span class="o">==</span> <span class="s2">&quot;source_in_frame&quot;</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">dim_values</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_dimensions_iterator</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+                <span class="n">light_curve</span><span class="o">.</span><span class="n">extend_dataset</span><span class="p">(</span>
+                    <span class="n">quantity</span><span class="p">,</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_get_lc_data</span><span class="p">(</span>
+                        <span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">,</span>
+                        <span class="n">dimension_values</span><span class="o">=</span><span class="n">dim_values</span><span class="p">,</span>
+                        <span class="n">source_index</span><span class="o">=</span><span class="n">source_index</span><span class="p">,</span>
+                        <span class="n">defined_indices</span><span class="o">=</span><span class="n">defined_indices</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">resolve_size</span><span class="o">=</span><span class="n">resolve_lc_size</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_substitutions</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">),</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO.read">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add single frame&#39;s information to configurations and the LCDataSlice.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - frame: A 2-tulpe containing the following:</span>
+
+<span class="sd">                - The filename of the DR file to read.</span>
+
+<span class="sd">                - The index at which to place this frame&#39;s data in the</span>
+<span class="sd">                  LCDataSlice object being filled.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                See return value of _get_configurations().</span>
+
+<span class="sd">            []:</span>
+<span class="sd">                See return value of _add_to_data_slice().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fix_header</span><span class="p">(</span><span class="n">frame_header</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Patch problems with FITS headers and adds filename info.&quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="s2">&quot;COMPOSIT&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frame_header</span><span class="p">:</span>
+                <span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;COMPOSIT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="s2">&quot;FILVER&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frame_header</span><span class="p">:</span>
+                <span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;FILVER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="s2">&quot;MNTSTATE&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frame_header</span><span class="p">:</span>
+                <span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;MNTSTATE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unkwnown&quot;</span>
+            <span class="k">elif</span> <span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;MNTSTATE&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">frame_header</span><span class="p">[</span><span class="s2">&quot;MNTSTATE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>
+
+            <span class="n">frame_header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dr_fname_parser</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observatory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">frame_header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_observatory</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">lc_example</span><span class="p">:</span>
+                <span class="n">frame_index</span><span class="p">,</span> <span class="n">dr_fname</span> <span class="o">=</span> <span class="n">frame</span>
+                <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_reduction</span><span class="p">:</span>
+                    <span class="n">frame_header</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                        <span class="n">data_reduction</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="n">fix_header</span><span class="p">(</span><span class="n">frame_header</span><span class="p">)</span>
+                    <span class="n">configurations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_configurations</span><span class="p">(</span>
+                        <span class="n">data_reduction</span><span class="p">,</span> <span class="n">frame_header</span><span class="p">,</span> <span class="n">lc_example</span><span class="o">.</span><span class="n">get_dtype</span>
+                    <span class="p">)</span>
+
+                    <span class="n">skipped_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_data_slice</span><span class="p">(</span>
+                        <span class="n">data_reduction</span><span class="o">=</span><span class="n">data_reduction</span><span class="p">,</span>
+                        <span class="n">frame_header</span><span class="o">=</span><span class="n">frame_header</span><span class="p">,</span>
+                        <span class="n">frame_index</span><span class="o">=</span><span class="n">frame_index</span><span class="p">,</span>
+                        <span class="n">lc_example</span><span class="o">=</span><span class="n">lc_example</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="n">configurations</span><span class="p">,</span> <span class="n">skipped_sources</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;While reading: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+
+
+<div class="viewcode-block" id="LCDataIO.write">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_and_light_curve</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the data of the given source to the given light curve.&quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">source_id</span><span class="p">,</span> <span class="n">light_curve_fname</span> <span class="o">=</span> <span class="n">source_and_light_curve</span>
+            <span class="n">source_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_destinations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+            <span class="n">defined_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lc_data</span><span class="p">(</span>
+                <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;source_in_frame&quot;</span><span class="p">,</span>
+                <span class="n">dimension_values</span><span class="o">=</span><span class="p">(),</span>
+                <span class="n">source_index</span><span class="o">=</span><span class="n">source_index</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">defined_indices</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">return</span>
+
+            <span class="n">lc_directory</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">light_curve_fname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">lc_directory</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created LC directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lc_directory</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">lc_directory</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">source_ids</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;HAT&quot;</span><span class="p">:</span> <span class="n">get_hat_source_id_str</span><span class="p">(</span><span class="n">source_id</span><span class="p">)}</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="n">source_ids</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Gaia DR3&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="n">source_id</span><span class="p">)}</span>
+
+            <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span>
+                <span class="n">light_curve_fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">source_ids</span><span class="o">=</span><span class="n">source_ids</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">light_curve</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_configurations</span><span class="p">(</span>
+                    <span class="n">light_curve</span><span class="p">,</span>
+                    <span class="n">source_index</span><span class="p">,</span>
+                    <span class="n">defined_indices</span><span class="p">,</span>
+                    <span class="n">resolve_lc_size</span><span class="o">=</span><span class="s2">&quot;confirmed&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write_slice_data</span><span class="p">(</span>
+                    <span class="n">light_curve</span><span class="p">,</span>
+                    <span class="n">source_index</span><span class="p">,</span>
+                    <span class="n">defined_indices</span><span class="p">,</span>
+                    <span class="n">resolve_lc_size</span><span class="o">=</span><span class="s2">&quot;confirmed&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;While writing source: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">source_id</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

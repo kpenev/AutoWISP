@@ -1,0 +1,5 @@
+<map id="inheritance0189f504a8" name="inheritance0189f504a8">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="106,5,180,32"/>
+<area shape="rect" id="node3" href="#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="5,80,281,107"/>
+<area shape="rect" id="node2" href="#autowisp.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="6,155,280,181"/>
+</map>

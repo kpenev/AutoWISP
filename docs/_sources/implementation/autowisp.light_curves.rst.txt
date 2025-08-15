@@ -1,0 +1,25 @@
+autowisp.light\_curves package
+==============================
+
+.. automodule:: autowisp.light_curves
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   autowisp.light_curves.apply_correction
+   autowisp.light_curves.collect_light_curves
+   autowisp.light_curves.correction
+   autowisp.light_curves.epd_correction
+   autowisp.light_curves.hashable_array
+   autowisp.light_curves.lc_data_io
+   autowisp.light_curves.lc_data_slice
+   autowisp.light_curves.light_curve_file
+   autowisp.light_curves.reconstructive_correction_transit
+   autowisp.light_curves.tfa_correction
+   autowisp.light_curves.transit_model

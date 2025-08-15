@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.stack_to_master_flat &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.stack_to_master_flat</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.stack_to_master_flat</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Stack calibrated flat frames to a master flat.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">exists</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration.mask_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask_flags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ignore_progress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.stack_to_master</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_command_line_parser</span><span class="p">,</span>
+    <span class="n">get_master_fname</span> <span class="k">as</span> <span class="n">get_single_master_fname</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterMaker</span><span class="p">,</span> <span class="n">MasterFlatMaker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_fits_fnames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_primary_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_smoothing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PolynomialImageSmoother</span><span class="p">,</span>
+    <span class="n">SplineImageSmoother</span><span class="p">,</span>
+    <span class="n">ChainSmoother</span><span class="p">,</span>
+    <span class="n">WrapFilterAsSmoother</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;calibrated&quot;</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">fail_reasons</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;stacking_failed_high&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;stacking_failed_low&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;cloudy&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;colocated&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master_flat.html#autowisp.processing_steps.stack_to_master_flat.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_command_line_parser</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">default_threshold</span><span class="o">=</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">),</span>
+        <span class="n">single_master</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_min_valid_values</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">default_max_iter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-fraction&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The fraction of the image cloude detection stamps should span.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-smoothing-num-x-terms&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of x terms to include in the stamp smoothing.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-smoothing-num-y-terms&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of y terms to include in the stamp smoothing.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-smoothing-outlier-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Pixels deviating by more than this many standard deviations form &quot;</span>
+        <span class="s2">&quot;the best fit smoothing function are discarded after each smoothnig &quot;</span>
+        <span class="s2">&quot;fit iteration. One or two numbers should be specified. If two, one &quot;</span>
+        <span class="s2">&quot;should be positive and the other negative specifying separate &quot;</span>
+        <span class="s2">&quot;thresholds in the positive and negative directions.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-smoothing-max-iterations&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of fit, reject iterations to use when &quot;</span>
+        <span class="s2">&quot;smoothing stamps for cloud detection.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-pixel-average&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span> <span class="o">+</span> <span class="n">f</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The pixels of smoothed cloud detection stamps are averaged using &quot;</span>
+        <span class="s2">&quot;this function and square difference from that mean is calculated. &quot;</span>
+        <span class="s2">&quot;The process is iteratively reapeated discarding outlier pixels.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-pixel-outlier-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The threshold in deviation around mean units to use for &quot;</span>
+        <span class="s2">&quot;discarding stamp pixels during averaging of the smoothed stamps. One &quot;</span>
+        <span class="s2">&quot;or two numbers should be specified. If two, one &quot;</span>
+        <span class="s2">&quot;should be positive and the other negative specifying separate &quot;</span>
+        <span class="s2">&quot;thresholds in the positive and negative directions.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-pixel-max-iter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of averaging, discarding terations to use &quot;</span>
+        <span class="s2">&quot;when calculating average and square deviation of the smoothed stamps.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-max-saturated-fraction&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stamps with more that this fraction of saturated pixels are &quot;</span>
+        <span class="s2">&quot;discarded.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-var-mean-fit-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variance vs mean fit for stamps is iteratively repeated after &quot;</span>
+        <span class="s2">&quot;discarding from each iteration stamps that deviater from the fit by &quot;</span>
+        <span class="s2">&quot;more than this number times the fit residual.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-var-mean-fit-iterations&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Variance vs mean fit for stamps is iteratively repeated after &quot;</span>
+        <span class="s2">&quot;discarding from each iteration stamps that deviater from the fit by &quot;</span>
+        <span class="s2">&quot;more than this number times the fit residual.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-cloudy-night-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">5e3</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If variance vs mean quadratic fit has residual of more than this,&quot;</span>
+        <span class="s2">&quot; the entire observing session is discarded as cloudy.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-cloudy-frame-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Individual frames with stamp mean and variance deviating from &quot;</span>
+        <span class="s2">&quot;the variance vs mean fit by more than this number times the &quot;</span>
+        <span class="s2">&quot;fit residual are discarded as cloudy.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-min-high-mean&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">6000.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The minimum average value of the stamp pixels for a frame to be &quot;</span>
+        <span class="s2">&quot;included in a high master flat. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--stamp-select-max-low-mean&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">3000.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum average value of the stamp pixels for a frame to be &quot;</span>
+        <span class="s2">&quot;included in a low master flat. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-filter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ndimage</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;median_filter&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;For each frame, the large scale struture is corrected by taking &quot;</span>
+        <span class="s2">&quot;the ratio of the frame to the reference (median of all input frames), &quot;</span>
+        <span class="s2">&quot;smoothing this ratio and then dividing by it. Two filters are &quot;</span>
+        <span class="s2">&quot;consecutively applied for smoothing. This is the first and it should &quot;</span>
+        <span class="s2">&quot;be one of the scipy.ndimage box filters.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-filter-size&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The size of the box filter to apply.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-spline-num-x-nodes&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The second smoothing filter applied fits a separable x and y &quot;</span>
+        <span class="s2">&quot;spline. The x spline uses this many internal nodes.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-spline-num-y-nodes&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The second smoothing filter applied fits a separable x and y &quot;</span>
+        <span class="s2">&quot;spline. The x spline uses this many internal nodes.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-spline-outlier-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Spline smoothing discards pixels deviating by more than this &quot;</span>
+        <span class="s2">&quot;number times the fit residual and iterates.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-spline-max-iter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of discard-refit iterations used during &quot;</span>
+        <span class="s2">&quot;spline smoothing to get the large scale flat.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-bin-factor&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Before smoothing is applied the image is binned by this factor.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-smoothing-zoom-interp-order&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;After smoothing the image is zoomed back out to its original &quot;</span>
+        <span class="s2">&quot;size using this order interpolation.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--cloud-check-smoothing-filter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ndimage</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;median_filter&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When stacking, images with matched large scale flat, any &quot;</span>
+        <span class="s2">&quot;image which deviates too much from the large scale flat is &quot;</span>
+        <span class="s2">&quot;discarded as cloudy. This argument specifies a smoothing filter to &quot;</span>
+        <span class="s2">&quot;apply to the deviation from the large scale flat before checking &quot;</span>
+        <span class="s2">&quot;if the image is an outlier.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--cloud-check-smoothing-filter-size&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The size of the cloud check smoothing fliter to use.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--cloud-check-smoothing-bin-factor&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Before smoothing is applied the deviation from large scale &quot;</span>
+        <span class="s2">&quot;flat, it is binned by this factor.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--cloud-check-smoothing-zoom-interp-order&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;After smoothing the deviation from large scale flat is &quot;</span>
+        <span class="s2">&quot;zoomed back out to its original size using this order interpolation.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--min-pointing-separation&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">150.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Individual flat frames must be at least this many arcseconds &quot;</span>
+        <span class="s2">&quot;apart (per their headers) to be combined in order to avoid stars &quot;</span>
+        <span class="s2">&quot;showing up above the sky brightness.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-deviation-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If the smoothed difference between a frame and the combined &quot;</span>
+        <span class="s2">&quot;large scale flat is more than this, the frame is discarded as &quot;</span>
+        <span class="s2">&quot;potentially cloudy.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--min-high-combine&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;High master flat is generated only if at least this many frames &quot;</span>
+        <span class="s2">&quot;of high illumination survive all checks.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--min-low-combine&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Low master flat is generated only if at least this many frames &quot;</span>
+        <span class="s2">&quot;of low illumination survive all checks.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-stack-outlier-threshold&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When determining the large scale flat outlier pixels of smoothed &quot;</span>
+        <span class="s2">&quot;individual flats by more than this many sigma are discarded.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-stack-average-func&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="s2">&quot;nan&quot;</span> <span class="o">+</span> <span class="n">f</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The function used to average individual large scale flats.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-stack-min-valid-values&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The minimum number of surviving pixels after outlier rejection &quot;</span>
+        <span class="s2">&quot;required to count a stacked large scale pixel as valid.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-stack-max-iter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection-stacking iterations allowed when &quot;</span>
+        <span class="s2">&quot;creating the large scale flat.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--large-scale-stack-exclude-mask&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">mask_flags</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">MasterMaker</span><span class="o">.</span><span class="n">default_exclude_mask</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A list of mask flags, any of which result in the corresponding &quot;</span>
+        <span class="s2">&quot;pixels being excluded from the averaging. Any mask flags not specified&quot;</span>
+        <span class="s2">&quot;are ignored, treated as clean. Note that ``&#39;BAD&#39;`` means any kind of&quot;</span>
+        <span class="s2">&quot; problem (e.g. saturated, hot/cold pixel, leaked etc.).&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--high-flat-master-fname&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;MASTERS/flat_</span><span class="si">{CAMSN}</span><span class="s2">_</span><span class="si">{CLRCHNL}</span><span class="s2">_{OBS-SESN}.fits.fz&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for the high illumination master flat to generate if &quot;</span>
+        <span class="s2">&quot;successful. Can involve header substitutions, but should produce the &quot;</span>
+        <span class="s2">&quot;same filename for all input frames. If not, the behavior is undefined.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--low-flat-master-fname&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;MASTERS/lowflat_</span><span class="si">{CAMSN}</span><span class="s2">_</span><span class="si">{CLRCHNL}</span><span class="s2">_{OBS-SESN}.fits.fz&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for the low illumination master flat to generate if &quot;</span>
+        <span class="s2">&quot;successful. Can involve header substitutions, but should produce the &quot;</span>
+        <span class="s2">&quot;same filename for all input frames. If not, the behavior is undefined.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_master_fnames">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master_flat.html#autowisp.processing_steps.stack_to_master_flat.get_master_fnames">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_master_fnames</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the filenames of the high and low master flats to generate.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">illumination</span><span class="p">:</span> <span class="n">get_single_master_fname</span><span class="p">(</span>
+            <span class="n">image_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">illumination</span> <span class="o">+</span> <span class="s2">&quot;_flat_master_fname&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">illumination</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">]</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="stack_to_master_flat">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master_flat.html#autowisp.processing_steps.stack_to_master_flat.stack_to_master_flat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stack_to_master_flat</span><span class="p">(</span>
+    <span class="n">image_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stack the given frames to produce single high and/or low master flat.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">key_translate</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;size&quot;</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;filter_size&quot;</span> <span class="k">else</span> <span class="n">k</span>
+
+    <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="n">split_config</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;stamp_smoothing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stamp_pixel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stamp_select&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;large_scale_smoothing_spline&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cloud_check_smoothing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;large_scale_stack&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">split_config</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key_translate</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)):</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="n">split_config</span><span class="p">[</span><span class="s2">&quot;stamp_pixel&quot;</span><span class="p">][</span><span class="s2">&quot;fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+        <span class="s2">&quot;stamp_fraction&quot;</span>
+    <span class="p">)</span>
+    <span class="n">split_config</span><span class="p">[</span><span class="s2">&quot;stamp_pixel&quot;</span><span class="p">][</span><span class="s2">&quot;smoother&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PolynomialImageSmoother</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">split_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;stamp_smoothing&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">large_scale_smoother</span> <span class="o">=</span> <span class="n">ChainSmoother</span><span class="p">(</span>
+        <span class="n">WrapFilterAsSmoother</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;large_scale_smoothing_filter&quot;</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;large_scale_smoothing_filter_size&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">SplineImageSmoother</span><span class="p">(</span><span class="o">**</span><span class="n">split_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;large_scale_smoothing_spline&quot;</span><span class="p">)),</span>
+        <span class="n">bin_factor</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;large_scale_smoothing_bin_factor&quot;</span><span class="p">),</span>
+        <span class="n">zoom_interp_order</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;large_scale_smoothing_zoom_interp_order&quot;</span><span class="p">)</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">cloud_check_smoother</span> <span class="o">=</span> <span class="n">WrapFilterAsSmoother</span><span class="p">(</span>
+        <span class="n">split_config</span><span class="p">[</span><span class="s2">&quot;cloud_check_smoothing&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;filter&quot;</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">split_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cloud_check_smoothing&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">master_stack_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;min_pointing_separation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;large_scale_deviation_threshold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_high_combine&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_low_combine&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+    <span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;large_scale_stack_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+        <span class="s2">&quot;large_scale_stack&quot;</span>
+    <span class="p">)</span>
+    <span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;large_scale_stack_options&quot;</span><span class="p">][</span>
+        <span class="s2">&quot;add_averaged_keywords&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">master_stack_config</span><span class="p">[</span><span class="s2">&quot;master_stack_options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;outlier_threshold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;average_func&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;min_valid_values&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_iter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;exclude_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;compress&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;add_averaged_keywords&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="n">create_master</span> <span class="o">=</span> <span class="n">MasterFlatMaker</span><span class="p">(</span>
+        <span class="n">stamp_statistics_config</span><span class="o">=</span><span class="n">split_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;stamp_pixel&quot;</span><span class="p">),</span>
+        <span class="n">stamp_select_config</span><span class="o">=</span><span class="n">split_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;stamp_select&quot;</span><span class="p">),</span>
+        <span class="n">large_scale_smoother</span><span class="o">=</span><span class="n">large_scale_smoother</span><span class="p">,</span>
+        <span class="n">cloud_check_smoother</span><span class="o">=</span><span class="n">cloud_check_smoother</span><span class="p">,</span>
+        <span class="n">master_stack_config</span><span class="o">=</span><span class="n">master_stack_config</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">fnames</span> <span class="o">=</span> <span class="n">get_master_fnames</span><span class="p">(</span><span class="n">image_collection</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">configuration</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">get_master_fnames</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span> <span class="o">==</span> <span class="n">fnames</span>
+        <span class="n">mark_start</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
+
+    <span class="n">success</span><span class="p">,</span> <span class="n">classified_images</span> <span class="o">=</span> <span class="n">create_master</span><span class="p">(</span>
+        <span class="n">image_collection</span><span class="p">,</span>
+        <span class="n">high_master_fname</span><span class="o">=</span><span class="n">fnames</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span>
+        <span class="n">low_master_fname</span><span class="o">=</span><span class="n">fnames</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">classification</span><span class="p">,</span> <span class="n">images</span> <span class="ow">in</span> <span class="n">classified_images</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">2</span> <span class="k">if</span> <span class="n">success</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;stacking_failed_high&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;low&quot;</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">success</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">success</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span>
+                <span class="k">else</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;stacking_failed_low&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="n">classification</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+            <span class="n">mark_end</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">illumination</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;low&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">[</span><span class="n">illumination</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="n">exists</span><span class="p">(</span><span class="n">fnames</span><span class="p">[</span><span class="n">illumination</span><span class="p">])</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">get_primary_header</span><span class="p">(</span><span class="n">fnames</span><span class="p">[</span><span class="n">illumination</span><span class="p">])</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">illumination</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">fnames</span><span class="p">[</span><span class="n">illumination</span><span class="p">],</span>
+                <span class="s2">&quot;preference_order&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;JD_OBS - </span><span class="si">{</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">illumination</span> <span class="o">+</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-locals</span>
+
+
+<div class="viewcode-block" id="cleanup_interrupted">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master_flat.html#autowisp.processing_steps.stack_to_master_flat.cleanup_interrupted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup file system after partially creating stacked image(s).&quot;&quot;&quot;</span>
+
+    <span class="n">master_fnames</span> <span class="o">=</span> <span class="n">get_master_fnames</span><span class="p">(</span><span class="n">interrupted</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">configuration</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Cleaning up partially created stacks </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">master_fnames</span><span class="p">),</span>
+        <span class="nb">repr</span><span class="p">(</span><span class="n">interrupted</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
+        <span class="n">test_master_fnames</span> <span class="o">=</span> <span class="n">get_master_fnames</span><span class="p">(</span><span class="n">image_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">master_fnames</span> <span class="o">!=</span> <span class="n">test_master_fnames</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Attempting to clean up frames with mismatched master &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;filenames! Example: </span><span class="si">{</span><span class="n">image_fname</span><span class="si">!r}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">test_master_fnames</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; vs </span><span class="si">{</span><span class="n">interrupted</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">master_fnames</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">master_fnames</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+                <span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.stack_to_master_flat.html#autowisp.processing_steps.stack_to_master_flat.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
+
+    <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">stack_to_master_flat</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">find_fits_fnames</span><span class="p">(</span><span class="n">cmdline_config</span><span class="p">[</span><span class="s2">&quot;calibrated_images&quot;</span><span class="p">])),</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cmdline_config</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

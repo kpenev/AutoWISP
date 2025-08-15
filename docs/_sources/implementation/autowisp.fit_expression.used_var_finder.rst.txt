@@ -1,0 +1,7 @@
+autowisp.fit\_expression.used\_var\_finder module
+=================================================
+
+.. automodule:: autowisp.fit_expression.used_var_finder
+   :members:
+   :show-inheritance:
+   :undoc-members:

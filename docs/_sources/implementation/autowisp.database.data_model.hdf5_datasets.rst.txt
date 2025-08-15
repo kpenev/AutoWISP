@@ -1,0 +1,7 @@
+autowisp.database.data\_model.hdf5\_datasets module
+===================================================
+
+.. automodule:: autowisp.database.data_model.hdf5_datasets
+   :members:
+   :show-inheritance:
+   :undoc-members:

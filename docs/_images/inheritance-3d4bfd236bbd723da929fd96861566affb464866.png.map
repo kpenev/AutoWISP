@@ -1,0 +1,4 @@
+<map id="inheritanceb83a583652" name="inheritanceb83a583652">
+<area shape="rect" id="node1" title="Structure base class" alt="" coords="111,5,235,32"/>
+<area shape="rect" id="node2" href="#autowisp.light_curves.lc_data_slice.LCDataSliceBase" target="_top" title="A time&#45;slice of LC data to be shared between LC dumping processes." alt="" coords="5,80,341,107"/>
+</map>

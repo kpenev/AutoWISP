@@ -1,0 +1,7 @@
+autowisp.tests.test\_stack\_to\_master module
+=============================================
+
+.. automodule:: autowisp.tests.test_stack_to_master
+   :members:
+   :show-inheritance:
+   :undoc-members:

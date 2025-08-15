@@ -1,0 +1,1017 @@
+Configuration Options
+=====================
+
+.. option:: std-out-err-fname (--std-out-err-fname on command line)
+
+	The filename pattern to redirect stdout and stderr duringmultiprocessing. Should include substitutions to distinguish output from different multiprocessing processes. May include substitutions for any configuration arguments for a given processing step.
+
+.. option:: fname-datetime-format (--fname-datetime-format on command line)
+
+	How to format date and time as part of filenames (e.g. when creating output files for multiprocessing.
+
+.. option:: logging-fname (--logging-fname on command line)
+
+	The filename pattern to use for log files. Should include substitutions to distinguish logs from different multiprocessing processes. May include substitutions for any configuration arguments for a given processing step.
+
+.. option:: verbose (--verbose on command line)
+
+	The type of verbosity of logger.
+
+.. option:: logging-message-format (--logging-message-format on command line)
+
+	The format string to use for log messages. See python logging module for details.
+
+.. option:: logging-datetime-format (--logging-datetime-format on command line)
+
+	How to format date and time as part of filenames (e.g. when creating output files for multiprocessing.
+
+.. option:: exposure-start-utc (--exposure-start-utc on command line)
+
+	The UTC time at which the exposure started. Can be arbitrary expression involving header keywords.
+
+.. option:: exposure-start-jd (--exposure-start-jd on command line)
+
+	The JD at which the exposure started. Can be arbitrary expression involving header keywords.
+
+.. option:: exposure-seconds (--exposure-seconds on command line)
+
+	The length of the exposure in seconds. Can be arbitrary expression involving header keywords.
+
+.. option:: observer (--observer on command line)
+
+	The name of the observer who/which collected the images. Can be arbitrary expression involving header keywords. Must already have an entry in the ``observer`` table.
+
+.. option:: camera-serial-number (--camera-serial-number on command line)
+
+	The serial number of the camera which collected the images. Can be arbitrary expression involving header keywords. Must already have an entry in the ``camera`` table.
+
+.. option:: telescope-serial-number (--telescope-serial-number on command line)
+
+	The serial number of the telescope (lens) which collected the images (or some other unique and persistent identifier of it). Can be arbitrary expression involving header keywords. Must already have an entry in the ``telescope`` table.
+
+.. option:: mount-serial-number (--mount-serial-number on command line)
+
+	The serial number of the mount which collected the images (or some other unique and persistent identifier of it). Can be arbitrary expression involving header keywords. Must already have an entry in the ``mount`` table.
+
+.. option:: observatory (--observatory on command line)
+
+	The name of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the ``observatory`` table. If not specified, --observatory-location is used to determine the observatory.
+
+.. option:: observatory-location (--observatory-location on command line)
+
+	The latitude and longitude of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the ``observatory`` table within approximately 100km. Only used if --observatory is not specified.
+
+.. option:: target-ra (--target-ra on command line)
+
+	The RA targetted by the observations in degrees. Can be arbitrary expression involving header keywords. If target table already contains an entry for this target, the RA must match within 1%% of the field of view or an error is raised. It can be left unspecified if the target is already in the target table, in which case it will be identified by name.
+
+.. option:: target-dec (--target-dec on command line)
+
+	The Dec targetted by the observations. See --target-ra for details.
+
+.. option:: target-name (--target-name on command line)
+
+	The name of the targetted area of the sky. Can be arbitrary expression involving header keywords. If not already in the target table it is automatically added.
+
+.. option:: observing-session-label (--observing-session-label on command line)
+
+	Unique label for the observing session. Can be arbitrary expression involving header keywords. If not already in the observing_session table it is automatically added. It will also be added as ``OBS-SESN`` keyword to the calibrated images.
+
+.. option:: image-type (--image-type on command line)
+
+	Header expression that evaluates to the image type. If it is not one of the image types listed in the database, the image is ignored. If not specified, the individual checks below are used instead.
+
+.. option:: ignore-unknown-image-types (--ignore-unknown-image-types on command line)
+
+	If this option is passed and an image of an unknown type is encountered it will not be added tot he database.
+
+.. option:: raw-hdu (--raw-hdu on command line)
+
+	Which hdu(s) of the raw frames contains the (channels of the) image to calibrate. If not specified, the first HDU with non-zero NAXIS value is used. If channels are already split, define the HDU containing the pixels of each channel by supplying multiple values of the form CHANNEL_NAME:HDU. If the same hdu is specified for all channels, or only a single integer is specified, that HDU is assumed to contain the staggered pixels of all channels (see --split-channels).
+
+.. option:: saturation-threshold (--saturation-threshold on command line)
+
+	A value above which a pixel is considered saturated. If uspecified, the value is set to 80%% of the highest pixel value in EACH image.
+
+.. option:: overscans (--overscans on command line)
+
+	Overscan correction to apply. The format is: <method>:<xmin1>,<xmax1>,<ymin1>,<ymax1>[;<xmin2>,<xmax2>,<ymin2>,<ymax2>;...].
+
+.. option:: fnum (--fnum on command line)
+
+	How to calculate a frame number from the header. Should be expression involving header keywords (with "-" replaced by "_") or `RAWFNAME` which takes the raw frame name without extension or path and should return an integer.
+
+.. option:: image-area (--image-area on command line)
+
+	The area of the image to process (the rest is discarded). The format is <xmin>,<xmax>,<ymin>,<ymax>. Think of these as python array slices in each direction.
+
+.. option:: gain (--gain on command line)
+
+	The gain to assume for the input image (electrons/ADU). If not specified, it must be defined in the header as GAIN keyword.
+
+.. option:: bias-level-adu (--bias-level-adu on command line)
+
+	Most detectors add an offset to the quantized pixel values, this defines that offset (affects estimated variances).
+
+.. option:: read-noise-electrons (--read-noise-electrons on command line)
+
+	The read noise in electrons (assumed the same for all pixels).
+
+.. option:: compress-calibrated (--compress-calibrated on command line)
+
+	Specify a quantization level for compressing the calibrated image.
+
+.. option:: master-bias (--master-bias on command line)
+
+	The master bias to apply. No bias correction is applied of not specified. Each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.
+
+.. option:: master-dark (--master-dark on command line)
+
+	The master dark to apply. No dark correction is applied of not specified. Each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.
+
+.. option:: master-flat (--master-flat on command line)
+
+	The master flat to apply. No flat correction is applied of not specified. Each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. All channels must have a masters specified and no channel should have multpiple.
+
+.. option:: master-mask (--master-mask on command line)
+
+	Mask(s) to apply, indicating pixel quality. All pixels are considered "good" if no mask is specified. If multiple channel images are being processed each master filename should be preceeded by ``<channel name>:`` identifying which channel it applies to. Unlike other masters, channels without mask are allowed and multiple masks may be used for each channel.
+
+.. option:: calibrated-fname (--calibrated-fname on command line)
+
+	Format string to generate the filenames for saving the calibrated images. Replacement fields can be anything from the header of the generated image (including {CLRCHNL} - name of channel if channel splitting is done, and {RAWFNAME} - the name of the corresponding input FITS file without directories or `.fits` and `.fits.fz` extension).
+
+.. option:: average-func (--average-func on command line)
+
+	The function to use for calculating the average of pixel values accross images. For quantile and percentile, the desired level is specified by adding ``:<q>`` at the end of the function name(e.g.``quantile:0.7``).
+
+.. option:: outlier-threshold (--outlier-threshold on command line)
+
+	When averaging the values of a given pixel among the input images, values that are further than this value times the root mean square devitaion from the average are rejected and the average is recomputed iteratively until convergence or maximum number of iterations.
+
+.. option:: min-valid-values (--min-valid-values on command line)
+
+	If rejecting outlier pixels results in fewer than this many surviving pixels, the corresponding pixel gets a bad pixel mask in themaster.
+
+.. option:: max-iter (--max-iter on command line)
+
+	The maximum number of outlier rejection/averaging iterations to allow. If not converged before then, a warning is issued and the average if the last iteration is used.
+
+.. option:: exclude-mask (--exclude-mask on command line)
+
+	A list of mask flags, any of which result in the corresponding pixels being excluded from the averaging. Any mask flags not specifiedare ignored, treated as clean. Note that ``'BAD'`` means any kind of problem (e.g. saturated, hot/cold pixel, leaked etc.).
+
+.. option:: compress (--compress on command line)
+
+	If zero, the final result is not compressed. Otherwise,this is the quantization level used for compressing the image (see `astropy.io.fits` documentation).
+
+.. option:: add-averaged-keywords (--add-averaged-keywords on command line)
+
+	Specify any numeric-valued header keywords that should be generated for the master by averaging the corresponding values from the input frames using the same averaging as pixel values. By default the outlier rejected average JD of the input frames is added.
+
+.. option:: min-valid-frames (--min-valid-frames on command line)
+
+	If there are fewer than this number of suitable frames to stack in a given master, that master is not generated.
+
+.. option:: stacked-master-fname (--stacked-master-fname on command line)
+
+	Filename for the master to generate if successful. Can involve header substitutions, but should produce the same filename for all input frames. If not, the behavior is undefined.
+
+.. option:: stamp-fraction (--stamp-fraction on command line)
+
+	The fraction of the image cloude detection stamps should span.
+
+.. option:: stamp-smoothing-num-x-terms (--stamp-smoothing-num-x-terms on command line)
+
+	The number of x terms to include in the stamp smoothing.
+
+.. option:: stamp-smoothing-num-y-terms (--stamp-smoothing-num-y-terms on command line)
+
+	The number of y terms to include in the stamp smoothing.
+
+.. option:: stamp-smoothing-outlier-threshold (--stamp-smoothing-outlier-threshold on command line)
+
+	Pixels deviating by more than this many standard deviations form the best fit smoothing function are discarded after each smoothnig fit iteration. One or two numbers should be specified. If two, one should be positive and the other negative specifying separate thresholds in the positive and negative directions.
+
+.. option:: stamp-smoothing-max-iterations (--stamp-smoothing-max-iterations on command line)
+
+	The maximum number of fit, reject iterations to use when smoothing stamps for cloud detection.
+
+.. option:: stamp-pixel-average (--stamp-pixel-average on command line)
+
+	The pixels of smoothed cloud detection stamps are averaged using this function and square difference from that mean is calculated. The process is iteratively reapeated discarding outlier pixels.
+
+.. option:: stamp-pixel-outlier-threshold (--stamp-pixel-outlier-threshold on command line)
+
+	The threshold in deviation around mean units to use for discarding stamp pixels during averaging of the smoothed stamps. One or two numbers should be specified. If two, one should be positive and the other negative specifying separate thresholds in the positive and negative directions.
+
+.. option:: stamp-pixel-max-iter (--stamp-pixel-max-iter on command line)
+
+	The maximum number of averaging, discarding terations to use when calculating average and square deviation of the smoothed stamps.
+
+.. option:: stamp-select-max-saturated-fraction (--stamp-select-max-saturated-fraction on command line)
+
+	Stamps with more that this fraction of saturated pixels are discarded.
+
+.. option:: stamp-select-var-mean-fit-threshold (--stamp-select-var-mean-fit-threshold on command line)
+
+	Variance vs mean fit for stamps is iteratively repeated after discarding from each iteration stamps that deviater from the fit by more than this number times the fit residual.
+
+.. option:: stamp-select-var-mean-fit-iterations (--stamp-select-var-mean-fit-iterations on command line)
+
+	Variance vs mean fit for stamps is iteratively repeated after discarding from each iteration stamps that deviater from the fit by more than this number times the fit residual.
+
+.. option:: stamp-select-cloudy-night-threshold (--stamp-select-cloudy-night-threshold on command line)
+
+	If variance vs mean quadratic fit has residual of more than this, the entire observing session is discarded as cloudy.
+
+.. option:: stamp-select-cloudy-frame-threshold (--stamp-select-cloudy-frame-threshold on command line)
+
+	Individual frames with stamp mean and variance deviating from the variance vs mean fit by more than this number times the fit residual are discarded as cloudy.
+
+.. option:: stamp-select-min-high-mean (--stamp-select-min-high-mean on command line)
+
+	The minimum average value of the stamp pixels for a frame to be included in a high master flat. Default: %(default)s
+
+.. option:: stamp-select-max-low-mean (--stamp-select-max-low-mean on command line)
+
+	The maximum average value of the stamp pixels for a frame to be included in a low master flat. Default: %(default)s
+
+.. option:: large-scale-smoothing-filter (--large-scale-smoothing-filter on command line)
+
+	For each frame, the large scale struture is corrected by taking the ratio of the frame to the reference (median of all input frames), smoothing this ratio and then dividing by it. Two filters are consecutively applied for smoothing. This is the first and it should be one of the scipy.ndimage box filters.
+
+.. option:: large-scale-smoothing-filter-size (--large-scale-smoothing-filter-size on command line)
+
+	The size of the box filter to apply.
+
+.. option:: large-scale-smoothing-spline-num-x-nodes (--large-scale-smoothing-spline-num-x-nodes on command line)
+
+	The second smoothing filter applied fits a separable x and y spline. The x spline uses this many internal nodes.
+
+.. option:: large-scale-smoothing-spline-num-y-nodes (--large-scale-smoothing-spline-num-y-nodes on command line)
+
+	The second smoothing filter applied fits a separable x and y spline. The x spline uses this many internal nodes.
+
+.. option:: large-scale-smoothing-spline-outlier-threshold (--large-scale-smoothing-spline-outlier-threshold on command line)
+
+	Spline smoothing discards pixels deviating by more than this number times the fit residual and iterates.
+
+.. option:: large-scale-smoothing-spline-max-iter (--large-scale-smoothing-spline-max-iter on command line)
+
+	The maximum number of discard-refit iterations used during spline smoothing to get the large scale flat.
+
+.. option:: large-scale-smoothing-bin-factor (--large-scale-smoothing-bin-factor on command line)
+
+	Before smoothing is applied the image is binned by this factor.
+
+.. option:: large-scale-smoothing-zoom-interp-order (--large-scale-smoothing-zoom-interp-order on command line)
+
+	After smoothing the image is zoomed back out to its original size using this order interpolation.
+
+.. option:: cloud-check-smoothing-filter (--cloud-check-smoothing-filter on command line)
+
+	When stacking, images with matched large scale flat, any image which deviates too much from the large scale flat is discarded as cloudy. This argument specifies a smoothing filter to apply to the deviation from the large scale flat before checking if the image is an outlier.
+
+.. option:: cloud-check-smoothing-filter-size (--cloud-check-smoothing-filter-size on command line)
+
+	The size of the cloud check smoothing fliter to use.
+
+.. option:: cloud-check-smoothing-bin-factor (--cloud-check-smoothing-bin-factor on command line)
+
+	Before smoothing is applied the deviation from large scale flat, it is binned by this factor.
+
+.. option:: cloud-check-smoothing-zoom-interp-order (--cloud-check-smoothing-zoom-interp-order on command line)
+
+	After smoothing the deviation from large scale flat is zoomed back out to its original size using this order interpolation.
+
+.. option:: min-pointing-separation (--min-pointing-separation on command line)
+
+	Individual flat frames must be at least this many arcseconds apart (per their headers) to be combined in order to avoid stars showing up above the sky brightness.
+
+.. option:: large-scale-deviation-threshold (--large-scale-deviation-threshold on command line)
+
+	If the smoothed difference between a frame and the combined large scale flat is more than this, the frame is discarded as potentially cloudy.
+
+.. option:: min-high-combine (--min-high-combine on command line)
+
+	High master flat is generated only if at least this many frames of high illumination survive all checks.
+
+.. option:: min-low-combine (--min-low-combine on command line)
+
+	Low master flat is generated only if at least this many frames of low illumination survive all checks.
+
+.. option:: large-scale-stack-outlier-threshold (--large-scale-stack-outlier-threshold on command line)
+
+	When determining the large scale flat outlier pixels of smoothed individual flats by more than this many sigma are discarded.
+
+.. option:: large-scale-stack-average-func (--large-scale-stack-average-func on command line)
+
+	The function used to average individual large scale flats.
+
+.. option:: large-scale-stack-min-valid-values (--large-scale-stack-min-valid-values on command line)
+
+	The minimum number of surviving pixels after outlier rejection required to count a stacked large scale pixel as valid.
+
+.. option:: large-scale-stack-max-iter (--large-scale-stack-max-iter on command line)
+
+	The maximum number of rejection-stacking iterations allowed when creating the large scale flat.
+
+.. option:: large-scale-stack-exclude-mask (--large-scale-stack-exclude-mask on command line)
+
+	A list of mask flags, any of which result in the corresponding pixels being excluded from the averaging. Any mask flags not specifiedare ignored, treated as clean. Note that ``'BAD'`` means any kind of problem (e.g. saturated, hot/cold pixel, leaked etc.).
+
+.. option:: high-flat-master-fname (--high-flat-master-fname on command line)
+
+	Filename for the high illumination master flat to generate if successful. Can involve header substitutions, but should produce the same filename for all input frames. If not, the behavior is undefined.
+
+.. option:: low-flat-master-fname (--low-flat-master-fname on command line)
+
+	Filename for the low illumination master flat to generate if successful. Can involve header substitutions, but should produce the same filename for all input frames. If not, the behavior is undefined.
+
+.. option:: data-reduction-fname (--data-reduction-fname on command line)
+
+	Format string to generate the filename(s) of the data reduction files where extracted sources are saved. Replacement fields can be anything from the header of the calibrated image.
+
+.. option:: num-parallel-processes (--num-parallel-processes on command line)
+
+	The number of simultaneous fitpsf/fitprf processes to run.
+
+.. option:: srcfind-tool (--srcfind-tool on command line)
+
+	The source extractor to use.
+
+.. option:: brightness-threshold (--brightness-threshold on command line)
+
+	The minimum brightness to require of extracted sources. It shouldbe tuned to a value that picks out as many stars as possible, without resulting in an appreciable number of spurious detections. Two additional parameters (:option:`filter-sources` and :option:`srcextract-max-sources`) are sometimes useful to eliminate false positives.
+
+.. option:: filter-sources (--filter-sources on command line)
+
+	A condition involving the output columns from source extraction to impose on the list of extracted sources (sources that fail are discarded).
+
+.. option:: srcextract-max-sources (--srcextract-max-sources on command line)
+
+	If more than this many sources are extracted, the list is sorted by flux and truncated to this number.
+
+.. option:: astrometry-catalog (--astrometry-catalog on command line)
+
+	A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the ``--catalog-filter`` argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by ``--catalog-safety-factor``, centered on the (RA * cos(Dec), Dec) of the frame rounded to ``--catalog-pointing-precision``, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include ``{checksum}`` which will be replaced with the MD5 checksum of the parameters defining the query.
+
+.. option:: astrometry-catalog-magnitude-expression (--astrometry-catalog-magnitude-expression on command line)
+
+	An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.
+
+.. option:: astrometry-catalog-max-magnitude (--astrometry-catalog-max-magnitude on command line)
+
+	The faintest magnitude to include in the catalog.This should approximately correspond to the :option:`brightness-threshold` argument used for source extraction. This can be automatically determined in most cases using ``wisp-tune-astromety-max-mag``.
+
+.. option:: astrometry-catalog-min-magnitude (--astrometry-catalog-min-magnitude on command line)
+
+	The brightest magnitude to include in the catalog.
+
+.. option:: astrometry-catalog-pointing-precision (--astrometry-catalog-pointing-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage
+
+.. option:: astrometry-catalog-fov-precision (--astrometry-catalog-fov-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.
+
+.. option:: astrometry-catalog-filter (--astrometry-catalog-filter on command line)
+
+	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
+
+.. option:: astrometry-catalog-epoch (--astrometry-catalog-epoch on command line)
+
+	An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.
+
+.. option:: astrometry-catalog-columns (--astrometry-catalog-columns on command line)
+
+	The columns to include in the catalog file. Use '*' to include everything.
+
+.. option:: astrometry-catalog-fov-safety-margin (--astrometry-catalog-fov-safety-margin on command line)
+
+	The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.
+
+.. option:: reuse-transformation-key (--reuse-transformation-key on command line)
+
+	Expression involving  header keywords that results in unique value for each group of frames representing separate channels of the same raw image.
+
+.. option:: max-srcmatch-distance (--max-srcmatch-distance on command line)
+
+	The maximum distance between a projected and extracted source center before we declare the two could not possibly correspond to the same star. Determining a good value to use depends on the properties of the images being processed. It should be much larger than the uncertainty with which source extraction determines potiions but much smaller than  the typical discance between stars.
+
+.. option:: astrometry-order (--astrometry-order on command line)
+
+	The order of the transformation to fit (i.e. the maximum combined power of the cartographically projected coordinates each of the frame coordinates is allowed to depend on. The best value to use depends on the properties of the images being processed. It needs to be large enough to capture the distortion in the image away from gnomonic projection, yet small enough to have many fewer parameters than the easily detectable stars in the image. Typically, small field of view images have smaller distortions and a lower value should be used compared to wide-field images.
+
+.. option:: min-source-safety-factor (--min-source-safety-factor on command line)
+
+	When solving for transformation coefficients the number of matched stars must exceed the number of free parameters by at least this factor.
+
+.. option:: trans-threshold (--trans-threshold on command line)
+
+	The threshold for the difference of two consecutive transformations
+
+.. option:: max-astrom-iter (--max-astrom-iter on command line)
+
+	The maximum number of iterations the astrometry solution can pass.
+
+.. option:: min-match-fraction (--min-match-fraction on command line)
+
+	The minimum fraction of extracted sources that must be matched to a catalog soure for the solution to be considered valid. It should be be less than 1 only to account for possible spurious stars found during source extraction. Having a stringent (close to 1) requirement ensures that the astrometry fails for images that are not of high quality (thin clouds, poor tracking, etc.)
+
+.. option:: max-rms-distance (--max-rms-distance on command line)
+
+	The maximum RMS distance between projected and extracted positions for the astrometry solution to be considered valid. Should be slightly larger than the typical uncertainty with which source extraction determines the centroids of the stars.
+
+.. option:: anet-indices (--anet-indices on command line)
+
+	Full paths to the narrow and wide astometry.net index files. If these directories are not found, the web solver is used instead.
+
+.. option:: anet-api-key (--anet-api-key on command line)
+
+	The astrometry.net API key to use if web solver is used to find initial match to catalog. You can get it by signing in to the web service and selecting ``Profile``.
+
+.. option:: frame-center-estimate (--frame-center-estimate on command line)
+
+	The approximate right ascention and declination of the center of the frame in degrees. Can be an expression involving header keywords. If not specified, the center of the catalog is used (assuming the catalog is not being generated on-the-fly).
+
+.. option:: frame-fov-estimate (--frame-fov-estimate on command line)
+
+	Approximate field of view of the frame in degrees. Can be an expression involving header keywords. If not specified, the field of view of the catalog divided by ``--image-scale-factor`` is used.
+
+.. option:: tweak-order (--tweak-order on command line)
+
+	Range of tweak arguments to solve-field to try.
+
+.. option:: image-scale-factor (--image-scale-factor on command line)
+
+	Astrometry.net solution is searched with scale ranging from fov/image_scale_factor to fov * image_scale_factor.
+
+.. option:: photometry-catalog (--photometry-catalog on command line)
+
+	A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the ``--catalog-filter`` argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by ``--catalog-safety-factor``, centered on the (RA * cos(Dec), Dec) of the frame rounded to ``--catalog-pointing-precision``, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include ``{checksum}`` which will be replaced with the MD5 checksum of the parameters defining the query.
+
+.. option:: photometry-catalog-magnitude-expression (--photometry-catalog-magnitude-expression on command line)
+
+	An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.
+
+.. option:: photometry-catalog-max-magnitude (--photometry-catalog-max-magnitude on command line)
+
+	The faintest magnitude to include in the catalog.This determines the faintest stars that will receive flux measuremets from AutoWISP. Going too deep will result in excessive number of stars being photometerd, producing large files and slow processing. Especially for wide-field images.
+
+.. option:: photometry-catalog-min-magnitude (--photometry-catalog-min-magnitude on command line)
+
+	The brightest magnitude to include in the catalog.
+
+.. option:: photometry-catalog-pointing-precision (--photometry-catalog-pointing-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage
+
+.. option:: photometry-catalog-fov-precision (--photometry-catalog-fov-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.
+
+.. option:: photometry-catalog-filter (--photometry-catalog-filter on command line)
+
+	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
+
+.. option:: photometry-catalog-epoch (--photometry-catalog-epoch on command line)
+
+	An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.
+
+.. option:: photometry-catalog-columns (--photometry-catalog-columns on command line)
+
+	The columns to include in the catalog file. Use '*' to include everything.
+
+.. option:: photometry-catalog-fov-safety-margin (--photometry-catalog-fov-safety-margin on command line)
+
+	The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.
+
+.. option:: subpixmap (--subpixmap on command line)
+
+	The sub-pixel sensitivity map to assume. If not specified uniform sensitivy is assumed. This is especially important if processing images from color cameras. For a standard Bayer array, the built-in map called ``dslr_subpixmap.fits`` can be used.
+
+.. option:: magnitude-1adu (--magnitude-1adu on command line)
+
+	The magnitude which corresponds to a source flux of 1ADU
+
+.. option:: background-annulus (--background-annulus on command line)
+
+	The annulus to use when estimating the background under sources. The first number is the inner radius and should be large enough to avoid picking up light from the brightest stars from which reliable photometry is desired. The second number is the width of the annulus (i.e inner radius + width is the outer radius). It should be large enough to contain many tens of pixels.
+
+.. option:: shapefit-disable-cover-grid (--shapefit-disable-cover-grid on command line)
+
+	Should pixels be selected to cover the full PSF/PRF grid.
+
+.. option:: shapefit-src-min-bg-pix (--shapefit-src-min-bg-pix on command line)
+
+	The minimum number of pixels background should be based on if the source is to be used for shape fitting.
+
+.. option:: shapefit-src-max-sat-frac (--shapefit-src-max-sat-frac on command line)
+
+	The maximum fraction of saturated pixels of a source before it is discarded from shape fitting.
+
+.. option:: shapefit-src-min-signal-to-noise (--shapefit-src-min-signal-to-noise on command line)
+
+	The S/N threshold when selecting pixels around sources.
+
+.. option:: shapefit-src-max-aperture (--shapefit-src-max-aperture on command line)
+
+	The largest distance from the source center before pixel selection causes an error.
+
+.. option:: shapefit-src-min-pix (--shapefit-src-min-pix on command line)
+
+	The smallest number of pixels to require be assigned for a source if it is to be included in the shape fit.
+
+.. option:: shapefit-src-max-pix (--shapefit-src-max-pix on command line)
+
+	The largest number of pixels to require be assigned for a source if it is to be included in the shape fit.
+
+.. option:: shapefit-max-sources (--shapefit-max-sources on command line)
+
+	The maximum number of sources to include in the fit. Excess sources (those with lowest signal to noise) are not included in the shape fit, though still get photometry measured. The only exception is if zero PSF model is used, in which case the fluxes of discarded sources are set to NaN. Set to zero to disable trimming the source list.
+
+.. option:: discard-faint (--discard-faint on command line)
+
+	If used, should indicate a faint magnitude limit in some band-pass, e.g. B>14.0. Sources fainter than the specified limit will not be included in the input source lists for PRF fitting at all.
+
+.. option:: shapefit-smoothing (--shapefit-smoothing on command line)
+
+	Parameter controlling the smoothing penalty of the PSF fit. See Larger values result in smoother PSF/PRF models. Too small, and the model will contain oscillations fitting noise. Too large, and the model will begin chopping off sharp peaks and troughs.
+
+.. option:: shapefit-max-chi2 (--shapefit-max-chi2 on command line)
+
+	If the chi squared value of a source during flux fitting exceeds this value, the source is excluded from shape fitting.
+
+.. option:: shapefit-pixel-rejection-threshold (--shapefit-pixel-rejection-threshold on command line)
+
+	Pixels away from best fit values by more than this many sigma are discarded from the fit.
+
+.. option:: shapefit-max-abs-amplitude-change (--shapefit-max-abs-amplitude-change on command line)
+
+	If the absolute sum square change in amplitudes falls below this, the fit is declared converged.
+
+.. option:: shapefit-max-rel-amplitude-change (--shapefit-max-rel-amplitude-change on command line)
+
+	If the relative sum square change in amplitudes falls below this, the fit is declared converged.
+
+.. option:: shapefit-min-convergence-rate (--shapefit-min-convergence-rate on command line)
+
+	If the rate of convergence of the amplitudes falls below this, an error is thrown.
+
+.. option:: shapefit-max-iterations (--shapefit-max-iterations on command line)
+
+	The maximum number of shape-amplitude fitting iterations to allow.
+
+.. option:: shapefit-initial-aperture (--shapefit-initial-aperture on command line)
+
+	The aperture to use when estimating the initial flux of sources to start the first shape-amplitude fitting iteration.
+
+.. option:: num-simultaneous (--num-simultaneous on command line)
+
+	The number of frames to fit simultaneously, with a unified PSF/PRF model. Each simultaneous group consists of consecutive entries in the input list of frames.
+
+.. option:: shape-mode (--shape-mode on command line)
+
+	Is the mode representing PSF or PRF?
+
+.. option:: shape-grid (--shape-grid on command line)
+
+	The grid to use for representing the PSF/PRF. If only outer boundaries are specified (like in the default), PSF is assumed not to vary accross the star. The outer boundaries should be far enough away from zero to accommodate the largest aperture used for aperture photometry. The placement of inner boundaries is dictated by the PSF being fit. Generally, more boundaries are needed in regions where the PSF/PRF varies more rapidly.
+
+.. option:: shape-terms-expression (--shape-terms-expression on command line)
+
+	The term in the PSF shape parameter dependence. The expression is a product of polynomials. For example ``O2(x, y}`` would result in terms ``1, x, y, x^2, xy, y^2`` (i.e. combined total power of 2 or less). In contrast ``O2{x} * O2{y}`` will include all terms of up to second order in x and up to second order in y, including all cross-terms (total of 9 terms).
+
+.. option:: map-variables (--map-variables on command line)
+
+	Extra variables to allow the PRF to depend on in addition to (x and y). The <expression> can involve any catologue column , header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables are added as extra columns after ID, x, y to the source list passed to fitpsf/fitprf in the order specified on the command line.
+
+.. option:: split-magnitude-column (--split-magnitude-column on command line)
+
+	The catalog column to use as the brightness indicator of the sources when splitting into groups.
+
+.. option:: radius-splits (--radius-splits on command line)
+
+	The threshold radius values where to split sources into groups. By default, no splitting by radius is done.
+
+.. option:: mag-split-source-count (--mag-split-source-count on command line)
+
+	If passed, after spltting by radius (if any), sources are further split into groups by magnitude such that each group contains at least this many sources. By default, no splitting by magnitude is done.
+
+.. option:: grouping-frame (--grouping-frame on command line)
+
+	If sources are being split per any of the above arguments, specifying a frame here results in the split being done based on the locations of sources in this frame and thus does not change from frame to frame. If not specified, grouping is done independently for each frame.
+
+.. option:: remove-group-id (--remove-group-id on command line)
+
+	If passed, this will remove the groups to fit in an indexable fashion. Multiple values may be passed e.g. 0 1 5 where each is the index corresponding to the group_id
+
+.. option:: shapefit-group (--shapefit-group on command line)
+
+	If grouping was used during shape fitting, use this option to specify which of PSF map to use.
+
+.. option:: apertures (--apertures on command line)
+
+	The apretures to use for photometry. For faint stars small apertures work better because they avoid pixels dominated by sky noise. For bright stars larger apertures are better because they contain pixels with significant signal out to much larger distances from the projected position.
+
+.. option:: error-offset (--error-offset on command line)
+
+	A constant error to add to the formal error estimate from the measurement.
+
+.. option:: srcextract-psf-params (--srcextract-psf-params on command line)
+
+	List of the parameters describing PSF shapes of the extracted sources to fit a smooth dependence for. If left unspecified, smooth map will be fit for (`'S'`, `'D'`, `'K'`) or (`'fwhm'`, `'round'`, `'pa'`), whichever is available.
+
+.. option:: srcextract-psfmap-terms (--srcextract-psfmap-terms on command line)
+
+	An expression involving source extraction and/or catalogue variables for the terms to include in the smoothing fit.
+
+.. option:: srcextract-psfmap-weights (--srcextract-psfmap-weights on command line)
+
+	An expression involving source extraction and/or catalogue variables for the weights to use for the smoothing fit.
+
+.. option:: srcextract-psfmap-error-avg (--srcextract-psfmap-error-avg on command line)
+
+	How to average fitting residuals for outlier rejection. 
+
+.. option:: srcextract-psfmap-rej-level (--srcextract-psfmap-rej-level on command line)
+
+	How far away from the fit should a point be before it is rejected in units of error_avg.
+
+.. option:: srcextract-psfmap-max-rej-iter (--srcextract-psfmap-max-rej-iter on command line)
+
+	The maximum number of rejection/re-fitting iterations to perform.If the fit has not converged by then, the latest iteration is accepted. Default: %(default)s
+
+.. option:: magfit-catalog (--magfit-catalog on command line)
+
+	A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the ``--catalog-filter`` argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by ``--catalog-safety-factor``, centered on the (RA * cos(Dec), Dec) of the frame rounded to ``--catalog-pointing-precision``, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include ``{checksum}`` which will be replaced with the MD5 checksum of the parameters defining the query.
+
+.. option:: magfit-catalog-magnitude-expression (--magfit-catalog-magnitude-expression on command line)
+
+	An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.
+
+.. option:: magfit-catalog-max-magnitude (--magfit-catalog-max-magnitude on command line)
+
+	The faintest magnitude to include in the catalog.In most cases, the photometry catalog should be used for magnitude fitting as well.
+
+.. option:: magfit-catalog-min-magnitude (--magfit-catalog-min-magnitude on command line)
+
+	The brightest magnitude to include in the catalog.
+
+.. option:: magfit-catalog-pointing-precision (--magfit-catalog-pointing-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage
+
+.. option:: magfit-catalog-fov-precision (--magfit-catalog-fov-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.
+
+.. option:: magfit-catalog-filter (--magfit-catalog-filter on command line)
+
+	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
+
+.. option:: magfit-catalog-epoch (--magfit-catalog-epoch on command line)
+
+	An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.
+
+.. option:: magfit-catalog-columns (--magfit-catalog-columns on command line)
+
+	The columns to include in the catalog file. Use '*' to include everything.
+
+.. option:: magfit-catalog-fov-safety-margin (--magfit-catalog-fov-safety-margin on command line)
+
+	The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.
+
+.. option:: magfit-catalog-max-pointing-offset (--magfit-catalog-max-pointing-offset on command line)
+
+	The maximum difference in degrees between pointings of individual frames in the RA or Dec directions before frames are considered outliers.
+
+.. option:: single-photref-dr-fname (--single-photref-dr-fname on command line)
+
+	The name of the data reduction file of the single photometric reference to use or used to start the magnitude fitting iterations.
+
+.. option:: master-photref-fname (--master-photref-fname on command line)
+
+	The name of a master photometric reference to use. If specified, the sintgle reference is ignored and magnitude fitting proceeds without any iterations.
+
+.. option:: master-photref-fname-format (--master-photref-fname-format on command line)
+
+	A format string involving a {magfit_iteration} substitution along with any variables from the header of the single photometric reference or passed through the path_substitutions arguments, that expands to the name of the file to save the master photometric reference for a particular iteration.
+
+.. option:: magfit-stat-fname-format (--magfit-stat-fname-format on command line)
+
+	Similar to ``master_photref_fname_format``, but defines the name to use for saving the statistics of a magnitude fitting iteration.
+
+.. option:: correction-parametrization (--correction-parametrization on command line)
+
+	A string that expands to the terms to include in the magnitude fitting correction.
+
+.. option:: mphotref-scatter-fit-terms (--mphotref-scatter-fit-terms on command line)
+
+	Terms to include in the fit for the scatter when deciding which stars to include in the master.
+
+.. option:: reference-subpix (--reference-subpix on command line)
+
+	Should the magnitude fitting correction depend on the sub-pixel position of the source in the reference frameDefault: %(default)s
+
+.. option:: fit-source-condition (--fit-source-condition on command line)
+
+	An expression involving catalog, reference and/or photometry variables which evaluates to zero if a source should be excluded and any non-zero value if it  should be included in the magnitude fit.
+
+.. option:: grouping (--grouping on command line)
+
+	An expression using catalog, and/or photometry variables which evaluates to several distinct values. Each value defines a separate fitting group (i.e. a group of sources which participate in magnitude fitting together, excluding sources belonging to other groups). Default: %(default)s
+
+.. option:: error-avg (--error-avg on command line)
+
+	How to average fitting residuals for outlier rejection.
+
+.. option:: rej-level (--rej-level on command line)
+
+	How far away from the fit should a point be before it is rejected in units of error_avg. Default: %(default)s
+
+.. option:: max-rej-iter (--max-rej-iter on command line)
+
+	The maximum number of rejection/re-fitting iterations to perform. If the fit has not converged by then, the latest iteration is accepted.
+
+.. option:: noise-offset (--noise-offset on command line)
+
+	Additional offset to format magnitude error estimates when they are used to determine the fitting weights. 
+
+.. option:: max-mag-err (--max-mag-err on command line)
+
+	The largest the formal magnitude error is allowed to be before the source is excluded. Default: %(default)s
+
+.. option:: max-photref-change (--max-photref-change on command line)
+
+	The maximum square average change of photometric reference magnitudes to consider the iterations converged.
+
+.. option:: max-magfit-iterations (--max-magfit-iterations on command line)
+
+	The maximum number of iterations of deriving a master photometric referene and re-fitting to allow.
+
+.. option:: lc-fname (--lc-fname on command line)
+
+	The light curve dumping filename pattern to use.
+
+.. option:: lc-catalog (--lc-catalog on command line)
+
+	A file containing (approximately) all the same stars that were extracted from the frame for the area of the sky covered by the image. It is perferctly fine to include a larger area of sky and fainter brightness limit. Different brightness limits can then be imposed for each color channel using the ``--catalog-filter`` argument. If the file does not exist one is automatically generated to cover an area larger than the field of view by ``--catalog-safety-factor``, centered on the (RA * cos(Dec), Dec) of the frame rounded to ``--catalog-pointing-precision``, and to have magnitude range set by. The filename can be a format string which will be substituted with the any header keywords or configuration for the query. It may also include ``{checksum}`` which will be replaced with the MD5 checksum of the parameters defining the query.
+
+.. option:: lc-catalog-magnitude-expression (--lc-catalog-magnitude-expression on command line)
+
+	An expression involving the catalog columns that correlates as closely as possible with the brightness of the star in the images in units of magnitude. Only relevant if the catalog does not exist.
+
+.. option:: lc-catalog-max-magnitude (--lc-catalog-max-magnitude on command line)
+
+	The faintest magnitude to include in the catalog.In most cases, the photometry catalog should be used for creating lightcurves as well.
+
+.. option:: lc-catalog-min-magnitude (--lc-catalog-min-magnitude on command line)
+
+	The brightest magnitude to include in the catalog.
+
+.. option:: lc-catalog-pointing-precision (--lc-catalog-pointing-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees. The catalog FOV is also expanded by this amount to ensure coverage
+
+.. option:: lc-catalog-fov-precision (--lc-catalog-fov-precision on command line)
+
+	The precision with which to round the center of the frame to determine the center of the catalog to use in degrees.
+
+.. option:: lc-catalog-filter (--lc-catalog-filter on command line)
+
+	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
+
+.. option:: lc-catalog-epoch (--lc-catalog-epoch on command line)
+
+	An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.
+
+.. option:: lc-catalog-columns (--lc-catalog-columns on command line)
+
+	The columns to include in the catalog file. Use '*' to include everything.
+
+.. option:: lc-catalog-fov-safety-margin (--lc-catalog-fov-safety-margin on command line)
+
+	The fractional safety margin to require of the field of view of the catalog. More specifically, the absolute valueso f xi and eta of the corners of the frame times this factor must be less than the half width and half height of the catalog respectively.
+
+.. option:: lc-catalog-max-pointing-offset (--lc-catalog-max-pointing-offset on command line)
+
+	The maximum difference in degrees between pointings of individual frames in the RA or Dec directions before frames are considered outliers.
+
+.. option:: num-magfit-iterations (--num-magfit-iterations on command line)
+
+	The number of iterations of deriving a master photometric referene and re-fitting to copy from DR to LCs. If left as zero the number of magnitude fitting iterations of the first DR file is used instead.
+
+.. option:: srcproj-column-names (--srcproj-column-names on command line)
+
+	List of the source projected columns to include in the lightcurves.
+
+.. option:: max-memory (--max-memory on command line)
+
+	The maximum amount of memory (in bytes) to allocate for temporaririly storing source information before dumping to LC.
+
+.. option:: mem-block-size (--mem-block-size on command line)
+
+	The block size to use for memblocksize to use. Options are ``Mb`` or ``Gb``.
+
+.. option:: sort-frame-by (--sort-frame-by on command line)
+
+	A format string involving header keywords to sort the the lightcurve entries by (alphabetically).
+
+.. option:: latitude-deg (--latitude-deg on command line)
+
+	A format string of header keywords specifying the latitude in degrees at which the observations of the lightcurves being generated were collected. Will be evaluated so it is OK to use mathematical functions or operators. Alternatively just specify a number.
+
+.. option:: longitude-deg (--longitude-deg on command line)
+
+	Same as `--latitude-deg` but for the longitude.
+
+.. option:: altitude-meters (--altitude-meters on command line)
+
+	Same as `--latitude-deg` but for the altitude in meters.
+
+.. option:: lightcurve-catalog-fname (--lightcurve-catalog-fname on command line)
+
+	The filename of the master catalog to create, possibly with substitutions from the header of the single photometric reference.
+
+.. option:: bg-map-fit-terms-expression (--bg-map-fit-terms-expression on command line)
+
+	An expression involving the x and y source coordinates for the terms to include when fitting a smooth function to the background measurements.
+
+.. option:: bg-map-error-avg (--bg-map-error-avg on command line)
+
+	How to average fitting residuals for outlier rejection during background smoothing.
+
+.. option:: bg-map-rej-level (--bg-map-rej-level on command line)
+
+	How far away from the fit should a point be before it is rejected in units of error_avg.
+
+.. option:: bg-map-max-rej-iter (--bg-map-max-rej-iter on command line)
+
+	The maximum number of outlier rejection/refit iterations allowed when fitting for the smooth background of an image.
+
+.. option:: merit-function (--merit-function on command line)
+
+	The merit function to use. High values should indicate a better candidate to serve as photometric reference. The function may use any PSF parameter as well as the following frame properties:
+
+		z: the zenith distance of the frame center
+
+		bg: the background level at the center of the frame
+
+	In addition, for each property the standard deviation over all frames can also be used as ``std_<param>`` (e.g. ``std_z``) as well as its quantile as ``qnt_<param>`` (e.g. ``qnt_bg`` for the background quantile).
+
+.. option:: variables (--variables on command line)
+
+	Define variablesto be used in --lc-points-filter-expression, --epd-terms-expression, --fit-weights, etc. Should be formatted as a ``;`` separated list of <varname> = <dataset key> [: <substitutions>]. For example: ``"x = srcproj.columns : src_proj_column_name = x  & srcproj_version = 0; y = srcproj.columns : src_proj_column_name = y"``, defines `x` and `y` variables that correspond to the projected x and y positions of the source in the frame.
+
+.. option:: lc-points-filter-expression (--lc-points-filter-expression on command line)
+
+	An expression using variables` which evaluates to either True or False indicating if a given point in the lightcurve should be fit and corrected. Default: %(default)s
+
+.. option:: epd-datasets (--epd-datasets on command line)
+
+	A ``;`` separated list of the datasets to detrend. Each entry should be formatted as: ``<input-key> -> <output-key> [: <substitution> (= <value>| in <expression>) [& <substitution> (= <value> | in <expression>) ...]]``. For example: ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` can be used in the specification of a dataset as ``;;`` and ``&&`` respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding ``".cfg." + <parameter name>`` for configurations and just `` + <parameter name>`` for fitting statistics. For example, if the output dataset key is``"shapefit.epd.magnitude"``, the configuration datasets will looklike ``"shapefit.epd.cfg.fit_terms"``, and ``"shapefit.epd.residual"``.
+
+.. option:: detrend-reference-avg (--detrend-reference-avg on command line)
+
+	How to average magnitudes to define reference point for calculating residuals.
+
+.. option:: detrend-error-avg (--detrend-error-avg on command line)
+
+	How to average fitting residuals for outlier rejection and perforamnce reporting.
+
+.. option:: detrend-rej-level (--detrend-rej-level on command line)
+
+	How far away from the fit should a point be before it is rejected in units of detrend_error_avg. Default: %(default)s
+
+.. option:: detrend-max-rej-iter (--detrend-max-rej-iter on command line)
+
+	The maximum number of rejection/re-fitting iterations to perform. If the fit has not converged by then, the latest iteration is accepted. Default: %(default)s
+
+.. option:: target-id (--target-id on command line)
+
+	The lightcurve of the given source (any one of the catalogue identifiers stored in the LC file) will be fit using reconstructive detrending, starting the transit parameter fit with the values supplied, and fitting for the values allowed to vary. If not specified all LCs are fit in non-reconstructive way.
+
+.. option:: mid-transit (--mid-transit on command line)
+
+	The time of mit-transit in BJD. Default: %(default)s (from https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).
+
+.. option:: period (--period on command line)
+
+	The orbital period (used to convert time to phase). Default: %(default)s (from https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).
+
+.. option:: transit-duration (--transit-duration on command line)
+
+	The transit duration in hours. Default: %(default)s (from https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).
+
+.. option:: radius-ratio (--radius-ratio on command line)
+
+	The planet to star radius ratio. Default: %(default)s (HAT-P-32).
+
+.. option:: inclination (--inclination on command line)
+
+	The inclination angle between the orbital angular momentum and the line of sight in degrees. Default: %(default)s (HAT-P-32).
+
+.. option:: scaled-semimajor (--scaled-semimajor on command line)
+
+	The ratio of the semimajor axis to the stellar radius. Default: %(default)s (HAT-P-32).
+
+.. option:: limb-darkening (--limb-darkening on command line)
+
+	The limb darkening coefficients to assume for the star (quadratic model). Default: %(default)s (HAT-P-32).
+
+.. option:: mutable-transit-params (--mutable-transit-params on command line)
+
+	List the transit parameters for which best-fit values should be found rather than assuming they are fixed at what is specified on the command line. Default: %(default)s.
+
+.. option:: detrending-catalog (--detrending-catalog on command line)
+
+	The name of a catalogue file containing the sources in the frame. Used only to generate performance statistics reports. If not specified, performance is not reported.
+
+.. option:: magnitude-column (--magnitude-column on command line)
+
+	The magnitude column to use for the performance statistics. Default: %(default)s
+
+.. option:: epd-terms-expression (--epd-terms-expression on command line)
+
+	A fitting terms expression involving only variables from `epd_variables` which expands to the various terms to use in a linear least squares EPD correction.Default: %(default)s
+
+.. option:: fit-weights (--fit-weights on command line)
+
+	An expression involving only variables from `epd_variables` which should evaluate to the weights to use per LC point in a linear least squares EPD correction. If left unspecified, no weighting is performed.
+
+.. option:: skip-outlier-prerejection (--skip-outlier-prerejection on command line)
+
+	If passed the initial rejection of outliers before the fit begins is not performed.
+
+.. option:: epd-statistics-fname (--epd-statistics-fname on command line)
+
+	The statistics filename for the results of the EPD fit.
+
+.. option:: tfa-datasets (--tfa-datasets on command line)
+
+	A ``;`` separated list of the datasets to detrend. Each entry should be formatted as: ``<input-key> -> <output-key> [: <substitution> (= <value>| in <expression>) [& <substitution> (= <value> | in <expression>) ...]]``. For example: ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` can be used in the specification of a dataset as ``;;`` and ``&&`` respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding ``".cfg." + <parameter name>`` for configurations and just `` + <parameter name>`` for fitting statistics. For example, if the output dataset key is``"shapefit.epd.magnitude"``, the configuration datasets will looklike ``"shapefit.epd.cfg.fit_terms"``, and ``"shapefit.epd.residual"``.
+
+.. option:: saturation-magnitude (--saturation-magnitude on command line)
+
+	The magnitude at which sources start to saturate. Default: %(default)s
+
+.. option:: tfa-forbid-saturated-templates (--tfa-forbid-saturated-templates on command line)
+
+	If passed, saturated stars are precluded from being selected as templates.
+
+.. option:: tfa-mag-rms-dependence-order (--tfa-mag-rms-dependence-order on command line)
+
+	The maximum order of magnitude to include in the fit for typical rms vs magnitude. Default: %(default)s.
+
+.. option:: tfa-mag-rms-outlier-threshold (--tfa-mag-rms-outlier-threshold on command line)
+
+	Stars are not allowed to be in the template if their RMS is more than this many sigma away from the mag-rms fit. This is also the threshold used for rejecting outliers when doing the iterative fit for the rms as a function of magnutude. Default: %(default)s.
+
+.. option:: tfa-mag-rms-max-rej-iter (--tfa-mag-rms-max-rej-iter on command line)
+
+	The maximum number of rejection fit iterations to do when deriving the rms(mag) dependence. Default: %(default)s.
+
+.. option:: tfa-max-rms (--tfa-max-rms on command line)
+
+	Stars are allowed to be in the template only if their RMS is no larger than this. Default: %(default)s.
+
+.. option:: tfa-faint-mag-limit (--tfa-faint-mag-limit on command line)
+
+	Stars fainter than this cannot be template stars. Default: %(default)s.
+
+.. option:: tfa-min-observations-quantile (--tfa-min-observations-quantile on command line)
+
+	The minimum number of observations required of template stars is the smaller of this quantile among the input collection of stars and the number per --tfa-min-observations-fraction.
+
+.. option:: tfa-min-observations-fraction (--tfa-min-observations-fraction on command line)
+
+	The minimum number of observations required of template stars is the smaller of this number times the maximum number of observations of any star and the number per --tfa-min-observations-quantile.
+
+.. option:: tfa-sqrt-num-templates (--tfa-sqrt-num-templates on command line)
+
+	The number of template stars is the square of this number. Default: %(default)s.
+
+.. option:: tfa-observation-id (--tfa-observation-id on command line)
+
+	The datasets to use for matching observations across light curves. For example, the following works for HAT: fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.
+
+.. option:: tfa-selected-plots (--tfa-selected-plots on command line)
+
+	Optional template for naming plots showing the template selection in action. If not specified, no such plots are generated. Should include %%(plot_id)s and %%(phot_index)d substitutions.
+
+.. option:: tfa-radius-splits (--tfa-radius-splits on command line)
+
+	The threshold radius values where to split sources into groups. By default, no splitting by radius is done.
+
+.. option:: tfa-mag-split-source-count (--tfa-mag-split-source-count on command line)
+
+	If passed, after spltting by radius (if any), sources are further split into groups by magnitude such that each group contains at least this many sources. By default, no splitting by magnitude is done.
+
+.. option:: tfa-statistics-fname (--tfa-statistics-fname on command line)
+
+	The statistics filename for the results of the TFA fit.
+

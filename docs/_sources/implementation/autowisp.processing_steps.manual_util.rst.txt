@@ -1,0 +1,7 @@
+autowisp.processing\_steps.manual\_util module
+==============================================
+
+.. automodule:: autowisp.processing_steps.manual_util
+   :members:
+   :show-inheritance:
+   :undoc-members:

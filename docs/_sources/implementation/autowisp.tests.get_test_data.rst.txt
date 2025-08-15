@@ -1,0 +1,7 @@
+autowisp.tests.get\_test\_data module
+=====================================
+
+.. automodule:: autowisp.tests.get_test_data
+   :members:
+   :show-inheritance:
+   :undoc-members:

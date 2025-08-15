@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.light_curves.collect_light_curves &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.light_curves.collect_light_curves</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.light_curves.collect_light_curves</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for creating light curves from DR files.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Formatter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.hat.file_parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_fname_keywords</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_catalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_catalog_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.lc_data_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">LCDataIO</span>
+
+
+<div class="viewcode-block" id="DecodingStringFormatter">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DecodingStringFormatter</span><span class="p">(</span><span class="n">Formatter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DecodingStringFormatter.convert_field">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter.convert_field">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">conversion</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If conversion is ``&#39;d&#39;`` -&gt; ``value.decode()`` else pass to parent&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">conversion</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">convert_field</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">conversion</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="get_combined_sources">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.get_combined_sources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_combined_sources</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all sources which are in at lest one of the DR files.&quot;&quot;&quot;</span>
+
+    <span class="n">dr_sources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+            <span class="n">dr_sources</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">dr_file</span><span class="o">.</span><span class="n">get_source_ids</span><span class="p">(</span>
+                    <span class="n">string_source_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_path_substitutions</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dr_sources</span></div>
+
+
+
+<span class="c1"># This is simple enough</span>
+<span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="collect_light_curves">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.collect_light_curves">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_light_curves</span><span class="p">(</span>
+    <span class="n">dr_filenames</span><span class="p">,</span>
+    <span class="n">configuration</span><span class="p">,</span>
+    <span class="n">mark_start</span><span class="p">,</span>
+    <span class="n">mark_end</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dr_fname_parser</span><span class="o">=</span><span class="n">parse_fname_keywords</span><span class="p">,</span>
+    <span class="n">optional_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">observatory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add the data from a collection of DR files to LCs, creating LCs if needed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dr_filenames([str]):    The filenames of the data reduction files to add</span>
+<span class="sd">            to LCs.</span>
+
+<span class="sd">        configuration:    Object with attributes configuring the LC collection</span>
+<span class="sd">            procedure.</span>
+
+<span class="sd">        path_substitutions:    Any substitutions to resolve paths within DR and</span>
+<span class="sd">            LC files to data to read/write (e.g. versions of various</span>
+<span class="sd">            componenents).</span>
+
+<span class="sd">        dr_fname_parser:    See same name argument to LCDataIO::create().</span>
+
+<span class="sd">        optional_header:    See same name argument to LCDataIO::create().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [(src ID part 1, src ID part 2, ...)];</span>
+<span class="sd">            The sources for which new lightcurves were created.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">srcid_formatter</span> <span class="o">=</span> <span class="n">DecodingStringFormatter</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">first_dr</span><span class="p">:</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_psf_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">first_dr</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                <span class="s2">&quot;srcextract.psf_map.cfg.psf_params&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;num_magfit_iterations&quot;</span><span class="p">]:</span>
+            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">first_dr</span><span class="o">.</span><span class="n">get_num_magfit_iterations</span><span class="p">(</span><span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">sphotref_dr</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_header</span><span class="p">),</span> <span class="n">outliers</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
+                <span class="n">header</span><span class="o">=</span><span class="n">sphotref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">(),</span>
+                <span class="n">dr_files</span><span class="o">=</span><span class="n">dr_filenames</span><span class="p">,</span>
+                <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;lc&quot;</span><span class="p">),</span>
+                <span class="n">return_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">skytoframe_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;skytoframe_version&quot;</span><span class="p">],</span>
+            <span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outlier_ind</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">outliers</span><span class="p">):</span>
+            <span class="n">outlier_dr</span> <span class="o">=</span> <span class="n">dr_filenames</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">outlier_ind</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Data reduction file </span><span class="si">%s</span><span class="s2"> has outlier pointing. Discarding!&quot;</span><span class="p">,</span>
+                <span class="n">outlier_dr</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mark_end</span><span class="p">(</span><span class="n">outlier_dr</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">data_io</span> <span class="o">=</span> <span class="n">LCDataIO</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">catalog_sources</span><span class="o">=</span><span class="n">catalog_sources</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+            <span class="n">source_list</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+                <span class="n">get_combined_sources</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">,</span> <span class="o">**</span><span class="n">path_substitutions</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">source_id_parser</span><span class="o">=</span><span class="n">first_dr</span><span class="o">.</span><span class="n">parse_hat_source_id</span><span class="p">,</span>
+            <span class="n">dr_fname_parser</span><span class="o">=</span><span class="n">dr_fname_parser</span><span class="p">,</span>
+            <span class="n">optional_header</span><span class="o">=</span><span class="n">optional_header</span><span class="p">,</span>
+            <span class="n">observatory</span><span class="o">=</span><span class="n">observatory</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">path_substitutions</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">frame_chunk</span> <span class="o">=</span> <span class="n">data_io</span><span class="o">.</span><span class="n">max_dimension_size</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;Generating LC filenames per: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">sources_lc_fnames</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span>
+            <span class="n">source_id</span><span class="p">,</span>
+            <span class="n">srcid_formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;lc_fname&quot;</span><span class="p">],</span> <span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">data_io</span><span class="o">.</span><span class="n">source_destinations</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">dirname</span> <span class="ow">in</span> <span class="p">{</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lc_fname</span> <span class="ow">in</span> <span class="n">sources_lc_fnames</span>
+    <span class="p">}:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+
+    <span class="n">num_processed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">num_processed</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">):</span>
+        <span class="n">stop_processing</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">),</span> <span class="n">num_processed</span> <span class="o">+</span> <span class="n">frame_chunk</span><span class="p">)</span>
+        <span class="n">data_io</span><span class="o">.</span><span class="n">prepare_for_reading</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span><span class="p">[</span><span class="n">num_processed</span><span class="p">:</span><span class="n">stop_processing</span><span class="p">]:</span>
+            <span class="n">mark_start</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+        <span class="n">config_skipped</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">(</span>
+                <span class="n">data_io</span><span class="o">.</span><span class="n">read</span><span class="p">,</span>
+                <span class="nb">enumerate</span><span class="p">(</span><span class="n">dr_filenames</span><span class="p">[</span><span class="n">num_processed</span><span class="p">:</span><span class="n">stop_processing</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">data_io</span><span class="o">.</span><span class="n">prepare_for_writing</span><span class="p">([</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">config_skipped</span><span class="p">])</span>
+        <span class="c1"># data_io.print_organized_configurations()</span>
+
+        <span class="k">for</span> <span class="n">write_arg</span> <span class="ow">in</span> <span class="n">sources_lc_fnames</span><span class="p">:</span>
+            <span class="n">data_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">write_arg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span><span class="p">[</span><span class="n">num_processed</span><span class="p">:</span><span class="n">stop_processing</span><span class="p">]:</span>
+            <span class="n">mark_end</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lc_fname</span> <span class="ow">in</span> <span class="n">sources_lc_fnames</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">lc_fname</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lc_file</span><span class="p">:</span>
+                    <span class="n">lc_file</span><span class="o">.</span><span class="n">confirm_lc_length</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">dr_filenames</span><span class="p">[</span><span class="n">num_processed</span><span class="p">:</span><span class="n">stop_processing</span><span class="p">]:</span>
+            <span class="n">mark_end</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">num_processed</span> <span class="o">=</span> <span class="n">stop_processing</span>
+
+    <span class="k">return</span> <span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_header</span></div>
+
+
+
+<span class="c1"># pylint: enable=too-many-locals</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

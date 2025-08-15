@@ -1,0 +1,7 @@
+<map id="inheritance418c0c5973" name="inheritance418c0c5973">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="55,229,385,256"/>
+<area shape="rect" id="node3" href="#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="5,304,435,331"/>
+<area shape="rect" id="node2" title="Base class used for declarative class definitions." alt="" coords="88,155,352,181"/>
+<area shape="rect" id="node4" title="define a class as inspectable." alt="" coords="110,80,330,107"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="167,5,273,32"/>
+</map>

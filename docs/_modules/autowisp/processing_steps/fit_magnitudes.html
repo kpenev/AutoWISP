@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.processing_steps.fit_magnitudes &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../processing_steps.html">autowisp.processing_steps</a></li>
+      <li class="breadcrumb-item active">autowisp.processing_steps.fit_magnitudes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.processing_steps.fit_magnitudes</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Apply magnitude fitting to hdf5 files&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">func</span><span class="p">,</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">magnitude_fitting</span><span class="p">,</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_dr_fnames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_catalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ManualStepArgumentParser</span><span class="p">,</span>
+    <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="n">get_catalog_config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+
+<span class="c1"># False positive due to unusual importing</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterFile</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
+
+<span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;dr&quot;</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="n">input_type</span><span class="p">),</span>
+        <span class="n">inputs_help_extra</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding DR files must alread contain all &quot;</span>
+            <span class="s2">&quot;photometric measurements.&quot;</span>
+        <span class="p">),</span>
+        <span class="n">add_catalog</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;magfit&quot;</span><span class="p">},</span>
+        <span class="n">add_component_versions</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;skytoframe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;background&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shapefit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;apphot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;magfit&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">add_photref</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_parallel_processing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--magfit-only-if&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expression involving the header of the input images that &quot;</span>
+        <span class="s2">&quot;evaluates to True/False if a particular image from the specified &quot;</span>
+        <span class="s2">&quot;image collection should/should not be processed.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--master-photref-fname&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of a master photometric reference to use. If specified, &quot;</span>
+        <span class="s2">&quot;the sintgle reference is ignored and magnitude fitting proceeds &quot;</span>
+        <span class="s2">&quot;without any iterations.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--master-photref-fname-format&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;MASTERS/mphotref_&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{FIELD}</span><span class="s2">_</span><span class="si">{CLRCHNL}</span><span class="s2">_</span><span class="si">{EXPTIME}</span><span class="s2">sec_iter</span><span class="si">{magfit_iteration:03d}</span><span class="s2">.fits&quot;</span>
+        <span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A format string involving a </span><span class="si">{magfit_iteration}</span><span class="s2"> substitution along&quot;</span>
+        <span class="s2">&quot; with any variables from the header of the single photometric &quot;</span>
+        <span class="s2">&quot;reference or passed through the path_substitutions arguments, that &quot;</span>
+        <span class="s2">&quot;expands to the name of the file to save the master photometric &quot;</span>
+        <span class="s2">&quot;reference for a particular iteration.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--magfit-stat-fname-format&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;MASTERS/mfit_stat_</span><span class="si">{FIELD}</span><span class="s2">_</span><span class="si">{CLRCHNL}</span><span class="s2">_</span><span class="si">{EXPTIME}</span><span class="s2">sec_iter&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{magfit_iteration:03d}</span><span class="s2">.txt&quot;</span>
+        <span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Similar to ``master_photref_fname_format``, but defines the name&quot;</span>
+        <span class="s2">&quot; to use for saving the statistics of a magnitude fitting iteration.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--correction-parametrization&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;O3{phot_g_mean_mag, x, y}&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A string that expands to the terms to include in the magnitude &quot;</span>
+        <span class="s2">&quot;fitting correction.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--mphotref-scatter-fit-terms&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;O2</span><span class="si">{phot_g_mean_mag}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Terms to include in the fit for the scatter when deciding which &quot;</span>
+        <span class="s2">&quot;stars to include in the master.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--reference-subpix&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Should the magnitude fitting correction depend on the &quot;</span>
+        <span class="s2">&quot;sub-pixel position of the source in the reference frame&quot;</span>
+        <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--fit-source-condition&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;isfinite(phot_g_mean_mag)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;An expression involving catalog, reference and/or photometry &quot;</span>
+        <span class="s2">&quot;variables which evaluates to zero if a source should be excluded and &quot;</span>
+        <span class="s2">&quot;any non-zero value if it  should be included in the magnitude fit.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--grouping&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;An expression using catalog, and/or photometry variables which &quot;</span>
+            <span class="s2">&quot;evaluates to several distinct values. Each value &quot;</span>
+            <span class="s2">&quot;defines a separate fitting group (i.e. a group of sources which &quot;</span>
+            <span class="s2">&quot;participate in magnitude fitting together, excluding sources &quot;</span>
+            <span class="s2">&quot;belonging to other groups). Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--error-avg&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;weightedmean&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How to average fitting residuals for outlier rejection.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--rej-level&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How far away from the fit should a point be before &quot;</span>
+        <span class="s2">&quot;it is rejected in units of error_avg. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max-rej-iter&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection/re-fitting iterations to perform.&quot;</span>
+        <span class="s2">&quot; If the fit has not converged by then, the latest iteration is &quot;</span>
+        <span class="s2">&quot;accepted.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--noise-offset&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Additional offset to format magnitude error estimates when they &quot;</span>
+        <span class="s2">&quot;are used to determine the fitting weights. &quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max-mag-err&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The largest the formal magnitude error is allowed &quot;</span>
+        <span class="s2">&quot;to be before the source is excluded. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max-photref-change&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum square average change of photometric reference &quot;</span>
+        <span class="s2">&quot;magnitudes to consider the iterations converged.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max-magfit-iterations&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of iterations of deriving a master photometric&quot;</span>
+        <span class="s2">&quot; referene and re-fitting to allow.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_path_substitutions">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.get_path_substitutions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_path_substitutions</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="n">sphotref_header</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path substitutions to find magfit datasets.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">what</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">what</span> <span class="o">+</span> <span class="s2">&quot;_version&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;shapefit&quot;</span><span class="p">,</span> <span class="s2">&quot;srcproj&quot;</span><span class="p">,</span> <span class="s2">&quot;apphot&quot;</span><span class="p">,</span> <span class="s2">&quot;background&quot;</span><span class="p">,</span> <span class="s2">&quot;magfit&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">count</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname_format&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="o">**</span><span class="n">sphotref_header</span><span class="p">,</span> <span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="n">magfit_iteration</span><span class="o">=</span><span class="n">iteration</span>
+                <span class="p">)</span>
+                <span class="o">==</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname&quot;</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iteration</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">iteration</span> <span class="o">&gt;=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_magfit_iterations&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Master photometric reference &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">configuration</span><span class="p">[</span><span class="s1">&#39;master_photref_fname&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> does not appear&quot;</span>
+                    <span class="s2">&quot; to follow the specified filename format: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">configuration</span><span class="p">[</span><span class="s1">&#39;master_photref_fname_format&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2">!&quot;</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="get_dr_fnames_and_catalog">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.get_dr_fnames_and_catalog">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_dr_fnames_and_catalog</span><span class="p">(</span>
+    <span class="n">dr_collection</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">sphotref_header</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the DR files to process and the catalog.&quot;&quot;&quot;</span>
+
+    <span class="n">dr_fnames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dr_collection</span><span class="p">)</span>
+    <span class="n">catalog_sources</span><span class="p">,</span> <span class="n">outliers</span><span class="p">,</span> <span class="n">catalog_fname</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
+        <span class="n">dr_files</span><span class="o">=</span><span class="n">dr_fnames</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;magfit&quot;</span><span class="p">),</span>
+        <span class="n">return_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">skytoframe_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;skytoframe_version&quot;</span><span class="p">],</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">sphotref_header</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">outlier_ind</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">outliers</span><span class="p">):</span>
+        <span class="n">outlier_dr</span> <span class="o">=</span> <span class="n">dr_fnames</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">outlier_ind</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Data reduction file </span><span class="si">%s</span><span class="s2"> has outlier pointing. Discarding!&quot;</span><span class="p">,</span>
+            <span class="n">outlier_dr</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mark_start</span><span class="p">(</span><span class="n">outlier_dr</span><span class="p">)</span>
+        <span class="n">mark_end</span><span class="p">(</span><span class="n">outlier_dr</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dr_fnames</span><span class="p">,</span> <span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_fname</span></div>
+
+
+
+<div class="viewcode-block" id="fit_magnitudes">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.fit_magnitudes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_magnitudes</span><span class="p">(</span>
+    <span class="n">dr_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform magnitude fitting for the given DR files.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start_status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">start_status</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">sphotref_dr_file</span><span class="p">:</span>
+        <span class="n">sphotref_header</span> <span class="o">=</span> <span class="n">sphotref_dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+
+    <span class="n">dr_fnames</span><span class="p">,</span> <span class="n">catalog_sources</span><span class="p">,</span> <span class="n">catalog_fname</span> <span class="o">=</span> <span class="n">get_dr_fnames_and_catalog</span><span class="p">(</span>
+        <span class="n">dr_collection</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">sphotref_header</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
+    <span class="p">)</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;fit_dr_filenames&quot;</span><span class="p">:</span> <span class="n">dr_fnames</span><span class="p">,</span>
+        <span class="s2">&quot;configuration&quot;</span><span class="p">:</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">configuration</span><span class="p">,</span>
+            <span class="n">continue_from_iteration</span><span class="o">=</span><span class="p">(</span><span class="n">start_status</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">source_name_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;mark_start&quot;</span><span class="p">:</span> <span class="n">mark_start</span><span class="p">,</span>
+        <span class="s2">&quot;mark_end&quot;</span><span class="p">:</span> <span class="n">mark_end</span><span class="p">,</span>
+        <span class="s2">&quot;path_substitutions&quot;</span><span class="p">:</span> <span class="n">get_path_substitutions</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="p">,</span> <span class="n">sphotref_header</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Using existing master photometric reference: </span><span class="si">%s</span><span class="s2"> with</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">start_status</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">magnitude_fitting</span><span class="o">.</span><span class="n">single_iteration</span><span class="p">(</span>
+            <span class="n">photref</span><span class="o">=</span><span class="n">magnitude_fitting</span><span class="o">.</span><span class="n">get_master_photref</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Starting iterative magfit for single photref: </span><span class="si">%s</span><span class="s2"> with</span><span class="se">\n\t</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
+    <span class="p">)</span>
+
+    <span class="n">master_photref_fname</span><span class="p">,</span> <span class="n">magfit_stat_fname</span> <span class="o">=</span> <span class="n">magnitude_fitting</span><span class="o">.</span><span class="n">iterative_refit</span><span class="p">(</span>
+        <span class="n">single_photref_dr_fname</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span>
+        <span class="n">catalog_sources</span><span class="o">=</span><span class="n">catalog_sources</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">master_photref_fname</span><span class="p">,</span>
+            <span class="s2">&quot;preference_order&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;master_photref&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">magfit_stat_fname</span><span class="p">,</span>
+            <span class="s2">&quot;preference_order&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;magfit_stat&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">catalog_fname</span><span class="p">,</span>
+            <span class="s2">&quot;preference_order&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;magfit_catalog&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="delete_master">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.delete_master">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_master</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">master_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete the master from file system and database.&quot;&quot;&quot;</span>
+
+    <span class="c1"># False positivie</span>
+    <span class="c1"># pylint: disable=no-member</span>
+    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=not-callable</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+                <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">MasterFile</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">==</span> <span class="mi">0</span>
+            <span class="c1"># pylint: enable=not-callable</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Removing potentially partial </span><span class="si">%s</span><span class="s2"> file &#39;</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span><span class="p">,</span>
+            <span class="n">master_type</span><span class="p">,</span>
+            <span class="n">filename</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="check_no_master">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.check_no_master">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_no_master</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">master_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise an exception if the given master exists.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2"> file </span><span class="si">{</span><span class="n">filename</span><span class="si">!r}</span><span class="s2"> should not exist!&quot;</span>
+            <span class="s2">&quot;Cleaning up interrupted magnitude fitting failed!&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="clean_dr">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.clean_dr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_dr</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">dr_substitutions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove a magfit iteration from the given DR file.&quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+        <span class="s2">&quot;Deleting magfit iteration </span><span class="si">%d</span><span class="s2"> from &#39;</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span><span class="p">,</span>
+        <span class="n">dr_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">],</span>
+        <span class="n">dr_fname</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="s2">&quot;r+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="n">dr_file</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="s2">&quot;shapefit.magfit.magnitude&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">dr_substitutions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">aperture_index</span> <span class="ow">in</span> <span class="n">count</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span>
+                <span class="s2">&quot;apphot.magnitude&quot;</span><span class="p">,</span>
+                <span class="n">aperture_index</span><span class="o">=</span><span class="n">aperture_index</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">dr_substitutions</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span>
+                <span class="s2">&quot;apphot.magfit.magnitude&quot;</span><span class="p">,</span>
+                <span class="n">aperture_index</span><span class="o">=</span><span class="n">aperture_index</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">dr_substitutions</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cleanup_interrupted">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.cleanup_interrupted">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove DR entries stats and magfit references for magfit_iteration.&quot;&quot;&quot;</span>
+
+    <span class="n">min_status</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">max_status</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Cleaning up interrupted magfit with status </span><span class="si">%d</span><span class="s2"> to </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">min_status</span><span class="p">,</span>
+        <span class="n">max_status</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">min_status</span> <span class="o">&lt;</span> <span class="n">max_status</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">max_status</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Encountered internally inconsistent interrupted status values when&quot;</span>
+            <span class="s2">&quot; cleaning up magnitude fitting &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(min: </span><span class="si">{</span><span class="n">min_status</span><span class="si">}</span><span class="s2">, max: </span><span class="si">{</span><span class="n">max_status</span><span class="si">}</span><span class="s2">)!&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span> <span class="s2">&quot;r+&quot;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">single_photref_dr</span><span class="p">:</span>
+        <span class="n">sphotref_header</span> <span class="o">=</span> <span class="n">single_photref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+        <span class="n">fname_substitutions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sphotref_header</span><span class="p">)</span>
+        <span class="n">dr_substitutions</span> <span class="o">=</span> <span class="n">get_path_substitutions</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="p">,</span> <span class="n">sphotref_header</span>
+        <span class="p">)</span>
+        <span class="n">fname_substitutions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dr_substitutions</span><span class="p">)</span>
+
+    <span class="n">dr_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_status</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
+        <span class="n">clean_dr</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">dr_substitutions</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;master_photref_fname&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;master_photref&quot;</span><span class="p">,</span> <span class="s2">&quot;magfit_stat&quot;</span><span class="p">]:</span>
+            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_status</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">delete_master</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="n">master_type</span> <span class="o">+</span> <span class="s2">&quot;_fname_format&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+                    <span class="n">fname_substitutions</span>
+                <span class="p">),</span>
+                <span class="n">master_type</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_status</span> <span class="o">//</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iteration</span>
+                <span class="n">check_fname</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span>
+                    <span class="n">master_type</span> <span class="o">+</span> <span class="s2">&quot;_fname_format&quot;</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">fname_substitutions</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking existence of </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">check_fname</span><span class="p">))</span>
+                <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">check_fname</span><span class="p">)</span>
+            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_status</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">check_no_master</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="n">master_type</span> <span class="o">+</span> <span class="s2">&quot;_fname_format&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+                    <span class="n">fname_substitutions</span>
+                <span class="p">),</span>
+                <span class="n">master_type</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">max_status</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">max_status</span> <span class="o">%</span> <span class="mi">2</span></div>
+
+
+
+<div class="viewcode-block" id="has_apphot">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.has_apphot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_apphot</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if the DR file contains a sky-to-frame transformation.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dr_file</span><span class="o">.</span><span class="n">check_for_dataset</span><span class="p">(</span><span class="s2">&quot;apphot.magnitude&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from command line.&quot;&quot;&quot;</span>
+
+    <span class="n">configuration</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;manage&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+        <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">],</span> <span class="s2">&quot;r+&quot;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">single_photref_dr</span><span class="p">:</span>
+        <span class="n">dr_substitutions</span> <span class="o">=</span> <span class="n">get_path_substitutions</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="p">,</span> <span class="n">single_photref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">dr_substitutions</span><span class="p">[</span><span class="s2">&quot;aperture_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">single_photref_dr</span><span class="o">.</span><span class="n">get_num_apertures</span><span class="p">(</span><span class="o">**</span><span class="n">dr_substitutions</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="n">fit_magnitudes</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">dr_fname</span>
+            <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">find_dr_fnames</span><span class="p">(</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dr_files&quot;</span><span class="p">),</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;magfit_only_if&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_apphot</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">dr_substitutions</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">configuration</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+        <span class="n">ignore_progress</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

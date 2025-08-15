@@ -1,0 +1,7 @@
+<map id="inheritance4d003ecb70" name="inheritance4d003ecb70">
+<area shape="rect" id="node1" title="Base class for time representations." alt="" coords="62,5,277,32"/>
+<area shape="rect" id="node4" title="Base class for time formats that can uniquely create a time object" alt="" coords="62,80,277,107"/>
+<area shape="rect" id="node2" title="ISO 8601 compliant date&#45;time format &quot;YYYY&#45;MM&#45;DD HH:MM:SS.sss...&quot;." alt="" coords="71,229,268,256"/>
+<area shape="rect" id="node5" href="#autowisp.image_calibration.fits_util.TimeISOTNoSep" target="_top" title="A class to parse ISO times without any separators." alt="" coords="5,304,334,331"/>
+<area shape="rect" id="node3" title="Base class for string&#45;like time representations." alt="" coords="66,155,273,181"/>
+</map>

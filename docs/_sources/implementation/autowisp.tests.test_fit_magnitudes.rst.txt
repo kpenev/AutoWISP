@@ -1,0 +1,7 @@
+autowisp.tests.test\_fit\_magnitudes module
+===========================================
+
+.. automodule:: autowisp.tests.test_fit_magnitudes
+   :members:
+   :show-inheritance:
+   :undoc-members:

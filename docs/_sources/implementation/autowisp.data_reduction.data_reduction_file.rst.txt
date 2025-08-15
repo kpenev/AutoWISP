@@ -1,0 +1,7 @@
+autowisp.data\_reduction.data\_reduction\_file module
+=====================================================
+
+.. automodule:: autowisp.data_reduction.data_reduction_file
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+autowisp.database.data\_model.hdf5\_structure\_versions module
+==============================================================
+
+.. automodule:: autowisp.database.data_model.hdf5_structure_versions
+   :members:
+   :show-inheritance:
+   :undoc-members:

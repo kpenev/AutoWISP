@@ -1,0 +1,7 @@
+autowisp.hdf5\_file module
+==========================
+
+.. automodule:: autowisp.hdf5_file
+   :members:
+   :show-inheritance:
+   :undoc-members:

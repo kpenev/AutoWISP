@@ -1,0 +1,12 @@
+<map id="inheritancec6a7897946" name="inheritancec6a7897946">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="450,5,524,32"/>
+<area shape="rect" id="node6" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="350,80,625,107"/>
+<area shape="rect" id="node2" href="autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker" target="_top" title="Specialize MasterMaker for making master flat frames." alt="" coords="1034,155,1426,181"/>
+<area shape="rect" id="node3" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="1057,80,1403,107"/>
+<area shape="rect" id="node4" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="1131,5,1329,32"/>
+<area shape="rect" id="node5" href="autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="5,155,279,181"/>
+<area shape="rect" id="node8" href="autowisp.image_smoothing.html#autowisp.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="303,155,672,181"/>
+<area shape="rect" id="node10" href="autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the numpy or astropy image filters in a smoother." alt="" coords="696,155,1010,181"/>
+<area shape="rect" id="node7" href="autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="143,229,482,256"/>
+<area shape="rect" id="node9" href="autowisp.image_smoothing.html#autowisp.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="506,229,818,256"/>
+</map>

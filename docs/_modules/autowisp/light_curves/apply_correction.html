@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.light_curves.apply_correction &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.light_curves.apply_correction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.light_curves.apply_correction</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Unified interface to the detrending algorithms.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span><span class="p">,</span> <span class="n">LightCurveFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_catalog_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">db_engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.epd_correction</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPDCorrection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.reconstructive_correction_transit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReconstructiveCorrectionTransit</span>
+
+
+<div class="viewcode-block" id="save_correction_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.save_correction_statistics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_correction_statistics</span><span class="p">(</span><span class="n">correction_statistics</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the given statistics (result of apply_parallel_correction).&quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correction statistics:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">correction_statistics</span><span class="p">))</span>
+    <span class="n">dframe</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">column</span><span class="p">:</span> <span class="n">correction_statistics</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">correction_statistics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+
+    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">,</span> <span class="s2">&quot;num_finite&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">phot_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">):</span>
+            <span class="n">dframe</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">phot_index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">correction_statistics</span><span class="p">[</span>
+                <span class="n">prefix</span>
+            <span class="p">][:,</span> <span class="n">phot_index</span><span class="p">]</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+        <span class="n">dframe</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">outf</span><span class="p">,</span> <span class="n">col_space</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_correction_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.load_correction_statistics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_correction_statistics</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">add_catalog</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a previously stored statistics from a file.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">mem_dr</span><span class="p">:</span>
+        <span class="n">dframe</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">filename</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;ID&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">num_sources</span><span class="p">,</span> <span class="n">num_photometries</span> <span class="o">=</span> <span class="n">dframe</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">num_photometries</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_photometries</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+
+        <span class="n">result_dtype</span> <span class="o">=</span> <span class="n">EPDCorrection</span><span class="o">.</span><span class="n">get_result_dtype</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_catalog</span><span class="p">:</span>
+            <span class="n">catalog</span> <span class="o">=</span> <span class="n">read_catalog_file</span><span class="p">(</span>
+                <span class="n">add_catalog</span><span class="p">,</span> <span class="n">add_gnomonic_projection</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">result_dtype</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">catalog</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">catalog</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="n">dframe</span> <span class="o">=</span> <span class="n">dframe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="s2">&quot;eta&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">catalog</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_sources</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">result_dtype</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;rms_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">column</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;num_finite_&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">dframe</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">,</span> <span class="s2">&quot;num_finite&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">phot_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_photometries</span><span class="p">):</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">prefix</span><span class="p">][:,</span> <span class="n">phot_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">dframe</span><span class="p">[</span>
+                    <span class="n">prefix</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">phot_index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;2MASSID&quot;</span> <span class="ow">in</span> <span class="n">dframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dframe</span><span class="p">[</span><span class="s2">&quot;2MASSID&quot;</span><span class="p">]):</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem_dr</span><span class="o">.</span><span class="n">parse_hat_source_id</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dframe</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_iterative_rejection_scatter">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.calculate_iterative_rejection_scatter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_iterative_rejection_scatter</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">,</span>
+    <span class="n">calculate_average</span><span class="p">,</span>
+    <span class="n">calculate_scatter</span><span class="p">,</span>
+    <span class="n">outlier_threshold</span><span class="p">,</span>
+    <span class="n">max_outlier_rejections</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">return_average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the scatter for a dataset, with outlier rejectio iterations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        values(numpy array like):     The data to calculate the scatter of.</span>
+
+<span class="sd">        calculate_average(callable):    A callable that returns the average of</span>
+<span class="sd">            the data aroung which the scatter will be calculated.</span>
+
+<span class="sd">        calculate_scatter(callable):    The scatter is defined as the square</span>
+<span class="sd">            root of whatever get_scatter calculates from the square deviations</span>
+<span class="sd">            of the data from the average.</span>
+
+<span class="sd">        outlier_threshold(float):    In units of the scatter, how far away</span>
+<span class="sd">            should a point be from the average to be considered an outlier.</span>
+
+<span class="sd">        max_outlier_rejections(int):    The maximum number of iterations between</span>
+<span class="sd">            outlier rejection and re-calculating the scatter to perform.</span>
+
+<span class="sd">        return_average(bool):    Should the average of the poinst also be</span>
+<span class="sd">            returned?</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float, int:</span>
+<span class="sd">            The scatter in values and the number of non-rejected points in the</span>
+<span class="sd">            last scatter calculation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">include_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">non_outliers</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_outlier_rejections</span><span class="p">):</span>
+        <span class="n">include_points</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">include_points</span><span class="p">,</span> <span class="n">non_outliers</span><span class="p">)</span>
+        <span class="n">average</span> <span class="o">=</span> <span class="n">calculate_average</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">include_points</span><span class="p">])</span>
+        <span class="n">square_deviations</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">values</span> <span class="o">-</span> <span class="n">average</span><span class="p">)</span>
+        <span class="n">square_scatter</span> <span class="o">=</span> <span class="n">calculate_scatter</span><span class="p">(</span><span class="n">square_deviations</span><span class="p">[</span><span class="n">include_points</span><span class="p">])</span>
+        <span class="n">non_outliers</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">square_deviations</span> <span class="o">&lt;=</span> <span class="n">outlier_threshold</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">square_scatter</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">non_outliers</span><span class="p">[</span><span class="n">include_points</span><span class="p">]</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">return_average</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">square_scatter</span><span class="p">),</span> <span class="n">include_points</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">average</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">square_scatter</span><span class="p">),</span> <span class="n">include_points</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="recalculate_correction_statistics">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.recalculate_correction_statistics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recalculate_correction_statistics</span><span class="p">(</span>
+    <span class="n">lc_fnames</span><span class="p">,</span>
+    <span class="n">fit_datasets</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">,</span>
+    <span class="n">lc_points_filter_expression</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">calculate_scatter_config</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the performance metrics for a de-trending step directly from LCs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lc_fnames([str]):    The filenames of the light curves that were</span>
+<span class="sd">            corrected.</span>
+
+<span class="sd">        fit_datasets:    See Correction.__init__().</span>
+
+<span class="sd">        extra_predictors:    See EPDCorrection.__init__().</span>
+
+<span class="sd">        calculate__scatter_config:    Arguments passed directly to</span>
+<span class="sd">            calculate_iterative_rejection_scatter().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        See apply_parallel_correction&#39;s return value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">lc_fnames</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">EPDCorrection</span><span class="o">.</span><span class="n">get_result_dtype</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fit_datasets</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">lc_index</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lc_fnames</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">LightCurveFile</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lightcurve</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fit_index</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">substitutions</span><span class="p">,</span> <span class="n">to_dset</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="n">fit_datasets</span>
+            <span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">stat_points</span> <span class="o">=</span> <span class="n">lightcurve</span><span class="o">.</span><span class="n">evaluate_expression</span><span class="p">(</span>
+                        <span class="n">variables</span><span class="p">,</span> <span class="n">lc_points_filter_expression</span>
+                    <span class="p">)</span>
+                    <span class="c1"># False positive</span>
+                    <span class="c1"># pylint: disable=unbalanced-tuple-unpacking</span>
+                    <span class="p">(</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="n">lc_index</span><span class="p">][</span><span class="n">fit_index</span><span class="p">],</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][</span><span class="n">lc_index</span><span class="p">][</span><span class="n">fit_index</span><span class="p">],</span>
+                    <span class="p">)</span> <span class="o">=</span> <span class="n">calculate_iterative_rejection_scatter</span><span class="p">(</span>
+                        <span class="n">lightcurve</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">to_dset</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)[</span>
+                            <span class="n">stat_points</span>
+                        <span class="p">],</span>
+                        <span class="o">**</span><span class="n">calculate_scatter_config</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="c1"># pylint: enable=unbalanced-tuple-unpacking</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">][</span><span class="n">lc_index</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;num_finite&quot;</span><span class="p">][</span><span class="n">lc_index</span><span class="p">][</span><span class="n">fit_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="pool_init">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.pool_init">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pool_init</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup pool process.&quot;&quot;&quot;</span>
+
+    <span class="n">db_engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="apply_parallel_correction">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.apply_parallel_correction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_parallel_correction</span><span class="p">(</span>
+    <span class="n">lc_fnames</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">num_parallel_processes</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Correct LCs running one of the detrending algorithms in parallel.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lc_fnames([str]):    The filenames of the light curves to correct.</span>
+
+<span class="sd">        correct(Correction):    The underlying correction to apply in parallel.</span>
+
+<span class="sd">        num_parallel_processes(int):    The maximum number of parallel processes</span>
+<span class="sd">            to use.</span>
+
+<span class="sd">        statistics_fname(str):    Filename to use for saving the statistics.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array:</span>
+<span class="sd">            The return values of correct.__call__() in the same order as</span>
+<span class="sd">            lc_fnames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting detrending </span><span class="si">%d</span><span class="s2"> light curves.&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lc_fnames</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">num_parallel_processes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">correct</span><span class="p">(</span><span class="n">lcf</span><span class="p">)</span> <span class="k">for</span> <span class="n">lcf</span> <span class="ow">in</span> <span class="n">lc_fnames</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span>
+            <span class="n">num_parallel_processes</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="n">pool_init</span><span class="p">,</span> <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">config</span><span class="p">,)</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">correction_pool</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">correction_pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">lc_fnames</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished detrending.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="apply_reconstructive_correction_transit">
+<a class="viewcode-back" href="../../../implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.apply_reconstructive_correction_transit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_reconstructive_correction_transit</span><span class="p">(</span>
+    <span class="n">lc_fname</span><span class="p">,</span>
+    <span class="n">correct</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">transit_model</span><span class="p">,</span>
+    <span class="n">transit_parameters</span><span class="p">,</span>
+    <span class="n">fit_parameter_flags</span><span class="p">,</span>
+    <span class="n">num_limbdark_coef</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a reconstructive correction on a LC assuming it contains a transit.</span>
+
+<span class="sd">    The corrected lightcurve, preserving the best-fit transit is saved in the</span>
+<span class="sd">    lightcurve just like for non-reconstructive corrections.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        transit_model:    Object which supports the transit model intefrace of</span>
+<span class="sd">            pytransit.</span>
+
+<span class="sd">        transit_parameters(scipy float array):    The full array of parameters</span>
+<span class="sd">            required by the transit model&#39;s evaluate() method.</span>
+
+<span class="sd">        fit_parameter_flags(scipy bool array):    Flags indicating parameters</span>
+<span class="sd">            whose values should be fit for (by having a corresponding entry of</span>
+<span class="sd">            True). Must match exactly the shape of transit_parameters.</span>
+
+<span class="sd">        num_limbdark_coef(int):    How many of the transit parameters are limb</span>
+<span class="sd">            darkening coefficinets? Those need to be passed to the model</span>
+<span class="sd">            separately.</span>
+
+<span class="sd">        correct(Correction):    Instance of one of the correction algarithms to</span>
+<span class="sd">            make adaptive.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (scipy array, scipy array):</span>
+<span class="sd">            * The best fit transit parameters</span>
+
+<span class="sd">            * The return value of ReconstructiveCorrectionTransit.__call__() for</span>
+<span class="sd">              the best-fit transit parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># This is intended to server as a callable.</span>
+    <span class="c1"># pylint: disable=too-few-public-methods</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">MinimizeFunction</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Suitable callable for scipy.optimize.minimize().&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Create the underlying correction object.&quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">correct</span> <span class="o">=</span> <span class="n">ReconstructiveCorrectionTransit</span><span class="p">(</span>
+                <span class="n">transit_model</span><span class="p">,</span>
+                <span class="n">correct</span><span class="p">,</span>
+                <span class="n">fit_amplitude</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_parameters</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">transit_parameters</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_params</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Return the RMS residual of the corrected LC around a transit model.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                fit_params(scipy array):    The values of the mutable model</span>
+<span class="sd">                    parameters for the current minimization function evaluation.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                float:</span>
+<span class="sd">                    RMS of the residuals after correcting around the transit</span>
+<span class="sd">                    model with the given parameters.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">transit_parameters</span><span class="p">[</span><span class="n">fit_parameter_flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_params</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">correct</span><span class="p">(</span>
+                <span class="n">lc_fname</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transit_parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transit_parameters</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="n">num_limbdark_coef</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transit_parameters</span><span class="p">[</span><span class="n">num_limbdark_coef</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span>
+                <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)[</span><span class="s2">&quot;rms&quot;</span><span class="p">]</span>
+
+    <span class="c1"># pylint: enable=too-few-public-methods</span>
+
+    <span class="n">rms_function</span> <span class="o">=</span> <span class="n">MinimizeFunction</span><span class="p">()</span>
+    <span class="n">best_fit_transit</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">transit_parameters</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">fit_parameter_flags</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">minimize_result</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+            <span class="n">rms_function</span><span class="p">,</span> <span class="n">transit_parameters</span><span class="p">[</span><span class="n">fit_parameter_flags</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">minimize_result</span><span class="o">.</span><span class="n">success</span>
+        <span class="n">best_fit_transit</span><span class="p">[</span><span class="n">fit_parameter_flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">minimize_result</span><span class="o">.</span><span class="n">x</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">best_fit_transit</span><span class="p">,</span>
+        <span class="n">rms_function</span><span class="o">.</span><span class="n">correct</span><span class="p">(</span>
+            <span class="n">lc_fname</span><span class="p">,</span>
+            <span class="n">best_fit_transit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">best_fit_transit</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="n">num_limbdark_coef</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">best_fit_transit</span><span class="p">[</span><span class="n">num_limbdark_coef</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
