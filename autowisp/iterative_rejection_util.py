@@ -179,7 +179,7 @@ def iterative_rejection_average(
 
 
 def flag_outliers(residuals, threshold):
-    """Flag outlier residuals (see :func:`iterative_rej_linear_leastsq`_)."""
+    """Flag outlier residuals (see :func:`iterative_rej_linear_leastsq`)."""
 
     try:
         if len(threshold) == 1:

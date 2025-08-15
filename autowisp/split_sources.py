@@ -102,9 +102,9 @@ class SplitSources:
 
         Args:
             sources(structured array or pandas.DataFrame):    The sources to
-                split. Must define at least `'ID'`, ``'x'`, `'y'`, `'phqual'`,
-                `'objtype'`, and `'doublestar'` fields as well as any magnitudes
-                on which splitting is to be done.
+                split. Must define at least `'ID'`, ``'x'``, `'y'``,
+                ``'phqual'``, ``'objtype'``, and ``'doublestar'`` fields as well
+                as any magnitudes on which splitting is to be done.
 
             image_resolution:    The resolution of the image in pixels (y, x).
 
@@ -114,7 +114,7 @@ class SplitSources:
                 is controlled by the splitting arguments specified at
                 construction time with each group of sources getting a unique
                 positive integer. Sources which should not be used for PRF
-                fitting are assigned a group ID of `-1`.
+                fitting are assigned a group ID of ``-1``.
 
             in_frame:    A numpy boolean array indicating for each source
                 whether it's center lies inside the frame or not.

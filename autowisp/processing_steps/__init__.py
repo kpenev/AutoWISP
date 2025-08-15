@@ -19,8 +19,9 @@ def import_steps():
     )
     for step_name in steps:
 
-        step = import_module("autowisp.processing_steps." + step_name)
-        __all__.append(step)
+        step_name = "autowisp.processing_steps." + step_name
+        import_module(step_name)
+        __all__.append(step_name)
 
 
 import_steps()

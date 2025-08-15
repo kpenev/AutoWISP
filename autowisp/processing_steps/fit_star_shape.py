@@ -486,10 +486,12 @@ class SourceListCreator:
 
     def __call__(self, frame_fname):
         """
-        Return the `fitpsf`/`fitprf` source list for this frame.
+        Return the ``fitpsf``/``fitprf`` source list for this frame.
+
         Args:
             frame_fname:    The filename of the frame to get PRF fitting
                 sources of.
+
         Returns:
             [numpy record array]:
                 The values of all source variables PSF/PRF fitting will use for
@@ -652,6 +654,7 @@ def fit_frame_set(
 ):
     """
     Perform a simultaneous fit of all frames included in frame_filenames.
+
     Args:
         frame_filenames ([str]):    The list of FITS file containting calibrated
             frames to fit. The files must include at least 3 extensions: the

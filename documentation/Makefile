@@ -9,6 +9,7 @@ SPHINXPROJ    = AutoWISP
 SOURCEDIR     = source
 MODULEDIR     = ../autowisp
 BUILDDIR      = build
+SPHINX_APIDOC_OPTIONS=members,show-inheritance 
 APIDOCOPTS    = --force -M --separate -o "$(SOURCEDIR)/implementation" 
 
 # Put it first so that "make" without argument is like "make help".

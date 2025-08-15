@@ -68,7 +68,7 @@ def assemble_channels(
               with image, error, and mask HDUs
 
         split_channels(dict):    See same name attribute of
-            :class:`Calibrator`_.
+            :class:`Calibrator`.
 
     Returns:
         One or three numpy arrays constructed by staggering the individual

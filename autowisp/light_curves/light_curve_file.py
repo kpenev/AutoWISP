@@ -75,14 +75,17 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             substitutions:    Substitutions required to fully resolve the paths
                 to the datasets contaning the configurations.
 
-        Returns: A dictionary indexed by the hash of a configuration with
-                 entries 2-tuples of:
-                    - the ID assigned to a configuration.
-                    - and frozenset of (name, value) pairs containing the
-                    configuration.
+        Returns:
+            A dictionary indexed by the hash of a configuration with entries
+            2-tuples of:
 
-                 Also stores the extracted list of configurations as
-                 self.__configurations[component][set(substitutions.items())]
+                - the ID assigned to a configuration.
+
+                - and frozenset of (name, value) pairs containing the
+                  configuration.
+
+            Also stores the extracted list of configurations as
+            self.__configurations[component][set(substitutions.items())]
         """
 
         def report_indistinct_configurations(config_list):
