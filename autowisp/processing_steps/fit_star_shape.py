@@ -56,7 +56,11 @@ def add_background_options(parser):
         type=float,
         default=[6, 7],
         help="The annulus to use when estimating the background under "
-        "sources.",
+        "sources. The first number is the inner radius and should be large "
+        "enough to avoid picking up light from the brightest stars from which "
+        "reliable photometry is desired. The second number is the width of the "
+        "annulus (i.e inner radius + width is the outer radius). It should be "
+        "large enough to contain many tens of pixels.",
     )
 
 
@@ -139,7 +143,10 @@ def add_fitting_options(parser):
         "--shapefit-smoothing",
         type=float,
         default=None,
-        help="Parameter controlling the smoothing penalty of the PSF fit.",
+        help="Parameter controlling the smoothing penalty of the PSF fit. See "
+        "Larger values result in smoother PSF/PRF models. Too small, and the "
+        "model will contain oscillations fitting noise. Too large, and the "
+        "model will begin chopping off sharp peaks and troughs.",
     )
     parser.add_argument(
         "--shapefit-max-chi2",
@@ -214,13 +221,22 @@ def add_shape_options(parser):
         type=parse_grid_arg,
         help="The grid to use for representing the PSF/PRF. If only outer "
         "boundaries are specified (like in the default), PSF is assumed not to "
-        "vary accross the star.",
+        "vary accross the star. The outer boundaries should be far enough away "
+        "from zero to accommodate the largest aperture used for aperture "
+        "photometry. The placement of inner boundaries is dictated by the PSF "
+        "being fit. Generally, more boundaries are needed in regions where the "
+        "PSF/PRF varies more rapidly.",
     )
     parser.add_argument(
         "--shape-terms-expression",
         "--shape-terms",
         default="O0{(x-1991.5)/1991.5, (y-1329.5)/1329.5}",
-        help="The term in the PSF shape parameter dependence.",
+        help="The term in the PSF shape parameter dependence. The expression is"
+        " a product of polynomials. For example ``O2(x, y}`` would result in "
+        "terms ``1, x, y, x^2, xy, y^2`` (i.e. combined total power of 2 or "
+        "less). In contrast ``O2{x} * O2{y}`` will include all terms of up to "
+        "second order in x and up to second order in y, including all "
+        "cross-terms (total of 9 terms).",
     )
     parser.add_argument(
         "--map-variables",

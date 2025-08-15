@@ -41,7 +41,7 @@ fail_reasons = {
 
 def add_anet_cmdline_args(parser):
     """Add to parser all command line arguments needed to run astrometry.net."""
-   
+
     parser.add_argument(
         "--anet-indices",
         nargs=2,
@@ -63,7 +63,8 @@ def add_anet_cmdline_args(parser):
         default=("RA * units.deg", "DEC * units.deg"),
         help="The approximate right ascention and declination of the center of "
         "the frame in degrees. Can be an expression involving header keywords. "
-        "If not specified, the center of the catalog is used.",
+        "If not specified, the center of the catalog is used (assuming the "
+        "catalog is not being generated on-the-fly).",
     )
     parser.add_argument(
         "--frame-fov-estimate",
@@ -89,6 +90,7 @@ def add_anet_cmdline_args(parser):
         help="Astrometry.net solution is searched with scale ranging from "
         "fov/image_scale_factor to fov * image_scale_factor.",
     )
+
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -121,7 +123,10 @@ def parse_command_line(*args):
         default=1.0,
         help="The maximum distance between a projected and extracted source "
         "center before we declare the two could not possibly correspond to the "
-        "same star.",
+        "same star. Determining a good value to use depends on the properties "
+        "of the images being processed. It should be much larger than the "
+        "uncertainty with which source extraction determines potiions but much "
+        "smaller than  the typical discance between stars.",
     )
     parser.add_argument(
         "--astrometry-order",
@@ -129,7 +134,13 @@ def parse_command_line(*args):
         default=5,
         help="The order of the transformation to fit (i.e. the maximum combined"
         " power of the cartographically projected coordinates each of the "
-        "frame coordinates is allowed to depend on.",
+        "frame coordinates is allowed to depend on. The best value to use "
+        "depends on the properties of the images being processed. It needs to "
+        "be large enough to capture the distortion in the image away from "
+        "gnomonic projection, yet small enough to have many fewer parameters "
+        "than the easily detectable stars in the image. Typically, small field "
+        "of view images have smaller distortions and a lower value should be "
+        "used compared to wide-field images.",
     )
     parser.add_argument(
         "--min-source-safety-factor",
@@ -159,14 +170,20 @@ def parse_command_line(*args):
         type=float,
         default=0.8,
         help="The minimum fraction of extracted sources that must be matched to"
-        " a catalog soure for the solution to be considered valid.",
+        " a catalog soure for the solution to be considered valid. It should be"
+        " be less than 1 only to account for possible spurious stars found "
+        "during source extraction. Having a stringent (close to 1) requirement "
+        "ensures that the astrometry fails for images that are not of high "
+        "quality (thin clouds, poor tracking, etc.)",
     )
     parser.add_argument(
         "--max-rms-distance",
         type=float,
         default=0.5,
         help="The maximum RMS distance between projected and extracted "
-        "positions for the astrometry solution to be considered valid.",
+        "positions for the astrometry solution to be considered valid. Should "
+        "be slightly larger than the typical uncertainty with which source "
+        "extraction determines the centroids of the stars.",
     )
     add_anet_cmdline_args(parser)
     result = parser.parse_args(*args)

@@ -85,13 +85,36 @@ class ManualStepArgumentParser(ArgumentParser):
             "images in units of magnitude. Only relevant if the catalog does "
             "not exist.",
         )
+        max_mag_extra_help = {
+            "astrometry": (
+                "This should approximately correspond to the "
+                ":option:`brightness-threshold` argument used for source "
+                "extraction. This can be automatically determined in most cases"
+                " using ``wisp-tune-astromety-max-mag``."
+            ),
+            "photometry": (
+                "This determines the faintest stars that will receive flux "
+                "measuremets from AutoWISP. Going too deep will result in "
+                "excessive number of stars being photometerd, producing large "
+                "files and slow processing. Especially for wide-field images."
+            ),
+            "magfit": (
+                "In most cases, the photometry catalog should be used for "
+                "magnitude fitting as well."
+            ),
+            "lc": (
+                "In most cases, the photometry catalog should be used for "
+                "creating lightcurves as well."
+            ),
+        }
         self.add_argument(
             f"--{prefix}-catalog-max-magnitude",
             f"--{prefix}-catalogue-max-magnitude",
             "--cat-max-mag",
             type=float,
             default=catalog_config.get("max_magnitude", 12.0),
-            help="The faintest magnitude to include in the catalog.",
+            help="The faintest magnitude to include in the catalog."
+            + max_mag_extra_help[prefix],
         )
         self.add_argument(
             f"--{prefix}-catalog-min-magnitude",
@@ -525,7 +548,9 @@ def add_image_options(parser, include=("subpixmap", "gain", "magnitude-1adu")):
             "--subpixmap",
             default=None,
             help="The sub-pixel sensitivity map to assume. If not specified "
-            "uniform sensitivy is assumed.",
+            "uniform sensitivy is assumed. This is especially important if "
+            "processing images from color cameras. For a standard Bayer array, "
+            "the built-in map called ``dslr_subpixmap.fits`` can be used.",
         )
     if "gain" in include:
         parser.add_argument(

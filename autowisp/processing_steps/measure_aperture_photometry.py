@@ -66,7 +66,11 @@ def parse_command_line(*args):
         nargs="+",
         type=float,
         default=[],
-        help="The apretures to use for photometry.",
+        help="The apretures to use for photometry. For faint stars small "
+        "apertures work better because they avoid pixels dominated by sky "
+        "noise. For bright stars larger apertures are better because they "
+        "contain pixels with significant signal out to much larger distances "
+        "from the projected position.",
     )
     parser.add_argument(
         "--error-offset",

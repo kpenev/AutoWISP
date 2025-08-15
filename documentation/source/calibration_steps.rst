@@ -1,5 +1,32 @@
-2 Image Calibration
-=====================
+1. Image Calibration
+====================
+
+**Commands:** ``wisp-calibrate``, ``wisp-stack-to-master``,
+``wisp-stack-to-master-flat``
+
+Important Parameters
+--------------------
+
+The most important parameters to set for the calibration are:
+
+* :option:`exposure-start-utc` or :option:`exposure-start-jd`
+
+* :option:`exposure-seconds`
+
+* :option:`saturation-threshold`
+
+* :option:`fnum`
+
+* :option:`image-area`: If your camera generates images with overscan or
+  other areas that are not part of the image.
+
+* :option:`split-channels` or :option:`raw-hdu`: If using a color
+  detector
+
+* :option:`gain`: If known. Used for accurate error estimates.
+
+Description
+-----------
 
 Before raw images are used, they need to be calibrated. The sequence of steps
 is: 
@@ -34,6 +61,9 @@ is:
         ``wisp-calibrate`` with :option:`master-bias`,
         :option:`master-dark`, and :option:`master-flat` all specified.
 
+No Calibration Data?
+--------------------
+
 In case calibration data is not available, only the last of these steps needs to
 be performed, with no masters specified (see below). Even though in this case
 the pixels values will not be corrected for any of the effects described above,
@@ -41,7 +71,7 @@ this step is still needed. It will add change the data format (float point
 instead of integer), add required information in the headher, split the
 different colors if using a color camera etc.
 
-Overscan corrections
+Overscan Corrections
 --------------------
 
 In many instances, the imaging device provides extra areas that attempt to
@@ -66,24 +96,3 @@ although that term really means only one type of such area.
 
 Overscan area(s) can be specified using the :option:`overscans` option of the
 ``wisp-calibrate`` command.
-
-Important parameters
---------------------
-
-The most important parameters to set for the calibration are:
-
-* :option:`exposure-start-utc` or :option:`exposure-start-jd`
-
-* :option:`exposure-seconds`
-
-* :option:`saturation-threshold`
-
-* :option:`fnum`
-
-* :option:`image-area`: If your camera generates images with overscan or
-  other areas that are not part of the image.
-
-* :option:`split-channels` or :option:`raw-hdu`: If using a color
-  detector
-
-* :option:`gain`: If known. Used for accurate error estimates.
