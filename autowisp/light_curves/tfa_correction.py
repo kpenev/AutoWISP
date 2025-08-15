@@ -521,11 +521,8 @@ class TFACorrection(Correction):
                 photometry methods at all observation points where at least one
                 template has a measurement. Entries at observation points not
                 represented in a template are zero. The shape of each array is:
-                (
-                    number template stars
-                    number observations
-                ), and there are number of photemetry methods arrays in the
-                list.
+                ``(number template stars, number observations)``, and there are
+                number of photemetry methods arrays in the list.
 
             [numpy.array]:
                 The sorted observation IDs for which at least one template has a
@@ -876,14 +873,13 @@ class TFACorrection(Correction):
 
                 observation_id
                     The datasets to use for matching observations across light
-                    curves. For example, the following works for HAT:
-                    ```
-                    (
-                        'fitseader.cfg.stid',
-                        'fitsheader.cfg.cmpos',
-                        'fitsheader.fnum'
-                    )
-                    ```.
+                    curves. For example, the following works for HAT::
+
+                        (
+                            'fitseader.cfg.stid',
+                            'fitsheader.cfg.cmpos',
+                            'fitsheader.fnum'
+                        )
 
                 lc_fname
                     A format string that expands to the filename of a

@@ -31,9 +31,7 @@ git_id = "$Id$"
 
 
 class Calibrator(Processor):
-    # pylint: disable=anomalous-backslash-in-string
-    # Triggers on doxygen commands.
-    """
+    r"""
     Provide basic calibration operations (bias/dark/flat) fully tracking noise.
 
     Public attributes, set through :func:`__init__`, provide defaults for
@@ -171,7 +169,6 @@ class Calibrator(Processor):
         >>>           gain=8.0,
         >>>           overscans=None)
     """
-    # pylint: enable=anomalous-backslash-in-string
 
     module_git_ids = {
         "calibrator": git_id,

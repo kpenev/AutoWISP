@@ -44,8 +44,9 @@ class TimeISOTNoSep(TimeISO):
     }
 
 
-# pylint: disable=too-many-branches
-def assemble_channels(filename, hdu, split_channels):
+def assemble_channels(
+    filename, hdu, split_channels
+):  # pylint: disable=too-many-branches
     """
     Assemble the channels in the pattern they have in raw frames.
 

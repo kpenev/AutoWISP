@@ -45,7 +45,7 @@ class MagnitudeFit(ABC):
 
     # TODO: revive once database design is complete
     def _add_fit_to_db(self, coefficients, **fit_diagnostics):
-        """
+        r"""
         Record the given best fit coefficient and diagnostics in the database.
 
         Args:
@@ -61,44 +61,44 @@ class MagnitudeFit(ABC):
 
         For now disabled.
 
-        Code from HATpipe:
+        Code from HATpipe::
 
-        def _update_db(self,
-                       values,
+            def _update_db(self,
+                           values,
+                           apind,
+                           fit_res,
+                           start_src_count,
+                           final_src_count):
+
+                if self.database is None : return
+                args=((self._header['STID'],
+                       self._header['FNUM'],
+                       self._header['CMPOS'],
+                       self._header['PROJID'],
+                       self._header['SPRID'],
                        apind,
-                       fit_res,
+                       self.config.version,
                        start_src_count,
-                       final_src_count):
-
-            if self.database is None : return
-            args=((self._header['STID'],
-                   self._header['FNUM'],
-                   self._header['CMPOS'],
-                   self._header['PROJID'],
-                   self._header['SPRID'],
-                   apind,
-                   self.config.version,
-                   start_src_count,
-                   final_src_count,
-                   (None if fit_res is None else float(fit_res)))
-                  +
-                  tuple((None if v is None else float(v)) for v in values))
-            statement=('REPLACE INTO `'+self.config.dest_table+
-                       '` (`station_id`, `fnum`, `cmpos`, `project_id`, '
-                       '`sphotref_id`, `aperture`, `magfit_version`, '
-                       '`input_src`, `non_rej_src`, `rms_residuals`, `'+
-                       '`, `'.join(self._db_columns)+'`) VALUES (%s'+
-                       ', %s'*(len(args)-1)+')')
-            self._log_to_file(
-                'Inserting into DB:\n'
-                +
-                '\t' + statement + '\n'
-                +
-                '\targs: ' + repr(args) + '\n'
-                +
-                '\targ types: ' + repr([type(v) for v in args]) + '\n'
-            )
-            self.database(statement, args)
+                       final_src_count,
+                       (None if fit_res is None else float(fit_res)))
+                      +
+                      tuple((None if v is None else float(v)) for v in values))
+                statement=('REPLACE INTO `'+self.config.dest_table+
+                           '` (`station_id`, `fnum`, `cmpos`, `project_id`, '
+                           '`sphotref_id`, `aperture`, `magfit_version`, '
+                           '`input_src`, `non_rej_src`, `rms_residuals`, `'+
+                           '`, `'.join(self._db_columns)+'`) VALUES (%s'+
+                           ', %s'*(len(args)-1)+')')
+                self._log_to_file(
+                    'Inserting into DB:\n'
+                    +
+                    '\t' + statement + '\n'
+                    +
+                    '\targs: ' + repr(args) + '\n'
+                    +
+                    '\targ types: ' + repr([type(v) for v in args]) + '\n'
+                )
+                self.database(statement, args)
         """
 
     @abstractmethod
@@ -343,24 +343,25 @@ class MagnitudeFit(ABC):
 
         For now disabled.
 
-        Code from HATpipe:
+        Code from HATpipe::
 
-        self.database(
-            'UPDATE `' + raw_db_table(self._header['IMAGETYP'])
-            + '` SET `calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s '
-            'AND `cmpos`=%s',
-            (
-                self.config.calib_status,
-                self._header['STID'],
-                self._header['FNUM'],
-                self._header['CMPOS']
+            self.database(
+                'UPDATE `' + raw_db_table(self._header['IMAGETYP'])
+                + '` SET `calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s '
+                'AND `cmpos`=%s',
+                (
+                    self.config.calib_status,
+                    self._header['STID'],
+                    self._header['FNUM'],
+                    self._header['CMPOS']
+                )
             )
-        )
+
         """
 
     # TODO: Is this necessary?
     def _downgrade_calib_status(self):
-        """
+        r"""
         Deal with bad photometry for a frame.
 
         Decrements the calibration status of the given file to astrometry
@@ -368,23 +369,32 @@ class MagnitudeFit(ABC):
 
         For now disabled.
 
-        Code from HATpipe:
+        Code from HATpipe::
 
-        sys.stderr.write('bad photometry encountered:'+str(self._header)+
-                         '\n')
-        if(self.database is None) : return
-        self._log_to_file(
-            'Downgrading status of header: ' + str(self._header) + '\n'
-        )
-        sys.stderr.write('downgrading calibration status of'+
-                         str(self._header)+'\n')
-        self.database('UPDATE `'+raw_db_table(self._header['IMAGETYP'])+'` SET '
+            sys.stderr.write(
+                'bad photometry encountered: ' + str(self._header) + '\n'
+            )
+            if(self.database is None):
+                return
+            self._log_to_file(
+                'Downgrading status of header: ' + str(self._header) + '\n'
+            )
+            sys.stderr.write(
+                'downgrading calibration status of ' + str(self._header) + '\n'
+            )
+            self.database(
+                'UPDATE `'+raw_db_table(self._header['IMAGETYP'])+'` SET '
                 '`calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s AND '
-                '`cmpos`=%s', (object_status['good_astrometry'],
-                               self._header['STID'], self._header['FNUM'],
-                               self._header['CMPOS']))
-        sys.stderr.write('removing:'+self._fit_file+'\n')
-        os.remove(self._fit_file)
+                '`cmpos`=%s',
+                (
+                    object_status['good_astrometry'],
+                    self._header['STID'], self._header['FNUM'],
+                    self._header['CMPOS']
+                )
+            )
+            sys.stderr.write('removing:'+self._fit_file+'\n')
+            os.remove(self._fit_file)
+
         """
 
     @staticmethod

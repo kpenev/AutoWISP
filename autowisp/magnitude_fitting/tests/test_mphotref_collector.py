@@ -20,7 +20,7 @@ from autowisp.magnitude_fitting.tests import test_data_dir
 
 
 class TestMphotrefCollector(FloatTestCase):
-    """Tests of the `MasterPhotrefCollector`_ class."""
+    """Tests of the :class:`MasterPhotrefCollector`_."""
 
     _logger = logging.getLogger(__name__)
 

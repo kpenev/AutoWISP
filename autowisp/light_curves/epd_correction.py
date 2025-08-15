@@ -115,7 +115,7 @@ class EPDCorrection(Correction):
         fit_datasets,
         fit_weights=None,
         **iterative_fit_config,
-    ):
+    ): # pylint: disable=too-many-arguments
         """
         Configure the fitting.
 
@@ -160,15 +160,13 @@ class EPDCorrection(Correction):
         self.fit_weights = fit_weights
         self._io_fit_config = self._get_fit_configurations(fit_terms_expression)
 
-    # Re-factored as much as I could (KP)
-    # pylint: disable=too-many-locals
     def __call__(
         self,
         lc_fname,
         get_fit_dataset=LightCurveFile.get_dataset,
         extra_predictors=None,
         save=True,
-    ):
+    ):  # pylint: disable=too-many-locals
         """
         Fit and correct the given lightcurve.
 
@@ -200,14 +198,12 @@ class EPDCorrection(Correction):
                 final one during reconstructive EPD.
 
         Returns:
-            numpy.array(dtype=[('rms', numpy.float64),
-                               ('num_finite', numpy.uint)]):
+            numpy.array(dtype=[('rms', float64), ('num_finite', uint)]):
                 The RMS of the corrected values and the number of finite points
                 for each corrected dataset in the order in which the datasets
                 were supplied to __init__().
 
-            numpy.array(dtype=[(extra predictor 1, numpy.float64),
-                               ...]:
+            numpy.array(dtype=[(extra predictor 1, numpy.float64), ...]):
                 The best-fit amplitudes for the `extra_predictors`.
         """
 

@@ -94,19 +94,7 @@ class LightCurveLookUp:
 
 
 class LightCurveEvaluator(asteval.Interpreter):
-    """
-    Evaluator for expressions involving lightcurve datasets.
-
-    Attributes:
-        lc_substitutions(dict):    Any substitutions that must be applied to
-            resolve lightcurve datasets. These can be changed after creating the
-            instance.
-
-        lc_points_selection(numpy array index):    Anything that can be used an
-            index into the numpy arrays that will be read from the lightcurve to
-            filter points to use. Just like ``lc_substitutions`` the value can
-            be changed post-construction.
-    """
+    """Evaluator for expressions involving lightcurve datasets."""
 
     def _reset(self):
         for name in self._extra_names:
@@ -136,7 +124,11 @@ class LightCurveEvaluator(asteval.Interpreter):
 
     @property
     def lc_substitutions(self):
-        """Make lc_substitutions read only."""
+        """
+        Substitutions to apply to resolve lightcurve datasets.
+
+        These can be changed after creating the instance.
+        """
 
         return self._lc_substitutions
 
@@ -148,7 +140,13 @@ class LightCurveEvaluator(asteval.Interpreter):
 
     @lc_points_selection.setter
     def lc_points_selection(self, new_selection):
-        """Setter for the points selection property."""
+        """
+        Indexing applied to the LC poins to possible exclude some.
+
+        Anything that can be used an index into the numpy arrays that will be
+        read from the lightcurve to filter points to use. Just like
+        ``lc_substitutions`` the value can be changed post-construction.
+        """
 
         self._lc_points_selection = new_selection
         self._reset()
