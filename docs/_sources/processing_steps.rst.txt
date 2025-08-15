@@ -86,7 +86,7 @@ split your images inte separate directories by type:
 
 .. include:: magfit.rst
 
-.. includ:: create_lcs.rst
+.. include:: create_lcs.rst
 
 .. include:: epd.rst
 

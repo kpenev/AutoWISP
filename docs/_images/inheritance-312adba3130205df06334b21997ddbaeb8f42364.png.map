@@ -1,0 +1,8 @@
+<map id="inheritance911edba79d" name="inheritance911edba79d">
+<area shape="rect" id="node1" title="A class to represent tables of heterogeneous data." alt="" coords="5,5,168,32"/>
+<area shape="rect" id="node2" title="Test case involving floating point comparisons." alt="" coords="148,80,393,107"/>
+<area shape="rect" id="node5" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector" target="_top" title="Tests of the :class:`MasterPhotrefCollector`." alt="" coords="30,155,511,181"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="192,5,349,32"/>
+<area shape="rect" id="node4" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="373,5,864,32"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="887,5,1072,32"/>
+</map>

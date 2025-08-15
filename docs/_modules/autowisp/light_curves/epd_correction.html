@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -243,7 +244,7 @@
         <span class="n">fit_datasets</span><span class="p">,</span>
         <span class="n">fit_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">iterative_fit_config</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">):</span> <span class="c1"># pylint: disable=too-many-arguments</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Configure the fitting.</span>
 
@@ -289,8 +290,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_io_fit_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fit_configurations</span><span class="p">(</span><span class="n">fit_terms_expression</span><span class="p">)</span></div>
 
 
-    <span class="c1"># Re-factored as much as I could (KP)</span>
-    <span class="c1"># pylint: disable=too-many-locals</span>
 <div class="viewcode-block" id="EPDCorrection.__call__">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
@@ -299,7 +298,7 @@
         <span class="n">get_fit_dataset</span><span class="o">=</span><span class="n">LightCurveFile</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">,</span>
         <span class="n">extra_predictors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">):</span>  <span class="c1"># pylint: disable=too-many-locals</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fit and correct the given lightcurve.</span>
 
@@ -331,14 +330,12 @@
 <span class="sd">                final one during reconstructive EPD.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            numpy.array(dtype=[(&#39;rms&#39;, numpy.float64),</span>
-<span class="sd">                               (&#39;num_finite&#39;, numpy.uint)]):</span>
+<span class="sd">            numpy.array(dtype=[(&#39;rms&#39;, float64), (&#39;num_finite&#39;, uint)]):</span>
 <span class="sd">                The RMS of the corrected values and the number of finite points</span>
 <span class="sd">                for each corrected dataset in the order in which the datasets</span>
 <span class="sd">                were supplied to __init__().</span>
 
-<span class="sd">            numpy.array(dtype=[(extra predictor 1, numpy.float64),</span>
-<span class="sd">                               ...]:</span>
+<span class="sd">            numpy.array(dtype=[(extra predictor 1, numpy.float64), ...]):</span>
 <span class="sd">                The best-fit amplitudes for the `extra_predictors`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 

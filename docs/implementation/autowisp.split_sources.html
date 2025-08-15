@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -149,9 +150,9 @@ magnitude are supported.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sources</strong> (<em>structured array</em><em> or </em><em>pandas.DataFrame</em>) – The sources to
-split. Must define at least <cite>‘ID’</cite>, <a href="#id1"><span class="problematic" id="id2">``</span></a>’x’<cite>, `’y’</cite>, <cite>‘phqual’</cite>,
-<cite>‘objtype’</cite>, and <cite>‘doublestar’</cite> fields as well as any magnitudes
-on which splitting is to be done.</p></li>
+split. Must define at least <cite>‘ID’</cite>, <code class="docutils literal notranslate"><span class="pre">'x'</span></code>, <cite>‘y’`</cite>,
+<code class="docutils literal notranslate"><span class="pre">'phqual'</span></code>, <code class="docutils literal notranslate"><span class="pre">'objtype'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'doublestar'</span></code> fields as well
+as any magnitudes on which splitting is to be done.</p></li>
 <li><p><strong>image_resolution</strong> – The resolution of the image in pixels (y, x).</p></li>
 </ul>
 </dd>
@@ -161,7 +162,7 @@ on which splitting is to be done.</p></li>
 is controlled by the splitting arguments specified at
 construction time with each group of sources getting a unique
 positive integer. Sources which should not be used for PRF
-fitting are assigned a group ID of <cite>-1</cite>.</p>
+fitting are assigned a group ID of <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p>
 </dd>
 <dt>in_frame:    A numpy boolean array indicating for each source</dt><dd><p>whether it’s center lies inside the frame or not.</p>
 </dd>

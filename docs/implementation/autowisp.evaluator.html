@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -184,33 +185,6 @@ entries overwrite earlier ones.</p>
 <map id="inheritancedb79d57295" name="inheritancedb79d57295">
 <area shape="rect" id="node2" href="#autowisp.evaluator.LightCurveEvaluator" target="_top" title="Evaluator for expressions involving lightcurve datasets." alt="" coords="5,80,258,107"/>
 </map><p>Evaluator for expressions involving lightcurve datasets.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.evaluator.LightCurveEvaluator.lc_substitutions">
-<span class="sig-name descname"><span class="pre">lc_substitutions</span></span><a class="headerlink" href="#autowisp.evaluator.LightCurveEvaluator.lc_substitutions" title="Link to this definition"></a></dt>
-<dd><p>Any substitutions that must be applied to
-resolve lightcurve datasets. These can be changed after creating the
-instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.evaluator.LightCurveEvaluator.lc_points_selection">
-<span class="sig-name descname"><span class="pre">lc_points_selection</span></span><a class="headerlink" href="#autowisp.evaluator.LightCurveEvaluator.lc_points_selection" title="Link to this definition"></a></dt>
-<dd><p>Anything that can be used an
-index into the numpy arrays that will be read from the lightcurve to
-filter points to use. Just like <code class="docutils literal notranslate"><span class="pre">lc_substitutions</span></code> the value can
-be changed post-construction.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy array index</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.evaluator.LightCurveEvaluator.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lightcurve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_points_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">lc_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/evaluator.html#LightCurveEvaluator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.evaluator.LightCurveEvaluator.__init__" title="Link to this definition"></a></dt>
@@ -218,15 +192,16 @@ be changed post-construction.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id0">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_points_selection</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.evaluator.LightCurveEvaluator.lc_points_selection">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_points_selection</span></span><a class="headerlink" href="#autowisp.evaluator.LightCurveEvaluator.lc_points_selection" title="Link to this definition"></a></dt>
 <dd><p>Getter for the poins selection property.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id1">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_substitutions</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
-<dd><p>Make lc_substitutions read only.</p>
+<dt class="sig sig-object py" id="autowisp.evaluator.LightCurveEvaluator.lc_substitutions">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lc_substitutions</span></span><a class="headerlink" href="#autowisp.evaluator.LightCurveEvaluator.lc_substitutions" title="Link to this definition"></a></dt>
+<dd><p>Substitutions to apply to resolve lightcurve datasets.</p>
+<p>These can be changed after creating the instance.</p>
 </dd></dl>
 
 <dl class="py method">

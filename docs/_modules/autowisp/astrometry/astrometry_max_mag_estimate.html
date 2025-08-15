@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.astrometry.astrometry_max_mag_estimate &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.astrometry.astrometry_max_mag_estimate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.astrometry.astrometry_max_mag_estimate</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;Find the appropriate astrometry-catalog-max-magnitude based on the</span>
+<span class="sd">flux threshold&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">DefaultsFormatter</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asteval</span><span class="w"> </span><span class="kn">import</span> <span class="n">Interpreter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">astrometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.solve_astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_anet_cmdline_args</span><span class="p">,</span>
+    <span class="n">prepare_configuration</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_catalog_file</span><span class="p">,</span> <span class="n">read_catalog_file</span>
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Match astrometry catalog with Gaia DR3&quot;</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--dr-paths&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the DR source extract file(s)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--flux-threshold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Flux threshold for matching&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--image-margin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Image margin for finding the magnitude of the faintest star&quot;</span>
+        <span class="s2">&quot;of the brightest stars that fits in the image. It is a safety&quot;</span>
+        <span class="s2">&quot;margin to account for: some extracted sources are fake, and not all&quot;</span>
+        <span class="s2">&quot;real sources are extracted.&quot;</span>
+        <span class="s2">&quot;(default: 1.1)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">add_anet_cmdline_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="read_dr_file">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.read_dr_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_dr_file</span><span class="p">(</span><span class="n">dr_path</span><span class="p">,</span> <span class="n">cmdline_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read DR file and solve the initial astrometry for it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dr_path (str): Path to the data reduction file.</span>
+<span class="sd">        cmdline_args (dict or Namespace): Command line arguments or a</span>
+<span class="sd">        dictionary of configuration parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        field_corr (np.ndarray): Initial correlation data from astrometry.net.</span>
+<span class="sd">        dr_df (pd.DataFrame): DataFrame containing the extracted sources from</span>
+<span class="sd">        the DR file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmdline_args</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">cmdline_args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">cmdline_args</span>
+
+    <span class="n">web_lock</span> <span class="o">=</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">nullcontext</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">dr_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dr_file</span><span class="p">:</span>
+
+        <span class="n">dr_header</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">prepare_configuration</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">dr_header</span><span class="p">)</span>
+        <span class="c1"># we just needed the frame-fov-estimate to be converted from str</span>
+
+        <span class="n">fov_estimate</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">*</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;frame_fov_estimate&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;tweak_order&quot;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;fov_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fov_estimate</span> <span class="o">/</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;image_scale_factor&quot;</span><span class="p">],</span>
+            <span class="n">fov_estimate</span> <span class="o">*</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;image_scale_factor&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">srcextract_version</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dr_df</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_sources</span><span class="p">(</span>
+            <span class="s2">&quot;srcextract.sources&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcextract_column_name&quot;</span><span class="p">,</span>
+            <span class="n">srcextract_version</span><span class="o">=</span><span class="n">srcextract_version</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">xy_extracted</span> <span class="o">=</span> <span class="n">dr_df</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">xy_extracted_struct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="n">xy_extracted</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">xy_extracted_struct</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy_extracted</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">xy_extracted_struct</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xy_extracted</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">field_corr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">astrometry</span><span class="o">.</span><span class="n">get_initial_corr</span><span class="p">(</span>  <span class="c1"># _: tweak order</span>
+            <span class="n">dr_file</span><span class="o">=</span><span class="n">dr_file</span><span class="p">,</span>
+            <span class="n">xy_extracted</span><span class="o">=</span><span class="n">xy_extracted_struct</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">web_lock</span><span class="o">=</span><span class="n">web_lock</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">field_corr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">field_corr</span><span class="p">,</span> <span class="n">dr_df</span></div>
+
+
+
+<div class="viewcode-block" id="match_sources">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.match_sources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">match_sources</span><span class="p">(</span><span class="n">field_corr</span><span class="p">,</span> <span class="n">dr_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Match sources from the corr file with the DR file using a KDTree.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        field_corr (np.ndarray): Initial correlation data from astrometry.net.</span>
+<span class="sd">        dr_df (pd.DataFrame): DataFrame containing the extracted sources from</span>
+<span class="sd">        the DR file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        corr_df (pd.DataFrame): DataFrame containing the matched sources.</span>
+<span class="sd">        n_extracted (int): Number of extracted sources.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># convert field_corr with shape (n,) to pandas DataFrame</span>
+    <span class="c1"># field_corr is a structured np array, before converting it to DataFrame:</span>
+    <span class="n">field_corr_native</span> <span class="o">=</span> <span class="n">field_corr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">field_corr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">newbyteorder</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">))</span>
+    <span class="n">corr_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">field_corr_native</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;field_x&quot;</span><span class="p">,</span> <span class="s2">&quot;field_y&quot;</span><span class="p">,</span> <span class="s2">&quot;field_ra&quot;</span><span class="p">,</span> <span class="s2">&quot;field_dec&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Applying kdtree for fast nearest neighbor search</span>
+    <span class="n">dr_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">dr_df</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">corr_query</span> <span class="o">=</span> <span class="n">corr_df</span><span class="p">[[</span><span class="s2">&quot;field_x&quot;</span><span class="p">,</span> <span class="s2">&quot;field_y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">dr_tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">corr_query</span><span class="p">)</span>
+
+    <span class="c1"># Add matched info to corr_df</span>
+    <span class="n">corr_df</span><span class="p">[</span><span class="s2">&quot;matched_dr_ix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indices</span>
+    <span class="n">corr_df</span><span class="p">[</span><span class="s2">&quot;matched_dr_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">indices</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">corr_df</span><span class="p">[</span><span class="s2">&quot;matched_dr_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">indices</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">corr_df</span><span class="p">[</span><span class="s2">&quot;matched_dr_flux&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">indices</span><span class="p">][</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">corr_matched</span> <span class="o">=</span> <span class="n">corr_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># To use the second method of approximating the magnitude limit</span>
+    <span class="n">n_extracted</span> <span class="o">=</span> <span class="n">dr_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Out of </span><span class="si">{</span><span class="n">n_extracted</span><span class="si">}</span><span class="s2"> extracted sources, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;corr_matched is found as: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">corr_matched</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">corr_matched</span><span class="p">,</span> <span class="n">n_extracted</span></div>
+
+
+
+<span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="query_gaia">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.query_gaia">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">query_gaia</span><span class="p">(</span>
+    <span class="n">corr_matched</span><span class="p">,</span>
+    <span class="n">n_extracted</span><span class="p">,</span>
+    <span class="n">image_scale_factor</span><span class="p">,</span>
+    <span class="n">frame_fov_estimate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">image_margin</span><span class="o">=</span><span class="mf">1.1</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Query Gaia DR3 catalog for sources matching the extracted sources.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        corr_matched (pd.DataFrame): DataFrame containing the matched</span>
+<span class="sd">            sources.</span>
+<span class="sd">        n_extracted (int): Number of extracted sources from the DR file.</span>
+<span class="sd">        image_scale_factor (float): A safety factor originally to account for</span>
+<span class="sd">            solving astrometry in a range of fov/factor to fov*factor.</span>
+<span class="sd">        frame_fov_estimate (tuple, optional): Estimated field of view of the</span>
+<span class="sd">            frame.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        corr_matched_sorted (pd.DataFrame): DataFrame containing the matched</span>
+<span class="sd">            sources sorted by magnitude with Gaia phot_g_mean_mag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># estimate the frame center from astrometry.net correlation file</span>
+    <span class="n">ra_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">corr_matched</span><span class="p">[</span><span class="s2">&quot;field_ra&quot;</span><span class="p">])</span>
+    <span class="n">dec_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">corr_matched</span><span class="p">[</span><span class="s2">&quot;field_dec&quot;</span><span class="p">])</span>
+
+    <span class="n">height</span> <span class="o">=</span> <span class="n">Interpreter</span><span class="p">({</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="n">units</span><span class="p">})(</span><span class="n">frame_fov_estimate</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">Interpreter</span><span class="p">({</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="n">units</span><span class="p">})(</span><span class="n">frame_fov_estimate</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">create_catalog_file</span><span class="p">(</span>
+        <span class="s2">&quot;cat.fits&quot;</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ra</span><span class="o">=</span><span class="n">ra_center</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">dec</span><span class="o">=</span><span class="n">dec_center</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+        <span class="n">magnitude_expression</span><span class="o">=</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span>
+        <span class="n">epoch</span><span class="o">=</span><span class="mi">2025</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">yr</span><span class="p">,</span>
+        <span class="n">magnitude_limit</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>  <span class="c1"># Needed for WISPGaia.query_brightness_limited()</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">],</span>
+        <span class="n">order_by</span><span class="o">=</span><span class="s2">&quot;magnitude&quot;</span><span class="p">,</span>
+        <span class="n">order_dir</span><span class="o">=</span><span class="s2">&quot;ASC&quot;</span><span class="p">,</span>
+        <span class="n">max_objects</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">n_extracted</span> <span class="o">*</span> <span class="n">image_scale_factor</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">gaia_results</span> <span class="o">=</span> <span class="n">read_catalog_file</span><span class="p">(</span><span class="s2">&quot;cat.fits&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Catalog created with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gaia_results</span><span class="p">)</span><span class="si">}</span><span class="s2"> sources.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_coords</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ra_col</span><span class="p">,</span> <span class="n">dec_col</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SkyCoord</span><span class="p">(</span>
+            <span class="n">ra</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">ra_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">dec_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
+        <span class="p">)</span>
+
+    <span class="n">src_coords</span> <span class="o">=</span> <span class="n">make_coords</span><span class="p">(</span><span class="n">corr_matched</span><span class="p">,</span> <span class="s2">&quot;field_ra&quot;</span><span class="p">,</span> <span class="s2">&quot;field_dec&quot;</span><span class="p">)</span>
+    <span class="n">gaia_coords</span> <span class="o">=</span> <span class="n">make_coords</span><span class="p">(</span><span class="n">gaia_results</span><span class="p">,</span> <span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">)</span>
+
+    <span class="n">idx</span><span class="p">,</span> <span class="n">d2d</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">src_coords</span><span class="o">.</span><span class="n">match_to_catalog_sky</span><span class="p">(</span><span class="n">gaia_coords</span><span class="p">)</span>
+
+    <span class="c1"># Set a matching threshold (Need a smaller one?)</span>
+    <span class="n">match_mask</span> <span class="o">=</span> <span class="n">d2d</span> <span class="o">&lt;</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">arcsec</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Matched </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">match_mask</span><span class="p">)</span><span class="si">}</span><span class="s2"> sources out of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">corr_matched</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">g_mag_10_percent</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+        <span class="n">gaia_results</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">n_extracted</span> <span class="o">*</span> <span class="n">image_margin</span><span class="p">)][</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">],</span> <span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Gaia G mag of the faintest star among </span><span class="si">{</span><span class="n">n_extracted</span><span class="si">}</span><span class="s2"> * </span><span class="si">{</span><span class="n">image_margin</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;brightest sources in the FOV: </span><span class="si">{</span><span class="n">g_mag_10_percent</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Assign Gaia G magnitude to sources</span>
+    <span class="n">corr_matched</span><span class="p">[</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">corr_matched</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">match_mask</span><span class="p">,</span> <span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaia_results</span><span class="p">[</span>
+        <span class="s2">&quot;phot_g_mean_mag&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">match_mask</span><span class="p">]]</span>
+
+    <span class="n">corr_matched_sorted</span> <span class="o">=</span> <span class="n">corr_matched</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="n">by</span><span class="o">=</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">corr_matched_sorted</span></div>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main function to run the astrometry matching process.&quot;&quot;&quot;</span>
+
+    <span class="n">cmdline_args</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">dr_paths</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">dr_paths</span>
+    <span class="n">flux_threshold</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">flux_threshold</span>
+    <span class="n">image_scale_factor</span> <span class="o">=</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">image_scale_factor</span>
+
+    <span class="n">mags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">dr_path</span> <span class="ow">in</span> <span class="n">dr_paths</span><span class="p">:</span>
+        <span class="n">corr_df</span><span class="p">,</span> <span class="n">dr_df</span> <span class="o">=</span> <span class="n">read_dr_file</span><span class="p">(</span><span class="n">dr_path</span><span class="p">,</span> <span class="n">cmdline_args</span><span class="p">)</span>
+        <span class="n">corr_matched</span><span class="p">,</span> <span class="n">n_extracted</span> <span class="o">=</span> <span class="n">match_sources</span><span class="p">(</span><span class="n">corr_df</span><span class="p">,</span> <span class="n">dr_df</span><span class="p">)</span>
+        <span class="n">corr_matched_sorted</span> <span class="o">=</span> <span class="n">query_gaia</span><span class="p">(</span>
+            <span class="n">corr_matched</span><span class="p">,</span>
+            <span class="n">n_extracted</span><span class="p">,</span>
+            <span class="n">image_scale_factor</span><span class="p">,</span>
+            <span class="n">cmdline_args</span><span class="o">.</span><span class="n">frame_fov_estimate</span><span class="p">,</span>
+            <span class="n">cmdline_args</span><span class="o">.</span><span class="n">image_margin</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">corr_matched_sorted</span><span class="p">[</span><span class="s2">&quot;cum_median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">corr_matched_sorted</span><span class="p">[</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">corr_matched_sorted</span><span class="p">[</span><span class="s2">&quot;matched_dr_flux&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">expanding</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">corr_matched_sorted</span><span class="p">[</span><span class="s2">&quot;cum_median&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># top 3 faintest sources</span>
+        <span class="n">mags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">flux_threshold</span><span class="p">)</span> <span class="o">+</span> <span class="n">y0</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Suggested max_mag_astrometry based on &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;matching flux and mag ~ </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mags</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

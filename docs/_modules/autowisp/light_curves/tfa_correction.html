@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -667,11 +668,8 @@
 <span class="sd">                photometry methods at all observation points where at least one</span>
 <span class="sd">                template has a measurement. Entries at observation points not</span>
 <span class="sd">                represented in a template are zero. The shape of each array is:</span>
-<span class="sd">                (</span>
-<span class="sd">                    number template stars</span>
-<span class="sd">                    number observations</span>
-<span class="sd">                ), and there are number of photemetry methods arrays in the</span>
-<span class="sd">                list.</span>
+<span class="sd">                ``(number template stars, number observations)``, and there are</span>
+<span class="sd">                number of photemetry methods arrays in the list.</span>
 
 <span class="sd">            [numpy.array]:</span>
 <span class="sd">                The sorted observation IDs for which at least one template has a</span>
@@ -1028,14 +1026,13 @@
 
 <span class="sd">                observation_id</span>
 <span class="sd">                    The datasets to use for matching observations across light</span>
-<span class="sd">                    curves. For example, the following works for HAT:</span>
-<span class="sd">                    ```</span>
-<span class="sd">                    (</span>
-<span class="sd">                        &#39;fitseader.cfg.stid&#39;,</span>
-<span class="sd">                        &#39;fitsheader.cfg.cmpos&#39;,</span>
-<span class="sd">                        &#39;fitsheader.fnum&#39;</span>
-<span class="sd">                    )</span>
-<span class="sd">                    ```.</span>
+<span class="sd">                    curves. For example, the following works for HAT::</span>
+
+<span class="sd">                        (</span>
+<span class="sd">                            &#39;fitseader.cfg.stid&#39;,</span>
+<span class="sd">                            &#39;fitsheader.cfg.cmpos&#39;,</span>
+<span class="sd">                            &#39;fitsheader.fnum&#39;</span>
+<span class="sd">                        )</span>
 
 <span class="sd">                lc_fname</span>
 <span class="sd">                    A format string that expands to the filename of a</span>

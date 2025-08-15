@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -154,9 +155,7 @@
 <div class="viewcode-block" id="Calibrator">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.Calibrator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Calibrator</span><span class="p">(</span><span class="n">Processor</span><span class="p">):</span>
-    <span class="c1"># pylint: disable=anomalous-backslash-in-string</span>
-    <span class="c1"># Triggers on doxygen commands.</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provide basic calibration operations (bias/dark/flat) fully tracking noise.</span>
 
 <span class="sd">    Public attributes, set through :func:`__init__`, provide defaults for</span>
@@ -294,7 +293,6 @@
 <span class="sd">        &gt;&gt;&gt;           gain=8.0,</span>
 <span class="sd">        &gt;&gt;&gt;           overscans=None)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># pylint: enable=anomalous-backslash-in-string</span>
 
     <span class="n">module_git_ids</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;calibrator&quot;</span><span class="p">:</span> <span class="n">git_id</span><span class="p">,</span>

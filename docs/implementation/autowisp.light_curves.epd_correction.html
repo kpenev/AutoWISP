@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -228,21 +229,17 @@ final one during reconstructive EPD.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl>
-<dt>numpy.array(dtype=[(‘rms’, numpy.float64),</dt><dd><blockquote>
-<div><p>(‘num_finite’, numpy.uint)]):</p>
-</div></blockquote>
-<p>The RMS of the corrected values and the number of finite points
-for each corrected dataset in the order in which the datasets
+<dd class="field-even"><p><dl class="simple">
+<dt>The RMS of the corrected values and the number of finite points</dt><dd><p>for each corrected dataset in the order in which the datasets
 were supplied to __init__().</p>
 </dd>
-<dt>numpy.array(dtype=[(extra predictor 1, numpy.float64),</dt><dd><blockquote>
-<div><p>…]:</p>
-</div></blockquote>
-<p>The best-fit amplitudes for the <cite>extra_predictors</cite>.</p>
+<dt>numpy.array(dtype=[(extra predictor 1, numpy.float64), …]):</dt><dd><p>The best-fit amplitudes for the <cite>extra_predictors</cite>.</p>
 </dd>
 </dl>
 </p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array(dtype=[(‘rms’, float64), (‘num_finite’, uint)])</p>
 </dd>
 </dl>
 </dd></dl>

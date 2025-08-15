@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -170,7 +171,7 @@
 <div class="viewcode-block" id="MagnitudeFit._add_fit_to_db">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_fit_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_diagnostics</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Record the given best fit coefficient and diagnostics in the database.</span>
 
 <span class="sd">        Args:</span>
@@ -186,44 +187,44 @@
 
 <span class="sd">        For now disabled.</span>
 
-<span class="sd">        Code from HATpipe:</span>
+<span class="sd">        Code from HATpipe::</span>
 
-<span class="sd">        def _update_db(self,</span>
-<span class="sd">                       values,</span>
+<span class="sd">            def _update_db(self,</span>
+<span class="sd">                           values,</span>
+<span class="sd">                           apind,</span>
+<span class="sd">                           fit_res,</span>
+<span class="sd">                           start_src_count,</span>
+<span class="sd">                           final_src_count):</span>
+
+<span class="sd">                if self.database is None : return</span>
+<span class="sd">                args=((self._header[&#39;STID&#39;],</span>
+<span class="sd">                       self._header[&#39;FNUM&#39;],</span>
+<span class="sd">                       self._header[&#39;CMPOS&#39;],</span>
+<span class="sd">                       self._header[&#39;PROJID&#39;],</span>
+<span class="sd">                       self._header[&#39;SPRID&#39;],</span>
 <span class="sd">                       apind,</span>
-<span class="sd">                       fit_res,</span>
+<span class="sd">                       self.config.version,</span>
 <span class="sd">                       start_src_count,</span>
-<span class="sd">                       final_src_count):</span>
-
-<span class="sd">            if self.database is None : return</span>
-<span class="sd">            args=((self._header[&#39;STID&#39;],</span>
-<span class="sd">                   self._header[&#39;FNUM&#39;],</span>
-<span class="sd">                   self._header[&#39;CMPOS&#39;],</span>
-<span class="sd">                   self._header[&#39;PROJID&#39;],</span>
-<span class="sd">                   self._header[&#39;SPRID&#39;],</span>
-<span class="sd">                   apind,</span>
-<span class="sd">                   self.config.version,</span>
-<span class="sd">                   start_src_count,</span>
-<span class="sd">                   final_src_count,</span>
-<span class="sd">                   (None if fit_res is None else float(fit_res)))</span>
-<span class="sd">                  +</span>
-<span class="sd">                  tuple((None if v is None else float(v)) for v in values))</span>
-<span class="sd">            statement=(&#39;REPLACE INTO `&#39;+self.config.dest_table+</span>
-<span class="sd">                       &#39;` (`station_id`, `fnum`, `cmpos`, `project_id`, &#39;</span>
-<span class="sd">                       &#39;`sphotref_id`, `aperture`, `magfit_version`, &#39;</span>
-<span class="sd">                       &#39;`input_src`, `non_rej_src`, `rms_residuals`, `&#39;+</span>
-<span class="sd">                       &#39;`, `&#39;.join(self._db_columns)+&#39;`) VALUES (%s&#39;+</span>
-<span class="sd">                       &#39;, %s&#39;*(len(args)-1)+&#39;)&#39;)</span>
-<span class="sd">            self._log_to_file(</span>
-<span class="sd">                &#39;Inserting into DB:\n&#39;</span>
-<span class="sd">                +</span>
-<span class="sd">                &#39;\t&#39; + statement + &#39;\n&#39;</span>
-<span class="sd">                +</span>
-<span class="sd">                &#39;\targs: &#39; + repr(args) + &#39;\n&#39;</span>
-<span class="sd">                +</span>
-<span class="sd">                &#39;\targ types: &#39; + repr([type(v) for v in args]) + &#39;\n&#39;</span>
-<span class="sd">            )</span>
-<span class="sd">            self.database(statement, args)</span>
+<span class="sd">                       final_src_count,</span>
+<span class="sd">                       (None if fit_res is None else float(fit_res)))</span>
+<span class="sd">                      +</span>
+<span class="sd">                      tuple((None if v is None else float(v)) for v in values))</span>
+<span class="sd">                statement=(&#39;REPLACE INTO `&#39;+self.config.dest_table+</span>
+<span class="sd">                           &#39;` (`station_id`, `fnum`, `cmpos`, `project_id`, &#39;</span>
+<span class="sd">                           &#39;`sphotref_id`, `aperture`, `magfit_version`, &#39;</span>
+<span class="sd">                           &#39;`input_src`, `non_rej_src`, `rms_residuals`, `&#39;+</span>
+<span class="sd">                           &#39;`, `&#39;.join(self._db_columns)+&#39;`) VALUES (%s&#39;+</span>
+<span class="sd">                           &#39;, %s&#39;*(len(args)-1)+&#39;)&#39;)</span>
+<span class="sd">                self._log_to_file(</span>
+<span class="sd">                    &#39;Inserting into DB:\n&#39;</span>
+<span class="sd">                    +</span>
+<span class="sd">                    &#39;\t&#39; + statement + &#39;\n&#39;</span>
+<span class="sd">                    +</span>
+<span class="sd">                    &#39;\targs: &#39; + repr(args) + &#39;\n&#39;</span>
+<span class="sd">                    +</span>
+<span class="sd">                    &#39;\targ types: &#39; + repr([type(v) for v in args]) + &#39;\n&#39;</span>
+<span class="sd">                )</span>
+<span class="sd">                self.database(statement, args)</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 
@@ -489,19 +490,20 @@
 
 <span class="sd">        For now disabled.</span>
 
-<span class="sd">        Code from HATpipe:</span>
+<span class="sd">        Code from HATpipe::</span>
 
-<span class="sd">        self.database(</span>
-<span class="sd">            &#39;UPDATE `&#39; + raw_db_table(self._header[&#39;IMAGETYP&#39;])</span>
-<span class="sd">            + &#39;` SET `calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s &#39;</span>
-<span class="sd">            &#39;AND `cmpos`=%s&#39;,</span>
-<span class="sd">            (</span>
-<span class="sd">                self.config.calib_status,</span>
-<span class="sd">                self._header[&#39;STID&#39;],</span>
-<span class="sd">                self._header[&#39;FNUM&#39;],</span>
-<span class="sd">                self._header[&#39;CMPOS&#39;]</span>
+<span class="sd">            self.database(</span>
+<span class="sd">                &#39;UPDATE `&#39; + raw_db_table(self._header[&#39;IMAGETYP&#39;])</span>
+<span class="sd">                + &#39;` SET `calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s &#39;</span>
+<span class="sd">                &#39;AND `cmpos`=%s&#39;,</span>
+<span class="sd">                (</span>
+<span class="sd">                    self.config.calib_status,</span>
+<span class="sd">                    self._header[&#39;STID&#39;],</span>
+<span class="sd">                    self._header[&#39;FNUM&#39;],</span>
+<span class="sd">                    self._header[&#39;CMPOS&#39;]</span>
+<span class="sd">                )</span>
 <span class="sd">            )</span>
-<span class="sd">        )</span>
+
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 
@@ -509,7 +511,7 @@
 <div class="viewcode-block" id="MagnitudeFit._downgrade_calib_status">
 <a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._downgrade_calib_status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_downgrade_calib_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deal with bad photometry for a frame.</span>
 
 <span class="sd">        Decrements the calibration status of the given file to astrometry</span>
@@ -517,23 +519,32 @@
 
 <span class="sd">        For now disabled.</span>
 
-<span class="sd">        Code from HATpipe:</span>
+<span class="sd">        Code from HATpipe::</span>
 
-<span class="sd">        sys.stderr.write(&#39;bad photometry encountered:&#39;+str(self._header)+</span>
-<span class="sd">                         &#39;\n&#39;)</span>
-<span class="sd">        if(self.database is None) : return</span>
-<span class="sd">        self._log_to_file(</span>
-<span class="sd">            &#39;Downgrading status of header: &#39; + str(self._header) + &#39;\n&#39;</span>
-<span class="sd">        )</span>
-<span class="sd">        sys.stderr.write(&#39;downgrading calibration status of&#39;+</span>
-<span class="sd">                         str(self._header)+&#39;\n&#39;)</span>
-<span class="sd">        self.database(&#39;UPDATE `&#39;+raw_db_table(self._header[&#39;IMAGETYP&#39;])+&#39;` SET &#39;</span>
+<span class="sd">            sys.stderr.write(</span>
+<span class="sd">                &#39;bad photometry encountered: &#39; + str(self._header) + &#39;\n&#39;</span>
+<span class="sd">            )</span>
+<span class="sd">            if(self.database is None):</span>
+<span class="sd">                return</span>
+<span class="sd">            self._log_to_file(</span>
+<span class="sd">                &#39;Downgrading status of header: &#39; + str(self._header) + &#39;\n&#39;</span>
+<span class="sd">            )</span>
+<span class="sd">            sys.stderr.write(</span>
+<span class="sd">                &#39;downgrading calibration status of &#39; + str(self._header) + &#39;\n&#39;</span>
+<span class="sd">            )</span>
+<span class="sd">            self.database(</span>
+<span class="sd">                &#39;UPDATE `&#39;+raw_db_table(self._header[&#39;IMAGETYP&#39;])+&#39;` SET &#39;</span>
 <span class="sd">                &#39;`calib_status`=%s WHERE `station_id`=%s AND `fnum`=%s AND &#39;</span>
-<span class="sd">                &#39;`cmpos`=%s&#39;, (object_status[&#39;good_astrometry&#39;],</span>
-<span class="sd">                               self._header[&#39;STID&#39;], self._header[&#39;FNUM&#39;],</span>
-<span class="sd">                               self._header[&#39;CMPOS&#39;]))</span>
-<span class="sd">        sys.stderr.write(&#39;removing:&#39;+self._fit_file+&#39;\n&#39;)</span>
-<span class="sd">        os.remove(self._fit_file)</span>
+<span class="sd">                &#39;`cmpos`=%s&#39;,</span>
+<span class="sd">                (</span>
+<span class="sd">                    object_status[&#39;good_astrometry&#39;],</span>
+<span class="sd">                    self._header[&#39;STID&#39;], self._header[&#39;FNUM&#39;],</span>
+<span class="sd">                    self._header[&#39;CMPOS&#39;]</span>
+<span class="sd">                )</span>
+<span class="sd">            )</span>
+<span class="sd">            sys.stderr.write(&#39;removing:&#39;+self._fit_file+&#39;\n&#39;)</span>
+<span class="sd">            os.remove(self._fit_file)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 

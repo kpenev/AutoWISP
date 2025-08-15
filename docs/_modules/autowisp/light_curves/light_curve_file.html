@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -206,14 +207,17 @@
 <span class="sd">            substitutions:    Substitutions required to fully resolve the paths</span>
 <span class="sd">                to the datasets contaning the configurations.</span>
 
-<span class="sd">        Returns: A dictionary indexed by the hash of a configuration with</span>
-<span class="sd">                 entries 2-tuples of:</span>
-<span class="sd">                    - the ID assigned to a configuration.</span>
-<span class="sd">                    - and frozenset of (name, value) pairs containing the</span>
-<span class="sd">                    configuration.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary indexed by the hash of a configuration with entries</span>
+<span class="sd">            2-tuples of:</span>
 
-<span class="sd">                 Also stores the extracted list of configurations as</span>
-<span class="sd">                 self.__configurations[component][set(substitutions.items())]</span>
+<span class="sd">                - the ID assigned to a configuration.</span>
+
+<span class="sd">                - and frozenset of (name, value) pairs containing the</span>
+<span class="sd">                  configuration.</span>
+
+<span class="sd">            Also stores the extracted list of configurations as</span>
+<span class="sd">            self.__configurations[component][set(substitutions.items())]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">report_indistinct_configurations</span><span class="p">(</span><span class="n">config_list</span><span class="p">):</span>

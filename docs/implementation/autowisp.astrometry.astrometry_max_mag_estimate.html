@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -123,8 +124,113 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-astrometry-astrometry-max-mag-estimate-module">
-<h1>autowisp.astrometry.astrometry_max_mag_estimate module<a class="headerlink" href="#autowisp-astrometry-astrometry-max-mag-estimate-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.astrometry.astrometry_max_mag_estimate">
+<span id="autowisp-astrometry-astrometry-max-mag-estimate-module"></span><h1>autowisp.astrometry.astrometry_max_mag_estimate module<a class="headerlink" href="#module-autowisp.astrometry.astrometry_max_mag_estimate" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-4e115ce04a2be3bbedc4a7922c2447b78a239c4f.png" alt="Inheritance diagram of ArgumentParser, DataReductionFile, DefaultsFormatter, Interpreter, SkyCoord, cKDTree" usemap="#inheritance82faf6d53a" class="inheritance graphviz" /></div>
+<map id="inheritance82faf6d53a" name="inheritance82faf6d53a">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
+<area shape="rect" id="node11" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="744,80,1008,107"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="1048,5,1218,32"/>
+<area shape="rect" id="node9" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
+<area shape="rect" id="node10" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="417,80,588,107"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="422,155,583,181"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="255,5,400,32"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="425,5,580,32"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="604,5,772,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
+</map><p>Find the appropriate astrometry-catalog-max-magnitude based on the
+flux threshold</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry_max_mag_estimate.main">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_max_mag_estimate.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_max_mag_estimate.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_max_mag_estimate.main" title="Link to this definition"></a></dt>
+<dd><p>Main function to run the astrometry matching process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry_max_mag_estimate.match_sources">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_max_mag_estimate.</span></span><span class="sig-name descname"><span class="pre">match_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_corr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dr_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_max_mag_estimate.html#match_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_max_mag_estimate.match_sources" title="Link to this definition"></a></dt>
+<dd><p>Match sources from the corr file with the DR file using a KDTree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field_corr</strong> (<em>np.ndarray</em>) – Initial correlation data from astrometry.net.</p></li>
+<li><p><strong>dr_df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the extracted sources from</p></li>
+<li><p><strong>file.</strong> (<em>the DR</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame containing the matched sources.
+n_extracted (int): Number of extracted sources.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>corr_df (pd.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry_max_mag_estimate.parse_command_line">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_max_mag_estimate.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_max_mag_estimate.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_max_mag_estimate.parse_command_line" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed command line arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry_max_mag_estimate.query_gaia">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_max_mag_estimate.</span></span><span class="sig-name descname"><span class="pre">query_gaia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corr_matched</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_extracted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_scale_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_fov_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_margin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_max_mag_estimate.html#query_gaia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_max_mag_estimate.query_gaia" title="Link to this definition"></a></dt>
+<dd><p>Query Gaia DR3 catalog for sources matching the extracted sources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>corr_matched</strong> (<em>pd.DataFrame</em>) – DataFrame containing the matched
+sources.</p></li>
+<li><p><strong>n_extracted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of extracted sources from the DR file.</p></li>
+<li><p><strong>image_scale_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – A safety factor originally to account for
+solving astrometry in a range of fov/factor to fov*factor.</p></li>
+<li><p><strong>frame_fov_estimate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – Estimated field of view of the
+frame.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>DataFrame containing the matched</dt><dd><p>sources sorted by magnitude with Gaia phot_g_mean_mag.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>corr_matched_sorted (pd.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.astrometry.astrometry_max_mag_estimate.read_dr_file">
+<span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_max_mag_estimate.</span></span><span class="sig-name descname"><span class="pre">read_dr_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmdline_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_max_mag_estimate.html#read_dr_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_max_mag_estimate.read_dr_file" title="Link to this definition"></a></dt>
+<dd><p>Read DR file and solve the initial astrometry for it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dr_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to the data reduction file.</p></li>
+<li><p><strong>cmdline_args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> or </em><em>Namespace</em>) – Command line arguments or a</p></li>
+<li><p><strong>parameters.</strong> (<em>dictionary</em><em> of </em><em>configuration</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Initial correlation data from astrometry.net.
+dr_df (pd.DataFrame): DataFrame containing the extracted sources from
+the DR file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>field_corr (np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

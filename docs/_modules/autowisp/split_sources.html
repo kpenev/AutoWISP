@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -233,9 +234,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            sources(structured array or pandas.DataFrame):    The sources to</span>
-<span class="sd">                split. Must define at least `&#39;ID&#39;`, ``&#39;x&#39;`, `&#39;y&#39;`, `&#39;phqual&#39;`,</span>
-<span class="sd">                `&#39;objtype&#39;`, and `&#39;doublestar&#39;` fields as well as any magnitudes</span>
-<span class="sd">                on which splitting is to be done.</span>
+<span class="sd">                split. Must define at least `&#39;ID&#39;`, ``&#39;x&#39;``, `&#39;y&#39;``,</span>
+<span class="sd">                ``&#39;phqual&#39;``, ``&#39;objtype&#39;``, and ``&#39;doublestar&#39;`` fields as well</span>
+<span class="sd">                as any magnitudes on which splitting is to be done.</span>
 
 <span class="sd">            image_resolution:    The resolution of the image in pixels (y, x).</span>
 
@@ -245,7 +246,7 @@
 <span class="sd">                is controlled by the splitting arguments specified at</span>
 <span class="sd">                construction time with each group of sources getting a unique</span>
 <span class="sd">                positive integer. Sources which should not be used for PRF</span>
-<span class="sd">                fitting are assigned a group ID of `-1`.</span>
+<span class="sd">                fitting are assigned a group ID of ``-1``.</span>
 
 <span class="sd">            in_frame:    A numpy boolean array indicating for each source</span>
 <span class="sd">                whether it&#39;s center lies inside the frame or not.</span>

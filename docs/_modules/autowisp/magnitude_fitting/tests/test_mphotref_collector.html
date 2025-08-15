@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.magnitude_fitting.tests.test_mphotref_collector &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.magnitude_fitting.tests.test_mphotref_collector</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.magnitude_fitting.tests.test_mphotref_collector</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define tests to verify master photref collector works correctly.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shutil</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astrowisp.tests.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatTestCase</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.magnitude_fitting.master_photref_collector_zarr</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MasterPhotrefCollector</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.magnitude_fitting.tests</span><span class="w"> </span><span class="kn">import</span> <span class="n">test_data_dir</span>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestMphotrefCollector</span><span class="p">(</span><span class="n">FloatTestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests of the :class:`MasterPhotrefCollector`.&quot;&quot;&quot;</span>
+
+    <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="n">_dimensions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;tiny&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;photometries&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;mfit_iter&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+        <span class="s2">&quot;rotatestars&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
+            <span class="s2">&quot;photometries&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;mfit_iter&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;big&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+            <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="mi">14</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;photometries&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;mfit_iter&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">_stars_in_image</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tiny&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;rotatestars&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;big&quot;</span><span class="p">:</span> <span class="mi">896</span><span class="p">}</span>
+
+    <span class="n">_catalog</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Following standard unittest assert naming convections</span>
+    <span class="c1"># pylint: disable=invalid-name</span>
+<div class="viewcode-block" id="TestMphotrefCollector._assertStat">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertStat">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assertStat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_stat_fname</span><span class="p">,</span> <span class="n">test_case</span><span class="p">,</span> <span class="n">nphot</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert that the generated statistics matches the expected.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_tolerance</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_stat_</span><span class="si">{</span><span class="n">test_case</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">expected_stat_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">test_data_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_case</span><span class="si">}</span><span class="s2">_mfit_stat.txt&quot;</span>
+            <span class="p">)</span>
+            <span class="n">read_stats</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">test_stat_fname</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;expected&quot;</span><span class="p">,</span> <span class="n">expected_stat_fname</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">read_stats</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">test_stat_fname</span><span class="p">)]</span>
+
+        <span class="n">stat_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">fname</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;src_id&quot;</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">phot</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;err&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">phot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nphot</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="s2">&quot;count&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;rcount&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;med&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;meddev&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;medmeddev&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;src_id&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">read_stats</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="s2">&quot;expected&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stat_data</span><span class="p">:</span>
+            <span class="n">stat_data</span><span class="p">[</span><span class="s2">&quot;expected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_stat_</span><span class="si">{</span><span class="n">test_case</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertApproxPandas</span><span class="p">(</span>
+            <span class="n">stat_data</span><span class="p">[</span><span class="s2">&quot;expected&quot;</span><span class="p">],</span> <span class="n">stat_data</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">],</span> <span class="s2">&quot;MasterPhotrefCollector&quot;</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_fits_df</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">hdu</span><span class="o">=</span><span class="n">hdu_index</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="TestMphotrefCollector._assertMaster">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertMaster">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assertMaster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_master_fname</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert that the generated master references matches the expected.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_tolerance</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_master_</span><span class="si">{</span><span class="n">test_case</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">expected_master</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_master_</span><span class="si">{</span><span class="n">test_case</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">expected_master</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">hdu_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertApproxPandas</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_fits_df</span><span class="p">(</span>
+                        <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_data_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_case</span><span class="si">}</span><span class="s2">_mphotref.fits&quot;</span><span class="p">),</span>
+                        <span class="n">hdu_index</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">expected_master</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="n">expected_master</span><span class="p">[</span><span class="n">hdu_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_fits_df</span><span class="p">(</span><span class="n">test_master_fname</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">),</span>
+            <span class="p">)</span></div>
+
+
+    <span class="c1"># pylint: enable=invalid-name</span>
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_tiny_catalog">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_tiny_catalog">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_tiny_catalog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the catalog to use for the tiny test.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">src_i</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">src_i</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="n">src_i</span> <span class="o">%</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">src_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;tiny&quot;</span><span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">])</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_rotatestars_catalog">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_rotatestars_catalog">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_rotatestars_catalog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the catalog to use for the rotatestars test.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">src_i</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">src_i</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="n">src_i</span> <span class="o">%</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">src_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">])</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_big_catalog">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_big_catalog">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_big_catalog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the catalog to use for the big test.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="mf">0.3</span> <span class="o">*</span> <span class="p">((</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">34</span><span class="p">),</span>
+                    <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="n">src_i</span> <span class="o">//</span> <span class="mi">34</span><span class="p">),</span>
+                    <span class="n">src_i</span> <span class="o">%</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;xi&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;eta&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">src_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;big&quot;</span><span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">9</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_empty_collector_inputs">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_collector_inputs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_empty_collector_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return empty arrays with correct dtype for collector inputs.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_stars_in_image</span><span class="p">[</span><span class="n">test_case</span><span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot;mag_err&quot;</span><span class="p">,</span>
+                        <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                        <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;mfit_iter&quot;</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">],</span>
+                        <span class="p">),</span>
+                    <span class="p">),</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot;phot_flag&quot;</span><span class="p">,</span>
+                        <span class="n">numpy</span><span class="o">.</span><span class="n">uint</span><span class="p">,</span>
+                        <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;mfit_iter&quot;</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">],</span>
+                        <span class="p">),</span>
+                    <span class="p">),</span>
+                <span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_stars_in_image</span><span class="p">[</span><span class="n">test_case</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_collector_inputs_tiny">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_tiny">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_collector_inputs_tiny</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Feed the collector with 10 stars, 20 images, 5 photometries.&quot;&quot;&quot;</span>
+
+        <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_collector_inputs</span><span class="p">(</span><span class="s2">&quot;tiny&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">src_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;tiny&quot;</span><span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">]):</span>
+            <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">src_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][</span><span class="n">src_i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="mf">0.01</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">phot_i</span> <span class="o">+</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">fit_iter</span>
+                    <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;tiny&quot;</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">fit_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;tiny&quot;</span><span class="p">][</span><span class="s2">&quot;mfit_iter&quot;</span><span class="p">])</span>
+            <span class="p">]</span>
+            <span class="n">fitted</span><span class="p">[</span><span class="n">src_i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="mf">0.01</span> <span class="o">*</span> <span class="n">img_i</span> <span class="o">+</span> <span class="n">phot_i</span><span class="o">**</span><span class="mi">2</span>
+                <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;tiny&quot;</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_collector_inputs_rotatestars">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_rotatestars">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_collector_inputs_rotatestars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Feed the collector with 10 stars, 20 images, 5 photometries.&quot;&quot;&quot;</span>
+
+        <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_collector_inputs</span><span class="p">(</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">src_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stars_in_image</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">]):</span>
+            <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">src_i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_i</span> <span class="o">+</span> <span class="n">img_i</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span>
+                <span class="s2">&quot;rotatestars&quot;</span>
+            <span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][</span><span class="n">src_i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="mf">0.01</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">phot_i</span> <span class="o">+</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">fit_iter</span>
+                    <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">fit_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">][</span><span class="s2">&quot;mfit_iter&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">fitted</span><span class="p">[</span><span class="n">src_i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="mf">0.01</span> <span class="o">*</span> <span class="n">img_i</span> <span class="o">+</span> <span class="n">phot_i</span><span class="o">**</span><span class="mi">2</span>
+                <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_collector_inputs_big">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_big">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_collector_inputs_big</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Feed the collector with the stars for the big test.</span>
+
+<span class="sd">        One out of every 9 catalog stars will never appear in an image (128</span>
+<span class="sd">        stars). Another one out of very 9 catalog stars will only appear in one</span>
+<span class="sd">        out of 8 images. Another one of 9 catalog stars will be missing from</span>
+<span class="sd">        1/8th of the images and 768 stars will appear in all images.</span>
+
+<span class="sd">        For each star for each photometry one out of 14 images will have outlier</span>
+<span class="sd">        flux (different image for different photometry). Ditto for photometry</span>
+<span class="sd">        error estimates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_collector_inputs</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span>
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;big&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">source_ind</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># False positive</span>
+        <span class="c1"># pylint: disable=not-an-iterable</span>
+        <span class="k">for</span> <span class="n">src_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span><span class="p">:</span>
+            <span class="c1"># pylint: enable=not-an-iterable</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">img_i</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">6</span> <span class="ow">and</span> <span class="n">img_i</span> <span class="o">%</span> <span class="mi">8</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">][</span><span class="n">source_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_id</span>
+            <span class="k">if</span> <span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">src_img</span> <span class="o">=</span> <span class="n">img_i</span> <span class="o">//</span> <span class="mi">8</span>
+            <span class="k">elif</span> <span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">src_img</span> <span class="o">=</span> <span class="n">img_i</span> <span class="o">-</span> <span class="n">img_i</span> <span class="o">//</span> <span class="mi">8</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">src_img</span> <span class="o">=</span> <span class="n">img_i</span>
+            <span class="n">outlier_ind</span> <span class="o">=</span> <span class="n">src_img</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+            <span class="c1"># False positive</span>
+            <span class="c1"># pylint: disable=unsubscriptable-object</span>
+            <span class="n">cat_mag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span><span class="p">[</span><span class="n">src_id</span><span class="p">][</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">]</span>
+            <span class="c1"># pylint: enable=unsubscriptable-object</span>
+            <span class="n">phot</span><span class="p">[</span><span class="s2">&quot;mag_err&quot;</span><span class="p">][</span><span class="n">source_ind</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="mf">0.003</span>
+                <span class="o">+</span> <span class="mf">0.005</span> <span class="o">*</span> <span class="p">(</span><span class="n">src_img</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="n">cat_mag</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="mf">5.3</span>
+                    <span class="k">if</span> <span class="n">outlier_ind</span> <span class="o">==</span> <span class="p">(</span><span class="n">phot_i</span> <span class="o">+</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+                    <span class="k">else</span> <span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+            <span class="p">]</span>
+            <span class="n">fitted</span><span class="p">[</span><span class="n">source_ind</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="mf">0.9</span> <span class="o">*</span> <span class="n">cat_mag</span>
+                <span class="o">+</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="p">(</span><span class="n">src_img</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="n">cat_mag</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mf">0.1</span> <span class="k">if</span> <span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">5</span> <span class="k">else</span> <span class="mf">0.01</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">src_img</span> <span class="o">%</span> <span class="mi">7</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">((</span><span class="mf">3.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">cat_mag</span><span class="p">)</span> <span class="k">if</span> <span class="n">outlier_ind</span> <span class="o">==</span> <span class="n">phot_i</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+            <span class="p">]</span>
+
+            <span class="n">source_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">source_ind</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stars_in_image</span><span class="p">[</span><span class="s2">&quot;big&quot;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;For image </span><span class="si">%d</span><span class="s2"> sources: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">img_i</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">phot</span><span class="p">[</span><span class="s2">&quot;source_id&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">phot</span><span class="p">,</span> <span class="n">fitted</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_empty_stat">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_stat">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_empty_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_case</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return empty, but properly configured statistics DataFrame.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">phot</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="p">(</span><span class="nb">int</span> <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">,</span> <span class="s2">&quot;err&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">phot</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_case</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="s2">&quot;count&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;rcount&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;med&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;meddev&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;medmeddev&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_stat_rotatestars">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_rotatestars">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_stat_rotatestars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the expected statistics DataFrame for the rotatestars test.&quot;&quot;&quot;</span>
+
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">]</span>
+        <span class="n">all_img_first_phot</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.01</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_stat</span><span class="p">(</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;stars&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">src_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;stars&quot;</span><span class="p">]):</span>
+            <span class="n">src_first_phot</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">all_img_first_phot</span><span class="p">)</span>
+            <span class="n">src_in_image</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">src_i</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]))</span>
+                <span class="o">%</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;stars&quot;</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stars_in_image</span><span class="p">[</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">]</span>
+            <span class="n">src_first_phot</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">src_in_image</span><span class="p">)]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">outliers</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">])</span>
+            <span class="n">med_phot</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">diff_phot</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">rms_phot</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">while</span> <span class="n">outliers</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">med_phot</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">src_first_phot</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">avg</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">]:</span>
+                    <span class="n">diff_phot</span><span class="p">[</span><span class="n">avg</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_first_phot</span> <span class="o">-</span> <span class="n">med_phot</span>
+                    <span class="n">rms_phot</span><span class="p">[</span><span class="n">avg</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;nan</span><span class="si">{</span><span class="n">avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)(</span>
+                            <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">diff_phot</span><span class="p">[</span><span class="n">avg</span><span class="p">])</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+                <span class="n">outliers</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diff_phot</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">rms_phot</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">src_first_phot</span><span class="p">[</span><span class="n">outliers</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_in_image</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span>
+                    <span class="n">src_first_phot</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">med_phot</span> <span class="o">+</span> <span class="n">phot_i</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_meddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms_phot</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">src_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_medmeddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rms_phot</span><span class="p">[</span>
+                    <span class="s2">&quot;median&quot;</span>
+                <span class="p">]</span>
+        <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]):</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;err_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;err_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;err_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">phot_i</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_stat_big">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_big">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_stat_big</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the expected statistics file for the big test.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_stat</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span>
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;big&quot;</span><span class="p">]</span>
+        <span class="n">cat_star_ids</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">cat_star_ids</span><span class="p">[</span><span class="n">cat_star_ids</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]):</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">8</span>
+            <span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">6</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span>
+                <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">8</span>
+            <span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">]</span> <span class="o">-</span> <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="p">(</span>
+                <span class="mi">2</span> <span class="o">*</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">src_id</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">image_inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">image_inds</span> <span class="o">=</span> <span class="n">image_inds</span><span class="p">[</span>
+                    <span class="n">image_inds</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="n">phot_i</span>
+                <span class="p">]</span>
+
+                <span class="n">cat_mag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span><span class="p">[</span><span class="n">src_id</span><span class="p">][</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">]</span>
+                <span class="n">mags</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.9</span> <span class="o">+</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="p">(</span><span class="n">image_inds</span> <span class="o">%</span> <span class="mi">10</span><span class="p">))</span> <span class="o">*</span> <span class="n">cat_mag</span> <span class="o">+</span> <span class="p">(</span>
+                    <span class="mf">0.1</span> <span class="k">if</span> <span class="n">src_id</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">5</span> <span class="k">else</span> <span class="mf">0.01</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">image_inds</span> <span class="o">%</span> <span class="mi">7</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">mags</span><span class="p">)</span>
+                <span class="n">squaredev</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span>
+                    <span class="n">mags</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_meddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">squaredev</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_medmeddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">squaredev</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="p">)</span>
+
+                <span class="n">image_inds</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">image_inds</span> <span class="o">=</span> <span class="n">image_inds</span><span class="p">[</span>
+                    <span class="n">image_inds</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+                    <span class="o">!=</span> <span class="p">(</span><span class="n">dimensions</span><span class="p">[</span><span class="s2">&quot;photometries&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">phot_i</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="n">errors</span> <span class="o">=</span> <span class="mf">0.003</span> <span class="o">+</span> <span class="mf">0.005</span> <span class="o">*</span> <span class="p">(</span><span class="n">image_inds</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="n">cat_mag</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;err_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+                <span class="n">squaredev</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span>
+                    <span class="n">errors</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;err_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;err_meddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">squaredev</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">src_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;err_medmeddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">squaredev</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="p">)</span>
+
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;err_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;err_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_empty_masters">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_masters">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_empty_masters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return properly initalized masters with undefined entries.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="s2">&quot;stars&quot;</span><span class="p">],</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s2">&quot;full_count&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">uint64</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s2">&quot;magnitude&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s2">&quot;mediandev&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s2">&quot;scatter_excess&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+                        <span class="p">]</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;source_id&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">phot_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">])</span>
+        <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_master_rotatestars">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_rotatestars">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_master_rotatestars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the expected master DataFrame for the rotatestars test.&quot;&quot;&quot;</span>
+
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stat_rotatestars</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_masters</span><span class="p">(</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">phot_i</span><span class="p">,</span> <span class="n">master</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="n">master</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;full_count&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;magnitude&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;mediandev&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_meddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_medmeddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;scatter_excess&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span>
+                <span class="n">master</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">master</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector._get_master_big">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_big">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_master_big</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the expected master Data Frame for the big test.&quot;&quot;&quot;</span>
+
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_stat_big</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_empty_masters</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">phot_i</span><span class="p">,</span> <span class="n">master</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="n">master</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">master</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;full_count&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_count_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;rejected_count&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_rcount_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;magnitude&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_med_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;mediandev&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_meddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">statistics</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mag_medmeddev_</span><span class="si">{</span><span class="n">phot_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+
+            <span class="n">drop</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+                    <span class="n">statistics</span><span class="o">.</span><span class="n">index</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">==</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="n">statistics</span><span class="p">[</span><span class="s2">&quot;mag_count_0&quot;</span><span class="p">]</span>
+                    <span class="o">&lt;</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="s2">&quot;big&quot;</span><span class="p">][</span><span class="s2">&quot;images&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">master</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cat_mag</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span><span class="p">[</span><span class="n">src</span><span class="p">][</span><span class="s2">&quot;phot_g_mean_mag&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">master</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">log_dev</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">master</span><span class="p">[</span><span class="s2">&quot;medianmeddev&quot;</span><span class="p">])</span>
+            <span class="n">linear_coef</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">log_dev</span> <span class="o">*</span> <span class="n">cat_mag</span><span class="p">)</span>
+                <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">log_dev</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cat_mag</span><span class="p">)</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">cat_mag</span><span class="p">)</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">log_dev</span><span class="p">)</span> <span class="o">-</span> <span class="n">linear_coef</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cat_mag</span><span class="p">)</span>
+
+            <span class="n">master</span><span class="p">[</span><span class="s2">&quot;scatter_excess&quot;</span><span class="p">][:]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">log_dev</span> <span class="o">-</span> <span class="n">linear_coef</span> <span class="o">*</span> <span class="n">cat_mag</span> <span class="o">-</span> <span class="n">offset</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector.perform_test">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.perform_test">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">perform_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a single test.&quot;&quot;&quot;</span>
+
+        <span class="n">pandas</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">min_rows</span> <span class="o">=</span> <span class="mi">60</span>
+        <span class="n">pandas</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s2">_catalog&quot;</span><span class="p">)()</span>
+        <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tempdir</span><span class="p">:</span>
+            <span class="n">stat_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempdir</span><span class="p">,</span> <span class="s2">&quot;mfit_stat.txt&quot;</span><span class="p">)</span>
+            <span class="n">master_fname</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempdir</span><span class="p">,</span> <span class="s2">&quot;mphotref.fits&quot;</span><span class="p">)</span>
+
+            <span class="n">collector</span> <span class="o">=</span> <span class="n">MasterPhotrefCollector</span><span class="p">(</span>
+                <span class="n">statistics_fname</span><span class="o">=</span><span class="n">stat_fname</span><span class="p">,</span>
+                <span class="n">num_photometries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">],</span>
+                <span class="n">num_frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="s2">&quot;images&quot;</span><span class="p">],</span>
+                <span class="n">temp_directory</span><span class="o">=</span><span class="n">tempdir</span><span class="p">,</span>
+                <span class="n">source_name_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">img_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="s2">&quot;images&quot;</span><span class="p">]):</span>
+                <span class="n">collector</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
+                    <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_get_collector_inputs_&quot;</span> <span class="o">+</span> <span class="n">test_name</span><span class="p">)(</span><span class="n">img_i</span><span class="p">)]</span>
+                <span class="p">)</span>
+            <span class="n">collector</span><span class="o">.</span><span class="n">generate_master</span><span class="p">(</span>
+                <span class="n">master_reference_fname</span><span class="o">=</span><span class="n">master_fname</span><span class="p">,</span>
+                <span class="n">catalog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_catalog</span><span class="p">,</span>
+                <span class="n">fit_terms_expression</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;O1</span><span class="si">{phot_g_mean_mag}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">test_name</span> <span class="o">==</span> <span class="s2">&quot;big&quot;</span> <span class="k">else</span> <span class="s2">&quot;O0</span><span class="si">{xi}</span><span class="s2">&quot;</span>
+                <span class="p">),</span>
+                <span class="n">fit_outlier_threshold</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+                <span class="n">parse_source_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assertStat</span><span class="p">(</span>
+                <span class="n">stat_fname</span><span class="p">,</span>
+                <span class="n">test_name</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dimensions</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="s2">&quot;photometries&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assertMaster</span><span class="p">(</span><span class="n">master_fname</span><span class="p">,</span> <span class="n">test_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector.test_tiny">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_tiny">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_tiny</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tiny super-fast test.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_test</span><span class="p">(</span><span class="s2">&quot;tiny&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector.test_rotatestars">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_rotatestars">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_rotatestars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test with rotating collection of stars between images.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_test</span><span class="p">(</span><span class="s2">&quot;rotatestars&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestMphotrefCollector.test_big">
+<a class="viewcode-back" href="../../../../implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_big">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_big</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Big test.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_test</span><span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(name)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2"> | &quot;</span>
+        <span class="s2">&quot;</span><span class="si">%(pathname)s</span><span class="s2">.</span><span class="si">%(funcName)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">failfast</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

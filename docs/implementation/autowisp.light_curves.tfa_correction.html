@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -247,16 +248,14 @@ stars is the smaller of:</p>
 <dt>sqrt_num_templates</dt><dd><p>The number of template stars is the square of this number.</p>
 </dd>
 <dt>observation_id</dt><dd><p>The datasets to use for matching observations across light
-curves. For example, the following works for HAT:
-<a href="#id1"><span class="problematic" id="id2">``</span></a>`
-(</p>
-<blockquote>
-<div><p>’fitseader.cfg.stid’,
-‘fitsheader.cfg.cmpos’,
-‘fitsheader.fnum’</p>
-</div></blockquote>
-<p>)
-<a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a>.</p>
+curves. For example, the following works for HAT:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>
+    <span class="s1">&#39;fitseader.cfg.stid&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fitsheader.cfg.cmpos&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;fitsheader.fnum&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </dd>
 <dt>lc_fname</dt><dd><p>A format string that expands to the filename of a
 lightcurve given a source ID.</p>
@@ -340,20 +339,15 @@ observations, hopefully avoiding too many resize operations.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl>
+<dd class="field-even"><p><dl class="simple">
 <dt>The source IDs of the stars selected to serve as templates for</dt><dd><p>each photometry method.</p>
 </dd>
 <dt>[numpy.array]:</dt><dd><p>The brightness measurements from all the templates for all the
 photometry methods at all observation points where at least one
 template has a measurement. Entries at observation points not
 represented in a template are zero. The shape of each array is:
-(</p>
-<blockquote>
-<div><p>number template stars
-number observations</p>
-</div></blockquote>
-<p>), and there are number of photemetry methods arrays in the
-list.</p>
+<code class="docutils literal notranslate"><span class="pre">(number</span> <span class="pre">template</span> <span class="pre">stars,</span> <span class="pre">number</span> <span class="pre">observations)</span></code>, and there are
+number of photemetry methods arrays in the list.</p>
 </dd>
 <dt>[numpy.array]:</dt><dd><p>The sorted observation IDs for which at least one template has a
 measurement for each photometry method.</p>

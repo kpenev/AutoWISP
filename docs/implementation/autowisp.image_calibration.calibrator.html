@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -267,7 +268,8 @@ to the header to ensure reprobducability.</p>
 </dd></dl>
 
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibrator</span><span class="p">,</span>        <span class="o">&gt;&gt;&gt;</span>     <span class="n">overscan_methods</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.image_calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibrator</span><span class="p">,</span>\
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">overscan_methods</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#Create a calibrator callable instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">calibrate</span> <span class="o">=</span> <span class="n">Calibrator</span><span class="p">(</span>

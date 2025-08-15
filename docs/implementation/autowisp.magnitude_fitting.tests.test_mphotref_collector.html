@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -124,8 +125,148 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-magnitude-fitting-tests-test-mphotref-collector-module">
-<h1>autowisp.magnitude_fitting.tests.test_mphotref_collector module<a class="headerlink" href="#autowisp-magnitude-fitting-tests-test-mphotref-collector-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.magnitude_fitting.tests.test_mphotref_collector">
+<span id="autowisp-magnitude-fitting-tests-test-mphotref-collector-module"></span><h1>autowisp.magnitude_fitting.tests.test_mphotref_collector module<a class="headerlink" href="#module-autowisp.magnitude_fitting.tests.test_mphotref_collector" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-312adba3130205df06334b21997ddbaeb8f42364.png" alt="Inheritance diagram of FloatTestCase, MasterPhotrefCollector, Table, TemporaryDirectory, TestMphotrefCollector" usemap="#inheritance911edba79d" class="inheritance graphviz" /></div>
+<map id="inheritance911edba79d" name="inheritance911edba79d">
+<area shape="rect" id="node5" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector" target="_top" title="Tests of the :class:`MasterPhotrefCollector`." alt="" coords="30,155,511,181"/>
+<area shape="rect" id="node4" href="autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector" target="_top" title="Class collecting magfit output to generate a master photometric reference." alt="" coords="373,5,864,32"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory" target="_top" title="Create and return a temporary directory. &#160;This has the same" alt="" coords="887,5,1072,32"/>
+</map><p>Define tests to verify master photref collector works correctly.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.magnitude_fitting.tests.test_mphotref_collector.</span></span><span class="sig-name descname"><span class="pre">TestMphotrefCollector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FloatTestCase</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-cb264802bcc51cd8eb3a22ff62525e29b530c7e9.png" alt="Inheritance diagram of autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector" usemap="#inheritance35ffdb7707" class="inheritance graphviz" /></div>
+<map id="inheritance35ffdb7707" name="inheritance35ffdb7707">
+<area shape="rect" id="node3" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector" target="_top" title="Tests of the :class:`MasterPhotrefCollector`." alt="" coords="5,155,487,181"/>
+</map><p>Tests of the <code class="xref py py-class docutils literal notranslate"><span class="pre">MasterPhotrefCollector</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertMaster">
+<span class="sig-name descname"><span class="pre">_assertMaster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_master_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._assertMaster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertMaster" title="Link to this definition"></a></dt>
+<dd><p>Assert that the generated master references matches the expected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertStat">
+<span class="sig-name descname"><span class="pre">_assertStat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_stat_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nphot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._assertStat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertStat" title="Link to this definition"></a></dt>
+<dd><p>Assert that the generated statistics matches the expected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_big_catalog">
+<span class="sig-name descname"><span class="pre">_get_big_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_big_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_big_catalog" title="Link to this definition"></a></dt>
+<dd><p>Return the catalog to use for the big test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_big">
+<span class="sig-name descname"><span class="pre">_get_collector_inputs_big</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_collector_inputs_big"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_big" title="Link to this definition"></a></dt>
+<dd><p>Feed the collector with the stars for the big test.</p>
+<p>One out of every 9 catalog stars will never appear in an image (128
+stars). Another one out of very 9 catalog stars will only appear in one
+out of 8 images. Another one of 9 catalog stars will be missing from
+1/8th of the images and 768 stars will appear in all images.</p>
+<p>For each star for each photometry one out of 14 images will have outlier
+flux (different image for different photometry). Ditto for photometry
+error estimates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_rotatestars">
+<span class="sig-name descname"><span class="pre">_get_collector_inputs_rotatestars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_collector_inputs_rotatestars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_rotatestars" title="Link to this definition"></a></dt>
+<dd><p>Feed the collector with 10 stars, 20 images, 5 photometries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_tiny">
+<span class="sig-name descname"><span class="pre">_get_collector_inputs_tiny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_collector_inputs_tiny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_tiny" title="Link to this definition"></a></dt>
+<dd><p>Feed the collector with 10 stars, 20 images, 5 photometries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_collector_inputs">
+<span class="sig-name descname"><span class="pre">_get_empty_collector_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_empty_collector_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_collector_inputs" title="Link to this definition"></a></dt>
+<dd><p>Return empty arrays with correct dtype for collector inputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_masters">
+<span class="sig-name descname"><span class="pre">_get_empty_masters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_empty_masters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_masters" title="Link to this definition"></a></dt>
+<dd><p>Return properly initalized masters with undefined entries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_stat">
+<span class="sig-name descname"><span class="pre">_get_empty_stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_case</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_empty_stat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_stat" title="Link to this definition"></a></dt>
+<dd><p>Return empty, but properly configured statistics DataFrame.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_big">
+<span class="sig-name descname"><span class="pre">_get_master_big</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_master_big"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_big" title="Link to this definition"></a></dt>
+<dd><p>Return the expected master Data Frame for the big test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_rotatestars">
+<span class="sig-name descname"><span class="pre">_get_master_rotatestars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_master_rotatestars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_rotatestars" title="Link to this definition"></a></dt>
+<dd><p>Return the expected master DataFrame for the rotatestars test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_rotatestars_catalog">
+<span class="sig-name descname"><span class="pre">_get_rotatestars_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_rotatestars_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_rotatestars_catalog" title="Link to this definition"></a></dt>
+<dd><p>Return the catalog to use for the rotatestars test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_big">
+<span class="sig-name descname"><span class="pre">_get_stat_big</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_stat_big"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_big" title="Link to this definition"></a></dt>
+<dd><p>Return the expected statistics file for the big test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_rotatestars">
+<span class="sig-name descname"><span class="pre">_get_stat_rotatestars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_stat_rotatestars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_rotatestars" title="Link to this definition"></a></dt>
+<dd><p>Return the expected statistics DataFrame for the rotatestars test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_tiny_catalog">
+<span class="sig-name descname"><span class="pre">_get_tiny_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector._get_tiny_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_tiny_catalog" title="Link to this definition"></a></dt>
+<dd><p>Return the catalog to use for the tiny test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.perform_test">
+<span class="sig-name descname"><span class="pre">perform_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector.perform_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.perform_test" title="Link to this definition"></a></dt>
+<dd><p>Run a single test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_big">
+<span class="sig-name descname"><span class="pre">test_big</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector.test_big"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_big" title="Link to this definition"></a></dt>
+<dd><p>Big test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_rotatestars">
+<span class="sig-name descname"><span class="pre">test_rotatestars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector.test_rotatestars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_rotatestars" title="Link to this definition"></a></dt>
+<dd><p>Test with rotating collection of stars between images.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_tiny">
+<span class="sig-name descname"><span class="pre">test_tiny</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/tests/test_mphotref_collector.html#TestMphotrefCollector.test_tiny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_tiny" title="Link to this definition"></a></dt>
+<dd><p>Tiny super-fast test.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -123,13 +124,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-magnitude-fitting-tests-package">
-<h1>autowisp.magnitude_fitting.tests package<a class="headerlink" href="#autowisp-magnitude-fitting-tests-package" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.magnitude_fitting.tests">
+<span id="autowisp-magnitude-fitting-tests-package"></span><h1>autowisp.magnitude_fitting.tests package<a class="headerlink" href="#module-autowisp.magnitude_fitting.tests" title="Link to this heading"></a></h1>
+<p>Test magnitude fitting.</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html">autowisp.magnitude_fitting.tests.test_mphotref_collector module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html">autowisp.magnitude_fitting.tests.test_mphotref_collector module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertMaster"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._assertMaster()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertStat"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._assertStat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_big_catalog"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_big_catalog()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_big"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_collector_inputs_big()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_rotatestars"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_collector_inputs_rotatestars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_tiny"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_collector_inputs_tiny()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_collector_inputs"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_empty_collector_inputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_masters"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_empty_masters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_stat"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_empty_stat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_big"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_master_big()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_rotatestars"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_master_rotatestars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_rotatestars_catalog"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_rotatestars_catalog()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_big"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_stat_big()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_rotatestars"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_stat_rotatestars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_tiny_catalog"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector._get_tiny_catalog()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.perform_test"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector.perform_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_big"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector.test_big()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_rotatestars"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector.test_rotatestars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_tiny"><code class="docutils literal notranslate"><span class="pre">TestMphotrefCollector.test_tiny()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

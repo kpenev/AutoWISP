@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.fake_image.raw &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.fake_image.raw</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.fake_image.raw</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define a class for creating fake raw images.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: b7e276698e13514c7b463c309094516f8ffc6d31 $&quot;</span>
+
+
+<span class="c1"># TODO: dead pixels and/or columns</span>
+<span class="c1"># (currently can partially be emulated be setting zero flat field)</span>
+<span class="c1"># TODO: cosmic ray hits</span>
+<span class="c1"># TODO: charge overflow: partial (i.e. anti-blooming gates) or full</span>
+<span class="c1"># TODO: non-linearity</span>
+<div class="viewcode-block" id="FakeRawImage">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FakeRawImage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create fake raw images with all bells and whistles.</span>
+
+<span class="sd">    Currently implemented:</span>
+<span class="sd">        * sky &amp; stars</span>
+
+<span class="sd">        * bias, dark and flat instrumental effects</span>
+
+<span class="sd">        * bias and/or dark overscan areas</span>
+
+<span class="sd">        * hot pixels (simply set high dark current)</span>
+
+<span class="sd">        * discretization noise</span>
+
+<span class="sd">        * poisson noise</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; from autowisp.fake_image import FakeRawImage</span>
+<span class="sd">        &gt;&gt;&gt; import numpy</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Create a 1044x1024 image with the first 10 pixels in x being a bias</span>
+<span class="sd">        &gt;&gt;&gt; #area and the next 10 being a dark area.</span>
+<span class="sd">        &gt;&gt;&gt; image = FakeRawImage(full_resolution=dict(x=1044, y=1024),</span>
+<span class="sd">        &gt;&gt;&gt;                      image_area=dict(xmin=20,</span>
+<span class="sd">        &gt;&gt;&gt;                                      xmax=1044,</span>
+<span class="sd">        &gt;&gt;&gt;                                      ymin=0,</span>
+<span class="sd">        &gt;&gt;&gt;                                      ymax=1024))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Bias level is 12.5 ADU</span>
+<span class="sd">        &gt;&gt;&gt; image.add_bias(12.5)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Dark current is 2.3 ADU/s except for a hot column at x=100 with 10x</span>
+<span class="sd">        &gt;&gt;&gt; #the dark current.</span>
+<span class="sd">        &gt;&gt;&gt; dark = numpy.full((1044, 1024), 12.5)</span>
+<span class="sd">        &gt;&gt;&gt; dark[:, 100] = 125.0</span>
+<span class="sd">        &gt;&gt;&gt; image.set_dark(</span>
+<span class="sd">        &gt;&gt;&gt;     rate=dark,</span>
+<span class="sd">        &gt;&gt;&gt;     areas=[dict(xmin=10, xmax=20, ymin=0, ymax=1024)]</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Define a flat field which is a quadratic function in both x and y.</span>
+<span class="sd">        &gt;&gt;&gt; x, y = numpy.meshgrid(numpy.arange(1024), numpy.arange(1024))</span>
+<span class="sd">        &gt;&gt;&gt; flat = (2.0 - ((x - 512.0) / 512.0)**2) / 2.0</span>
+<span class="sd">        &gt;&gt;&gt; image.set_flat_field(flat)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Add simple stars</span>
+<span class="sd">        &gt;&gt;&gt; star = numpy.array([[0.25, 0.50, 0.25],</span>
+<span class="sd">        &gt;&gt;&gt;                     [0.50, 1.00, 0.50],</span>
+<span class="sd">        &gt;&gt;&gt;                     [0.25, 0.50, 0.25]])</span>
+<span class="sd">        &gt;&gt;&gt; sky_flux = numpy.zeros((1024, 1024))</span>
+<span class="sd">        &gt;&gt;&gt; for star_x in numpy.arange(50.0, 1024.0 - 50.0, 50.0):</span>
+<span class="sd">        &gt;&gt;&gt;     for star_y in numpy.arange(50.0, 1024.0 - 50.0, 50.0):</span>
+<span class="sd">        &gt;&gt;&gt;         sky_flux[star_y - 1 : star_y + 2,</span>
+<span class="sd">        &gt;&gt;&gt;                  star_x - 1 : star_x + 2] = star</span>
+<span class="sd">        &gt;&gt;&gt; image.set_sky(sky_flux)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; #Get image with the given parameters with 30s exposure</span>
+<span class="sd">        &gt;&gt;&gt; exp1 = image(5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FakeRawImage.__init__">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full_resolution</span><span class="p">,</span> <span class="n">image_area</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start creating a fake image with the given parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            full_resolution:    The full resolution of the image to create,</span>
+<span class="sd">                including the light sensitive area, but also overscan areas etc.</span>
+<span class="sd">                Should be dict(x=&lt;int&gt;, y=&lt;int&gt;).</span>
+
+<span class="sd">            image_area:    The light sensitivy part of the image. The format is:</span>
+<span class="sd">                `dict(xmin = &lt;int&gt;, xmax = &lt;int&gt;, ymin = &lt;int&gt;, ymax = &lt;int&gt;)`</span>
+
+<span class="sd">            gain:    The gain to assume for the A to D converter in electrons</span>
+<span class="sd">                per ADU. Setting a non-finite value (+-infinity or NaN) disables</span>
+<span class="sd">                poisson noise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">full_resolution</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">full_resolution</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">],</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span><span class="p">[</span>
+            <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
+            <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">image_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span> <span class="o">=</span> <span class="n">gain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sky</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+
+
+<div class="viewcode-block" id="FakeRawImage.add_bias">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage.add_bias">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;ADU&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a bias level to the full image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bias:    The noiseless bias level to add. Should be a single value,</span>
+<span class="sd">                a single row or column matching or a 2-D image with the y index</span>
+<span class="sd">                being first. The row, column or the image should matchthe full</span>
+<span class="sd">                reselotion of the fake image, not just the image area.</span>
+
+<span class="sd">            units:    Is the bias level specified in &#39;electrons&#39; or in amplifier</span>
+<span class="sd">                units (&#39;ADU&#39;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">units</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ADU&quot;</span><span class="p">,</span> <span class="s2">&quot;electrons&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span> <span class="o">+=</span> <span class="n">bias</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;ADU&quot;</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FakeRawImage.set_dark">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage.set_dark">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_dark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">areas</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;ADU&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the rate at which dark current accumulates.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rate:    The noiseless rate per unit time at which dark current</span>
+<span class="sd">                accumulates. See `bias` argument of `add_bias` for details on</span>
+<span class="sd">                the possible formats.</span>
+
+<span class="sd">            areas:    List of areas specified using the same format as the</span>
+<span class="sd">                `image_area` argument of __init__ specifying the areas which</span>
+<span class="sd">                accumulate dark current but no light.</span>
+
+<span class="sd">            units:    Is the dark rate specified in &#39;ADU&#39; or &#39;electrons&#39; per</span>
+<span class="sd">                unit time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dark_rate_multiplier</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;ADU&quot;</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">image_y_res</span><span class="p">,</span> <span class="n">image_x_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">image_y_res</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">image_x_res</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">dark_rate_multiplier</span>
+
+        <span class="k">for</span> <span class="n">dark_area</span> <span class="ow">in</span> <span class="n">areas</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span><span class="p">[</span>
+                <span class="n">dark_area</span><span class="p">[</span><span class="s2">&quot;ymin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">dark_area</span><span class="p">[</span><span class="s2">&quot;ymax&quot;</span><span class="p">],</span>
+                <span class="n">dark_area</span><span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="n">dark_area</span><span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">],</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">dark_rate_multiplier</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">*=</span> <span class="n">rate</span></div>
+
+
+<div class="viewcode-block" id="FakeRawImage.set_flat_field">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage.set_flat_field">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_flat_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flat</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the sensitivity map of the fake imaging system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flat:    The noiseless map of the throughput of the system times the</span>
+<span class="sd">                sensitivy of each pixel. Should have the same resolution as the</span>
+<span class="sd">                image area (not the full image).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">flat</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="n">flat</span></div>
+
+
+<div class="viewcode-block" id="FakeRawImage.set_sky">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage.set_sky">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_sky</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sky_flux</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;ADU&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the flux arriving from the sky (with or without stars).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sky_flux:    The image that a perfect imaging system (no bias, dark</span>
+<span class="sd">                of flat) would see. Should only cover the imaging area.</span>
+
+<span class="sd">            units:    Is the sky flux specified in &#39;ADU&#39; or &#39;electrons&#39; per</span>
+<span class="sd">                unit time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">sky_flux</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sky</span> <span class="o">=</span> <span class="n">sky_flux</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;ADU&quot;</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FakeRawImage.__call__">
+<a class="viewcode-back" href="../../../implementation/autowisp.fake_image.raw.html#autowisp.fake_image.FakeRawImage.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exposure</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simulate an exposure of the given duration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            exposure:    The amount of time to expose for in units consistent</span>
+<span class="sd">                with the units used for the rates specified.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            2-D numpy array:</span>
+<span class="sd">                The simulated exposure image sprinkled with random poisson noise</span>
+<span class="sd">                if gain is finite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">*</span> <span class="n">exposure</span>
+
+        <span class="n">x_res</span><span class="p">,</span> <span class="n">y_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">image</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_res</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_res</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">*</span> <span class="n">exposure</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">):</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">image</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">))</span>
+                <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

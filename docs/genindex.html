@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -175,6 +176,10 @@
 </li>
         <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator.__call__">(autowisp.evaluator.Evaluator method)</a>
 </li>
+        <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.__call__">(autowisp.fake_image.FakeRawImage method)</a>
+</li>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.__call__">(autowisp.fake_image.raw.FakeRawImage method)</a>
+</li>
         <li><a href="implementation/autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface.__call__">(autowisp.fit_expression.interface.Interface method)</a>
 </li>
         <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator.__call__">(autowisp.image_calibration.Calibrator method)</a>
@@ -262,6 +267,10 @@
         <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator.__init__">(autowisp.evaluator.LightCurveEvaluator method)</a>
 </li>
         <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp.__init__">(autowisp.evaluator.LightCurveLookUp method)</a>
+</li>
+        <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.__init__">(autowisp.fake_image.FakeRawImage method)</a>
+</li>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.__init__">(autowisp.fake_image.raw.FakeRawImage method)</a>
 </li>
         <li><a href="implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.__init__">(autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor method)</a>
 </li>
@@ -412,6 +421,12 @@
         <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.WrapFilterAsSmoother._apply_smoothing">(autowisp.image_smoothing.WrapFilterAsSmoother method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._asinh_transform">_asinh_transform() (in module autowisp.bui_util)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertMaster">_assertMaster() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._assertStat">_assertStat() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._auto_add_tree_quantities">_auto_add_tree_quantities() (in module autowisp.data_reduction.utils)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._auto_delete_tree_quantities">_auto_delete_tree_quantities() (in module autowisp.data_reduction.utils)</a>
@@ -514,8 +529,6 @@
 </li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._finalize_processing">_finalize_processing() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.catalog.html#autowisp.catalog._find_best_fov">_find_best_fov() (in module autowisp.catalog)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._find_colocated">_find_colocated() (autowisp.image_calibration.master_flat_maker.MasterFlatMaker method)</a>
@@ -528,6 +541,8 @@
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._fit">_fit() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._fit_scatter">_fit_scatter() (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector static method)</a>
 
       <ul>
@@ -562,6 +577,8 @@
 </li>
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_best_master">_get_best_master() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_big_catalog">_get_big_catalog() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator._get_calibration_params">_get_calibration_params() (autowisp.image_calibration.Calibrator method)</a>
 
       <ul>
@@ -575,6 +592,12 @@
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_catalogue_datasets">_get_catalogue_datasets() (in module autowisp.database.initialize_data_reduction_structure)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_big">_get_collector_inputs_big() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_rotatestars">_get_collector_inputs_rotatestars() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_collector_inputs_tiny">_get_collector_inputs_tiny() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.iterative_refit.html#autowisp.magnitude_fitting.iterative_refit._get_common_header">_get_common_header() (in module autowisp.magnitude_fitting.iterative_refit)</a>
 </li>
@@ -607,6 +630,12 @@
       <li><a href="implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_detrended_datasets">_get_detrended_datasets() (in module autowisp.database.initialize_light_curve_structure)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_dimensions_iterator">_get_dimensions_iterator() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_collector_inputs">_get_empty_collector_inputs() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_masters">_get_empty_masters() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_empty_stat">_get_empty_stat() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_enough_count_flags">_get_enough_count_flags() (autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector method)</a>
 </li>
@@ -646,6 +675,10 @@
 </li>
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_master">_get_master() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_big">_get_master_big() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_master_rotatestars">_get_master_rotatestars() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ExpressionMatcher._get_master_values">_get_master_values() (autowisp.database.image_processing.ExpressionMatcher method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._get_med_count">_get_med_count() (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector method)</a>
@@ -666,6 +699,8 @@
         <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile._get_root_tag_name">(autowisp.light_curves.light_curve_file.LightCurveFile class method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_rotatestars_catalog">_get_rotatestars_catalog() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_attributes">_get_shapefit_attributes() (in module autowisp.database.initialize_data_reduction_structure)</a>
 </li>
       <li><a href="implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_shapefit_datasets">_get_shapefit_datasets() (in module autowisp.database.initialize_data_reduction_structure)</a>
@@ -710,9 +745,15 @@
         <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.MasterFlatMaker._get_stamp_statistics">(autowisp.image_calibration.MasterFlatMaker method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_big">_get_stat_big() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_stat_dtype">_get_stat_dtype() (autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector method)</a>
 </li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_stat_rotatestars">_get_stat_rotatestars() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_substitutions">_get_substitutions() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector._get_tiny_catalog">_get_tiny_catalog() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._grcollect">_grcollect (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector attribute)</a>
 
@@ -733,6 +774,8 @@
       <li><a href="implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection._io_fit_config">_io_fit_config (autowisp.light_curves.epd_correction.EPDCorrection attribute)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._key_io_tree_to_dr">_key_io_tree_to_dr (autowisp.data_reduction.data_reduction_file.DataReductionFile attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._log_transform">_log_transform() (in module autowisp.bui_util)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._magfit_collector">_magfit_collector (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
 </li>
@@ -771,6 +814,8 @@
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._path_substitutions">_path_substitutions (autowisp.light_curves.lc_data_io.LCDataIO attribute)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._plot_template_selection">_plot_template_selection() (autowisp.light_curves.tfa_correction.TFACorrection method)</a>
+</li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._pow_transform">_pow_transform() (in module autowisp.bui_util)</a>
 </li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._prepare_processing">_prepare_processing() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 
@@ -826,6 +871,8 @@
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._set_group">_set_group() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._sinh_transform">_sinh_transform() (in module autowisp.bui_util)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._solved">_solved() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._source_name_format">_source_name_format (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
@@ -841,6 +888,10 @@
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._split_by_master">_split_by_master() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._split_delimited_string">_split_delimited_string() (in module autowisp.processing_steps.lc_detrending_argument_parser)</a>
+</li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._sqrt_transform">_sqrt_transform() (in module autowisp.bui_util)</a>
+</li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._square_transform">_square_transform() (in module autowisp.bui_util)</a>
 </li>
       <li><a href="implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._start_cross_product_expansion">_start_cross_product_expansion() (autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor method)</a>
 </li>
@@ -935,6 +986,12 @@
 </li>
       <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves.MasterCatalog.add_batch">add_batch() (autowisp.processing_steps.create_lightcurves.MasterCatalog method)</a>
 </li>
+      <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.add_bias">add_bias() (autowisp.fake_image.FakeRawImage method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.add_bias">(autowisp.fake_image.raw.FakeRawImage method)</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_channel_keywords">add_channel_keywords() (in module autowisp.image_calibration.fits_util)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.add_configurations">add_configurations() (autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
@@ -1167,6 +1224,13 @@
 </li>
       </ul></li>
       <li>
+    autowisp.astrometry.astrometry_max_mag_estimate
+
+      <ul>
+        <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#module-autowisp.astrometry.astrometry_max_mag_estimate">module</a>
+</li>
+      </ul></li>
+      <li>
     autowisp.astrometry.astrometry_net_client
 
       <ul>
@@ -1192,6 +1256,13 @@
 
       <ul>
         <li><a href="implementation/autowisp.astrometry.transformation.html#module-autowisp.astrometry.transformation">module</a>
+</li>
+      </ul></li>
+      <li>
+    autowisp.bui_util
+
+      <ul>
+        <li><a href="implementation/autowisp.bui_util.html#module-autowisp.bui_util">module</a>
 </li>
       </ul></li>
       <li>
@@ -1561,6 +1632,20 @@
 </li>
       </ul></li>
       <li>
+    autowisp.fake_image
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.html#module-autowisp.fake_image">module</a>
+</li>
+      </ul></li>
+      <li>
+    autowisp.fake_image.raw
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.raw.html#module-autowisp.fake_image.raw">module</a>
+</li>
+      </ul></li>
+      <li>
     autowisp.file_utilities
 
       <ul>
@@ -1859,6 +1944,20 @@
 
       <ul>
         <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#module-autowisp.magnitude_fitting.master_photref_collector_zarr">module</a>
+</li>
+      </ul></li>
+      <li>
+    autowisp.magnitude_fitting.tests
+
+      <ul>
+        <li><a href="implementation/autowisp.magnitude_fitting.tests.html#module-autowisp.magnitude_fitting.tests">module</a>
+</li>
+      </ul></li>
+      <li>
+    autowisp.magnitude_fitting.tests.test_mphotref_collector
+
+      <ul>
+        <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#module-autowisp.magnitude_fitting.tests.test_mphotref_collector">module</a>
 </li>
       </ul></li>
       <li>
@@ -3384,6 +3483,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.enabled">(autowisp.database.data_model.MasterFile attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util.encode_fits">encode_fits() (in module autowisp.bui_util)</a>
+</li>
       <li><a href="implementation/autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession.end_time_utc">end_time_utc (autowisp.database.data_model.observing_session.ObservingSession attribute)</a>
 
       <ul>
@@ -3465,10 +3566,10 @@
 </li>
       <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.evaluate_expression">evaluate_expression() (autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
 </li>
-      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.evaluate_expressions_image">evaluate_expressions_image() (autowisp.database.processing.ProcessingManager method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.evaluate_expressions_image">evaluate_expressions_image() (autowisp.database.processing.ProcessingManager method)</a>
+</li>
       <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation.evaluate_polynomial">evaluate_polynomial() (autowisp.astrometry.anmatch_transformation.AnmatchTransformation method)</a>
 
       <ul>
@@ -3581,6 +3682,12 @@
         <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.TelescopeType.f_ratio">(autowisp.database.data_model.provenance.TelescopeType attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage">FakeRawImage (class in autowisp.fake_image)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage">(class in autowisp.fake_image.raw)</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep.fast_parser_pars">fast_parser_pars (autowisp.image_calibration.fits_util.TimeISOTNoSep attribute)</a>
 </li>
       <li><a href="implementation/autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile.filename">filename (autowisp.database.data_model.master_files.MasterFile attribute)</a>
@@ -3666,14 +3773,14 @@
 </li>
       <li><a href="implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection.fit_points_filter_expression">fit_points_filter_expression (autowisp.light_curves.epd_correction.EPDCorrection attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_polynomial">fit_polynomial() (autowisp.fit_expression.FitTermsParser.FitTermsParser method)</a>
 
       <ul>
         <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.fit_polynomial">(autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.fit_source_extracted_psf_map">fit_source_extracted_psf_map() (in module autowisp.processing_steps.fit_source_extracted_psf_map)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.fit_star_shape">fit_star_shape() (in module autowisp.processing_steps.fit_star_shape)</a>
@@ -4149,6 +4256,8 @@
       </ul></li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.header_datasets">header_datasets (autowisp.light_curves.lc_data_io.LCDataIO attribute)</a>, <a href="implementation/autowisp.light_curves.lc_data_io.html#id2">[1]</a>
 </li>
+      <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util.hex_color">hex_color() (in module autowisp.bui_util)</a>
+</li>
       <li>
     high-flat-master-fname
 
@@ -4430,8 +4539,6 @@
         <li><a href="implementation/autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType">(class in autowisp.database.data_model.image_type)</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.processing_steps.html#autowisp.processing_steps.import_steps">import_steps() (in module autowisp.processing_steps)</a>
-</li>
       <li>
     inclination
 
@@ -4727,18 +4834,10 @@
       </ul></li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.lc_data_slice">lc_data_slice (autowisp.light_curves.lc_data_io.LCDataIO attribute)</a>
 </li>
-      <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator.lc_points_selection">lc_points_selection (autowisp.evaluator.LightCurveEvaluator attribute)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.evaluator.html#id0">(autowisp.evaluator.LightCurveEvaluator property)</a>
+      <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator.lc_points_selection">lc_points_selection (autowisp.evaluator.LightCurveEvaluator property)</a>
 </li>
-      </ul></li>
-      <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator.lc_substitutions">lc_substitutions (autowisp.evaluator.LightCurveEvaluator attribute)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.evaluator.html#id1">(autowisp.evaluator.LightCurveEvaluator property)</a>
+      <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator.lc_substitutions">lc_substitutions (autowisp.evaluator.LightCurveEvaluator property)</a>
 </li>
-      </ul></li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO">LCDataIO (class in autowisp.light_curves.lc_data_io)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_slice.html#autowisp.light_curves.lc_data_slice.LCDataSliceBase">LCDataSliceBase (class in autowisp.light_curves.lc_data_slice)</a>
@@ -4963,9 +5062,11 @@
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit">MagnitudeFit (class in autowisp.magnitude_fitting.base)</a>
 </li>
-      <li><a href="implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.main">main() (in module autowisp.astrometry.transformation)</a>
+      <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.main">main() (in module autowisp.astrometry.astrometry_max_mag_estimate)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.main">(in module autowisp.astrometry.transformation)</a>
+</li>
         <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.main">(in module autowisp.catalog)</a>
 </li>
         <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.main">(in module autowisp.database.image_processing)</a>
@@ -5182,6 +5283,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterType.match_expressions">(autowisp.database.data_model.MasterType attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.match_sources">match_sources() (in module autowisp.astrometry.astrometry_max_mag_estimate)</a>
+</li>
       <li>
     max-astrom-iter
 
@@ -5351,6 +5454,8 @@
 </li>
         <li><a href="implementation/autowisp.astrometry.astrometry.html#module-autowisp.astrometry.astrometry">autowisp.astrometry.astrometry</a>
 </li>
+        <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#module-autowisp.astrometry.astrometry_max_mag_estimate">autowisp.astrometry.astrometry_max_mag_estimate</a>
+</li>
         <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#module-autowisp.astrometry.astrometry_net_client">autowisp.astrometry.astrometry_net_client</a>
 </li>
         <li><a href="implementation/autowisp.astrometry.healpix_utilities.html#module-autowisp.astrometry.healpix_utilities">autowisp.astrometry.healpix_utilities</a>
@@ -5358,6 +5463,8 @@
         <li><a href="implementation/autowisp.astrometry.map_projections.html#module-autowisp.astrometry.map_projections">autowisp.astrometry.map_projections</a>
 </li>
         <li><a href="implementation/autowisp.astrometry.transformation.html#module-autowisp.astrometry.transformation">autowisp.astrometry.transformation</a>
+</li>
+        <li><a href="implementation/autowisp.bui_util.html#module-autowisp.bui_util">autowisp.bui_util</a>
 </li>
         <li><a href="implementation/autowisp.catalog.html#module-autowisp.catalog">autowisp.catalog</a>
 </li>
@@ -5463,6 +5570,10 @@
 </li>
         <li><a href="implementation/autowisp.evaluator.html#module-autowisp.evaluator">autowisp.evaluator</a>
 </li>
+        <li><a href="implementation/autowisp.fake_image.html#module-autowisp.fake_image">autowisp.fake_image</a>
+</li>
+        <li><a href="implementation/autowisp.fake_image.raw.html#module-autowisp.fake_image.raw">autowisp.fake_image.raw</a>
+</li>
         <li><a href="implementation/autowisp.file_utilities.html#module-autowisp.file_utilities">autowisp.file_utilities</a>
 </li>
         <li><a href="implementation/autowisp.fit_expression.html#module-autowisp.fit_expression">autowisp.fit_expression</a>
@@ -5548,6 +5659,10 @@
         <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#module-autowisp.magnitude_fitting.master_photref_collector_grcollect">autowisp.magnitude_fitting.master_photref_collector_grcollect</a>
 </li>
         <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#module-autowisp.magnitude_fitting.master_photref_collector_zarr">autowisp.magnitude_fitting.master_photref_collector_zarr</a>
+</li>
+        <li><a href="implementation/autowisp.magnitude_fitting.tests.html#module-autowisp.magnitude_fitting.tests">autowisp.magnitude_fitting.tests</a>
+</li>
+        <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#module-autowisp.magnitude_fitting.tests.test_mphotref_collector">autowisp.magnitude_fitting.tests.test_mphotref_collector</a>
 </li>
         <li><a href="implementation/autowisp.magnitude_fitting.util.html#module-autowisp.magnitude_fitting.util">autowisp.magnitude_fitting.util</a>
 </li>
@@ -6081,9 +6196,11 @@
 </li>
       <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser.parse_args">parse_args() (autowisp.processing_steps.manual_util.ManualStepArgumentParser method)</a>
 </li>
-      <li><a href="implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.parse_command_line">parse_command_line() (in module autowisp.astrometry.transformation)</a>
+      <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.parse_command_line">parse_command_line() (in module autowisp.astrometry.astrometry_max_mag_estimate)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.parse_command_line">(in module autowisp.astrometry.transformation)</a>
+</li>
         <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.parse_command_line">(in module autowisp.catalog)</a>
 </li>
         <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.parse_command_line">(in module autowisp.database.image_processing)</a>
@@ -6147,6 +6264,8 @@
         <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.parser">(autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.perform_test">perform_test() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li>
     period
 
@@ -6380,6 +6499,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.query_gaia">query_gaia() (in module autowisp.astrometry.astrometry_max_mag_estimate)</a>
+</li>
       <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.query_object_filtered">query_object_filtered() (autowisp.catalog.WISPGaia method)</a>
 </li>
   </ul></td>
@@ -6442,6 +6563,8 @@
 </li>
       <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.read_data_array">read_data_array() (autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
 </li>
+      <li><a href="implementation/autowisp.astrometry.astrometry_max_mag_estimate.html#autowisp.astrometry.astrometry_max_mag_estimate.read_dr_file">read_dr_file() (in module autowisp.astrometry.astrometry_max_mag_estimate)</a>
+</li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.read_fitsheader_from_dataset">read_fitsheader_from_dataset() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
       <li><a href="implementation/autowisp.fits_utilities.html#autowisp.fits_utilities.read_image_components">read_image_components() (in module autowisp.fits_utilities)</a>
@@ -6458,10 +6581,10 @@
       </ul></li>
       <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.recalculate_correction_statistics">recalculate_correction_statistics() (in module autowisp.light_curves.apply_correction)</a>
 </li>
-      <li><a href="implementation/autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit">ReconstructiveCorrectionTransit (class in autowisp.light_curves.reconstructive_correction_transit)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit">ReconstructiveCorrectionTransit (class in autowisp.light_curves.reconstructive_correction_transit)</a>
+</li>
       <li>
     reference-subpix
 
@@ -6609,6 +6732,18 @@
         <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.serializedATN">(in module autowisp.fit_expression.FitTermsParser)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.set_dark">set_dark() (autowisp.fake_image.FakeRawImage method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.set_dark">(autowisp.fake_image.raw.FakeRawImage method)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.set_flat_field">set_flat_field() (autowisp.fake_image.FakeRawImage method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.set_flat_field">(autowisp.fake_image.raw.FakeRawImage method)</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator.set_masters">set_masters() (autowisp.image_calibration.Calibrator method)</a>
 
       <ul>
@@ -6621,6 +6756,12 @@
         <li><a href="implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.set_pending">(autowisp.database.lightcurve_processing.LightCurveProcessingManager method)</a>
 </li>
         <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.set_pending">(autowisp.database.processing.ProcessingManager method)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.set_sky">set_sky() (autowisp.fake_image.FakeRawImage method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.set_sky">(autowisp.fake_image.raw.FakeRawImage method)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.set_test_directory">set_test_directory() (autowisp.tests.AutoWISPTestCase class method)</a>
@@ -6857,6 +6998,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterType.split_expressions">(autowisp.database.data_model.MasterType attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources">SplitSources (class in autowisp.split_sources)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.healpix_utilities.html#autowisp.astrometry.healpix_utilities.square_query_vertices">square_query_vertices() (in module autowisp.astrometry.healpix_utilities)</a>
@@ -6868,8 +7011,6 @@
         <li><a href="wisp_options.html#cmdoption-arg-srcextract-max-sources">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     srcextract-psf-params
 
@@ -7361,6 +7502,8 @@
 </li>
       <li><a href="implementation/autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_bias_calibration">test_bias_calibration() (autowisp.tests.test_calibrate.TestCalibrate method)</a>
 </li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_big">test_big() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.tests.test_create_lightcurves.html#autowisp.tests.test_create_lightcurves.TestCreateLightcurves.test_create_lightcurves">test_create_lightcurves() (autowisp.tests.test_create_lightcurves.TestCreateLightcurves method)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_dark_calibration">test_dark_calibration() (autowisp.tests.test_calibrate.TestCalibrate method)</a>
@@ -7385,6 +7528,8 @@
 </li>
       <li><a href="implementation/autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_object_calibration">test_object_calibration() (autowisp.tests.test_calibrate.TestCalibrate method)</a>
 </li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_rotatestars">test_rotatestars() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
+</li>
       <li><a href="implementation/autowisp.tests.test_solve_astrometry.html#autowisp.tests.test_solve_astrometry.TestSolveAstrometry.test_solve_astrometry">test_solve_astrometry() (autowisp.tests.test_solve_astrometry.TestSolveAstrometry method)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster.test_stack_master_bias">test_stack_master_bias() (autowisp.tests.test_stack_to_master.TestStackToMaster method)</a>
@@ -7394,6 +7539,8 @@
       <li><a href="implementation/autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster.test_stack_master_flat">test_stack_master_flat() (autowisp.tests.test_stack_to_master.TestStackToMaster method)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA.test_tfa">test_tfa() (autowisp.tests.test_tfa.TestTFA method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_tiny">test_tiny() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate">TestCalibrate (class in autowisp.tests.test_calibrate)</a>
 </li>
@@ -7412,6 +7559,8 @@
       <li><a href="implementation/autowisp.tests.test_fit_star_shape.html#autowisp.tests.test_fit_star_shape.TestFitStarShape">TestFitStarShape (class in autowisp.tests.test_fit_star_shape)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_measure_aperture_photometry.html#autowisp.tests.test_measure_aperture_photometry.TestMeasureAperturePhotometry">TestMeasureAperturePhotometry (class in autowisp.tests.test_measure_aperture_photometry)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector">TestMphotrefCollector (class in autowisp.magnitude_fitting.tests.test_mphotref_collector)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_solve_astrometry.html#autowisp.tests.test_solve_astrometry.TestSolveAstrometry">TestSolveAstrometry (class in autowisp.tests.test_solve_astrometry)</a>
 </li>
@@ -7477,6 +7626,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-tfa-max-rms">command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tfa-min-observations-fraction
 
@@ -7484,8 +7635,6 @@
         <li><a href="wisp_options.html#cmdoption-arg-tfa-min-observations-fraction">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tfa-min-observations-quantile
 

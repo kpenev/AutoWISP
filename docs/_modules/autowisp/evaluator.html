@@ -81,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -235,19 +236,7 @@
 <div class="viewcode-block" id="LightCurveEvaluator">
 <a class="viewcode-back" href="../../implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveEvaluator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LightCurveEvaluator</span><span class="p">(</span><span class="n">asteval</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Evaluator for expressions involving lightcurve datasets.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        lc_substitutions(dict):    Any substitutions that must be applied to</span>
-<span class="sd">            resolve lightcurve datasets. These can be changed after creating the</span>
-<span class="sd">            instance.</span>
-
-<span class="sd">        lc_points_selection(numpy array index):    Anything that can be used an</span>
-<span class="sd">            index into the numpy arrays that will be read from the lightcurve to</span>
-<span class="sd">            filter points to use. Just like ``lc_substitutions`` the value can</span>
-<span class="sd">            be changed post-construction.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluator for expressions involving lightcurve datasets.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_names</span><span class="p">:</span>
@@ -283,7 +272,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lc_substitutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make lc_substitutions read only.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Substitutions to apply to resolve lightcurve datasets.</span>
+
+<span class="sd">        These can be changed after creating the instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lc_substitutions</span>
 
@@ -295,7 +288,13 @@
 
     <span class="nd">@lc_points_selection</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">lc_points_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_selection</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the points selection property.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indexing applied to the LC poins to possible exclude some.</span>
+
+<span class="sd">        Anything that can be used an index into the numpy arrays that will be</span>
+<span class="sd">        read from the lightcurve to filter points to use. Just like</span>
+<span class="sd">        ``lc_substitutions`` the value can be changed post-construction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_lc_points_selection</span> <span class="o">=</span> <span class="n">new_selection</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span></div>

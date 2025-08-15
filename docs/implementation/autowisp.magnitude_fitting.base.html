@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -270,88 +271,61 @@ magnitude fitting.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db">
 <span class="sig-name descname"><span class="pre">_add_fit_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coefficients</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fit_diagnostics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._add_fit_to_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db" title="Link to this definition"></a></dt>
-<dd><blockquote>
-<div><p>Record the given best fit coefficient and diagnostics in the database.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>coefficients (iterable of values):    The best fit coefficients for</dt><dd><p>the magnitude fitting of the current data reduction file.</p>
+<dd><p>Record the given best fit coefficient and diagnostics in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coefficients</strong> (<em>iterable</em><em> of </em><em>values</em>) – The best fit coefficients for
+the magnitude fitting of the current data reduction file.</p></li>
+<li><p><strong>fit_diagnostics</strong> – Any information about the fit that should be
+recorded in the database. The names of the arguments are assumed
+to correspond to column names in the magnitude fitting table.</p></li>
+</ul>
 </dd>
-<dt>fit_diagnostics:    Any information about the fit that should be</dt><dd><p>recorded in the database. The names of the arguments are assumed
-to correspond to column names in the magnitude fitting table.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p>None</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 <p>For now disabled.</p>
 <p>Code from HATpipe:</p>
-<dl>
-<dt>def _update_db(self,</dt><dd><blockquote>
-<div><p>values,
-apind,
-fit_res,
-start_src_count,
-final_src_count):</p>
-</div></blockquote>
-<p>if self.database is None : return
-args=((self._header[‘STID’],</p>
-<blockquote>
-<div><blockquote>
-<div><p>self._header[‘FNUM’],
-self._header[‘CMPOS’],
-self._header[‘PROJID’],
-self._header[‘SPRID’],
-apind,
-self.config.version,
-start_src_count,
-final_src_count,
-(None if fit_res is None else float(fit_res)))</p>
-</div></blockquote>
-<ul class="simple">
-<li></li>
-</ul>
-<p>tuple((None if v is None else float(v)) for v in values))</p>
-</div></blockquote>
-<dl class="simple">
-<dt>statement=(‘REPLACE INTO <a href="#id1"><span class="problematic" id="id2">`</span></a>’+self.config.dest_table+</dt><dd><p>‘` (<cite>station_id</cite>, <cite>fnum</cite>, <cite>cmpos</cite>, <cite>project_id</cite>, ‘
-‘<cite>sphotref_id</cite>, <cite>aperture</cite>, <cite>magfit_version</cite>, ‘
-‘<cite>input_src</cite>, <cite>non_rej_src</cite>, <cite>rms_residuals</cite>, <cite>‘+
-‘</cite>, <cite>‘.join(self._db_columns)+’</cite>) VALUES (%s’+
-‘, %s’<a href="#id3"><span class="problematic" id="id4">*</span></a>(len(args)-1)+’)’)</p>
-</dd>
-<dt>self._log_to_file(</dt><dd><p>‘Inserting into DB:</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>‘</dt><dd><ul class="simple">
-<li></li>
-</ul>
-<p>‘       ‘ + statement + ‘</p>
-</dd>
-</dl>
-<dl>
-<dt>‘</dt><dd><ul class="simple">
-<li></li>
-</ul>
-<p>‘       args: ‘ + repr(args) + ‘</p>
-</dd>
-</dl>
-<dl>
-<dt>‘</dt><dd><ul class="simple">
-<li></li>
-</ul>
-<p>‘       arg types: ‘ + repr([type(v) for v in args]) + ‘</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>‘</dt><dd><p>)
-self.database(statement, args)</p>
-</dd>
-</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">values</span><span class="p">,</span>
+               <span class="n">apind</span><span class="p">,</span>
+               <span class="n">fit_res</span><span class="p">,</span>
+               <span class="n">start_src_count</span><span class="p">,</span>
+               <span class="n">final_src_count</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span> <span class="k">return</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;STID&#39;</span><span class="p">],</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;FNUM&#39;</span><span class="p">],</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;CMPOS&#39;</span><span class="p">],</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;PROJID&#39;</span><span class="p">],</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;SPRID&#39;</span><span class="p">],</span>
+           <span class="n">apind</span><span class="p">,</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+           <span class="n">start_src_count</span><span class="p">,</span>
+           <span class="n">final_src_count</span><span class="p">,</span>
+           <span class="p">(</span><span class="kc">None</span> <span class="k">if</span> <span class="n">fit_res</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">fit_res</span><span class="p">)))</span>
+          <span class="o">+</span>
+          <span class="nb">tuple</span><span class="p">((</span><span class="kc">None</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">))</span>
+    <span class="n">statement</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;REPLACE INTO `&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dest_table</span><span class="o">+</span>
+               <span class="s1">&#39;` (`station_id`, `fnum`, `cmpos`, `project_id`, &#39;</span>
+               <span class="s1">&#39;`sphotref_id`, `aperture`, `magfit_version`, &#39;</span>
+               <span class="s1">&#39;`input_src`, `non_rej_src`, `rms_residuals`, `&#39;</span><span class="o">+</span>
+               <span class="s1">&#39;`, `&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_columns</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;`) VALUES (</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">+</span>
+               <span class="s1">&#39;, </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_log_to_file</span><span class="p">(</span>
+        <span class="s1">&#39;Inserting into DB:</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="o">+</span>
+        <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">statement</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="o">+</span>
+        <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">args: &#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="o">+</span>
+        <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">arg types: &#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">([</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">(</span><span class="n">statement</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -400,46 +374,36 @@ each input photometry method.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.magnitude_fitting.base.MagnitudeFit._downgrade_calib_status">
 <span class="sig-name descname"><span class="pre">_downgrade_calib_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/magnitude_fitting/base.html#MagnitudeFit._downgrade_calib_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.magnitude_fitting.base.MagnitudeFit._downgrade_calib_status" title="Link to this definition"></a></dt>
-<dd><blockquote>
-<div><p>Deal with bad photometry for a frame.</p>
+<dd><p>Deal with bad photometry for a frame.</p>
 <p>Decrements the calibration status of the given file to astrometry
 and deletes the raw photometry file.</p>
 <p>For now disabled.</p>
 <p>Code from HATpipe:</p>
-<dl class="simple">
-<dt>sys.stderr.write(‘bad photometry encountered:’+str(self._header)+</dt><dd><p>‘</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>‘)</dt><dd><p>if(self.database is None) : return
-self._log_to_file(</p>
-<blockquote>
-<div><p>‘Downgrading status of header: ‘ + str(self._header) + ‘</p>
-</div></blockquote>
-</dd>
-</dl>
-<dl>
-<dt>‘</dt><dd><p>)
-sys.stderr.write(‘downgrading calibration status of’+</p>
-<blockquote>
-<div><p>str(self._header)+’</p>
-</div></blockquote>
-</dd>
-<dt>‘)</dt><dd><dl>
-<dt>self.database(‘UPDATE <cite>‘+raw_db_table(self._header[‘IMAGETYP’])+’</cite> SET ‘</dt><dd><p>‘<a href="#id5"><span class="problematic" id="id6">`</span></a>calib_status`=%s WHERE <a href="#id7"><span class="problematic" id="id8">`</span></a>station_id`=%s AND <a href="#id9"><span class="problematic" id="id10">`</span></a>fnum`=%s AND ‘
-‘<a href="#id11"><span class="problematic" id="id12">`</span></a>cmpos`=%s’, (object_status[‘good_astrometry’],</p>
-<blockquote>
-<div><p>self._header[‘STID’], self._header[‘FNUM’],
-self._header[‘CMPOS’]))</p>
-</div></blockquote>
-</dd>
-</dl>
-<p>sys.stderr.write(‘removing:’+self._fit_file+’</p>
-</dd>
-<dt>‘)</dt><dd><p>os.remove(self._fit_file)</p>
-</dd>
-</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+    <span class="s1">&#39;bad photometry encountered: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">_log_to_file</span><span class="p">(</span>
+    <span class="s1">&#39;Downgrading status of header: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+    <span class="s1">&#39;downgrading calibration status of &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">(</span>
+    <span class="s1">&#39;UPDATE `&#39;</span><span class="o">+</span><span class="n">raw_db_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;IMAGETYP&#39;</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;` SET &#39;</span>
+    <span class="s1">&#39;`calib_status`=</span><span class="si">%s</span><span class="s1"> WHERE `station_id`=</span><span class="si">%s</span><span class="s1"> AND `fnum`=</span><span class="si">%s</span><span class="s1"> AND &#39;</span>
+    <span class="s1">&#39;`cmpos`=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="p">(</span>
+        <span class="n">object_status</span><span class="p">[</span><span class="s1">&#39;good_astrometry&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;STID&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;FNUM&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;CMPOS&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;removing:&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_file</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_file</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -565,21 +529,19 @@ quantities are removed.</p>
 <dd><p>Record in the database that the current header has been magfitted.</p>
 <p>For now disabled.</p>
 <p>Code from HATpipe:</p>
-<dl>
-<dt>self.database(</dt><dd><p>‘UPDATE <cite>‘ + raw_db_table(self._header[‘IMAGETYP’])
-+ ‘</cite> SET <a href="#id13"><span class="problematic" id="id14">`</span></a>calib_status`=%s WHERE <a href="#id15"><span class="problematic" id="id16">`</span></a>station_id`=%s AND <a href="#id17"><span class="problematic" id="id18">`</span></a>fnum`=%s ‘
-‘AND <a href="#id19"><span class="problematic" id="id20">`</span></a>cmpos`=%s’,
-(</p>
-<blockquote>
-<div><p>self.config.calib_status,
-self._header[‘STID’],
-self._header[‘FNUM’],
-self._header[‘CMPOS’]</p>
-</div></blockquote>
-<p>)</p>
-</dd>
-</dl>
-<p>)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">(</span>
+    <span class="s1">&#39;UPDATE `&#39;</span> <span class="o">+</span> <span class="n">raw_db_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;IMAGETYP&#39;</span><span class="p">])</span>
+    <span class="o">+</span> <span class="s1">&#39;` SET `calib_status`=</span><span class="si">%s</span><span class="s1"> WHERE `station_id`=</span><span class="si">%s</span><span class="s1"> AND `fnum`=</span><span class="si">%s</span><span class="s1"> &#39;</span>
+    <span class="s1">&#39;AND `cmpos`=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+    <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">calib_status</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;STID&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;FNUM&#39;</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_header</span><span class="p">[</span><span class="s1">&#39;CMPOS&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

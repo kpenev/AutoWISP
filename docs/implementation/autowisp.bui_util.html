@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -122,8 +123,61 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="autowisp-bui-util-module">
-<h1>autowisp.bui_util module<a class="headerlink" href="#autowisp-bui-util-module" title="Link to this heading"></a></h1>
+  <section id="module-autowisp.bui_util">
+<span id="autowisp-bui-util-module"></span><h1>autowisp.bui_util module<a class="headerlink" href="#module-autowisp.bui_util" title="Link to this heading"></a></h1>
+<section id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
+<div class="graphviz"><img src="../_images/inheritance-cd5ad99aae6b04557380f7931d1a5914d4272e06.png" alt="Inheritance diagram of BytesIO, ZScaleInterval" class="inheritance graphviz" /></div>
+<p>View for displaying FITS images.</p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util._asinh_transform">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">_asinh_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#_asinh_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util._asinh_transform" title="Link to this definition"></a></dt>
+<dd><p>The asinh transform of DS9.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util._log_transform">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">_log_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#_log_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util._log_transform" title="Link to this definition"></a></dt>
+<dd><p>Perform the same log-transform as DS9.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util._pow_transform">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">_pow_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#_pow_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util._pow_transform" title="Link to this definition"></a></dt>
+<dd><p>Perform the same pow transfom as DS9.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util._sinh_transform">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">_sinh_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#_sinh_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util._sinh_transform" title="Link to this definition"></a></dt>
+<dd><p>The sinh transform of DS9.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util._sqrt_transform">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">_sqrt_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#_sqrt_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util._sqrt_transform" title="Link to this definition"></a></dt>
+<dd><p>Use square root of the pixel values as intensity.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util._square_transform">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">_square_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#_square_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util._square_transform" title="Link to this definition"></a></dt>
+<dd><p>Use the square of the pixel values as intensity.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util.encode_fits">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">encode_fits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fits_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_transform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#encode_fits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util.encode_fits" title="Link to this definition"></a></dt>
+<dd><p>Display transformed &amp; scaled FITS image to user.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.bui_util.hex_color">
+<span class="sig-prename descclassname"><span class="pre">autowisp.bui_util.</span></span><span class="sig-name descname"><span class="pre">hex_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/bui_util.html#hex_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.bui_util.hex_color" title="Link to this definition"></a></dt>
+<dd><p>Return string of hex color give tuple of 0-1 float values.</p>
+</dd></dl>
+
 </section>
 
 

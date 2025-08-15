@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
 </ul>
@@ -161,19 +162,19 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.SourceListCreator.__call__">
 <span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#SourceListCreator.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.SourceListCreator.__call__" title="Link to this definition"></a></dt>
-<dd><p>Return the <cite>fitpsf</cite>/<cite>fitprf</cite> source list for this frame.
-:param frame_fname: The filename of the frame to get PRF fitting</p>
-<blockquote>
-<div><p>sources of.</p>
-</div></blockquote>
+<dd><p>Return the <code class="docutils literal notranslate"><span class="pre">fitpsf</span></code>/<code class="docutils literal notranslate"><span class="pre">fitprf</span></code> source list for this frame.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The values of all source variables PSF/PRF fitting will use for
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>frame_fname</strong> – The filename of the frame to get PRF fitting
+sources of.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The values of all source variables PSF/PRF fitting will use for
 each fitting group. Each entry is suitable as input to
 FitStarShape.fit(), with only one fitting group enabled.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>[numpy record array]</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[numpy record array]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -298,16 +299,14 @@ required for shape fitting.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.processing_steps.fit_star_shape.fit_frame_set">
 <span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.fit_star_shape.</span></span><span class="sig-name descname"><span class="pre">fit_frame_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_lock=&lt;contextlib.nullcontext</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/fit_star_shape.html#fit_frame_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.fit_star_shape.fit_frame_set" title="Link to this definition"></a></dt>
-<dd><p>Perform a simultaneous fit of all frames included in frame_filenames.
-:param frame_filenames: The list of FITS file containting calibrated</p>
-<blockquote>
-<div><p>frames to fit. The files must include at least 3 extensions: the
-calibrated pixel values, estimated errors for the pixel values and
-the pixel quality mask.</p>
-</div></blockquote>
+<dd><p>Perform a simultaneous fit of all frames included in frame_filenames.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_filenames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – The list of FITS file containting calibrated
+frames to fit. The files must include at least 3 extensions: the
+calibrated pixel values, estimated errors for the pixel values and
+the pixel quality mask.</p></li>
 <li><p><strong>configuration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – The configuration to use for PSF/PRF fitting,
 background extraction etc.</p></li>
 <li><p><strong>mark_start</strong> (<em>callable</em>) – Called for each frame in the set before
