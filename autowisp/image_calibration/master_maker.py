@@ -23,9 +23,6 @@ class MasterMaker(Processor):
     Implement the simplest & fully generalizable procedure for making a master.
 
     Attributes:
-        default_exclude_mask:    The default bit-mask indicating all flags which
-            should result in a pixel being excluded from the averaging.
-
         stacking_options:    A dictionary with the default configuration of how
             to perform the stacking. The expected keys exactly match the keyword
             only arguments of the :meth:`stack` method.
@@ -50,8 +47,13 @@ class MasterMaker(Processor):
     """
 
     _logger = logging.getLogger(__name__)
+    """All log messages from this class will be issued with this logger."""
 
     default_exclude_mask = ("BAD",)
+    """
+    The default bit-mask indicating all flags which should result in a pixel
+    being excluded from the averaging.
+    """
 
     def __init__(
         self,

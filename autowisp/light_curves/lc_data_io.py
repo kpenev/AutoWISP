@@ -38,7 +38,7 @@ class LCDataIO:
     Two instances of this class should never be created simultaneously!
 
     Attributes:
-        %(something)s_config:    Attributes containing the configurations for
+        (something)_config:    Attributes containing the configurations for
             the various components for which configuration was defined in the
             processed frames and values which are in turn dictionaries indexed
             by the configurations found for this component as frozenset suitable
@@ -50,62 +50,79 @@ class LCDataIO:
             data as it is being read from data reduction files.
 
 
-        dataset_dimensions (dict):    Identifiers for the dimensions of
-            datasets. The keys are the pipeline keys of lightcurve datasets and
-            the values are tuples containing some of: `'frame'`,
-            `'source'`, `'srcproj_column_name'`, `'aperture_index'`,
-            `'magfit_iteration'`, `'srcextract_psf_param'` identifying what the
-            entries in the dataset depend on. It also contains a special dataset
-            `'source_in_frame'` which indicates which sources have observations
-            in which frames.
-
-        header_datasets (dict):    The set of datasets which contain FITS header
-            keywords. The index is the pipeline key identifying the dataset, and
-            the value is the corresponding header keyword.
-
-        max_dimension_size (dict):    A dictionary with keys the various
-            dimensions on which datasets can depend (see dataset_dimensions) and
-            entries the maximum size for each dimension.
-
         source_destinations(dict):    Key: (field, source). Value: the offset of
             the given source in the LCDataSlice arrays that are per-source.
 
-        config_components(dict):    Keys: all configuration components that can
-            be defined. Values: 2-tuple:
-
-                * a tuple of the keywords required to resolve the path to the
-                  configuration index dataset for this component for which all
-                  values found must be dumped.
-
-                * a set of the datasets belonging to this component
-
-        [_ra_dec]:    Optional. Only exists if one of BJD, Z or HA quantities
-            are evaluated per source instead of using the values for the frame
-            center.
-
         _config:    The configuration of how to perform the LC dumping.
-
-        _path_substitutions:    See path_substitutions argument to create().
-
-        _organized_config(dict):    The keys are configuration components and
-            the values are dictionaries with keys the coordinates along each
-            dimension of the configuration index dataset and values lists of the
-            configurations for the component with indices in the list
-            corresponding to the entries added to the config ID columns in
-            ReadLCData.lc_data_slice. Gets initialized by prepare_for_writing().
     """
 
     _logger = logging.getLogger(__name__)
+    """All logging messages from this class will be issued with this logger."""
+
     dataset_dimensions = {}
+    """
+    Identifiers for the dimensions of datasets. The keys are the pipeline keys
+    of lightcurve datasets and the values are tuples containing some of:
+    `'frame'`, `'source'`, `'srcproj_column_name'`, `'aperture_index'`,
+    `'magfit_iteration'`, `'srcextract_psf_param'` identifying what the entries
+    in the dataset depend on. It also contains a special dataset
+    `'source_in_frame'` which indicates which sources have observations in which
+    frames.
+    """
+
     header_datasets = {}
+    """
+    The set of datasets which contain FITS header keywords. The index is the
+    pipeline key identifying the dataset, and the value is the corresponding
+    header keyword.
+    """
+
     config_components = {}
+    """
+    Keys are all the configuration components that can be defined.
+
+    Values are - 2-tuple:
+
+        * a tuple of the keywords required to resolve the path to the
+          configuration index dataset for this component for which all values
+          found must be dumped.
+
+        * a set of the datasets belonging to this component
+    """
+
     max_dimension_size = {}
+    """
+    A dictionary with keys the various dimensions on which datasets can depend
+    (see dataset_dimensions) and entries the maximum size for each dimension.
+    """
+
     _catalogue = {}
     _ra_dec = []
+    """
+    Only filled if one of BJD, Z or HA quantities are evaluated per source
+    instead of using the values for the frame center.
+    """
+
     _path_substitutions = {}
+    """See path_substitutions argument to create()."""
+
     _multivalued_entry_datasets = ["sky_coord"]
+    """Datasets for which each entry consists of more than one value."""
+
     cfg_index_id = "cfg_index"
+    """
+    Added to the end of configuration dataset names to get the corresponding
+    index dataset.
+    """
+
     _organized_config = {}
+    """
+    The keys are configuration components and the values are dictionaries with
+    keys the coordinates along each dimension of the configuration index dataset
+    and values lists of the configurations for the component with indices in the
+    list corresponding to the entries added to the config ID columns in
+    ReadLCData.lc_data_slice. Gets initialized by prepare_for_writing().
+    """
 
     # TODO: perhaps worth simplifying later.
     # pylint: disable=too-many-statements

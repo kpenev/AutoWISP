@@ -124,10 +124,6 @@ class Calibrator(Processor):
             * image: The combined mask image (bitwise OR) of all masks in
               ``filenames``.
 
-        module_git_ids:    A collection of Git Id values (sha1 checksums of the
-            git blobs) for each module used by the calibration. Those get added
-            to the header to ensure reprobducability.
-
         extra_header:    Additional keywords to add to the header.
 
     Examples:
@@ -175,6 +171,11 @@ class Calibrator(Processor):
         "overscan_methods": overscan_methods_git_id,
         "mask_utilities": mask_utilities_git_id,
     }
+    """
+    A collection of Git Id values (sha1 checksums of the git blobs) for each
+    module used by the calibration. Those get added to the header to ensure
+    reprobducability.
+    """
 
     default_configuration = {
         "overscans": {"areas": None, "method": None},
