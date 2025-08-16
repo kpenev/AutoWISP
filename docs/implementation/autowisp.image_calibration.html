@@ -253,14 +253,6 @@ files from which this mask was constructed.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.module_git_ids">
-<span class="sig-name descname"><span class="pre">module_git_ids</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.module_git_ids" title="Link to this definition"></a></dt>
-<dd><p>A collection of Git Id values (sha1 checksums of the
-git blobs) for each module used by the calibration. Those get added
-to the header to ensure reprobducability.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.extra_header">
 <span class="sig-name descname"><span class="pre">extra_header</span></span><a class="headerlink" href="#autowisp.image_calibration.Calibrator.extra_header" title="Link to this definition"></a></dt>
 <dd><p>Additional keywords to add to the header.</p>
@@ -457,9 +449,12 @@ xmin &gt; xmax</p></li>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">module_git_ids</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'calibrator':</span> <span class="pre">'$Id:</span> <span class="pre">577de2417317dd1d26c623e59f8474f0efd50369</span> <span class="pre">$',</span> <span class="pre">'mask_utilities':</span> <span class="pre">'$Id:</span> <span class="pre">5b6835e1bfd0bec642536c00517b8d088d1f5d28</span> <span class="pre">$',</span> <span class="pre">'overscan_methods':</span> <span class="pre">'$Id:</span> <span class="pre">4aad389e1ad0897f0fa4ec0744ba76050d01fe00</span> <span class="pre">$'}</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.module_git_ids">
+<span class="sig-name descname"><span class="pre">module_git_ids</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'calibrator':</span> <span class="pre">'$Id:</span> <span class="pre">577de2417317dd1d26c623e59f8474f0efd50369</span> <span class="pre">$',</span> <span class="pre">'mask_utilities':</span> <span class="pre">'$Id:</span> <span class="pre">5b6835e1bfd0bec642536c00517b8d088d1f5d28</span> <span class="pre">$',</span> <span class="pre">'overscan_methods':</span> <span class="pre">'$Id:</span> <span class="pre">4aad389e1ad0897f0fa4ec0744ba76050d01fe00</span> <span class="pre">$'}</span></em><a class="headerlink" href="#autowisp.image_calibration.Calibrator.module_git_ids" title="Link to this definition"></a></dt>
+<dd><p>A collection of Git Id values (sha1 checksums of the git blobs) for each
+module used by the calibration. Those get added to the header to ensure
+reprobducability.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.Calibrator.set_masters">
@@ -944,13 +939,6 @@ clouds, and discarded if cloudy.</p>
 <area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="79,5,277,32"/>
 </map><p>Implement the simplest &amp; fully generalizable procedure for making a master.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.default_exclude_mask">
-<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.default_exclude_mask" title="Link to this definition"></a></dt>
-<dd><p>The default bit-mask indicating all flags which
-should result in a pixel being excluded from the averaging.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.stacking_options">
 <span class="sig-name descname"><span class="pre">stacking_options</span></span><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.stacking_options" title="Link to this definition"></a></dt>
 <dd><p>A dictionary with the default configuration of how
@@ -1034,9 +1022,11 @@ method.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('BAD',)</span></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.default_exclude_mask">
+<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('BAD',)</span></em><a class="headerlink" href="#autowisp.image_calibration.MasterMaker.default_exclude_mask" title="Link to this definition"></a></dt>
+<dd><p>The default bit-mask indicating all flags which should result in a pixel
+being excluded from the averaging.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.MasterMaker.prepare_for_stacking">
@@ -1131,7 +1121,6 @@ self.prepare_for_stacking().</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_dark"><code class="docutils literal notranslate"><span class="pre">Calibrator.master_dark</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_flat"><code class="docutils literal notranslate"><span class="pre">Calibrator.master_flat</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.masks"><code class="docutils literal notranslate"><span class="pre">Calibrator.masks</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.module_git_ids"><code class="docutils literal notranslate"><span class="pre">Calibrator.module_git_ids</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.extra_header"><code class="docutils literal notranslate"><span class="pre">Calibrator.extra_header</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.__call__"><code class="docutils literal notranslate"><span class="pre">Calibrator.__call__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.__init__"><code class="docutils literal notranslate"><span class="pre">Calibrator.__init__()</span></code></a></li>
@@ -1140,7 +1129,7 @@ self.prepare_for_stacking().</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator._get_calibration_params"><code class="docutils literal notranslate"><span class="pre">Calibrator._get_calibration_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.check_calib_params"><code class="docutils literal notranslate"><span class="pre">Calibrator.check_calib_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.default_configuration"><code class="docutils literal notranslate"><span class="pre">Calibrator.default_configuration</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#id0"><code class="docutils literal notranslate"><span class="pre">Calibrator.module_git_ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.module_git_ids"><code class="docutils literal notranslate"><span class="pre">Calibrator.module_git_ids</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.set_masters"><code class="docutils literal notranslate"><span class="pre">Calibrator.set_masters()</span></code></a></li>
 </ul>
 </li>
@@ -1194,11 +1183,10 @@ self.prepare_for_stacking().</p>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.image_calibration.master_maker.html">autowisp.image_calibration.master_maker module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker"><code class="docutils literal notranslate"><span class="pre">MasterMaker</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask"><code class="docutils literal notranslate"><span class="pre">MasterMaker.default_exclude_mask</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.stacking_options"><code class="docutils literal notranslate"><span class="pre">MasterMaker.stacking_options</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.__call__"><code class="docutils literal notranslate"><span class="pre">MasterMaker.__call__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.__init__"><code class="docutils literal notranslate"><span class="pre">MasterMaker.__init__()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#id0"><code class="docutils literal notranslate"><span class="pre">MasterMaker.default_exclude_mask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask"><code class="docutils literal notranslate"><span class="pre">MasterMaker.default_exclude_mask</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.prepare_for_stacking"><code class="docutils literal notranslate"><span class="pre">MasterMaker.prepare_for_stacking()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.image_calibration.master_maker.html#autowisp.image_calibration.master_maker.MasterMaker.stack"><code class="docutils literal notranslate"><span class="pre">MasterMaker.stack()</span></code></a></li>
 </ul>

@@ -248,10 +248,6 @@
 <span class="sd">            * image: The combined mask image (bitwise OR) of all masks in</span>
 <span class="sd">              ``filenames``.</span>
 
-<span class="sd">        module_git_ids:    A collection of Git Id values (sha1 checksums of the</span>
-<span class="sd">            git blobs) for each module used by the calibration. Those get added</span>
-<span class="sd">            to the header to ensure reprobducability.</span>
-
 <span class="sd">        extra_header:    Additional keywords to add to the header.</span>
 
 <span class="sd">    Examples:</span>
@@ -299,6 +295,11 @@
         <span class="s2">&quot;overscan_methods&quot;</span><span class="p">:</span> <span class="n">overscan_methods_git_id</span><span class="p">,</span>
         <span class="s2">&quot;mask_utilities&quot;</span><span class="p">:</span> <span class="n">mask_utilities_git_id</span><span class="p">,</span>
     <span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A collection of Git Id values (sha1 checksums of the git blobs) for each</span>
+<span class="sd">    module used by the calibration. Those get added to the header to ensure</span>
+<span class="sd">    reprobducability.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">default_configuration</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;overscans&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>

@@ -147,9 +147,6 @@
 <span class="sd">    Implement the simplest &amp; fully generalizable procedure for making a master.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        default_exclude_mask:    The default bit-mask indicating all flags which</span>
-<span class="sd">            should result in a pixel being excluded from the averaging.</span>
-
 <span class="sd">        stacking_options:    A dictionary with the default configuration of how</span>
 <span class="sd">            to perform the stacking. The expected keys exactly match the keyword</span>
 <span class="sd">            only arguments of the :meth:`stack` method.</span>
@@ -174,8 +171,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;All log messages from this class will be issued with this logger.&quot;&quot;&quot;</span>
 
     <span class="n">default_exclude_mask</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;BAD&quot;</span><span class="p">,)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The default bit-mask indicating all flags which should result in a pixel</span>
+<span class="sd">    being excluded from the averaging.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MasterMaker.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.image_calibration.master_maker.html#autowisp.image_calibration.MasterMaker.__init__">[docs]</a>

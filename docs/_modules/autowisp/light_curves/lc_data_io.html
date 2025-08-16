@@ -162,7 +162,7 @@
 <span class="sd">    Two instances of this class should never be created simultaneously!</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        %(something)s_config:    Attributes containing the configurations for</span>
+<span class="sd">        (something)_config:    Attributes containing the configurations for</span>
 <span class="sd">            the various components for which configuration was defined in the</span>
 <span class="sd">            processed frames and values which are in turn dictionaries indexed</span>
 <span class="sd">            by the configurations found for this component as frozenset suitable</span>
@@ -174,62 +174,79 @@
 <span class="sd">            data as it is being read from data reduction files.</span>
 
 
-<span class="sd">        dataset_dimensions (dict):    Identifiers for the dimensions of</span>
-<span class="sd">            datasets. The keys are the pipeline keys of lightcurve datasets and</span>
-<span class="sd">            the values are tuples containing some of: `&#39;frame&#39;`,</span>
-<span class="sd">            `&#39;source&#39;`, `&#39;srcproj_column_name&#39;`, `&#39;aperture_index&#39;`,</span>
-<span class="sd">            `&#39;magfit_iteration&#39;`, `&#39;srcextract_psf_param&#39;` identifying what the</span>
-<span class="sd">            entries in the dataset depend on. It also contains a special dataset</span>
-<span class="sd">            `&#39;source_in_frame&#39;` which indicates which sources have observations</span>
-<span class="sd">            in which frames.</span>
-
-<span class="sd">        header_datasets (dict):    The set of datasets which contain FITS header</span>
-<span class="sd">            keywords. The index is the pipeline key identifying the dataset, and</span>
-<span class="sd">            the value is the corresponding header keyword.</span>
-
-<span class="sd">        max_dimension_size (dict):    A dictionary with keys the various</span>
-<span class="sd">            dimensions on which datasets can depend (see dataset_dimensions) and</span>
-<span class="sd">            entries the maximum size for each dimension.</span>
-
 <span class="sd">        source_destinations(dict):    Key: (field, source). Value: the offset of</span>
 <span class="sd">            the given source in the LCDataSlice arrays that are per-source.</span>
 
-<span class="sd">        config_components(dict):    Keys: all configuration components that can</span>
-<span class="sd">            be defined. Values: 2-tuple:</span>
-
-<span class="sd">                * a tuple of the keywords required to resolve the path to the</span>
-<span class="sd">                  configuration index dataset for this component for which all</span>
-<span class="sd">                  values found must be dumped.</span>
-
-<span class="sd">                * a set of the datasets belonging to this component</span>
-
-<span class="sd">        [_ra_dec]:    Optional. Only exists if one of BJD, Z or HA quantities</span>
-<span class="sd">            are evaluated per source instead of using the values for the frame</span>
-<span class="sd">            center.</span>
-
 <span class="sd">        _config:    The configuration of how to perform the LC dumping.</span>
-
-<span class="sd">        _path_substitutions:    See path_substitutions argument to create().</span>
-
-<span class="sd">        _organized_config(dict):    The keys are configuration components and</span>
-<span class="sd">            the values are dictionaries with keys the coordinates along each</span>
-<span class="sd">            dimension of the configuration index dataset and values lists of the</span>
-<span class="sd">            configurations for the component with indices in the list</span>
-<span class="sd">            corresponding to the entries added to the config ID columns in</span>
-<span class="sd">            ReadLCData.lc_data_slice. Gets initialized by prepare_for_writing().</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;All logging messages from this class will be issued with this logger.&quot;&quot;&quot;</span>
+
     <span class="n">dataset_dimensions</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifiers for the dimensions of datasets. The keys are the pipeline keys</span>
+<span class="sd">    of lightcurve datasets and the values are tuples containing some of:</span>
+<span class="sd">    `&#39;frame&#39;`, `&#39;source&#39;`, `&#39;srcproj_column_name&#39;`, `&#39;aperture_index&#39;`,</span>
+<span class="sd">    `&#39;magfit_iteration&#39;`, `&#39;srcextract_psf_param&#39;` identifying what the entries</span>
+<span class="sd">    in the dataset depend on. It also contains a special dataset</span>
+<span class="sd">    `&#39;source_in_frame&#39;` which indicates which sources have observations in which</span>
+<span class="sd">    frames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">header_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The set of datasets which contain FITS header keywords. The index is the</span>
+<span class="sd">    pipeline key identifying the dataset, and the value is the corresponding</span>
+<span class="sd">    header keyword.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">config_components</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keys are all the configuration components that can be defined.</span>
+
+<span class="sd">    Values are - 2-tuple:</span>
+
+<span class="sd">        * a tuple of the keywords required to resolve the path to the</span>
+<span class="sd">          configuration index dataset for this component for which all values</span>
+<span class="sd">          found must be dumped.</span>
+
+<span class="sd">        * a set of the datasets belonging to this component</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">max_dimension_size</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dictionary with keys the various dimensions on which datasets can depend</span>
+<span class="sd">    (see dataset_dimensions) and entries the maximum size for each dimension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_catalogue</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">_ra_dec</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Only filled if one of BJD, Z or HA quantities are evaluated per source</span>
+<span class="sd">    instead of using the values for the frame center.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_path_substitutions</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See path_substitutions argument to create().&quot;&quot;&quot;</span>
+
     <span class="n">_multivalued_entry_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sky_coord&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Datasets for which each entry consists of more than one value.&quot;&quot;&quot;</span>
+
     <span class="n">cfg_index_id</span> <span class="o">=</span> <span class="s2">&quot;cfg_index&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Added to the end of configuration dataset names to get the corresponding</span>
+<span class="sd">    index dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_organized_config</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The keys are configuration components and the values are dictionaries with</span>
+<span class="sd">    keys the coordinates along each dimension of the configuration index dataset</span>
+<span class="sd">    and values lists of the configurations for the component with indices in the</span>
+<span class="sd">    list corresponding to the entries added to the config ID columns in</span>
+<span class="sd">    ReadLCData.lc_data_slice. Gets initialized by prepare_for_writing().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># TODO: perhaps worth simplifying later.</span>
     <span class="c1"># pylint: disable=too-many-statements</span>

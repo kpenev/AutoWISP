@@ -144,13 +144,6 @@
 <area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="79,5,277,32"/>
 </map><p>Implement the simplest &amp; fully generalizable procedure for making a master.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask">
-<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask" title="Link to this definition"></a></dt>
-<dd><p>The default bit-mask indicating all flags which
-should result in a pixel being excluded from the averaging.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.stacking_options">
 <span class="sig-name descname"><span class="pre">stacking_options</span></span><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.stacking_options" title="Link to this definition"></a></dt>
 <dd><p>A dictionary with the default configuration of how
@@ -234,9 +227,11 @@ method.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('BAD',)</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask">
+<span class="sig-name descname"><span class="pre">default_exclude_mask</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('BAD',)</span></em><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.default_exclude_mask" title="Link to this definition"></a></dt>
+<dd><p>The default bit-mask indicating all flags which should result in a pixel
+being excluded from the averaging.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.prepare_for_stacking">
