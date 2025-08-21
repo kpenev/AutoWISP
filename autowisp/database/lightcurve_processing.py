@@ -10,7 +10,7 @@ import numpy
 from autowisp.multiprocessing_util import setup_process
 from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
@@ -59,10 +59,7 @@ class LightCurveProcessingManager(ProcessingManager):
             which = [which]
 
         assert status > 0
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             for star in which:
                 if isinstance(star, int):
                     src_id = star
@@ -326,12 +323,10 @@ class LightCurveProcessingManager(ProcessingManager):
             )
             return None, None
 
-        # pylint: disable=no-member
         with (
-            Session.begin() as db_session,
+            start_db_session() as db_session,
             DataReductionFile(single_photref_fname, "r") as sphotref_dr,
         ):
-            # pylint: enable=no-member
             db_sphotref = db_session.scalar(
                 select(MasterFile).where(
                     MasterFile.filename == single_photref_fname
@@ -375,9 +370,7 @@ class LightCurveProcessingManager(ProcessingManager):
 
         self._current_image_type = None
         super().__init__(*args, **kwargs)
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             self.set_pending(db_session)
 
     @staticmethod
@@ -502,10 +495,7 @@ class LightCurveProcessingManager(ProcessingManager):
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
 
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             processing_sequence = [
                 (step.name, imtype.name)
                 for step, imtype in get_processing_sequence(db_session)
@@ -537,10 +527,7 @@ class LightCurveProcessingManager(ProcessingManager):
                 new_masters = getattr(step_module, step_name)(
                     lc_fnames, 0, configuration, self._mark_progress
                 )
-                # False positivie
-                # pylint: disable=no-member
-                with Session.begin() as db_session:
-                    # pylint: enable=no-member
+                with start_db_session() as db_session:
                     # False positive
                     # pylint: disable=not-callable
                     self._current_processing = db_session.merge(

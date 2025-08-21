@@ -12,7 +12,7 @@ from autowisp.multiprocessing_util import (
     get_log_outerr_filenames,
 )
 from autowisp.database.processing import ProcessingManager
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -672,10 +672,7 @@ class ImageProcessingManager(ProcessingManager):
             "Starting processing IDs: %s",
             repr(self._processed_ids[input_fname]),
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             for starting_id in self._processed_ids[input_fname]:
                 db_session.add(
                     ProcessedImages(
@@ -707,10 +704,7 @@ class ImageProcessingManager(ProcessingManager):
         self._logger.debug(
             "Finished processing %s", repr(self._processed_ids[input_fname])
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable-no-member
+        with start_db_session() as db_session:
             for finished_id in self._processed_ids[input_fname]:
                 db_session.execute(
                     update(ProcessedImages)
@@ -774,9 +768,7 @@ class ImageProcessingManager(ProcessingManager):
     def _prepare_processing(self, step, image_type, limit_to_steps):
         """Prepare for processing images of given type by a calibration step."""
 
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             setup_process(
                 task="main",
                 parent_pid="",
@@ -817,9 +809,7 @@ class ImageProcessingManager(ProcessingManager):
     def _finalize_processing(self):
         """Update database and instance after processing."""
 
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             self._current_processing = db_session.merge(
                 self._current_processing
             )
@@ -1164,10 +1154,8 @@ class ImageProcessingManager(ProcessingManager):
 
         if db_session is None:
             # False positivie
-            # pylint: disable=no-member
             # pylint: disable=redefined-argument-from-local
-            with Session.begin() as db_session:
-                # pylint: enable=no-member
+            with start_db_session() as db_session:
                 # pylint: enable=redefined-argument-from-local
                 return self.find_processing_outputs(
                     processing_progress, db_session
@@ -1209,10 +1197,7 @@ class ImageProcessingManager(ProcessingManager):
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
 
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             processing_sequence = get_processing_sequence(db_session)
 
         DataReductionFile.get_file_structure()
@@ -1237,10 +1222,7 @@ class ImageProcessingManager(ProcessingManager):
                 config,
                 batch,
             ) in processing_batches.items():
-                # False positivie
-                # pylint: disable=no-member
-                with Session.begin() as db_session:
-                    # pylint: enable=no-member
+                with start_db_session() as db_session:
                     self._create_current_processing(
                         step, ("image_type", image_type.id), db_session
                     )
@@ -1279,9 +1261,7 @@ class ImageProcessingManager(ProcessingManager):
     def add_raw_images(self, image_collection):
         """Add the given RAW images to the database for processing."""
 
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             default_expression_id = db_session.scalar(
                 select(ConditionExpression.id).where(
                     ConditionExpression.notes == "Default expression"

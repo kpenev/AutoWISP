@@ -6,7 +6,7 @@ import logging
 from django.shortcuts import render
 from sqlalchemy import select, func, and_
 
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
 #False positive
 #pylint: disable=no-name-in-module
@@ -36,10 +36,7 @@ def review(request,
 
     context = {'selected_processing_id': selected_processing_id,
                'min_log_level': min_log_level}
-    #False positivie
-    #pylint: disable=no-member
-    with Session.begin() as db_session:
-    #pylint: enable=no-member
+    with start_db_session() as db_session:
         selected_progress = db_session.scalar(
             select(
                 ImageProcessingProgress

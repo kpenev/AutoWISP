@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import logging
 import os
 from os import path, getpid
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import TemporaryDirectory
 from socket import getfqdn
 
 from psutil import pid_exists, Process
@@ -12,7 +12,7 @@ from sqlalchemy import sql, select
 from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -612,10 +612,7 @@ class ProcessingManager(ABC):
         self._processed_ids = {}
         self.pending = {}
         self._some_failed = False
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             if version is None:
                 version = db_session.execute(
                     # False positivie
@@ -706,7 +703,9 @@ class ProcessingManager(ABC):
             ]["matched"]
         with TemporaryDirectory() as temp_dir:
             temp_file_path = path.join(temp_dir, "config_file.tmp")
-            with open(temp_file_path, mode="w") as config_file:
+            with open(
+                temp_file_path, mode="w", encoding="utf-8"
+            ) as config_file:
                 config_key = self._write_config_file(
                     matched_expressions,
                     config_file,
@@ -778,10 +777,7 @@ class ProcessingManager(ABC):
             image_type_name,
             repr(new_masters),
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
 
             master_id = (
                 db_session.scalar(
@@ -860,10 +856,7 @@ class ProcessingManager(ABC):
         matched_expressions = self.get_matched_expressions(
             Evaluator(example_header)
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             if isinstance(outf, str):
                 with open(outf, "w", encoding="utf-8") as opened_outf:
                     self._write_config_file(

@@ -7,10 +7,10 @@ from os import path
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Parameter,
 )
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 
 if __name__ == "__main__":
-    with Session.begin() as db_session:  # pylint: disable=no-member
+    with start_db_session() as db_session:
         parameters = db_session.query(Parameter).all()
 
     with open(

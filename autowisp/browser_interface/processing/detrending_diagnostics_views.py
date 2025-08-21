@@ -14,7 +14,7 @@ from django.http import JsonResponse, HttpResponse
 from autowisp import Evaluator
 from autowisp.bui_util import hex_color
 from autowisp.data_reduction import DataReductionFile
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.diagnostics.detrending import \
     find_magfit_stat_catalog,\
@@ -56,10 +56,7 @@ def _guess_labels(photref_entries):
 def _init_detrending_session(request):
     """Add to browser session which magfit runs can be diagnosed."""
 
-    #False positive
-    #pylint: disable=no-member
-    with Session.begin() as db_session:
-    #pylint: enable=no-member
+    with start_db_session() as db_session:
         master_photref_fnames = db_session.execute(
             select(
                 MasterFile.id,
@@ -122,10 +119,7 @@ def _init_lc_detrending_session(request):
         'match_expressions'
     ][1:]
     print('Adding LC detrending info to request')
-    #False positive
-    #pylint: disable=no-member
-    with Session.begin() as db_session:
-        #pylint: enable=no-member
+    with start_db_session() as db_session:
         for (
             db_step,
             db_sphotref

@@ -14,7 +14,7 @@ from autowisp.database.image_processing import\
     ImageProcessingManager,\
     get_master_expression_ids,\
     remove_failed_prerequisite
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.processing_steps.calculate_photref_merit import\
     calculate_photref_merit
@@ -35,10 +35,7 @@ def _get_missing_photref(request):
 
     assert 'need_photref' not in request.session
     processing = ImageProcessingManager(dummy=True)
-    #False positivie
-    #pylint: disable=no-member
-    with Session.begin() as db_session:
-    #pylint: enable=no-member
+    with start_db_session() as db_session:
         master_type_id = db_session.scalar(
             select(MasterType.id).filter_by(name='single_photref')
         )

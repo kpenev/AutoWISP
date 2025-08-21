@@ -13,7 +13,7 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -149,10 +149,7 @@ def parse_command_line(*args):
         help="If this option is passed and an image of an unknown type is "
         "encountered it will not be added tot he database.",
     )
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         for image_type in [
             record[0] for record in db_session.query(ImageType.name).all()
         ]:
@@ -197,8 +194,11 @@ def get_or_create_target(
             image_target["ra"] * units.deg, image_target["dec"] * units.deg
         )
         _logger.debug(
-            f"Checking target {target_name} for {image_type!r} image. "
-            f"From DB: {db_target!r} vs image: {image_target!r}"
+            "Checking target %s for %s image. From DB: %s vs image: %s",
+            target_name,
+            repr(image_type),
+            repr(db_target),
+            repr(image_target),
         )
         assert (
             image_target.separation(
@@ -412,10 +412,7 @@ def add_images_to_db(image_collection, configuration):
             "Defining evaluator with keys: %s",
             repr(header_eval.symtable.keys()),
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             image, image_type = create_image(
                 image_fname, header_eval, configuration, db_session
             )

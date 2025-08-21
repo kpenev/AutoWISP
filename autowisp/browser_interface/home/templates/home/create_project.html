@@ -1,0 +1,120 @@
+{% extends 'core/walk_fs.html' %}
+{% load static %}
+
+{% block extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'home/css/create_project.css' %}">
+{% endblock extra_head %}
+
+{% block header_title %}
+Create New Project
+{% endblock header_title %}
+
+{% block app_title %}
+CREATE PROJECT
+{% endblock app_title %}
+
+{% block left_menu %}
+{% with parent_dir_list|last as current_dir %}
+<input type="submit" 
+       id="create-project" 
+       name="create-project" 
+       value="Create Project"
+       form="selection"
+       class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
+
+<a href="{% url 'home:create_directory' dirname=current_dir.0 %}">
+    <div class="lcars-element button lcars-u-1-2 lcars-chestnut-rose-bg">
+        Create New Directory
+    </div>
+</a>
+
+{% endwith %}
+
+
+{{ block.super }}
+
+{% endblock left_menu %}
+
+
+{% block selectable_entries_end %}
+
+<div class="file-list">
+    {% for fname in unselectable %}
+    {{fname}}<br>
+    {% endfor %}
+</div>
+
+{% endblock selectable_entries_end %}
+
+{% block main %}
+
+
+<table style="width: 100%">
+    <tbody>
+        <tr>
+            <td>
+                <label for="project-name" 
+                       class="project-param-label lcars-melrose-color"> 
+                    Project Name:
+                </label>
+            </td>
+            <td>
+                <input type="text"
+                       id="project-name"
+                       name="project-name"
+                       form="selection"
+                       value=""
+                       required
+                       class="lcars-text-input 
+                              decorated 
+                              rounded
+                              lcars-melrose-color 
+                              lcars-u-3-1"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="project-description" 
+                       class="project-param-label lcars-melrose-color"> 
+                    Project Description:
+                </label>
+            </td>
+            <td>
+                <textarea id="project-description"
+                          name="project-description"
+                          form="selection"
+                          value=""
+                          class="lcars-text-input 
+                                 decorated 
+                                 rounded
+                                 lcars-melrose-color 
+                                 lcars-u-3-2"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="project-home-dir" 
+                       class="project-param-label lcars-melrose-color">
+                    Project Home Directory:
+                </label>
+            </td>
+            <td>
+                <input type="text" 
+                       id="project-home-dir"
+                       readonly 
+                       value="{{ parent_dir_list|last|first }}" 
+                       class="lcars-text-input 
+                              decorated 
+                              rounded 
+                              lcars-melrose-color"
+                       style="width: 100%;"></td>
+        </tr>
+    </tbody>
+</table>
+
+
+{{ block.super }}
+
+{% endblock main %}
+

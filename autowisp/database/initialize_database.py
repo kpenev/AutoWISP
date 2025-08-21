@@ -8,7 +8,7 @@ import logging
 from configargparse import ArgumentParser, DefaultsFormatter
 from sqlalchemy import sql, select, delete, MetaData, update
 
-from autowisp.database.interface import db_engine, Session
+from autowisp.database.interface import get_db_engine, start_db_session
 from autowisp.database.data_model.base import DataModelBase
 
 from autowisp.database.initialize_data_reduction_structure import (
@@ -318,10 +318,7 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
             initialized?
     """
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         if data_reduction:
             db_session.add(get_default_data_reduction_structure())
         if light_curve:
@@ -336,10 +333,7 @@ class StepCreator:
     def __init__(self):
         """Get ready to add steps to the database."""
 
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             self._step_id = 1
             self._db_parameters = {}
 
@@ -527,10 +521,7 @@ def init_processing():
 
     add_processing_step = StepCreator()
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         for image_type_id, image_type in enumerate(image_type_list, 1):
             db_session.add(ImageType(id=image_type_id, name=image_type))
         db_steps = {}
@@ -576,11 +567,11 @@ def drop_tables_matching(pattern):
 
     if pattern is None:
         metadata = MetaData()
-        metadata.reflect(db_engine)
-        metadata.drop_all(db_engine)
+        metadata.reflect(get_db_engine())
+        metadata.drop_all(get_db_engine())
     else:
         DataModelBase.metadata.drop_all(
-            db_engine,
+            get_db_engine(),
             filter(
                 lambda table: pattern.fullmatch(table.name),
                 reversed(DataModelBase.metadata.sorted_tables),
@@ -593,10 +584,7 @@ def _overwrite_defaults(new_defaults):
 
     db_conditions = {}
     db_expressions = {}
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         for param, all_values in new_defaults.items():
             param_id = db_session.scalar(
                 select(Parameter.id).filter_by(name=param)
@@ -678,7 +666,7 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
     if cmdline_args.drop_all_tables:
         drop_tables_matching(re.compile(".*"))
 
-    DataModelBase.metadata.create_all(db_engine)
+    DataModelBase.metadata.create_all(get_db_engine())
     add_default_hdf5_structures()
     if not cmdline_args.drop_all_tables:
         return

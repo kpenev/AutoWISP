@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from sqlalchemy import select, sql
 
 from autowisp import SourceFinder, Evaluator
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.astrometry import estimate_transformation
 from autowisp.fits_utilities import get_primary_header
@@ -95,10 +95,7 @@ def _get_pending(request):
 
     processing = ImageProcessingManager(dummy=True)
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         _init_session(request, processing, db_session)
         if "pending" in request.session["starfind"]:
             return
@@ -172,10 +169,7 @@ def select_starfind_batch(request, refresh=False):
     if "fits_display" in request.session:
         del request.session["fits_display"]
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         configured = set(
             notes.split(":", 1)[1].strip()
             for notes in db_session.scalars(
@@ -254,7 +248,7 @@ def project_catalog(request, fits_fname):
         header = get_primary_header(fits_fname)
         evaluate = Evaluator(header)
         processing = ImageProcessingManager(dummy=True)
-        with Session.begin() as db_session:
+        with start_db_session() as db_session:
             config = prepare_configuration(
                 processing.get_config(
                     matched_expressions=processing.get_matched_expressions(
@@ -336,10 +330,7 @@ def save_starfind_config(request, imtype, batch_index):
     )
     grouping_expressions = request.session["starfind"]["grouping_expressions"]
     assert len(condition_values) == len(grouping_expressions)
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         param_ids = {
             param: db_session.scalar(select(Parameter.id).filter_by(name=param))
             for param in starfind_config

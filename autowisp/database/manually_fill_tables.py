@@ -4,7 +4,7 @@
 
 from datetime import datetime
 
-from autowisp.database.interface import db_engine, Session
+from autowisp.database.interface import get_db_engine, start_db_session
 from autowisp.database.data_model.base import DataModelBase
 
 # False positive due to unusual imports
@@ -25,11 +25,11 @@ from autowisp.database.data_model import ObservingSession, Target
 
 if __name__ == "__main__":
 
-    DataModelBase.metadata.bind = db_engine
+    DataModelBase.metadata.bind = get_db_engine()
 
     # False positive
     # pylint: disable=no-member
-    with Session.begin() as db_session:
+    with start_db_session() as db_session:
 
         camera_type = CameraType(
             make="Canon",
@@ -66,7 +66,9 @@ if __name__ == "__main__":
         )
 
         mount = Mount(
-            serial_number="001", notes="PAN001 observer", timestamp=datetime.now()
+            serial_number="001",
+            notes="PAN001 observer",
+            timestamp=datetime.now(),
         )
 
         telescope_type = TelescopeType(

@@ -1,3 +1,10 @@
 .file-list {
     color: #777;
 }
+
+.project-param-label {
+  text-transform: uppercase;
+  text-align: right;
+  font-size: x-large;
+  font-weight: bold;
+}

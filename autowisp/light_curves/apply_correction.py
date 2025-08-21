@@ -10,7 +10,7 @@ import pandas
 from autowisp.multiprocessing_util import setup_process
 from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
-from autowisp.database.interface import db_engine
+from autowisp.database.interface import get_db_engine
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import ReconstructiveCorrectionTransit
 
@@ -198,7 +198,7 @@ def recalculate_correction_statistics(
 def pool_init(config):
     """Setup pool process."""
 
-    db_engine.dispose()
+    get_db_engine().dispose()
     setup_process(**config)
 
 

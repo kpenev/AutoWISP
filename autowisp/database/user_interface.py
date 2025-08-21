@@ -6,7 +6,7 @@ from time import sleep
 
 from sqlalchemy import sql, select, delete, func, and_
 
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.data_reduction import DataReductionFile
 
 # False positive
@@ -256,7 +256,7 @@ def get_progress_lightcurves(
                             .select_from(Image)
                             .join(ImageType)
                             .where(
-                                Image.raw_fname.contains(
+                                Image.raw_fname.contains(  # pylint: disable=no-member
                                     header["RAWFNAME"] + ".fits"
                                 )
                             )
@@ -313,10 +313,7 @@ def get_progress(step, *args, **kwargs):
 def _get_config_info(version, step="All"):
     """Return info for displaying the configuration with given version."""
 
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         if step != "All":
             restrict_param_ids = set(
                 param.id
@@ -328,7 +325,11 @@ def _get_config_info(version, step="All"):
         config_list = get_db_configuration(version, db_session)
         config_info = {}
         for config in config_list:
-            if step != "All" and config.parameter.id not in restrict_param_ids:
+            if (
+                step != "All"
+                and config.parameter.id
+                not in restrict_param_ids  # pylint: disable=possibly-used-before-assignment
+            ):
                 continue
             if config.parameter.name not in config_info:
                 config_info[config.parameter.name] = {
@@ -593,10 +594,7 @@ def save_json_config(json_config, version):
     configuration, expressions = _parse_json_config(
         json.loads(json_config.decode("ascii"))
     )
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         compare_config = get_db_configuration(version, db_session)
 
         _save_conditions(
@@ -658,10 +656,7 @@ def save_json_config(json_config, version):
 def list_steps():
     """List the pipeline steps."""
 
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         return db_session.scalars(select(Step.name)).all()
 
 
@@ -670,10 +665,7 @@ def main():
 
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         print("Channels: " + repr(list_channels(db_session)))
         print(get_progress(8, 4, 0, db_session))
 
