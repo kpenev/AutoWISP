@@ -1,0 +1,48 @@
+{% extends 'core/walk_fs.html' %}
+{% load static %}
+
+{% block extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'home/css/create_project.css' %}">
+{% endblock extra_head %}
+
+{% block header_title %}
+Create New Project
+{% endblock header_title %}
+
+{% block app_title %}
+CREATE PROJECT
+{% endblock app_title %}
+
+{% block left_menu %}
+{% with parent_dir_list|last as current_dir %}
+<input type="submit" 
+       id="set-home" 
+       name="set-home" 
+       value="Select Project Home"
+       form="selection"
+       class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
+
+<a href="{% url 'home:create_directory' dirname=current_dir.0 %}">
+    <div class="lcars-element button lcars-u-1-2 lcars-chestnut-rose-bg">
+        Create New Directory
+    </div>
+</a>
+
+{% endwith %}
+
+
+{{ block.super }}
+
+{% endblock left_menu %}
+
+
+{% block selectable_entries_end %}
+
+<div class="file-list">
+    {% for fname in unselectable %}
+    {{fname}}<br>
+    {% endfor %}
+</div>
+
+{% endblock selectable_entries_end %}

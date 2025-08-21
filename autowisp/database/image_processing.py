@@ -4,15 +4,8 @@
 """Handle data processing DB interactions."""
 
 import logging
-import os
-
-from os import path, getpid
-
-import sys
-import subprocess
 
 from sqlalchemy import sql, select, update, and_, or_
-from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.multiprocessing_util import (
     setup_process,
@@ -20,7 +13,6 @@ from autowisp.multiprocessing_util import (
 )
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import Session
-from autowisp.file_utilities import find_fits_fnames
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -86,7 +78,7 @@ class ExpressionMatcher:
             for expression_id in self._master_expression_ids
         )
 
-    def __init__(
+    def __init__( # pylint: disable=too-many-arguments
         self,
         evaluated_expressions,
         ref_image_id,
@@ -645,7 +637,7 @@ class ImageProcessingManager(ProcessingManager):
 
         return pending_images, step_input_type
 
-    def _process_batch(
+    def _process_batch( # pylint: disable=too-many-arguments
         self, batch, *, start_status, config, step_name, image_type_name
     ):
         """Run the current step for a batch of images given configuration."""
@@ -1041,23 +1033,22 @@ class ImageProcessingManager(ProcessingManager):
                 .outerjoin(
                     failed_prereq_subquery,
                     and_(
-                        Image.id == failed_prereq_subquery.c.image_id,
+                        Image.id  # pylint: disable=no-member
+                        == failed_prereq_subquery.c.image_id,
                         CameraChannel.name == failed_prereq_subquery.c.channel,
                     ),
                 )
                 .outerjoin(
                     status_subquery,
                     and_(
-                        Image.id == status_subquery.c.image_id,
+                        Image.id  # pylint: disable=no-member
+                        == status_subquery.c.image_id,
                         CameraChannel.name == status_subquery.c.channel,
                     ),
                 )
                 .where(
-                    # False positive
-                    # pylint: disable=no-member
-                    Image.image_type_id
+                    Image.image_type_id  # pylint: disable=no-member
                     == image_type.id
-                    # pylint: enable=no-member
                 )
             )
             # This is how NULL comparison is done in SQLAlchemy
@@ -1088,7 +1079,7 @@ class ImageProcessingManager(ProcessingManager):
 
         self._logger.debug("Pending: %s", repr(self.pending))
 
-    def group_pending_by_conditions(
+    def group_pending_by_conditions(  # pylint: disable=too-many-arguments
         self,
         pending_images,
         db_session,
@@ -1307,102 +1298,3 @@ class ImageProcessingManager(ProcessingManager):
 
 
 # pylint: enable=too-many-instance-attributes
-
-
-def parse_command_line():
-    """Return the command line configuration."""
-
-    parser = ArgumentParser(
-        description="Manually invoke the fully automated processing",
-        default_config_files=[],
-        formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=False,
-    )
-    parser.add_argument(
-        "--add-raw-images",
-        "-i",
-        nargs="+",
-        default=[],
-        help="Before processing add new raw images for processing. Can be "
-        "specified as a combination of image files and directories which will"
-        "be searched for FITS files.",
-    )
-    parser.add_argument(
-        "--steps",
-        nargs="+",
-        default=None,
-        help="Process using only the specified steps. Leave empty for full "
-        "processing.",
-    )
-    parser.add_argument(
-        "--detached",
-        action="store_true",
-        help="Indicates that the script is running as a detached process.",
-    )
-    logging.info("Parsed arguments: %s", parser.parse_args())
-    return parser.parse_args()
-
-
-def main(config):
-    """Avoid global variables."""
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-
-    logging.debug("Config add_raw_images: %s", config.add_raw_images)
-    logging.debug("Config steps: %s", config.steps)
-
-    processing = ImageProcessingManager()
-    for img_to_add in config.add_raw_images:
-        logging.debug("Adding raw images from: %s", img_to_add)
-        processing.add_raw_images(find_fits_fnames(path.abspath(img_to_add)))
-
-    logging.debug("Starting processing...")
-    processing(limit_to_steps=config.steps)
-    logging.debug("Processing completed.")
-
-
-if __name__ == "__main__":
-    if os.name == "posix":  # Linux/macOS
-        from os import getpgid, setsid, fork
-
-        try:
-            setsid()
-        except OSError:
-            print(f"pid={getpid():d}  pgid={getpgid(0):d}")
-
-        pid = fork()
-        if pid < 0:
-            raise RuntimeError("fork fail")
-        if pid != 0:
-            sys.exit(0)
-
-        setsid()
-        main(parse_command_line())  # Run main function in child process
-
-    elif os.name == "nt":  # Windows
-        from subprocess import DETACHED_PROCESS
-
-        if "--detached" not in sys.argv:
-            try:
-                with open("detached_process.log", "w") as log_file:
-                    subprocess.Popen(
-                        [
-                            sys.executable,
-                            os.path.abspath(sys.argv[0]),
-                            "--detached",
-                        ]
-                        + sys.argv[1:],  # Relaunch with --detached
-                        creationflags=DETACHED_PROCESS,
-                        stdout=log_file,
-                        stderr=log_file,
-                    )
-                sys.exit(0)  # Exit parent process
-            except Exception as e:
-                sys.stderr.write(f"Failed to detach: {e}\n")
-                sys.exit(1)
-        else:
-            try:
-                main(parse_command_line())
-            except Exception as e:
-                with open("detached_process_error.log", "w") as error_log:
-                    error_log.write(f"Error in main: {e}\n")

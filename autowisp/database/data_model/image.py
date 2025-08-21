@@ -55,8 +55,8 @@ class ProcessedImages(DataModelBase):
         Boolean,
         nullable=False,
         doc="Is this the final processing status? The only case where "
-        "``status=1`` is not final is for magnitude fitting, where there may be "
-        "additional iterations needed.",
+        "``status=1`` is not final is for magnitude fitting, where there may be"
+        " additional iterations needed.",
     )
 
     __table_args__ = (
@@ -124,6 +124,12 @@ class ImageProcessingProgress(DataModelBase):
 
     __tablename__ = "image_processing_progress"
 
+    run_id = Column(
+        Integer,
+        ForeignKey("pipeline_run.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        nullable=False,
+        doc="The id of the pipeline run that this processing is part of",
+    )
     step_id = Column(
         Integer,
         ForeignKey("step.id", onupdate="CASCADE", ondelete="RESTRICT"),
@@ -138,17 +144,6 @@ class ImageProcessingProgress(DataModelBase):
     )
     configuration_version = Column(
         Integer, nullable=False, doc="config version of image"
-    )
-    host = Column(
-        String(1000),
-        nullable=False,
-        doc="Hostname or other identifier of the computer where processing "
-        "is/was done",
-    )
-    process_id = Column(
-        Integer,
-        nullable=False,
-        doc="Identifier of the process performing this calibration step",
     )
     started = Column(
         TIMESTAMP, nullable=True, doc="The time processing started"
@@ -168,14 +163,8 @@ class ImageProcessingProgress(DataModelBase):
     def __str__(self):
         return (
             f"({self.id}) {self.step} v{self.configuration_version} for "
-            f"{self.image_type.name} images started "
-            f"{self.started} on {self.host} "
-            + (
-                "in progress"
-                if self.finished is None
-                else f"finished {self.finished}"
-            )
-            + f" timestamp: {self.timestamp}: {self.notes}"
+            f"{self.image_type.name} images, timestamp: {self.timestamp}, "
+            f"notes: {self.notes}"
         )
 
     step = relationship("Step")

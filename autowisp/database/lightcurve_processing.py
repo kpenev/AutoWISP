@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 
 """Define a class that automates the processing of light curves."""
-import os
 
-if os.name == "posix":
-    from os import getpgid, setsid, fork
-#pylint: disable=wrong-import-position
-from os import path, getpid
-
-import logging
-import sys
-import subprocess
+from os import path
 
 from sqlalchemy import select, and_, literal, update, sql, delete
 import numpy
@@ -40,7 +32,7 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
-#pylint: enable=wrong-import-position
+# pylint: enable=wrong-import-position
 
 
 class LightCurveProcessingManager(ProcessingManager):
@@ -92,7 +84,7 @@ class LightCurveProcessingManager(ProcessingManager):
     def _cleanup_interrupted(self, db_session):
         """Don't do anything for lightcurves."""
 
-    def _get_lc_fnames(
+    def _get_lc_fnames(  # pylint: disable=too-many-arguments
         self, *, step, db_sphotref, catalog_fname, lc_fname, db_session
     ):
         """Return the lightcurves to be processed by the current step."""
@@ -164,7 +156,7 @@ class LightCurveProcessingManager(ProcessingManager):
             if check_add(src_id, lc)
         ]
 
-    def _specialize_config(
+    def _specialize_config(  # pylint: disable=too-many-arguments
         self, *, step, step_config, db_sphotref, catalog, db_session
     ):
         """Add parts of configuration for step that depend on database."""
@@ -212,7 +204,7 @@ class LightCurveProcessingManager(ProcessingManager):
                     .where(MasterFile.type_id == input_master_type_id)
                 )
 
-    def _start_step(
+    def _start_step(  # pylint: disable=too-many-arguments
         self,
         *,
         step,
@@ -349,7 +341,9 @@ class LightCurveProcessingManager(ProcessingManager):
             header = sphotref_dr.get_frame_header()
             image = db_session.scalar(
                 select(Image).where(
-                    Image.raw_fname.contains(header["RAWFNAME"] + ".fits")
+                    Image.raw_fname.contains(  # pylint: disable=no-member
+                        header["RAWFNAME"] + ".fits"
+                    )
                 )
             )
             self.evaluate_expressions_image(image, db_session)
@@ -415,7 +409,9 @@ class LightCurveProcessingManager(ProcessingManager):
                         LightCurveProcessingProgress.single_photref_id
                         == MasterFile.id
                     ),
+                    # pylint: disable=singleton-comparison
                     LightCurveProcessingProgress.final == True,
+                    # pylint: enable=singleton-comparison
                 ),
             )
             .where(StepDependencies.blocking_step_id == create_lc_step_id)
@@ -456,7 +452,7 @@ class LightCurveProcessingManager(ProcessingManager):
                     .select_from(Image)
                     .join(ImageType)
                     .where(
-                        Image.raw_fname.contains(
+                        Image.raw_fname.contains(  # pylint: disable=no-member
                             sphotref_dr.get_frame_header()["RAWFNAME"] + ".fits"
                         )
                     )
@@ -468,7 +464,7 @@ class LightCurveProcessingManager(ProcessingManager):
                 self.pending[step][image_type_name] = []
             self.pending[step][image_type_name].append(sphotref_fname)
 
-    def get_step_config(
+    def get_step_config(  # pylint: disable=too-many-arguments
         self,
         *,
         step,
@@ -561,42 +557,3 @@ class LightCurveProcessingManager(ProcessingManager):
                 self.pending[step_name][imtype_name].remove(
                     single_photref_fname
                 )
-
-
-def main():
-    """Avoid global variables."""
-
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-    manager = LightCurveProcessingManager()
-    print("Pending: " + repr(manager.pending))
-    manager()
-
-
-if __name__ == "__main__":
-    if os.name == "posix":  # Linux/macOS
-        try:
-            setsid()
-        except OSError:
-            print(f"pid={getpid():d}  pgid={getpgid(0):d}")
-
-        pid = fork()
-        if pid < 0:
-            raise RuntimeError("fork fail")
-        if pid != 0:
-            sys.exit(0)
-
-        setsid()
-        main()  # Run main function in child process
-
-    elif os.name == "nt":  # Windows
-        try:
-            subprocess.Popen(
-                [sys.executable, sys.argv[0]]
-                + sys.argv[1:],  # Relaunch with same arguments
-                creationflags=DETACHED_PROCESS,
-            )
-            sys.exit(0)  # Exit parent process
-        except Exception as e:
-            sys.stderr.write(f"Failed to detach: {e}\n")
-            sys.exit(1)

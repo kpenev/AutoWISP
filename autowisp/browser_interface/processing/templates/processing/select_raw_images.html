@@ -1,0 +1,33 @@
+{% extends 'core/walk_fs.html' %}
+{% load static %}
+
+{% block header_title %}
+Add New Images
+{% endblock header_title %}
+
+{% block extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'processing/css/select_images.css' %}">
+{% endblock extra_head %}
+
+{% block app_title %}
+ADDING RAW IMAGES
+{% endblock app_title %}
+
+{% block left_menu %}
+
+<label class="lcars-element button lcars-melrose-bg lcars-u-1-2" 
+       for="add-selected-img">
+    Add Selected Images
+</label>
+<a href="{% url 'processing:progress' %}">
+    <div class="lcars-element button lcars-red-alert-bg">Cancel</div>
+</a>
+
+{{ block.super }}
+
+{% endblock left_menu %}
+        </div>
+
+    </body>
+</html>
