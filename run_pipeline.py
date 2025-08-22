@@ -4,10 +4,16 @@ import logging
 import os
 import sys
 import subprocess
+from socket import getfqdn
 from traceback import format_exc
 
 from configargparse import ArgumentParser, DefaultsFormatter, SUPPRESS
+from sqlalchemy import sql, update
 
+from autowisp.database.interface import set_sqlite_database, start_db_session
+from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
+    PipelineRun,
+)
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.file_utilities import find_fits_fnames
@@ -23,8 +29,7 @@ def parse_command_line():
         ignore_unknown_config_file_keys=False,
     )
     parser.add_argument(
-        'processing_database',
-        help="Path to the processing database."
+        "processing_database", help="Path to the processing database."
     )
     parser.add_argument(
         "--add-raw-images",
@@ -54,13 +59,24 @@ def parse_command_line():
 def main(config):
     """Avoid global variables."""
 
+    set_sqlite_database(os.path.abspath(config.processing_database))
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
     logging.debug("Config add_raw_images: %s", config.add_raw_images)
     logging.debug("Config steps: %s", config.steps)
 
-    processing = ImageProcessingManager()
+    with start_db_session() as db_session:
+        pipeline_run = PipelineRun(
+            host=getfqdn(),
+            process_id=os.getpid(),
+            started=sql.func.now(),  # pylint: disable=not-callable
+        )
+        db_session.add(pipeline_run)
+        db_session.commit()
+        pipeline_run = pipeline_run.id
+
+    processing = ImageProcessingManager(run_id=pipeline_run)
     for img_to_add in config.add_raw_images:
         logging.debug("Adding raw images from: %s", img_to_add)
         processing.add_raw_images(find_fits_fnames(os.path.abspath(img_to_add)))
@@ -69,7 +85,14 @@ def main(config):
     processing(limit_to_steps=config.steps)
     logging.debug("Processing completed.")
 
-    LightCurveProcessingManager()()
+    LightCurveProcessingManager(run_id=pipeline_run)()
+
+    with start_db_session() as db_session:
+        db_session.execute(
+            update(PipelineRun)
+            .where(PipelineRun.id == pipeline_run)
+            .values(finished=sql.func.now())  # pylint: disable=not-callable
+        )
 
 
 if __name__ == "__main__":

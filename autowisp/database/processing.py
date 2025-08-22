@@ -176,7 +176,7 @@ class ProcessingManager(ABC):
 
         return {param: get_value(param) for param in parameters}
 
-    def _write_config_file(
+    def _write_config_file( # pylint: disable=too-many-arguments
         self,
         matched_expressions,
         outf,
@@ -262,9 +262,13 @@ class ProcessingManager(ABC):
             .join_from(
                 Condition,
                 ConditionExpression,
-                Condition.expression_id == ConditionExpression.id,
+                Condition.expression_id  # pylint: disable=no-member
+                == ConditionExpression.id,  # pylint: disable=no-member
             )
-            .where(Condition.id == master_type.condition_id)
+            .where(
+                Condition.id  # pylint: disable=no-member
+                == master_type.condition_id  # pylint: disable=no-member
+            )
             .order_by(ConditionExpression.id)
         ).all()
 
@@ -405,7 +409,7 @@ class ProcessingManager(ABC):
         evaluate.symtable.update(
             IMAGE_TYPE=image.image_type.name,
             OBS_SESN=image.observing_session.label,
-            TARGET=image.observing_session.target.name
+            TARGET=image.observing_session.target.name,
         )
         self._logger.debug(
             "Matched expressions: %s",
@@ -516,10 +520,9 @@ class ProcessingManager(ABC):
                     "Processing progress %s appears to have crashed.",
                     processing,
                 )
-                # False positive
-                # pylint: disable=not-callable
-                processing.finished = sql.func.now()
-                # pylint: enable=not-callable
+                processing.finished = (
+                    sql.func.now()  # pylint: disable=not-callable
+                )
                 db_session.flush()
 
     def _create_current_processing(self, step, target, db_session):
@@ -551,10 +554,10 @@ class ProcessingManager(ABC):
         )
 
         self._current_processing = progress_class(
+            run_id=self._pipeline_run_id,
             step_id=step.id,
             **{target[0] + "_id": target[1]},
             configuration_version=self.step_version[step.name],
-            host=this_host,
             process_id=process_id,
             # False positive
             # pylint: disable=not-callable
@@ -580,11 +583,14 @@ class ProcessingManager(ABC):
             for channel in image.observing_session.camera.channels
         }
 
-    def __init__(self, version=None, dummy=False):
+    def __init__(self, pipeline_run_id, version=None, dummy=False):
         """
         Set the public class attributes per the given configuartion version.
 
         Args:
+            pipeline_run_id(int):    The ID of the PipelineRun using the
+                instance.
+
             version(int):    The version of the parameters to get. If a
                 parameter value is not specified for this exact version use the
                 value with the largest version not exceeding ``version``. By
@@ -613,6 +619,7 @@ class ProcessingManager(ABC):
         self._processed_ids = {}
         self.pending = {}
         self._some_failed = False
+        self._pipeline_run_id = pipeline_run_id
         with start_db_session() as db_session:
             if version is None:
                 version = db_session.execute(
@@ -684,7 +691,7 @@ class ProcessingManager(ABC):
             if not dummy:
                 self._cleanup_interrupted(db_session)
 
-    def get_config(
+    def get_config( # pylint: disable=too-many-arguments
         self,
         matched_expressions,
         db_session,
