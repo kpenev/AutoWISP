@@ -405,6 +405,7 @@ class ProcessingManager(ABC):
         evaluate.symtable.update(
             IMAGE_TYPE=image.image_type.name,
             OBS_SESN=image.observing_session.label,
+            TARGET=image.observing_session.target.name
         )
         self._logger.debug(
             "Matched expressions: %s",

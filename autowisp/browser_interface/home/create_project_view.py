@@ -47,6 +47,120 @@ class CreateProjectView(WalkFSView):
         context["file_list"] = []
         return context
 
+    @staticmethod
+    def _get_path_overwrites(root_dir):
+        """Return the config overwrites to place outputs under given root."""
+
+        result = {
+            "calibrated-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir, "CAL", "{RAWFNAME}_{CLRCHNL}.fits.fz"
+                    ),
+                )
+            ],
+            "data-reduction-fname": [
+                (None, os.path.join(root_dir, "DR", "{RAWFNAME}_{CLRCHNL}.h5"))
+            ],
+            "master-photref-fname-format": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "mphotref_{TARGET}_{CLRCHNL}_{EXPTIME}sec"
+                        "_iter{magfit_iteration:03d}.fits",
+                    ),
+                )
+            ],
+            "magfit-stat-fname-format": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "mfit_stat_{TARGET}_{CLRCHNL}_{EXPTIME}sec"
+                        "_iter{magfit_iteration:03d}.txt",
+                    ),
+                )
+            ],
+            "lightcurve-catalog-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "lc_catalog_{OBJECT}_{CLRCHNL}_{EXPTIME}.fits",
+                    ),
+                )
+            ],
+            "lc-fname": [(None, os.path.join(root_dir, "LC", "GDR3_{:d}.h5"))],
+            "std-out-err-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "LOGS",
+                        "{processing_step:s}_{task:s}_{now:s}"
+                        "_pid{pid:d}.outerr",
+                    ),
+                )
+            ],
+            "logging-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "LOGS",
+                        "{processing_step:s}_{task:s}_{now:s}"
+                        "_pid{pid:d}.outerr",
+                    ),
+                )
+            ],
+            "stacked-master-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "{IMAGETYP}_{OBS_SESN}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ],
+            "high-flat-master-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "{IMAGE_TYPE}_{OBS_SESN}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ],
+            "low-flat-master-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "low{IMAGE_TYPE}_{OBS_SESN}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ],
+        }
+
+        for cat_type in ["astrometry", "photometry", "magfit"]:
+            result[f"{cat_type}-catalog"] = [
+                (
+                    None,
+                    os.path.join(
+                        root_dir, "MASTERS", "Gaia", "{checksum:s}.fits"
+                    ),
+                )
+            ]
+        return result
+
     def get(self, request, **kwargs):  # pylint: disable=arguments-differ
         """
         Display the appropriate project cretion page per the current mode.
@@ -132,7 +246,8 @@ class CreateProjectView(WalkFSView):
             initialize_database(
                 Namespace(
                     drop_hdf5_structure_tables=False, drop_all_tables=True
-                )
+                ),
+                self._get_path_overwrites(proj.path)
             )
 
             return redirect("home:home")
