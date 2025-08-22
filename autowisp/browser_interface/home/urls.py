@@ -14,18 +14,35 @@ urlpatterns = [
         name="new_project",
     ),
     path(
-        "new_project/<path:dirname>/",
-        views.CreateProjectView.as_view(),
-        name="new_project",
+        "select_project_home/",
+        views.CreateProjectView.as_view(
+            mode="select_home",
+            url_name="home:select_project_home",
+            template="home/select_project_home.html",
+        ),
+        name="select_project_home",
+    ),
+    path(
+        "select_project_home/<path:dirname>/",
+        views.CreateProjectView.as_view(
+            mode="select_home",
+            url_name="home:select_project_home",
+            template="home/select_project_home.html",
+        ),
+        name="select_project_home",
     ),
     path(
         "create_directory/<path:dirname>/",
-        views.CreateProjectView.as_view(mode='create_dir'),
+        views.CreateProjectView.as_view(
+            mode="create_dir",
+            url_name="home:select_project_home",
+            template="home/create_directory.html",
+        ),
         name="create_directory",
     ),
     path(
         "select_project/<int:project_id>/",
         views.select_project,
         name="select_project",
-    )
+    ),
 ]

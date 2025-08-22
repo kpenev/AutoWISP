@@ -20,10 +20,10 @@ class CreateProjectView(WalkFSView):
     url_name = "home:new_project"
     """The URL name for this view."""
 
-    cancel_url_name = "home:home"
+    cancel_url_name = "home:new_project"
     """The URL name to redirect to when the cancel button is pressed."""
 
-    mode = "select_home"
+    mode = "create_project"
     """
     What mode this view is in.
 
@@ -157,55 +157,59 @@ class CreateProjectView(WalkFSView):
             ]
         return result
 
-    def get(self, request, **kwargs):  # pylint: disable=arguments-differ
+    def _create_project(self, config):
+        """Create a new project following the given configuration."""
+
+        proj = Project(
+            name=config["project-name"],
+            path=config["project-home"],
+            description=config["project-description"],
+        )
+        proj.save()
+        set_sqlite_database(os.path.join(proj.path, "autowisp.db"))
+        initialize_database(
+            Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
+            self._get_path_overwrites(proj.path),
+        )
+
+    def get(self, request, dirname=None):
         """
         Display the appropriate project cretion page per the current mode.
 
         The expected arguments depend on the mode:
 
-        For ``select_home`` mode:
-
-            Args:
-                dirname (str, optional): Directory name to display contents of
-                    when selecting project home.
-
-        For ``create_dir`` mode:
-
-            Args:
-                dirname (str, optional): Directory under which the new directory
-                    will be created.
-
-        For ``create_project`` mode:
-
-            Args:
-                dirname (str): The currently selected home directory where the
-                    new project will be created.
-
-                name(str, optional): The currently specified name of the new
-                    project to create.
-
-                description(str, optional): The currently specified description
-                    of the new project to create.
+        Args:
+            dirname (str, optional): Directory name to display contents of
+                when selecting project home or where new directory or new
+                project will be created.
         """
 
+        print(f"Mode: {self.mode!r}, dirname: {dirname!r}")
         if self.mode == "create_dir":
-            context = self._get_context(request.GET, kwargs["dirname"])
-            return render(request, "home/create_directory.html", context)
+            print(f"Creating directory under {dirname!r}")
+            context = self._get_context(request.GET, dirname)
+            print(f"Context: {context!r}")
+            return render(request, self.template, context)
 
         if self.mode == "create_project":
+            print(f"Session: {request.session}")
+            print(
+                f"Create project in {request.session.get('project-home', '')!r}"
+            )
             return render(
                 request,
                 "home/create_project.html",
                 {
-                    "properties": [
-                        ("path", kwargs["dirname"]),
-                        ("name", kwargs.get("name", "")),
-                        ("description", kwargs.get("description", "")),
-                    ]
+                    "path": request.session.get("project-home", ""),
+                    "name": request.session.get("project-name", ""),
+                    "description": request.session.get(
+                        "project-description", ""
+                    ),
                 },
             )
 
-        return super().get(request, dirname=kwargs.get("dirname", None))
+        assert self.mode == "select_home", f"Invalid mode {self.mode!r}"
+        return super().get(request, dirname=dirname)
 
     def post(self, request, *_args, **_kwargs):
         """
@@ -215,26 +219,22 @@ class CreateProjectView(WalkFSView):
             request: The HTTP request object.
         """
 
-        print(f"Receide POST request {request!r}: {request.POST!r}")
+        print(f"Received POST request {request!r}: {request.POST!r}")
 
         if "create-project" in request.POST:
             print(f"Creating project from {request.POST}")
-            proj = Project(
-                name=request.POST["project-name"],
-                path=request.POST["currentdir"],
-                description=request.POST["project-description"],
-            )
-            proj.save()
-            set_sqlite_database(os.path.join(proj.path, "autowisp.db"))
-            initialize_database(
-                Namespace(
-                    drop_hdf5_structure_tables=False, drop_all_tables=True
-                ),
-                self._get_path_overwrites(proj.path)
-            )
-
+            self._create_project(request.POST)
             return redirect("home:home")
 
+        if "set-project-home" in request.POST:
+            print(f"Setting project home from {request.POST}")
+            request.session["project-home"] = request.POST["currentdir"]
+            return redirect("home:new_project")
+
+        request.session["project-name"] = request.POST.get("project-name", "")
+        request.session["project-description"] = request.POST.get(
+            "project-description", ""
+        )
         if "create-dir" in request.POST:
             new_dir = os.path.join(
                 request.POST["currentdir"], request.POST["create-dir"]
@@ -242,10 +242,11 @@ class CreateProjectView(WalkFSView):
             try:
                 os.mkdir(new_dir)
             except OSError:
+                print(f"Failed to create directory {new_dir!r}")
                 return redirect(
                     "home:create_directory", dirname=request.POST["currentdir"]
                 )
         else:
             new_dir = request.POST["currentdir"]
 
-        return redirect("home:new_project", dirname=new_dir)
+        return redirect("home:select_project_home", dirname=new_dir)

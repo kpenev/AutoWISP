@@ -8,3 +8,8 @@
   font-size: x-large;
   font-weight: bold;
 }
+
+#create-project table {
+    table-layout: auto; 
+    width: 100%;
+}

@@ -28,12 +28,14 @@ def home(request):
         },
     }
     print(f"Context: {context!r}")  # Debugging output
+    request.session['project_home'] = 'test'
     return render(request, "home/index.html", context)
 
 
 def select_project(request, project_id):
     """Redirect to the processing progress page for the selected project."""
 
+    request.session.flush()
     project = Project.objects.get(id=project_id)  # pylint: disable=no-member
     request.session["project_db_path"] = os.path.join(
         project.path, "autowisp.db"
