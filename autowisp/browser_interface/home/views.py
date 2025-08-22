@@ -1,7 +1,10 @@
 """Define the vies available on the home page."""
 
-from django.shortcuts import render
+import os.path
 
+from django.shortcuts import render, redirect
+
+from autowisp.database.interface import set_sqlite_database
 from .create_project_view import (  # pylint: disable=unused-import
     CreateProjectView,
 )
@@ -24,5 +27,16 @@ def home(request):
             for proj in Project.objects.all()  # pylint: disable=no-member
         },
     }
-    print(f'Context: {context!r}')  # Debugging output
+    print(f"Context: {context!r}")  # Debugging output
     return render(request, "home/index.html", context)
+
+
+def select_project(request, project_id):
+    """Redirect to the processing progress page for the selected project."""
+
+    project = Project.objects.get(id=project_id)  # pylint: disable=no-member
+    request.session["project_db_path"] = os.path.join(
+        project.path, "autowisp.db"
+    )
+
+    return redirect("processing:progress")

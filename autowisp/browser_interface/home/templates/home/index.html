@@ -45,10 +45,10 @@ Projects
         </tr>
     </thead>
     <tbody class="lcars-table select-row">
-        {% for proj_id, proj_data in projects.items %}
-        {% url 'select_project' id=proj_id as project_url %}
+        {% for project_id, project_data in projects.items %}
+        {% url 'home:select_project' project_id=project_id as project_url %}
         <tr onclick="window.location='{{ project_url }}'">
-            {% for value in proj_data %}
+            {% for value in project_data %}
             <td>{{ value }}</td>
             {% endfor %}
         </tr>

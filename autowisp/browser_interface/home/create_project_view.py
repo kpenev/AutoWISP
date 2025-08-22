@@ -3,13 +3,9 @@
 import os
 from argparse import Namespace
 
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
-
 from django.shortcuts import render, redirect
 
-from autowisp.database import interface as db_interface
+from autowisp.database.interface import set_sqlite_database
 from autowisp.database.initialize_database import initialize_database
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from .models import Project
@@ -229,20 +225,7 @@ class CreateProjectView(WalkFSView):
                 description=request.POST["project-description"],
             )
             proj.save()
-            db_interface.db_engine = create_engine(
-                (
-                    "sqlite:///"
-                    + os.path.join(proj.path, "autowisp.db")
-                    + "?timeout=100&uri=true"
-                ),
-                echo=False,
-                pool_pre_ping=True,
-                pool_recycle=3600,
-                poolclass=NullPool,
-            )
-            db_interface.Session = sessionmaker(
-                db_interface.db_engine, expire_on_commit=False
-            )
+            set_sqlite_database(os.path.join(proj.path, "autowisp.db"))
             initialize_database(
                 Namespace(
                     drop_hdf5_structure_tables=False, drop_all_tables=True

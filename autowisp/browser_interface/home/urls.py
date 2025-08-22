@@ -22,5 +22,10 @@ urlpatterns = [
         "create_directory/<path:dirname>/",
         views.CreateProjectView.as_view(mode='create_dir'),
         name="create_directory",
+    ),
+    path(
+        "select_project/<int:project_id>/",
+        views.select_project,
+        name="select_project",
     )
 ]

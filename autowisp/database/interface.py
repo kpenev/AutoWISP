@@ -38,3 +38,21 @@ def start_db_session():
 
     with Session.begin() as db_session: # pylint: disable=no-member
         yield db_session
+
+def set_sqlite_database(db_path):
+    """Set the database engine and session to use the given SQLite database."""
+
+    global db_engine, Session  # pylint: disable=global-statement
+
+    db_engine = create_engine(
+        (
+            "sqlite:///"
+            + path.abspath(db_path)
+            + "?timeout=100&uri=true"
+        ),
+        echo=False,
+        pool_pre_ping=True,
+        pool_recycle=3600,
+        poolclass=NullPool,
+    )
+    Session = sessionmaker(db_engine, expire_on_commit=False)

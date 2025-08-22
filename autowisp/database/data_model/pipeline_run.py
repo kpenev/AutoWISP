@@ -9,13 +9,14 @@ from sqlalchemy import (
 
 from autowisp.database.data_model.base import DataModelBase
 
+__all__ = ["PipelineRun"]
+
 
 class PipelineRun(DataModelBase):
     """The table tracking runs of the pipeline."""
 
     __tablename__ = "pipeline_run"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
     host = Column(
         String(1000),
         nullable=False,

@@ -3,14 +3,11 @@
 import logging
 from socket import getfqdn
 
-# from os import waitpid, WNOHANG
-from datetime import datetime
-
-from sqlalchemy import select
+from sqlalchemy import select, sql
 from psutil import pid_exists
 from django.shortcuts import render
 
-from autowisp.database.interface import start_db_session
+from autowisp.database.interface import start_db_session, set_sqlite_database
 from autowisp.database.user_interface import (
     get_processing_sequence,
     get_progress,
@@ -19,10 +16,7 @@ from autowisp.database.user_interface import (
 
 # False positive
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import (
-    ImageProcessingProgress,
-    LightCurveProcessingProgress,
-)
+from autowisp.database.data_model import ImageProcessingProgress, PipelineRun
 
 # pylint: enable=no-name-in-module
 
@@ -34,6 +28,8 @@ logger = logging.getLogger(__name__)
 def progress(request):
     """Display the current processing progress."""
 
+    assert "project_db_path" in request.session, "No project selected"
+    set_sqlite_database(request.session["project_db_path"])
     context = {"running": False, "refresh_seconds": 0}
     with start_db_session() as db_session:
         context["channels"] = sorted(list_channels(db_session))
@@ -87,33 +83,20 @@ def progress(request):
                 ).all()
             ]
 
-        for check_running in (
-            db_session.scalars(
-                select(ImageProcessingProgress).where(
-                    # pylint: disable=singleton-comparison
-                    ImageProcessingProgress.finished == None,
-                    # pylint: enable=singleton-comparison
-                    ImageProcessingProgress.host == getfqdn(),
-                )
-            ).all()
-            + db_session.scalars(
-                select(LightCurveProcessingProgress).where(
-                    # pylint: disable=singleton-comparison
-                    LightCurveProcessingProgress.finished == None,
-                    # pylint: enable=singleton-comparison
-                    LightCurveProcessingProgress.host == getfqdn(),
-                )
-            ).all()
-        ):
+        for check_running in db_session.scalars(
+            select(PipelineRun).filter_by(finished=None, host=getfqdn())
+        ).all():
             if pid_exists(check_running.process_id):
                 logger.info(
                     "Calibration process with ID %s still exists.",
-                    check_running.process_id
+                    check_running.process_id,
                 )
                 context["running"] = True
                 context["refresh_seconds"] = 5
             else:
                 logger.info("Marking %s as finished", check_running)
-                check_running.finished = datetime.now()
+                check_running.finished = (
+                    sql.func.now()  # pylint: disable=not-callable
+                )
 
     return render(request, "processing/progress.html", context)
