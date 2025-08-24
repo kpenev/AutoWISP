@@ -17,8 +17,8 @@ CREATE PROJECT
 {% block left_menu %}
 {% if path %}
 <input type="submit" 
-       id="create-project" 
-       name="create-project" 
+       id="create-project-button" 
+       name="create-project-submit" 
        value="Create Project"
        form="create-project"
        class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
@@ -138,7 +138,7 @@ CREATE PROJECT
            value="{{path}}"/>
     <input type="submit" 
            style="display: none;"
-           name="create-project" 
+           name="create-project-submit" 
            value="Create Project"/>
 
 </form>

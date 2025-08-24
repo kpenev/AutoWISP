@@ -46,7 +46,9 @@ function getConfig(fileText) {
             value = split[1].trim();
             if ( !key.endsWith('-fname') 
                  && !key.endsWith('-fname-format') 
-                 && !key.endsWith('-catalog') ) {
+                 && !key.endsWith('-catalog') 
+                 && key != 'split-channels'
+               ) {
                 configSection.push(split[0].trim() + " = " + split[1].trim());
             }
         }

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, relationship
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model.step_dependencies import StepDependencies
 
-__all__ = ["Step", "Parameter"]
+__all__ = ["Step", "Parameter", "AlternateParameterName"]
 
 step_param_association = Table(
     "step_parameters",
@@ -72,3 +72,22 @@ class Parameter(DataModelBase):
     steps: Mapped[List[Step]] = relationship(
         secondary=step_param_association, back_populates="parameters"
     )
+
+class AlternateParameterName(DataModelBase):
+    """Table describing alternate names for parameters."""
+
+    __tablename__ = "alternate_parameter_names"
+
+    param_id = Column(
+        ForeignKey("parameter.id"),
+        doc="The ID of the parameter.",
+    )
+    alt_name = Column(
+        String(100),
+        doc="An alternate name for the parameter.",
+    )
+
+    parameter: Mapped[Parameter] = relationship("Parameter", backref="alternate_names")
+
+    def __str__(self):
+        return f"Parameter ID {self.param_id} has alternate name '{self.alt_name}'"

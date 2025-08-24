@@ -296,6 +296,7 @@ class ManualStepArgumentParser(ArgumentParser):
 
         self.argument_descriptions = {}
         self.argument_defaults = {}
+        self.alternate_names = {}
 
         self._convert_to_dict = convert_to_dict
         super().__init__(
@@ -435,6 +436,9 @@ class ManualStepArgumentParser(ArgumentParser):
         """Store each argument's description in self.argument_descriptions."""
 
         argument_name = args[0].lstrip("-")
+        self.alternate_names[argument_name] = [
+            entry.lstrip("-") for entry in args[1:]
+        ]
         if kwargs.get("action", None) == "store_false":
             self.argument_descriptions[argument_name] = {
                 "rename": kwargs["dest"],
@@ -534,6 +538,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if args or kwargs:
             result["argument_descriptions"] = self.argument_descriptions
             result["argument_defaults"] = self.argument_defaults
+            result["alternate_argument_names"] = self.alternate_names
 
         return result
 

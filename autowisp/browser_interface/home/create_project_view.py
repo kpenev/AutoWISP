@@ -167,9 +167,16 @@ class CreateProjectView(WalkFSView):
         )
         proj.save()
         set_sqlite_database(os.path.join(proj.path, "autowisp.db"))
+        overwrites = {}
+        for line in config['custom-config'].splitlines():
+            param, value = line.split('=', 1)
+            param = param.strip()
+            value = value.strip()
+            overwrites[param] = [(None, value)]
+        overwrites.update(self._get_path_overwrites(proj.path))
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
-            self._get_path_overwrites(proj.path),
+            overwrites,
         )
 
     def get(self, request, dirname=None):
@@ -221,7 +228,7 @@ class CreateProjectView(WalkFSView):
 
         print(f"Received POST request {request!r}: {request.POST!r}")
 
-        if "create-project" in request.POST:
+        if "create-project-submit" in request.POST:
             print(f"Creating project from {request.POST}")
             self._create_project(request.POST)
             return redirect("home:home")

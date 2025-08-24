@@ -26,6 +26,7 @@ from autowisp.database.data_model import (
     Step,
     StepDependencies,
     Parameter,
+    AlternateParameterName,
     Configuration,
     Condition,
     ConditionExpression,
@@ -409,6 +410,17 @@ class StepCreator:
                     )
                     # pylint: enable=not-callable
                     configuration.parameter = self._db_parameters[param]
+
+                    for alt_name in default_step_config[
+                        "alternate_argument_names"
+                    ][param]:
+                        alt_name_entry = AlternateParameterName(
+                            alt_name=alt_name
+                        )
+                        self._db_parameters[param].alternate_names.append(
+                            alt_name_entry
+                        )
+
                     db_session.add(configuration)
 
                 new_step.parameters.append(self._db_parameters[param])
@@ -586,9 +598,15 @@ def _overwrite_defaults(new_defaults):
     db_expressions = {}
     with start_db_session() as db_session:
         for param, all_values in new_defaults.items():
+            alternate = db_session.execute(
+                select(AlternateParameterName).filter_by(alt_name=param)
+            ).scalar_one_or_none()
+            if alternate is not None:
+                param = alternate.parameter.name
             param_id = db_session.scalar(
                 select(Parameter.id).filter_by(name=param)
             )
+            assert param_id is not None, f"Parameter {param} not found in DB"
             delete_default = True
             for condition_expressions, value in all_values:
                 if condition_expressions is None:
@@ -599,7 +617,7 @@ def _overwrite_defaults(new_defaults):
                             .values(value=value)
                         ).rowcount
                         == 1
-                    )
+                    ), f"Failed to update default for {param!r} to {value!r}"
                     delete_default = False
                 else:
                     for expression in condition_expressions:

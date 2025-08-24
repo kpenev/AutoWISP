@@ -50,7 +50,7 @@ def set_sqlite_database(db_path):
             + path.abspath(db_path)
             + "?timeout=100&uri=true"
         ),
-        echo=False,
+        echo=True,
         pool_pre_ping=True,
         pool_recycle=3600,
         poolclass=NullPool,
