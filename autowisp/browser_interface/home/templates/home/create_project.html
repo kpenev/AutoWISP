@@ -44,12 +44,12 @@ CREATE PROJECT
             <tr>
                 <th></th>
                 <th style="width: 100%"></th>
+            </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    <label for="project-name" 
-                           class="project-param-label lcars-melrose-color"> 
+                    <label for="project-name" class="project-param-label"> 
                         Project Name:
                     </label>
                 </td>
@@ -59,17 +59,13 @@ CREATE PROJECT
                            name="project-name"
                            value=""
                            required
-                           class="lcars-text-input 
-                                  decorated 
-                                  rounded
-                                  lcars-melrose-color 
-                                  lcars-u-3-1"/>
+                           class="project-text-input lcars-u-3-1"/>
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project-description" 
-                           class="project-param-label lcars-melrose-color"> 
+                           class="lcars-u--2 project-param-label"> 
                         Project&nbsp;Description (optional):
                     </label>
                 </td>
@@ -77,18 +73,14 @@ CREATE PROJECT
                     <textarea id="project-description"
                               name="project-description"
                               value=""
-                              class="lcars-text-input 
-                                     decorated 
-                                     rounded
-                                     lcars-melrose-color 
-                                     lcars-u-3-2">
-                    </textarea>
+                              class="project-text-input 
+                                     lcars-u-3-2"></textarea>
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="project-home-dir" 
-                           class="project-param-label lcars-melrose-color">
+                           class="project-param-label">
                         Project&nbsp;Home:
                     </label>
                 </td>
@@ -100,38 +92,42 @@ CREATE PROJECT
                            href="{% url 'home:select_project_home' %}"
                            {% endif %}
                            >
-                        <div class="lcars-element 
-                                    button 
-                                    rounded 
-                                    lcars-melrose-bg"
-                            style="width: 100%">
-                            {{ path }}
-                        </div>
+                           <input type="text" 
+                                  id="project-description"
+                                  name="project-description"
+                                  value="{{ path }}"
+                                  class="project-text-input lcars-u--1" 
+                                  readonly
+                                  style="text-wrap-mode: nowrap;"/>
+
+                            
                     </a>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label for="project-config"
-                           class="project-param-label lcars-melrose-color">
-                        Custom Configuration (optional):
-                    </label>
+                    <div class="lcars-column">
+                        <label for="config-file"
+                               class="project-param-label lcars-u-3-5 button">
+                            Custom Configuration (optional):<br>
+                            click to load from file
+                        </label>
+                    </div>
                 </td>
-                <td class='lcars-column'>
-                    <label for="config-file" 
-                           class="lcars-element button lcars-melrose-bg">
-                        Load from File
-                    </label>
-                    <input type="file" id="config-file" name="config-file"/>
+                <td class='lcars-column' style="width: 100%;">
+                    <div>
+                        <div id="config-file-message" style="display: none;"></div>
+
+                        <input type="file" 
+                               id="config-file" 
+                               name="config-file"
+                               style="display:none"/>
+                    </div>
                     <textarea id="custom-config"
                               name="custom-config"
                               value=""
-                              class="lcars-text-input 
-                                     decorated 
-                                     rounded
-                                     lcars-melrose-color 
-                                     lcars-u-3-2">
-                    </textarea>
+                              class="lcars-u-3-5 project-text-input"
+                              wrap="off"></textarea>
                 </td>
             </tr>
         </tbody>
@@ -141,6 +137,7 @@ CREATE PROJECT
            name="project-home" 
            value="{{path}}"/>
     <input type="submit" 
+           style="display: none;"
            name="create-project" 
            value="Create Project"/>
 
@@ -150,3 +147,8 @@ CREATE PROJECT
 {{ block.super }}
 
 {% endblock main %}
+
+{% block scripts %}
+<script src="{% static 'home/js/create.project.js' %}"></script>
+{{ block.super }}
+{% endblock scripts %}
