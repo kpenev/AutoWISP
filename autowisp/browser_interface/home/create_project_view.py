@@ -160,16 +160,22 @@ class CreateProjectView(WalkFSView):
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
+        db_fname = os.path.join(config["project-home"], "autowisp.db")
+        assert not os.path.exists(db_fname), (
+            f"Directory {config['project-home']} appears to already contain a "
+            "project."
+        )
+
         proj = Project(
             name=config["project-name"],
             path=config["project-home"],
             description=config["project-description"],
         )
         proj.save()
-        set_sqlite_database(os.path.join(proj.path, "autowisp.db"))
+        set_sqlite_database(db_fname)
         overwrites = {}
-        for line in config['custom-config'].splitlines():
-            param, value = line.split('=', 1)
+        for line in config["custom-config"].splitlines():
+            param, value = line.split("=", 1)
             param = param.strip()
             value = value.strip()
             overwrites[param] = [(None, value)]
