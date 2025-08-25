@@ -35,12 +35,25 @@ class CreateProjectView(WalkFSView):
         ``"create_project"``: Create a new project in the specified directory.
     """
 
+    db_fname = "autowisp.db"
+    """The base filename of the SQLite database tracking all projects."""
+
     def _get_context(self, config, search_dir):
-        """Return the context required by the project creation template."""
+        """Return the context required by the home selection template."""
 
         context = super()._get_context(config, search_dir)
         context["unselectable"] = context.pop("file_list")
         context["file_list"] = []
+        currentdir = context["parent_dir_list"][-1][0]
+        if os.path.exists(os.path.join(currentdir, self.db_fname)):
+            context["invalid_home_message"] = (
+                f"Directory {currentdir} already appears to contain an AutoWISP"
+                " project."
+            )
+            context["valid_home"] = False
+        else:
+            context["invalid_home_message"] = "valid home"
+            context["valid_home"] = True
         return context
 
     @staticmethod
@@ -160,7 +173,7 @@ class CreateProjectView(WalkFSView):
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
-        db_fname = os.path.join(config["project-home"], "autowisp.db")
+        db_fname = os.path.join(config["project-home"], self.db_fname)
         assert not os.path.exists(db_fname), (
             f"Directory {config['project-home']} appears to already contain a "
             "project."

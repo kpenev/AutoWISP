@@ -61,3 +61,18 @@
     border-collapse: collapse;
     width: 100%;
 }
+
+.alert-box {
+    width: fit-content;
+    animation-name: alert-animation;
+    animation-iteration-count: 2;
+    animation-duration: 0.5s;
+    color: #e10;
+    background-color: #000;
+}
+
+@keyframes alert-animation {
+    0% { background-color: #000; color: #e10; }
+    50% { background-color: #e10; color: #000; }
+    100% { background-color: #000; color: #e10; }
+}

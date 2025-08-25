@@ -15,12 +15,14 @@ SELECT PROJECT HOME
 {% endblock app_title %}
 
 {% block left_menu %}
+{% if valid_home %}
 <input type="submit" 
        id="set-project-home" 
        name="set-project-home" 
        value="Set Project Home"
        form="selection"
        class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
+{% endif %}
 
 {% with parent_dir_list|last as current_dir %}
 <a href="{% url 'home:create_directory' dirname=current_dir.0 %}">
@@ -46,3 +48,22 @@ SELECT PROJECT HOME
 {% endblock selectable_entries_end %}
 
 
+{% block main %}
+
+{% if not valid_home %}
+
+<div class="lcars-row"> 
+    <div class="lcars-bar horizontal left-end lcars-red-alert-bg decorated">
+    </div>
+    <div class="lcars-bar horizontal top-bar alert-box">
+        {{ invalid_home_message }}
+    </div> 
+    <div class="lcars-bar horizontal right-end lcars-red-alert-bg decorated">
+    </div>
+</div>
+<br>
+
+{% endif %}
+
+{{ block.super }}
+{% endblock main %}
