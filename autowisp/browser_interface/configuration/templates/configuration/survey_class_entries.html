@@ -1,6 +1,6 @@
 {% load custom_filters %}
 {% for attribute in attribute_list %}
-<div class="lcars-column" style="width: 100%">
+<div class="lcars-column" style="width: 100%;">
     {% if forloop.last and not track_access %}
     <div class="lcars-row">
         <div class="lcars-bar horizontal lcars-red-damask-bg">
@@ -14,9 +14,9 @@
         </div>
         <!-- ROUNDED EDGE DECORATED -->
         <div class="lcars-bar 
-                              horizontal 
-                              right-end 
-                              lcars-red-damask-bg">
+                    horizontal 
+                    right-end 
+                    lcars-red-damask-bg">
         </div>
     </div>
     {% else %}
@@ -65,6 +65,7 @@
                   lcars-gray-bg
                   rounded 
                   lcars-u--1"
+           style="box-sizing: border-box; width:100%;"
            value="{{item|get_key:attribute.1}}"> 
     </input>
     {% endif %}
