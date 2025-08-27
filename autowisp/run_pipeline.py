@@ -76,16 +76,17 @@ def main(config):
         db_session.commit()
         pipeline_run = pipeline_run.id
 
-    processing = ImageProcessingManager(run_id=pipeline_run)
+    processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
     for img_to_add in config.add_raw_images:
         logging.debug("Adding raw images from: %s", img_to_add)
         processing.add_raw_images(find_fits_fnames(os.path.abspath(img_to_add)))
 
-    logging.debug("Starting processing...")
-    processing(limit_to_steps=config.steps)
-    logging.debug("Processing completed.")
+    if config.steps is None or config.steps:
+        logging.debug("Starting processing...")
+        processing(limit_to_steps=config.steps)
+        logging.debug("Processing completed.")
 
-    LightCurveProcessingManager(run_id=pipeline_run)()
+        LightCurveProcessingManager(pipeline_run_id=pipeline_run)()
 
     with start_db_session() as db_session:
         db_session.execute(

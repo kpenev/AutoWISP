@@ -2,13 +2,14 @@
 
 import logging
 from os import path
+from argparse import Namespace
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from autowisp.file_utilities import find_fits_fnames
-from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.run_pipeline import main as run_pipeline
 
 
 class SelectRawImages(WalkFSView):
@@ -20,11 +21,10 @@ class SelectRawImages(WalkFSView):
     url_name = "processing:select_raw_images"
     cancel_url_name = "processing:progress"
 
-    @classmethod
-    def _get_context(cls, config, search_dir):
+    def _get_context(self, config, search_dir):
         """Return te context required by the file selection template."""
 
-        cls._logger.debug("Config: %s", repr(config))
+        self._logger.debug("Config: %s", repr(config))
         config = config.copy()
         if "filename_filter" not in config:
             config["filename_filter"] = r".*\.fits(.fz)?\Z"
@@ -54,7 +54,13 @@ class SelectRawImages(WalkFSView):
                 image_list.append(full_path)
 
         try:
-            ImageProcessingManager().add_raw_images(image_list)
+            run_pipeline(
+                Namespace(
+                    processing_database=request.session["project_db_path"],
+                    add_raw_images=image_list,
+                    steps=[],
+                )
+            )
         except OSError:
             self._logger.error(
                 "OSError occurred while adding raw images", exc_info=True

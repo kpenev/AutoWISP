@@ -2,6 +2,7 @@
 
 import logging
 from socket import getfqdn
+import os
 
 from sqlalchemy import select, sql
 from psutil import pid_exists
@@ -86,7 +87,10 @@ def progress(request):
         for check_running in db_session.scalars(
             select(PipelineRun).filter_by(finished=None, host=getfqdn())
         ).all():
-            if pid_exists(check_running.process_id):
+            if (
+                pid_exists(check_running.process_id)
+                and check_running.process_id != os.getpid()
+            ):
                 logger.info(
                     "Calibration process with ID %s still exists.",
                     check_running.process_id,
