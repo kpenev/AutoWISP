@@ -168,7 +168,7 @@
         <div class="lcars-column" style="width: 100%; position: relative"> 
 
             {% if type_attributes|get_key:component %}
-            <div class="lcars-row" style="width: 100%; overflow: hidden;">
+            <div class="lcars-row" style="width: 100%">
                 {% include "./survey_class_entries.html" with attribute_list=type_attributes|get_key:component track_access=0 title="types" item_list=types selected_id=selected_type_id track_access=0 is_type=1 %}
 
             </div>

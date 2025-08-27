@@ -56,6 +56,53 @@
         {% endfor %}
     </select>
 
+    {% elif attribute.0 == 'channels' %}
+
+    {% if item.id >= 0 %}
+    <table class="camera-channels">
+        <tbody>
+            <tr>
+                <th>Name</th>
+                <th>Offset</th>
+            </tr>
+            {% for chnl_id, chnl_name, chnl_slice in item|get_key:attribute.1 %}
+            <tr>
+                <td>
+                    <input type="text" 
+                           name="channel-{{ chnl_id }}-name"
+                           value="{{ name }}"
+                           class="lcars-grey-bg">
+                    </input>
+                </td>
+                <td>
+                    <input type="text" 
+                           name="channel-{{ chnl_id }}-slice"
+                           value="{{ slice }}"
+                           class="lcars-grey-bg">
+                    </input>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    <input type="text" 
+                           name="channel-new-name"
+                           value=""
+                           size="1">
+                    </input>
+                </td>
+                <td>
+                    <input type="text" 
+                           name="channel-new-slice"
+                           value=""
+                           size="1">
+                    </input>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
     {% else %}
     <input type="text"
            name="{{attribute.0}}"
@@ -71,9 +118,12 @@
     {% endif %}
     {% else %}
     <a href="{{select_url}}">
+        {% if attribute.0 == 'channels' %}
+        {% else %}
         <div class="lcars-text-box centered-left" style="width:100%"> 
             {{item|get_key:attribute.1}} 
         </div>
+        {% endif %}
     </a>
     {% endif %}
 
