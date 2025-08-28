@@ -394,6 +394,12 @@ def delete_from_survey(
     )
     set_sqlite_database(request.session["project_db_path"])
     with start_db_session() as db_session:
+        if db_class == provenance.CameraType:  # pylint: disable=no-member
+            db_type = db_session.scalar(
+                select(db_class).filter_by(id=component_type_id)
+            )
+            for channel in db_type.channels:
+                db_session.delete(channel)
         db_session.execute(
             delete(db_class).where(
                 db_class.id == (component_id or component_type_id)
@@ -507,10 +513,10 @@ def add_camera_type_channel(camera_type_id, properties, db_session):
     result = remove_unspecified(channel_info)
     print(f"Cleaned channel info: {channel_info!r}")
     print(f"Result: {result!r}")
-    if channel_info and camera_type_id < 0:
+    if channel_info:
         assert (
-            entry_id >= 0
-        ), "Attempting to set channels of non-existant camera"
+            camera_type_id >= 0
+        ), "Attempting to set channels of non-existant camera type"
 
     for channel_id, channel_properties in channel_info.items():
         print(f"Editing channel {channel_id} per: {channel_properties!r}")

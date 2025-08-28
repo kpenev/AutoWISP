@@ -125,6 +125,14 @@ col.attr-column {
     height:1px;
 }
 
+.survey-class-bubble tbody tr:hover {
+    background-color: #333;
+}
+
+.survey-class-bubble tbody tr:hover *:not(.button) {
+    background-color: #333;
+}
+
 .survey-class-bubble td.left-menu {
     height:100%;
 }

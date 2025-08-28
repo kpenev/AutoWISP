@@ -42,6 +42,15 @@
 
 <tbody>
     {% for item in item_list %}
+    {% if is_type %}
+    {% url 'configuration:survey' selected_component=component selected_type_id=item.id as select_url %}
+    {% url 'configuration:delete_from_survey' component_type=component component_type_id=item.id as delete_url %}
+
+    {% else %}
+    {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
+    {% url 'configuration:delete_from_survey' component_type=component component_id=item.id as delete_url %}
+    {% endif %}
+
     <tr>
         {% comment %} Render Add/Update/Delete button {% endcomment %}
         <td class="left-menu">
@@ -58,14 +67,6 @@
             {% comment %} End Add/Update button for selected item {% endcomment %}
             {% else %}
             {% comment %} Start Add/Delete/Can't delete button for not selected item {% endcomment %}
-            {% if is_type %}
-            {% url 'configuration:survey' selected_component=component selected_type_id=item.id as select_url %}
-            {% url 'configuration:delete_from_survey' component_type=component component_type_id=item.id as delete_url %}
-
-            {% else %}
-            {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
-            {% url 'configuration:delete_from_survey' component_type=component component_id=item.id as delete_url %}
-            {% endif %}
             {% if item.id >= 0 %}
             {% comment %} Start Delete/Can't delete botton for unselected existing item {% endcomment %}
             {% if item.can_delete %}
