@@ -52,5 +52,10 @@ class Camera(DataModelBase):
             f"({self.serial_number})"
         )
 
+    def to_dict(self):
+        """Return dict representation of the camera."""
+
+        return {"serial_number": self.serial_number, "notes": self.notes}
+
 
 # pylint: enable=too-few-public-methods
