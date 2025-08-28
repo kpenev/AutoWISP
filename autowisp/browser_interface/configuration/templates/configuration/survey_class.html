@@ -1,119 +1,24 @@
 {% load custom_filters %}
-<div class="lcars-column" style="width:100%;">
+<div class="lcars-column" style="width:100%; margin: 0; padding:0;">
     {% if component == selected_component and selected_id %}
     {% url 'configuration:update_survey_component' component_type=component component_id=selected_id as update_url %}
     <form action="{{update_url}}" method="post">
         {% csrf_token %}
         {% endif %}
 
-        <div class="lcars-row">
-            <div class="lcars-column">
-                <div class="lcars-elbow left-bottom lcars-red-damask-bg"></div>
-                <div class="lcars-bar spacer"></div>
-                {% for item in item_list %}
-                {% if component == selected_component and item.id == selected_id %}
-                <input type="submit"
-                       name="todo" 
-                       {% if item.id < 0 %}
-                       value="Add"
-                       {% else %}
-                       value="Update"
-                       {% endif %}
-                       class="lcars-element button lcars-orange-peel-bg"/>
-                {% else %}
-                {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
-                {% if item.id >= 0 %}
-                {% if item.can_delete %}
-                <a href="{% url 'configuration:delete_from_survey' component_type=component component_id=item.id %}">
-                    <div class="lcars-element button lcars-red-alert-bg"> 
-                        Delete
-                    </div>
-                </a>
-                {% else %}
-                <a href="{{select_url}}">
-                    <div class="lcars-element lcars-red-damask-bg">
-                        Can't delete has images
-                    </div>
-                </a>
-                {% endif %}
-                {% else %}
-                <a href="{{select_url}}">
-                    <div class="lcars-element button lcars-husk-bg">
-                        Add {{component}}
-                    </div>
-                </a>
-                {% endif %}
-                {% endif %}
-                {% endfor %}
-
-            </div>
-
+        <table class="survey-class-bubble">
+            <colgroup>
+                <col class="left-menu"/>
+                <col span="{{ attribute_list|length }}" class="attr-column"/>
+                <col class="bubble-name"/>
+            </colgroup>
             {% if component == "observatory" %}
             {% include "./survey_class_entries.html" with title='Observatories' %}
             {% else %}
             {% include "./survey_class_entries.html" with title=component|add:'s' %}
             {% endif %}
+        </table>
 
-            {% if track_access %}
-            <div class="lcars-column" style="width: 100%">
-                <div class='lcars-row'>
-                    <div class="lcars-bar horizontal lcars-red-damask-bg">
-                        <div class="lcars-title right">
-                            {% if component == "observatory" %}
-                            Observatories
-                            {% else %}
-                            {{ component }}s
-                            {% endif %}
-                        </div>
-                    </div>
-                    <!-- ROUNDED EDGE DECORATED -->
-                    <div class="lcars-bar 
-                                 horizontal 
-                                 right-end 
-                                 lcars-red-damask-bg">
-                    </div>
-                </div>
-
-                <div class="lcars-text-box">  </div>
-                {% for item in item_list %}
-                {% if item.id >= 0 %}
-                {% if item.access %}
-                {% url 'configuration:change_access' new_access=0 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
-                {% else %}
-                {% url 'configuration:change_access' new_access=1 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
-                {% endif %}
-
-                <a href="{{access_url}}">
-                    <div class="lcars-element 
-                                 button 
-                                 full-centered
-                                 {% if item.access %}
-                                 lcars-melrose-bg
-                                 {% else %}
-                                 lcars-red-damask-bg
-                                 {% endif %}
-                                 rounded" style="width:100%"> 
-                        {% if component == 'observer' %}
-                        {% if not item.access %}
-                        no
-                        {% endif %}
-                        {{selected_component}} access
-                        {% else %}
-                        observer has
-                        {% if not item.access %}
-                        no
-                        {% endif %}
-                        access
-                        {% endif %}
-                    </div>
-                </a>
-                {% endif %}
-                {% endfor %}
-            </div>
-            {% endif %}
-
-
-        </div>
     {% if component == selected_component and selected_id %}
     </form>
     {% endif %}
@@ -124,7 +29,20 @@
     {% csrf_token %}
     {% endif %}
 
-    <div class="lcars-row" style="width:100%">
+    {% with attributes=type_attributes|get_key:component %}
+    <table class="survey-class-bubble">
+        <colgroup>
+            <col class="left-menu"/>
+            <col span="{{ attributes|length }}" class="attr-column"/>
+        </colgroup>
+        {% if type_attributes|get_key:component %}
+        {% include "./survey_class_entries.html" with attribute_list=attributes track_access=0 title="types" item_list=types selected_id=selected_type_id track_access=0 is_type=1 %}
+        {% endif %}
+    </table>
+    {% endwith %}
+
+    {% comment %}
+    <div class="lcars-row" style="width:100%;">
         <div class="lcars-column"> 
             {% if type_attributes|get_key:component %}
             <div class="lcars-bar horizontal top lcars-red-damask-bg">
@@ -194,6 +112,7 @@
 
         </div>
     </div>
+    {% endcomment %}
     {% if component == selected_component and selected_type_id %}
     </form>
     {% endif %}

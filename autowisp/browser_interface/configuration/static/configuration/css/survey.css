@@ -65,3 +65,70 @@ a {
     width: 100%; 
     box-sizing: border-box;
 }
+
+.survey-class-bubble {
+    table-layout: fixed;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.survey-class-bubble th {
+    box-sizing: border-box;
+    table-layout: auto;
+}
+
+.survey-class-bubble * {
+    padding: 0;
+    margin: 0;
+}
+
+.survey-class-bubble .lcars-bar {
+}
+
+.survey-class-bubble th {
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.survey-class-bubble tfoot td {
+    vertical-align: bottom;
+}
+
+.survey-class-bubble tfoot * {
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.survey-class-bubble .bubble-name {
+    white-space: nowrap;
+}
+
+col.bubble-name {
+    white-space: nowrap;
+    float: left;
+}
+
+col.attr-column {
+    float: right;
+}
+
+.bubble-name .right-end {
+    min-width: 0;
+}
+
+.survey-class-bubble .left-menu {
+    width: 9.5rem;
+}
+
+.survey-class-bubble tr {
+    height:1px;
+}
+
+.survey-class-bubble td.left-menu {
+    height:100%;
+}
+
+.survey-class-bubble .left-menu .button {
+    height:100%;
+}

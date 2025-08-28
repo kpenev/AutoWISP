@@ -18,7 +18,7 @@ The Survey
 <div class="lcars-row">
     <div class="lcars-column centered" style="width:100%">
         {% with component="observer" item_list=observers attribute_list=attributes.observer %}
-        {% if selected_component in equipment_components %}
+        {% if selected_component in equipment_components and not selected_type_id %}
         {% include "./survey_class.html" with track_access=1%}
         {% else %}
         {% include "./survey_class.html" with track_access=0%}
