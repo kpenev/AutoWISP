@@ -53,4 +53,4 @@ class Telescope(DataModelBase):
     def to_dict(self):
         """Return dict representation of the telescope."""
 
-        return {"serial_number": self.serial_number, "notes": self.notes}
+        return {"serial no": self.serial_number, "notes": self.notes}

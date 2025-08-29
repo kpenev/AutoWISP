@@ -57,12 +57,14 @@ class CameraChannel(DataModelBase):
             f"{self.y_offset}, {self.y_step})"
         )
 
-    def to_json(self):
+    def to_dict(self):
         """Return dict representation of the channel."""
 
         return {
-            "name": self.name,
-            "slice": (
-                f"{self.x_offset}:{self.x_step};{self.y_offset}:{self.y_step}"
-            ),
+            self.name: {
+                "x offset": self.x_offset,
+                "x step": self.x_step,
+                "y offset": self.y_offset,
+                "y step": self.y_step,
+            }
         }

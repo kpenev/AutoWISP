@@ -876,6 +876,7 @@ def update_db_entry(
             ):
                 incomplete = {"channel": channel_incomplete}
         elif attr != "type":
+            print(f"Updating {type(db_item)}.{attr} with {properties}")
             setattr(db_item, attr, properties[get_human_name(attr)])
 
     if "type" in attribute_names:
@@ -885,12 +886,47 @@ def update_db_entry(
 
     if entry_id < 0:
         db_session.add(db_item)
-    db_session.commit()
+    db_session.flush()
     return db_item.id, incomplete
 
 
 def import_json_to_survey(json_file):
     """Add to the survey configuration from given JSON encoding string."""
+
+    def add_equipment_type(type_class, item_class, type_properties):
+        """Add a single equipment type and all its devices."""
+
+        type_id, incomplete = update_db_entry(
+            db_session, type_properties, type_class, -1
+        )
+        if incomplete:
+            return incomplete
+
+        for component in type_properties["devices"]:
+            component["type-id"] = type_id
+            update_db_entry(
+                db_session,
+                component,
+                item_class,
+                -1,
+                item_class.__tablename__,
+            )
+        if type_class == provenance.CameraType:
+            for channel_name, channel_config in type_properties[
+                "channels"
+            ].items():
+                channel_config["name"] = channel_name
+                channel_config["type-id"] = type_id
+                incomplete = update_db_entry(
+                    db_session,
+                    channel_config,
+                    provenance.CameraChannel,  # pylint: disable=no-member
+                    -1,
+                    "camera",
+                )[1]
+                if incomplete:
+                    return incomplete
+        return None
 
     config = json.load(json_file)
     assert isinstance(
@@ -909,38 +945,18 @@ def import_json_to_survey(json_file):
                     if key == "Observers"
                     else provenance.Observatory  # pylint: disable=no-member
                 )
-                incomplete = update_db_entry(db_session, value, db_class, -1)[1]
+                for properties in value:
+                    incomplete = update_db_entry(
+                        db_session, properties, db_class, -1
+                    )[1]
             else:
                 component_type = key[:-1]
-                db_class = getattr(provenance, component_type + "Type")
-                type_id, incomplete = update_db_entry(
-                    db_session, value, db_class, -1
-                )
-                if incomplete:
-                    break
-
-                db_class = getattr(provenance, component_type)
-                for component in value["devices"]:
-                    component["type-id"] = type_id
-                    update_db_entry(
-                        db_session,
-                        component,
-                        db_class,
-                        -1,
-                        component_type.lower(),
+                for type_properties in value:
+                    incomplete = add_equipment_type(
+                        getattr(provenance, component_type + "Type"),
+                        getattr(provenance, component_type),
+                        type_properties,
                     )
-                if component_type == "Camera":
-                    for channel_name, channel_config in value["channels"]:
-                        channel_config["name"] = channel_name
-                        incomplete = update_db_entry(
-                            db_session,
-                            channel_config,
-                            provenance.CameraChannel,  # pylint: disable=no-member
-                            -1,
-                            "camera",
-                        )[1]
-                        if incomplete:
-                            break
             assert incomplete is None, (
                 "Mal-formatted or not fully specified configuration for "
                 f"{key}: {value!r}"
@@ -955,7 +971,7 @@ def plural(word):
     return word + "s"
 
 
-def export_to_json(**limit_to):
+def export_survey_to_json(destination, **limit_to):
     """Create JSON file storing selected survey information."""
 
     def get_export_objects(equipment_class, db_type=None):
@@ -976,9 +992,24 @@ def export_to_json(**limit_to):
             provenance, equipment_class + ("Type" if is_type else "")
         )
         export_select = select(db_class)
+        if db_type is not None:
+            export_select = export_select.filter_by(
+                **{f"{equipment_class.lower()}_type_id": db_type.id}
+            )
         if export_limit != "all":
             export_select = export_select.where(db_class.id.in_(export_limit))
         return db_session.scalars(export_select).all()
+
+    def get_config(equipment_class, db_class):
+        """Return the configuration of the given class, including children."""
+
+        result = db_class.to_dict()
+        if equipment_class not in ["Observer", "Observatory"]:
+            result["devices"] = [
+                device.to_dict()
+                for device in get_export_objects(equipment_class, db_class)
+            ]
+        return result
 
     config = {}
     with start_db_session() as db_session:
@@ -989,18 +1020,11 @@ def export_to_json(**limit_to):
             "Observer",
             "Observatory",
         ]:
-            type_list = get_export_objects(equipment_class)
-            for export_type in type_list:
-                type_config = export_type.to_dict()
-                if equipment_class not in ["Observer", "Observatory"]:
-                    type_config["devices"] = [
-                        device.to_dict()
-                        for device in get_export_objects(
-                            equipment_class, export_type
-                        )
-                    ]
-                config[plural(equipment_class)] = type_config
-    print(json.dumps(config, indent=4))
+            export_list = get_export_objects(equipment_class)
+            config[plural(equipment_class)] = [
+                get_config(equipment_class, export) for export in export_list
+            ]
+    json.dump(config, destination, indent=4)
 
 
 def main():
@@ -1009,7 +1033,8 @@ def main():
     set_sqlite_database("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    export_to_json()
+    #export_survey_to_json(open("test_survey.json", "w", encoding="utf-8"))
+    import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
 
 
 if __name__ == "__main__":

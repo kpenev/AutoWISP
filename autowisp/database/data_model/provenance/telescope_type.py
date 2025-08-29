@@ -47,7 +47,7 @@ class TelescopeType(DataModelBase):
             "make": self.make,
             "model": self.model,
             "version": self.version,
-            "f_ratio": self.f_ratio,
-            "focal_length": self.focal_length,
+            "focal ratio": self.f_ratio,
+            "focal length": self.focal_length,
             "notes": self.notes,
         }
