@@ -1033,8 +1033,8 @@ def main():
     set_sqlite_database("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    #export_survey_to_json(open("test_survey.json", "w", encoding="utf-8"))
-    import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
+    export_survey_to_json(open("test_survey.json", "w", encoding="utf-8"))
+    #import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
 
 
 if __name__ == "__main__":

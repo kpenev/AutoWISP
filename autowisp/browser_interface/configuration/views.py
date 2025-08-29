@@ -1,11 +1,10 @@
 """The views to display and edit pipeline configuration."""
 
 from collections import namedtuple
+from io import StringIO
 
 from sqlalchemy import select, func, delete
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import render, redirect, HttpResponse
 
 from autowisp.database.user_interface import (
     get_json_config,
@@ -14,6 +13,8 @@ from autowisp.database.user_interface import (
     get_editable_attributes,
     update_db_entry,
     get_human_name,
+    import_json_to_survey,
+    export_survey_to_json,
 )
 from autowisp.database.interface import start_db_session, set_sqlite_database
 
@@ -66,7 +67,7 @@ def save_config(request, version):
 
     set_sqlite_database(request.session["project_db_path"])
     save_json_config(request.body, version)
-    return HttpResponseRedirect(reverse("configuration:config_tree"))
+    return redirect("configuration:config_tree")
 
 
 def format_channel_attr(camera_type):
@@ -361,7 +362,7 @@ def delete_from_survey(
                 db_class.id == (component_id or component_type_id)
             )
         )
-    return HttpResponseRedirect(reverse("configuration:survey"))
+    return redirect("configuration:survey")
 
 
 def update_survey_component_type(request, component_type, type_id):
@@ -377,18 +378,16 @@ def update_survey_component_type(request, component_type, type_id):
             type_id,
         )
 
-    return HttpResponseRedirect(
-        reverse(
-            "configuration:survey",
-            kwargs=(
-                {}
-                if incomplete is None
-                else {
-                    "selected_type_id": type_id,
-                    "selected_component": component_type.lower(),
-                }
-            ),
-        )
+    return redirect(
+        "configuration:survey",
+        **(
+            {}
+            if incomplete is None
+            else {
+                "selected_type_id": type_id,
+                "selected_component": component_type.lower(),
+            }
+        ),
     )
 
 
@@ -405,7 +404,7 @@ def update_survey_component(request, component_type, component_id):
             component_id,
             component_type,
         )
-    return HttpResponseRedirect(reverse("configuration:survey"))
+    return redirect("configuration:survey")
 
 
 def change_access(  # pylint: disable=too-many-positional-arguments too-many-arguments line-too-long
@@ -447,12 +446,33 @@ def change_access(  # pylint: disable=too-many-positional-arguments too-many-arg
                 .where(getattr(access_class, equipment_column) == equipment_id)
             )
 
-    return HttpResponseRedirect(
-        reverse(
-            "configuration:survey",
-            kwargs={
-                "selected_component": selected_component,
-                "selected_id": selected_id,
-            },
-        )
+    return redirect(
+        "configuration:survey",
+        selected_component=selected_component,
+        selected_id=selected_id,
     )
+
+
+def import_survey_info(request):
+    """Add survey equipment from JSON file."""
+
+    assert request.method == "POST"
+    set_sqlite_database(request.session["project_db_path"])
+    import_json_to_survey(request.FILES["survey-import"])
+    return redirect('configuration:survey')
+
+
+def export_survey_info(_):
+    """Save (some of) the survey equipment to a JSON file."""
+
+    with StringIO() as export_stream:
+        export_survey_to_json(export_stream)
+        return HttpResponse(
+            export_stream.getvalue().encode('utf-8'),
+            headers={
+                'Content-Type': 'application/json',
+                'Content-Disposition': (
+                    'attachment; filename="survey.json"'
+                )
+            }
+        )

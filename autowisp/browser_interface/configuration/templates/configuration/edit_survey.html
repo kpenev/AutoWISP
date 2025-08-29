@@ -10,6 +10,37 @@ The Survey
 <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
 {% endblock %}
 
+{% block left_menu %}
+<form enctype="multipart/form-data" 
+      action="{% url 'configuration:survey_import' %}" 
+      method="post"> 
+    {% csrf_token %}
+
+    <label for="survey-import"
+           class="lcars-element button lcars-husk-bg lcars-u-1-2">
+        Import Servey Info
+    </label>
+
+    <input type="file" 
+           name="survey-import"
+           id="survey-import"
+           onchange="form.submit()"
+           style="display:none"
+           accept="application/json"/>
+</form>
+
+<a href="{% url 'configuration:survey_export' %}">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-2">
+        Export Servey Info
+    </div>
+</a>
+
+
+{% endblock %}
+
 {% block edit_survey_link %}{% endblock %}
 
 {% block main %}
