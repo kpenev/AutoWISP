@@ -57,7 +57,7 @@ CREATE PROJECT
                     <input type="text"
                            id="project-name"
                            name="project-name"
-                           value=""
+                           value="{{ name }}"
                            required
                            class="project-text-input lcars-u-3-1"/>
                 </td>
@@ -72,47 +72,47 @@ CREATE PROJECT
                 <td>
                     <textarea id="project-description"
                               name="project-description"
-                              value=""
                               class="project-text-input 
-                                     lcars-u-3-2"></textarea>
+                                     lcars-u-3-2">{{ description }}</textarea>
                 </td>
             </tr>
             <tr>
+                {% if path %}
+                {% url 'home:select_project_home' dirname=path as home_url%}"
+                {% else %}
+                {% url 'home:select_project_home'  as home_url%}
+                {% endif %}
+
                 <td>
-                    <label for="project-home-dir" 
-                           class="project-param-label">
+                    <label for="project-home-label" 
+                           class="project-param-label button">
                         Project&nbsp;Home:
                     </label>
+                    <input type="submit" 
+                           id="project-home-label" 
+                           name="redirect" 
+                           value="{{ home_url }}"
+                           style="display: none;"/>
                 </td>
                 <td>
-                    <a 
-                           {% if path %}
-                           href="{% url 'home:select_project_home' dirname=path %}"
-                           {% else %}
-                           href="{% url 'home:select_project_home' %}"
-                           {% endif %}
-                           >
-                           <input type="text" 
-                                  id="project-description"
-                                  name="project-description"
-                                  value="{{ path }}"
-                                  class="project-text-input lcars-u--1" 
-                                  readonly
-                                  style="text-wrap-mode: nowrap;"/>
+                    <input type="submit" 
+                           id="project-home-text"
+                           name="redirect"
+                           value="{{ home_url }}"
+                           class="project-text-input button lcars-u--1" 
+                           readonly
+                           style="text-wrap-mode: nowrap;"/>
 
                             
-                    </a>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <div class="lcars-column">
-                        <label for="config-file"
-                               class="project-param-label lcars-u-3-5 button">
-                            Custom Configuration (optional):<br>
-                            click to load from file
-                        </label>
-                    </div>
+                    <label for="config-file"
+                           class="project-param-label lcars-u-3-5 button">
+                        Custom Configuration (optional):<br>
+                        click to load from file
+                    </label>
                 </td>
                 <td class='lcars-column' style="width: 100%;">
                     <div>
@@ -125,9 +125,87 @@ CREATE PROJECT
                     </div>
                     <textarea id="custom-config"
                               name="custom-config"
-                              value=""
                               class="lcars-u-3-5 project-text-input"
-                              wrap="off"></textarea>
+                              wrap="off">{{ config }}</textarea>
+                </td>
+            </tr>
+            <tr class="masters">
+                <td>
+                    <label for="masters"
+                           class="project-param-label lcars-u-3 button">
+                        <div style="position: sticky; bottom: 0;">
+                            Master Usage:<br>
+                            click to load from file
+                        </div>
+                    </label>
+                </td>
+                <td>
+                    <table>
+                        <thead>
+                            <th></th>
+                            <th>Split Expressions</th>
+                            <th>Match Expressions</th>
+                        </thead>
+                        <tbody>
+                            {% for master_type, usage, split, match in master_info %}
+                            <tr class="master-row">
+                                <td>
+                                    {% if usage == "output only" %}
+                                    <div
+                                    {% else %} 
+                                    <a href="{% url 'home:home' %}"
+                                    {% endif %}
+                                       class="master-label 
+                                              lcars-u-2
+                                              {% if usage == "required" %}
+                                              lcars-rust-bg
+                                              {% elif usage == "optional" %}
+                                              lcars-husk-bg
+                                              {% else %}
+                                              lcars-gray-bg
+                                              {% endif %}
+                                              ">
+                                        {{ master_type }}<br>
+                                        ({{ usage }})
+                                        <input type="hidden" 
+                                               name="master-{{ master_type }}-usage"
+                                               value="{{ usage }}"/>
+                                    {% if usage == "output only" %}
+                                    </div>
+                                    {% else %}
+                                    </a>
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="lcar-column">
+                                    {% for expr in split %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-split"
+                                           value="{{ expr }}"
+                                           class="project-text-input lcars-u--1"/>
+                                    {% endfor %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-split"
+                                           value=""
+                                           class="project-text-input lcars-u--1"/>
+                                </td>
+                                <td class="lcar-column">
+                                    {% for expr in match %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-match"
+                                           value="{{ expr }}"
+                                           class="project-text-input lcars-u--1"/>
+                                    {% endfor %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-match"
+                                           value=""
+                                           class="project-text-input lcars-u--1"/>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </td>
             </tr>
         </tbody>

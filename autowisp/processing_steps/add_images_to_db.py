@@ -335,37 +335,35 @@ def get_or_create_observing_session(
             end_time_utc=exposure_end,
         )
     else:
-        if (
-            result.observer_id != observer.id
-            or result.camera_id != camera.id
-            or result.telescope_id != telescope.id
-            or result.mount_id != mount.id
-            or result.observatory_id != observatory.id
-            or result.target_id != target.id
-        ):
+        if any([
+            result.observer_id != observer.id,
+            result.camera_id != camera.id,
+            result.telescope_id != telescope.id,
+            result.mount_id != mount.id,
+            result.observatory_id != observatory.id,
+            result.target_id != target.id,
+        ]):
             raise RuntimeError(
                 "Mismatch between observing session and other header "
                 "information:\n\t"
                 + "\n\t".join(
                     [
                         f'{what} ID: header = {getattr(result, what + "_id")} '
-                        f"session = {locals()[what]}"
-                        for what in [
-                            "observer",
-                            "camera",
-                            "telescope",
-                            "mount",
-                            "observatory",
-                            "target",
+                        f"session = {obj.id}: {obj}"
+                        for what, obj in [
+                            ("observer", observer),
+                            ("camera", camera),
+                            ("telescope", telescope),
+                            ("mount", mount),
+                            ("observatory", observatory),
+                            ("target", target),
                         ]
                     ]
                 )
             )
 
-        if exposure_start < result.start_time_utc:
-            result.start_time_utc = exposure_start
-        if exposure_end > result.end_time_utc:
-            result.end_time_utc = exposure_end
+        result.start_time_utc = min(result.start_time_utc, exposure_start)
+        result.end_time_utc = max(result.end_time_utc, exposure_end)
 
     return result
 

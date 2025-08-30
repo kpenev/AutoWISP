@@ -28,13 +28,18 @@
   align-items: flex-end;
   background-color: #99f;
   fill: #99f;
-
   width: 100%;
+}
+
+.project-param-label > *:first-child {
+    position: sticky;
+    bottom: 0;
 }
 
 .project-text-input {
   font-size: large;
   text-align: justify;
+  text-transform: none;
   padding: 0;
   padding-right: 1em;
   margin: 0;
@@ -43,13 +48,12 @@
 /*.2rem solid dimgray*/
   color: #fff;
 /* just the resizer now */
-  background: url("data:image/svg+xml,%3csvg width='500' height='500' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='%23999' stroke-width='150' d='M77 83h349v339H77z'/%3e%3c/svg%3e") no-repeat rgba(0,0,0,0) 99.9% 100%;
   background-size: 16px;
 
-  border-right: 0.8em solid #234;
+  border-right: 0.8em solid;
   border-top-right-radius: 0.5em;
   border-bottom-right-radius: 0.5em;
-  border-left: 0.2rem solid #234;
+  border-left: 0.2rem solid;
   border-color: #99f;
   width: 90%;
   
@@ -75,4 +79,51 @@
     0% { background-color: #000; color: #e10; }
     50% { background-color: #e10; color: #000; }
     100% { background-color: #000; color: #e10; }
+}
+
+tr.masters {
+    height: 1px;
+}
+
+tr.masters > td:first-child {
+    height: 100%;
+}
+
+tr.masters > td:first-child > label {
+    height: 100%;
+}
+
+.master-row {
+    height: 1px;
+}
+
+.master-row > td:first-child {
+    height: 100%;
+}
+
+.master-label, a.master-label, a.master-label:visited {
+    display: flex;
+    text-transform: uppercase;
+    text-align: right;
+    font-size: large;
+    font-weight: bold;
+    white-space: nowrap;
+    border-top-left-radius: 1.5rem;
+    border-bottom-left-radius: 1.5rem;
+    height: 100%;
+    align-items: flex-end;
+    justify-content: right;
+    padding-right: 1em;
+}
+
+.masters th {
+    text-transform: uppercase;
+    font-size: large;
+    font-weight: bold;
+}
+
+.masters .project-text-input {
+    border-left: 0.8rem solid;
+    border-radius: 0.5em;
+    border-color: #99f;
 }

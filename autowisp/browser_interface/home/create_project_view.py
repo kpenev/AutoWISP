@@ -2,11 +2,16 @@
 
 import os
 from argparse import Namespace
+import re
 
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 
 from autowisp.database.interface import set_sqlite_database
-from autowisp.database.initialize_database import initialize_database
+from autowisp.database.initialize_database import (
+    initialize_database,
+    master_info,
+)
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from .models import Project
 
@@ -187,16 +192,28 @@ class CreateProjectView(WalkFSView):
         proj.save()
         set_sqlite_database(db_fname)
         overwrites = {}
+
+        config_rex = re.compile(
+            r"^(?P<key>[^:=;#\s]+)\s*"
+            r'(?:(?P<equal>[:=\s])\s*([\'"]?)(?P<value>.+?)?\3)?'
+            r"\s*(?:\s[;#]\s*(?P<comment>.*?)\s*)?$"
+        )
+
         for line in config["custom-config"].splitlines():
-            param, value = line.split("=", 1)
-            param = param.strip()
-            value = value.strip()
-            overwrites[param] = [(None, value)]
+            parsed = config_rex.match(line)
+            overwrites[parsed.group("key")] = [(None, parsed.group("value"))]
         overwrites.update(self._get_path_overwrites(proj.path))
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
             overwrites,
         )
+
+    def _save_form(self, request):
+        """Save the current state of the form to the session."""
+
+        for key in ["project-name", "project-description", "custom-config"]:
+            request.session[key] = request.POST.get(key, "")
+
 
     def get(self, request, dirname=None):
         """
@@ -210,6 +227,15 @@ class CreateProjectView(WalkFSView):
                 project will be created.
         """
 
+        def get_master_usage(used_by):
+            """Return usage string for master with given "used_by" entries."""
+
+            if not used_by:
+                return "output only"
+            if used_by[0][2]:
+                return "optional"
+            return "required"
+
         print(f"Mode: {self.mode!r}, dirname: {dirname!r}")
         if self.mode == "create_dir":
             print(f"Creating directory under {dirname!r}")
@@ -218,9 +244,12 @@ class CreateProjectView(WalkFSView):
             return render(request, self.template, context)
 
         if self.mode == "create_project":
-            print(f"Session: {request.session}")
+            print("Session:")
+            for key, value in request.session.items():
+                print('\t{} => {}'.format(key, value))
             print(
-                f"Create project in {request.session.get('project-home', '')!r}"
+                f"Create project {request.session.get('project-name', '')} in "
+                f"{request.session.get('project-home', '')!r}"
             )
             return render(
                 request,
@@ -231,6 +260,25 @@ class CreateProjectView(WalkFSView):
                     "description": request.session.get(
                         "project-description", ""
                     ),
+                    "config": request.session.get("custom-config", ""),
+                    "master_info": [
+                        (
+                            master_type,
+                            request.session.get(
+                                f"master-{master_type}-usage",
+                                get_master_usage(master_config["used_by"]),
+                            ),
+                            request.session.get(
+                                f"master-{master_type}-split",
+                                master_config["split_by"],
+                            ),
+                            request.session.get(
+                                f"master-{master_type}-match",
+                                master_config["must_match"],
+                            ),
+                        )
+                        for master_type, master_config in master_info.items()
+                    ],
                 },
             )
 
@@ -257,10 +305,9 @@ class CreateProjectView(WalkFSView):
             request.session["project-home"] = request.POST["currentdir"]
             return redirect("home:new_project")
 
-        request.session["project-name"] = request.POST.get("project-name", "")
-        request.session["project-description"] = request.POST.get(
-            "project-description", ""
-        )
+        self._save_form(request)
+        if "redirect" in request.POST:
+            return HttpResponseRedirect(request.POST["redirect"])
         if "create-dir" in request.POST:
             new_dir = os.path.join(
                 request.POST["currentdir"], request.POST["create-dir"]

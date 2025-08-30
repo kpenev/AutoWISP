@@ -558,7 +558,6 @@ class ProcessingManager(ABC):
             step_id=step.id,
             **{target[0] + "_id": target[1]},
             configuration_version=self.step_version[step.name],
-            process_id=process_id,
             # False positive
             # pylint: disable=not-callable
             started=sql.func.now(),
