@@ -132,3 +132,19 @@ tr.masters > td:first-child > label {
     border-color: #99f;
     width: calc(100% - 1.6rem);
 }
+
+.export-button {
+    display: inline-flex;
+    font-weight: bold;
+    text-align: right;
+    width: 100%;
+    border-radius: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    cursor: pointer;
+    white-space: nowrap;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+}

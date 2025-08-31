@@ -54,5 +54,10 @@ urlpatterns = [
         "change_master_config/<slug:master_type>",
         views.MasterConfigView.as_view(),
         name="change_master_config",
-    )
+    ),
+    path(
+        "export_master_config",
+        views.export_master_config,
+        name="export_master_config",
+    ),
 ]

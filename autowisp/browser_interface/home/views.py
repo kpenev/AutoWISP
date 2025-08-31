@@ -1,8 +1,12 @@
 """Define the vies available on the home page."""
 
 import os.path
+import json
+from io import StringIO
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
+
+from autowisp.database.initialize_database import master_info
 
 from .create_project_view import (  # pylint: disable=unused-import
     CreateProjectView,
@@ -49,3 +53,36 @@ def reset_project_config(request):
 
     request.session.flush()
     return redirect("home:new_project")
+
+
+def export_master_config(request):
+    """Generate a JSON file with the current master config for new project."""
+
+    master_config = {}
+    for master_type in master_info:
+        if master_type in ["highflat", "lowflat"]:
+            master_type = "flat"
+        master_config[master_type] = {
+            param: (
+                request.session[f"master-{master_type}-{param}"]
+                if param == "enabled"
+                else list(
+                    filter(
+                        None,
+                        request.session[f"master-{master_type}-{param}"],
+                    )
+                )
+            )
+            for param in ["enabled", "split", "match"]
+        }
+    with StringIO() as export_stream:
+        json.dump(master_config, export_stream, indent=4)
+        return HttpResponse(
+            export_stream.getvalue().encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Content-Disposition": (
+                    'attachment; filename="master_config.json"'
+                ),
+            },
+        )

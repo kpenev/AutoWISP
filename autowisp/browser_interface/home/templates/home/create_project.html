@@ -59,6 +59,11 @@ CREATE PROJECT
            name="redirect" 
            value="{% url 'home:new_project' %}"
            style="display: none;"/>
+    <input type="submit" 
+           id="export-master-config" 
+           name="redirect" 
+           value="{% url 'home:export_master_config' %}"
+           style="display: none;"/>
 
 
     <table>
@@ -141,12 +146,17 @@ CREATE PROJECT
                     <label for="masters"
                            class="project-param-label lcars-u-3 button">
                         <div style="position: sticky; bottom: 0;">
-                            Master Usage:<br>
+                            Master Configuration:<br>
                             click to load from file
                         </div>
                     </label>
                 </td>
                 <td>
+                    <label for="export-master-config"
+                           class="export-button lcars-u--1 lcars-rust-bg"
+                           style="position: sticky; top: 0;">
+                        Export Current Master Configuration
+                    </label>
                     <table>
                         <colgroup>
                             <col style="width: 1px;">
