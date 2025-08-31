@@ -11,6 +11,7 @@ from autowisp.database.interface import set_sqlite_database
 from autowisp.database.initialize_database import (
     initialize_database,
     master_info,
+    step_dependencies,
 )
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from .models import Project
@@ -38,6 +39,8 @@ class CreateProjectView(WalkFSView):
         ``"create_dir"``: Allow specifying name of directory to create.
 
         ``"create_project"``: Create a new project in the specified directory.
+
+        ``"change_master_usage"``: Toggle the
     """
 
     db_fname = "autowisp.db"
@@ -175,6 +178,66 @@ class CreateProjectView(WalkFSView):
             ]
         return result
 
+    def _specialize_dependencies(self, config):
+        """Set the processing sequence and masters per configuration."""
+
+        disabled_masters = [
+            master_type
+            for master_type in ["zero", "dark", "flat"]
+            if int(config[f"master-{master_type}-enabled"]) == 0
+        ]
+        for i in range(len(step_dependencies) - 1, -1, -1):
+            if step_dependencies[i][0] == "calibrate":
+                if step_dependencies[i][1] in disabled_masters:
+                    del step_dependencies[i]
+                else:
+                    assert step_dependencies[i][1] in [
+                        "zero",
+                        "dark",
+                        "flat",
+                        "object",
+                    ]
+
+                    for master_type in disabled_masters:
+                        try:
+                            step_dependencies[i][2].remove(
+                                (
+                                    "stack_to_master"
+                                    + (
+                                        "_flat" if master_type == "flat" else ""
+                                    ),
+                                    master_type,
+                                )
+                            )
+                        except ValueError:
+                            pass
+            elif (
+                step_dependencies[i][0].startswith("stack_to_master")
+                and step_dependencies[i][1] in disabled_masters
+            ):
+                del step_dependencies[i]
+
+        print("step_dependencies:", step_dependencies)
+
+        for master_type in disabled_masters:
+            if master_type == "flat":
+                del master_info["highflat"]
+                del master_info["lowflat"]
+            else:
+                del master_info[master_type]
+
+        for master_type, master_config in master_info.items():
+            if master_type in ["highflat", "lowflat"]:
+                master_type = "flat"
+            enabled = config[f"master-{master_type}-enabled"]
+            assert enabled == "always" or int(enabled) == 1
+            master_config["must_match"] = frozenset(
+                filter(None, config.getlist(f"master-{master_type}-match"))
+            )
+            master_config["split_by"] = frozenset(
+                filter(None, config.getlist(f"master-{master_type}-split"))
+            )
+
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
@@ -183,6 +246,7 @@ class CreateProjectView(WalkFSView):
             f"Directory {config['project-home']} appears to already contain a "
             "project."
         )
+        self._specialize_dependencies(config)
 
         proj = Project(
             name=config["project-name"],
@@ -211,9 +275,26 @@ class CreateProjectView(WalkFSView):
     def _save_form(self, request):
         """Save the current state of the form to the session."""
 
-        for key in ["project-name", "project-description", "custom-config"]:
+        for key in [
+            "project-name",
+            "project-description",
+            "project-home",
+            "custom-config",
+        ]:
             request.session[key] = request.POST.get(key, "")
 
+        for master_type in master_info:
+            if master_type == "lowflat":
+                continue
+            if master_type == "highflat":
+                master_type = "flat"
+            for param in ["enabled", "split", "match"]:
+                key = f"master-{master_type}-{param}"
+                request.session[key] = (
+                    request.POST[key]
+                    if param == "enabled"
+                    else list(filter(None, request.POST.getlist(key)))
+                )
 
     def get(self, request, dirname=None):
         """
@@ -236,6 +317,34 @@ class CreateProjectView(WalkFSView):
                 return "optional"
             return "required"
 
+        def get_master_info(master_type, master_config):
+            """Return the entry in context to add for the given master type."""
+
+            if master_type == "highflat":
+                master_type = "flat"
+            return (
+                master_type,
+                str(
+                    request.session.get(
+                        f"master-{master_type}-enabled",
+                        (
+                            1
+                            if master_type in ["zero", "dark", "flat"]
+                            else "always"
+                        ),
+                    )
+                ),
+                get_master_usage(master_config["used_by"]),
+                request.session.get(
+                    f"master-{master_type}-split",
+                    master_config["split_by"],
+                ),
+                request.session.get(
+                    f"master-{master_type}-match",
+                    master_config["must_match"],
+                ),
+            )
+
         print(f"Mode: {self.mode!r}, dirname: {dirname!r}")
         if self.mode == "create_dir":
             print(f"Creating directory under {dirname!r}")
@@ -246,7 +355,7 @@ class CreateProjectView(WalkFSView):
         if self.mode == "create_project":
             print("Session:")
             for key, value in request.session.items():
-                print('\t{} => {}'.format(key, value))
+                print(f"\t{key} => {value}")
             print(
                 f"Create project {request.session.get('project-name', '')} in "
                 f"{request.session.get('project-home', '')!r}"
@@ -262,22 +371,9 @@ class CreateProjectView(WalkFSView):
                     ),
                     "config": request.session.get("custom-config", ""),
                     "master_info": [
-                        (
-                            master_type,
-                            request.session.get(
-                                f"master-{master_type}-usage",
-                                get_master_usage(master_config["used_by"]),
-                            ),
-                            request.session.get(
-                                f"master-{master_type}-split",
-                                master_config["split_by"],
-                            ),
-                            request.session.get(
-                                f"master-{master_type}-match",
-                                master_config["must_match"],
-                            ),
-                        )
+                        get_master_info(master_type, master_config)
                         for master_type, master_config in master_info.items()
+                        if master_type != "lowflat"
                     ],
                 },
             )
@@ -305,8 +401,8 @@ class CreateProjectView(WalkFSView):
             request.session["project-home"] = request.POST["currentdir"]
             return redirect("home:new_project")
 
-        self._save_form(request)
         if "redirect" in request.POST:
+            self._save_form(request)
             return HttpResponseRedirect(request.POST["redirect"])
         if "create-dir" in request.POST:
             new_dir = os.path.join(
@@ -323,3 +419,27 @@ class CreateProjectView(WalkFSView):
             new_dir = request.POST["currentdir"]
 
         return redirect("home:select_project_home", dirname=new_dir)
+
+
+class MasterConfigView(CreateProjectView):
+    """Handle master configuration part of the project creation view."""
+
+    def get(  # pylint: disable=arguments-renamed
+        self, request, master_type, **kwargs
+    ):
+        """
+        Handle a change to the master configuration by the user.
+
+        If kwargs is empty, the master is toggled between enabled and
+        disabled. Otherwise, it should contain a single key (``"split"`` or
+        ``"match"``) with a value a single tuple specifying the change:
+        ``(old expression, new expression)``. If old expression is None, the
+        corresponding list is extended.
+        """
+
+        if not kwargs:
+            assert master_type in ["zero", "dark", "flat"]
+            key = f"master-{master_type}-enabled"
+            request.session[key] = 1 - int(request.session[key])
+
+        return super().get(request)

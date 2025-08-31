@@ -17,12 +17,17 @@ CREATE PROJECT
 {% block left_menu %}
 {% if path %}
 <input type="submit" 
-       id="create-project-button" 
+       id="create-project-submit" 
        name="create-project-submit" 
        value="Create Project"
        form="create-project"
        class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
 {% endif %}
+
+<a href="{% url 'home:reset_project_config' %}">
+    <div class="lcars-element button lcars-husk-bg">Reset</div>
+</a>
+
 
 {{ block.super }}
 
@@ -35,10 +40,27 @@ CREATE PROJECT
 
 {% block main %}
 
-{% if path%}
+{% if path %}
+{% url 'home:select_project_home' dirname=path as home_url%}
+{% else %}
+{% url 'home:select_project_home'  as home_url%}
+{% endif %}
+
 <form id="create-project" method="post">
-    {% endif %}
     {% csrf_token %}
+    <input type="submit" 
+           id="select-home" 
+           name="redirect" 
+           value="{{ home_url }}"
+           style="display: none;"/>
+
+    <input type="submit" 
+           id="update-project-config" 
+           name="redirect" 
+           value="{% url 'home:new_project' %}"
+           style="display: none;"/>
+
+
     <table>
         <thead>
             <tr>
@@ -77,33 +99,18 @@ CREATE PROJECT
                 </td>
             </tr>
             <tr>
-                {% if path %}
-                {% url 'home:select_project_home' dirname=path as home_url%}"
-                {% else %}
-                {% url 'home:select_project_home'  as home_url%}
-                {% endif %}
-
                 <td>
-                    <label for="project-home-label" 
+                    <label for="select-home" 
                            class="project-param-label button">
                         Project&nbsp;Home:
                     </label>
-                    <input type="submit" 
-                           id="project-home-label" 
-                           name="redirect" 
-                           value="{{ home_url }}"
-                           style="display: none;"/>
                 </td>
                 <td>
-                    <input type="submit" 
-                           id="project-home-text"
-                           name="redirect"
-                           value="{{ home_url }}"
+                    <label for="select-home"
                            class="project-text-input button lcars-u--1" 
-                           readonly
-                           style="text-wrap-mode: nowrap;"/>
-
-                            
+                           style="text-wrap-mode: nowrap;">
+                        {{ path }}
+                    </label>
                 </td>
             </tr>
             <tr>
@@ -141,41 +148,54 @@ CREATE PROJECT
                 </td>
                 <td>
                     <table>
+                        <colgroup>
+                            <col style="width: 1px;">
+                            <col span=2 style="width: 50%;">
+                        </colgroup>
                         <thead>
                             <th></th>
                             <th>Split Expressions</th>
                             <th>Match Expressions</th>
                         </thead>
                         <tbody>
-                            {% for master_type, usage, split, match in master_info %}
+                            {% for master_type, enabled, usage, split, match in master_info %}
+                            <input type="submit"
+                                   id="update-master-{{ master_type }}"
+                                   name="redirect"
+                                   value="{% url 'home:change_master_config' master_type=master_type %}"
+                                   style="display: none">
+
                             <tr class="master-row">
                                 <td>
-                                    {% if usage == "output only" %}
-                                    <div
-                                    {% else %} 
-                                    <a href="{% url 'home:home' %}"
-                                    {% endif %}
-                                       class="master-label 
-                                              lcars-u-2
-                                              {% if usage == "required" %}
-                                              lcars-rust-bg
-                                              {% elif usage == "optional" %}
-                                              lcars-husk-bg
-                                              {% else %}
-                                              lcars-gray-bg
-                                              {% endif %}
-                                              ">
+                                    <label for="update-master-{{ master_type }}" 
+                                           class="master-label 
+                                                  lcars-u-2
+                                                  {% if enabled == 'always' %}
+                                                  lcars-melrose-bg
+                                                  {% else %}
+                                                      button
+                                                      {% if enabled == '1' %}
+                                                      lcars-husk-bg
+                                                      {% else %}
+                                                      lcars-gray-bg
+                                                      {% endif %}
+                                                  {% endif %}
+                                                  ">
                                         {{ master_type }}<br>
-                                        ({{ usage }})
-                                        <input type="hidden" 
-                                               name="master-{{ master_type }}-usage"
-                                               value="{{ usage }}"/>
-                                    {% if usage == "output only" %}
-                                    </div>
-                                    {% else %}
-                                    </a>
-                                    {% endif %}
+                                        ({{ usage }})<br>
+                                        {% if enabled != 'always' %}
+                                            click to
+                                            {% if enabled == '1' %}
+                                            disable
+                                            {% else %}
+                                            enable
+                                            {% endif %}
+                                        {% endif %}
 
+                                    </label>
+                                    <input type="hidden" 
+                                           name="master-{{ master_type }}-enabled"
+                                           value="{{ enabled }}"/>
                                 </td>
 
                                 <td class="lcar-column">
@@ -183,24 +203,32 @@ CREATE PROJECT
                                     <input type="text" 
                                            name="master-{{ master_type }}-split"
                                            value="{{ expr }}"
-                                           class="project-text-input lcars-u--1"/>
+                                           class="master-expression 
+                                                  project-text-input 
+                                                  lcars-u--1"/>
                                     {% endfor %}
                                     <input type="text" 
                                            name="master-{{ master_type }}-split"
                                            value=""
-                                           class="project-text-input lcars-u--1"/>
+                                           class="master-expression
+                                                  project-text-input 
+                                                  lcars-u--1"/>
                                 </td>
                                 <td class="lcar-column">
                                     {% for expr in match %}
                                     <input type="text" 
                                            name="master-{{ master_type }}-match"
                                            value="{{ expr }}"
-                                           class="project-text-input lcars-u--1"/>
+                                           class="master-expression
+                                                  project-text-input 
+                                                  lcars-u--1"/>
                                     {% endfor %}
                                     <input type="text" 
                                            name="master-{{ master_type }}-match"
                                            value=""
-                                           class="project-text-input lcars-u--1"/>
+                                           class="master-expression
+                                                  project-text-input
+                                                  lcars-u--1"/>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -218,9 +246,9 @@ CREATE PROJECT
            style="display: none;"
            name="create-project-submit" 
            value="Create Project"/>
+    {% endif %}
 
 </form>
-{% endif %}
 
 {{ block.super }}
 

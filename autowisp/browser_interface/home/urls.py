@@ -14,6 +14,11 @@ urlpatterns = [
         name="new_project",
     ),
     path(
+        "reset_project_config",
+        views.reset_project_config,
+        name="reset_project_config",
+    ),
+    path(
         "select_project_home/",
         views.CreateProjectView.as_view(
             mode="select_home",
@@ -45,4 +50,9 @@ urlpatterns = [
         views.select_project,
         name="select_project",
     ),
+    path(
+        "change_master_config/<slug:master_type>",
+        views.MasterConfigView.as_view(),
+        name="change_master_config",
+    )
 ]

@@ -4,9 +4,9 @@ import os.path
 
 from django.shortcuts import render, redirect
 
-from autowisp.database.interface import set_sqlite_database
 from .create_project_view import (  # pylint: disable=unused-import
     CreateProjectView,
+    MasterConfigView,
 )
 from .models import Project
 
@@ -28,7 +28,7 @@ def home(request):
         },
     }
     print(f"Context: {context!r}")  # Debugging output
-    request.session['project_home'] = 'test'
+    request.session["project_home"] = "test"
     return render(request, "home/index.html", context)
 
 
@@ -42,3 +42,10 @@ def select_project(request, project_id):
     )
 
     return redirect("processing:progress")
+
+
+def reset_project_config(request):
+    """Reset the configuration of project being created to defaults."""
+
+    request.session.flush()
+    return redirect("home:new_project")

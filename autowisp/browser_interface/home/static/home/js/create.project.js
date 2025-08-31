@@ -4,6 +4,21 @@ const messageDisplay = document.getElementById("config-file-message");
 
 configFileInput.addEventListener("change", updateConfig);
 
+const updateProjectSubmit = document.getElementById("update-project-config")
+const projectForm = document.getElementById("create-project")
+const textInputs = projectForm.getElementsByTagName("input")
+
+for (const input of textInputs) {
+    input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent default form submission
+            // Trigger the desired button's click event or submit the form directly
+            updateProjectSubmit.click(); 
+            // Or: document.getElementById('myForm').submit(); 
+        }
+    });
+}
+
 function updateConfig() {
     const file = configFileInput.files[0];
     configTextArea.value = "";

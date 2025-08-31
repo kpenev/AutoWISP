@@ -40,19 +40,6 @@ from autowisp.database.data_model import (
 _logger = logging.getLogger(__name__)
 
 master_info = {
-    "mask": {
-        "must_match": frozenset(("CAMSN", "CLRCHNL")),
-        "config_name": "master-mask",
-        "created_by": None,
-        "split_by": frozenset(),
-        "used_by": [
-            ("calibrate", "zero", False),
-            ("calibrate", "dark", False),
-            ("calibrate", "flat", False),
-            ("calibrate", "object", False),
-        ],
-        "description": "A bit mask indicating hot/dead/... bad pixels.",
-    },
     "zero": {
         "must_match": frozenset(("CAMSN", "CLRCHNL")),
         "config_name": "master-bias",
@@ -188,6 +175,7 @@ step_dependencies = [
         [
             ("stack_to_master", "zero"),
             ("stack_to_master", "dark"),
+            ("stack_to_master_flat", "flat"),
         ],
     ),
     ("find_stars", "object", [("calibrate", "object")]),
@@ -489,7 +477,7 @@ def add_master_dependencies(db_session):
                 next_condition_id += 1
         db_master_type = MasterType(
             name=master_type,
-            condition_id=condition_ids[master_config["must_match"]],
+            condition_id=condition_ids.get(master_config["must_match"], 1),
             maker_step_id=(
                 None
                 if master_config["created_by"] is None
