@@ -3,6 +3,7 @@
 import os
 from argparse import Namespace
 import re
+import json
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
@@ -296,6 +297,19 @@ class CreateProjectView(WalkFSView):
                     else list(filter(None, request.POST.getlist(key)))
                 )
 
+    def _load_master_config(self, request):
+        """Load master configuration from user-supplied JSON file."""
+
+        config = json.load(request.FILES["import-master-config"])
+
+        for master_type in master_info:
+            if master_type in ["highflat", "lowflat"]:
+                master_type = "flat"
+            for param in ["enabled", "split", "match"]:
+                request.session[f"master-{master_type}-{param}"] = config[
+                    master_type
+                ][param]
+
     def get(self, request, dirname=None):
         """
         Display the appropriate project cretion page per the current mode.
@@ -399,6 +413,11 @@ class CreateProjectView(WalkFSView):
         if "set-project-home" in request.POST:
             print(f"Setting project home from {request.POST}")
             request.session["project-home"] = request.POST["currentdir"]
+            return redirect("home:new_project")
+
+        if "import-master-config" in getattr(request, "FILES", []):
+            self._save_form(request)
+            self._load_master_config(request)
             return redirect("home:new_project")
 
         if "redirect" in request.POST:

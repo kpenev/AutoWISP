@@ -46,7 +46,7 @@ CREATE PROJECT
 {% url 'home:select_project_home'  as home_url%}
 {% endif %}
 
-<form id="create-project" method="post">
+<form enctype="multipart/form-data" id="create-project" method="post">
     {% csrf_token %}
     <input type="submit" 
            id="select-home" 
@@ -143,17 +143,24 @@ CREATE PROJECT
             </tr>
             <tr class="masters">
                 <td>
-                    <label for="masters"
+                    <label for="import-master-config"
                            class="project-param-label lcars-u-3 button">
                         <div style="position: sticky; bottom: 0;">
                             Master Configuration:<br>
                             click to load from file
                         </div>
                     </label>
+                    <input type="file" 
+                           name="import-master-config"
+                           id="import-master-config"
+                           onchange="form.submit()"
+                           style="display:none"
+                           accept="application/json"/>
+
                 </td>
                 <td>
                     <label for="export-master-config"
-                           class="export-button lcars-u--1 lcars-rust-bg"
+                           class="export-button lcars-u--1 lcars-chestnut-rose-bg"
                            style="position: sticky; top: 0;">
                         Export Current Master Configuration
                     </label>
