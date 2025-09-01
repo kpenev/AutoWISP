@@ -1,3 +1,4 @@
+#pylint: disable=too-many-lines
 """Define interface to the pipeline database."""
 
 import json
@@ -35,6 +36,7 @@ from autowisp.database.data_model import (
     ProcessedImages,
     ProcessingSequence,
     Step,
+    StepDependencies,
     step_param_association,
 )
 
@@ -82,12 +84,15 @@ def get_db_configuration(
     # pylint: enable=no-member
 
 
-def get_processing_sequence(db_session):
+def get_processing_sequence(db_session, no_lc_postprocessing=False):
     """
-    Return the sequence of steps in the pipeline.
+    Return the sequence of (step, image type) the pipeline can run.
 
-    For image processing this will be a sequence of step/image type pairs, and
-    for lightcurves it will just be a sequence of steps.
+    Args:
+        db_session:    The database session to issue queries.
+
+        no_lc_postprocessing(bool):    If True, any steps which are blocked by
+            ``create_lightcurves`` are not included.
     """
 
     select_seq = (
@@ -96,8 +101,27 @@ def get_processing_sequence(db_session):
         .join(Step, ProcessingSequence.step_id == Step.id)
         .join(ImageType, ProcessingSequence.image_type_id == ImageType.id)
     )
+    if no_lc_postprocessing:
+        create_lc_step_id = db_session.scalar(
+            select(Step.id).filter_by(name="create_lightcurves")
+        )
+        select_postprocessing = (
+            select(StepDependencies)
+            .filter_by(blocking_step_id=create_lc_step_id)
+            .subquery()
+        )
+        select_seq = select_seq.outerjoin(
+            select_postprocessing,
+            and_(
+                select_postprocessing.c.blocked_step_id == Step.id,
+                select_postprocessing.c.blocked_image_type_id == ImageType.id,
+            ),
+        ).where(
+            select_postprocessing.c.blocked_step_id  # pylint: disable=singleton-comparison
+            == None
+        )
 
-    return db_session.execute(select_seq).all()
+    return db_session.execute(select_seq.order_by(ProcessingSequence.id)).all()
 
 
 def list_channels(db_session):
@@ -911,7 +935,7 @@ def import_json_to_survey(json_file):
                 -1,
                 item_class.__tablename__,
             )
-        if type_class == provenance.CameraType:
+        if type_class == provenance.CameraType:  # pylint: disable=no-member
             for channel_name, channel_config in type_properties[
                 "channels"
             ].items():
@@ -1033,8 +1057,9 @@ def main():
     set_sqlite_database("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    export_survey_to_json(open("test_survey.json", "w", encoding="utf-8"))
-    #import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
+    with open("test_survey.json", "w", encoding="utf-8") as outf:
+        export_survey_to_json(outf)
+    # import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
 
 
 if __name__ == "__main__":

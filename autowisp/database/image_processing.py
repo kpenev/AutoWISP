@@ -78,7 +78,7 @@ class ExpressionMatcher:
             for expression_id in self._master_expression_ids
         )
 
-    def __init__( # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         evaluated_expressions,
         ref_image_id,
@@ -241,8 +241,14 @@ class ImageProcessingManager(ProcessingManager):
         """Retrun the specially formatted argument for the calibration step."""
 
         config["split_channels"] = self._get_split_channels(first_image)
+        obs_session = first_image.observing_session
         config["extra_header"] = {
-            "OBS-SESN": first_image.observing_session.label
+            "OBS-SESN": obs_session.label,
+            "TARGETID": obs_session.target.name,
+            "IMAGETYP": first_image.image_type.name,
+            "OBSERVER": obs_session.observer.name,
+            "CAMERAID": obs_session.camera.serial_number,
+            "TELSCPID": obs_session.telescope.serial_number,
         }
         result = {
             (
@@ -637,7 +643,7 @@ class ImageProcessingManager(ProcessingManager):
 
         return pending_images, step_input_type
 
-    def _process_batch( # pylint: disable=too-many-arguments
+    def _process_batch(  # pylint: disable=too-many-arguments
         self, batch, *, start_status, config, step_name, image_type_name
     ):
         """Run the current step for a batch of images given configuration."""
@@ -952,7 +958,7 @@ class ImageProcessingManager(ProcessingManager):
         )
 
         for step, image_type in steps_imtypes or get_processing_sequence(
-            db_session
+            db_session, True
         ):
             failed_prereq_subquery = (
                 select(ProcessedImages.image_id, ProcessedImages.channel)
@@ -1172,7 +1178,7 @@ class ImageProcessingManager(ProcessingManager):
             )
 
         main_fnames = get_log_outerr_filenames(
-            existing_pid=processing_progress.process_id,
+            existing_pid=processing_progress.run.process_id,
             task="*",
             parent_pid="",
             processing_step=processing_progress.step.name,
@@ -1187,7 +1193,7 @@ class ImageProcessingManager(ProcessingManager):
             get_log_outerr_filenames(
                 existing_pid="*",
                 task="*",
-                parent_pid=processing_progress.process_id,
+                parent_pid=processing_progress.run.process_id,
                 processing_step=processing_progress.step.name,
                 image_type=processing_progress.image_type.name,
                 **self._processing_config,
@@ -1198,7 +1204,7 @@ class ImageProcessingManager(ProcessingManager):
         """Perform all the processing for the given steps (all if None)."""
 
         with start_db_session() as db_session:
-            processing_sequence = get_processing_sequence(db_session)
+            processing_sequence = get_processing_sequence(db_session, True)
 
         DataReductionFile.get_file_structure()
 

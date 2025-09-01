@@ -87,7 +87,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "mphotref_{TARGET}_{CLRCHNL}_{EXPTIME}sec"
+                        "mphotref_{TARGETID}_{CLRCHNL}_{EXPTIME}sec"
                         "_iter{magfit_iteration:03d}.fits",
                     ),
                 )
@@ -98,7 +98,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "mfit_stat_{TARGET}_{CLRCHNL}_{EXPTIME}sec"
+                        "mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec"
                         "_iter{magfit_iteration:03d}.txt",
                     ),
                 )
@@ -142,7 +142,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "{IMAGETYP}_{OBS_SESN}_{CLRCHNL}.fits.fz",
+                        "{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
                     ),
                 )
             ],
@@ -152,7 +152,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "{IMAGE_TYPE}_{OBS_SESN}_{CLRCHNL}.fits.fz",
+                        "{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
                     ),
                 )
             ],
@@ -162,7 +162,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "low{IMAGE_TYPE}_{OBS_SESN}_{CLRCHNL}.fits.fz",
+                        "low{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
                     ),
                 )
             ],

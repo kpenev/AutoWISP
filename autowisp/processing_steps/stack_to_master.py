@@ -133,7 +133,7 @@ def get_command_line_parser(
         )
         parser.add_argument(
             "--stacked-master-fname",
-            default="MASTERS/{IMAGE_TYPE}_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz",
+            default="MASTERS/{IMAGETYP}_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz",
             help="Filename for the master to generate if successful. Can "
             "involve header substitutions, but should produce the same filename"
             " for all input frames. If not, the behavior is undefined.",

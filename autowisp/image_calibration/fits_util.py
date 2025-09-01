@@ -193,6 +193,7 @@ def add_required_keywords(header, calibration_params, for_eval=False):
     ) / (2.0 * 24.0 * 3600.0)
 
     header["FNUM"] = Evaluator(header)(calibration_params["fnum"])
+    header["EXPTIME"] = calibration_params["exposure_seconds"]
 
 
 def get_raw_header(raw_image, calibration_params):

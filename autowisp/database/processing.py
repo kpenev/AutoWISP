@@ -3,11 +3,9 @@
 from abc import ABC, abstractmethod
 import logging
 import os
-from os import path, getpid
+from os import path
 from tempfile import TemporaryDirectory
-from socket import getfqdn
 
-from psutil import pid_exists, Process
 from sqlalchemy import sql, select
 from numpy import inf as infinity
 
@@ -45,20 +43,15 @@ from autowisp.database.data_model import (
 class ProcessingInProgress(Exception):
     """Raised when a particular step is running in a different process/host."""
 
-    def __init__(self, processing):
-        self.step = processing.step.name
-        if hasattr(processing, "image_type"):
-            self.target = processing.image_type.name + " images"
-        else:
-            self.target = processing.sphotref.filename + " lightcurves"
-        self.host = processing.host
-        self.process_id = processing.process_id
+    def __init__(self, pipeline_run):
+        self.host = pipeline_run.host
+        self.process_id = pipeline_run.process_id
+        self.started = pipeline_run.started
 
     def __str__(self):
         return (
-            f"Processing of {self.target} by {self.step} step on "
-            f"{self.host!r} is still running with process id "
-            f"{self.process_id!r}!"
+            f"Processing pipeline is still running on {self.host!r} with "
+            f"process id {self.process_id!r}, started {self.started}!"
         )
 
 
@@ -176,7 +169,7 @@ class ProcessingManager(ABC):
 
         return {param: get_value(param) for param in parameters}
 
-    def _write_config_file( # pylint: disable=too-many-arguments
+    def _write_config_file(  # pylint: disable=too-many-arguments
         self,
         matched_expressions,
         outf,
@@ -407,9 +400,9 @@ class ProcessingManager(ABC):
         self._logger.debug("Evaluating expressions for: %s", repr(image))
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
         evaluate.symtable.update(
-            IMAGE_TYPE=image.image_type.name,
+            IMAGETYP=image.image_type.name,
             OBS_SESN=image.observing_session.label,
-            TARGET=image.observing_session.target.name,
+            TARGETID=image.observing_session.target.name,
         )
         self._logger.debug(
             "Matched expressions: %s",
@@ -501,35 +494,8 @@ class ProcessingManager(ABC):
             master_type_name
         ]
 
-    def _check_running_processing(
-        self, running_processing, this_host, db_session
-    ):
-        """Check if any unfinished processing progresses are still running."""
-
-        for processing in running_processing:
-            if processing is not None and not processing.finished:
-                if processing.host != this_host or (
-                    pid_exists(processing.process_id)
-                    and path.basename(
-                        Process(processing.process_id).cmdline()[1]
-                    )
-                    == "processing.py"
-                ):
-                    raise ProcessingInProgress(processing)
-                self._logger.warning(
-                    "Processing progress %s appears to have crashed.",
-                    processing,
-                )
-                processing.finished = (
-                    sql.func.now()  # pylint: disable=not-callable
-                )
-                db_session.flush()
-
     def _create_current_processing(self, step, target, db_session):
         """Add a new ProcessingProgress at start of given step."""
-
-        this_host = getfqdn()
-        process_id = getpid()
 
         self.current_step = step
 
@@ -537,20 +503,6 @@ class ProcessingManager(ABC):
             ImageProcessingProgress
             if target[0] == "image_type"
             else LightCurveProcessingProgress
-        )
-        self._check_running_processing(
-            db_session.scalars(
-                select(progress_class).where(
-                    (progress_class.step_id == self.current_step.id),
-                    (getattr(progress_class, target[0] + "_id") == target[1]),
-                    (
-                        progress_class.configuration_version
-                        == self.step_version[step.name]
-                    ),
-                )
-            ).all(),
-            this_host,
-            db_session,
         )
 
         self._current_processing = progress_class(
@@ -582,28 +534,26 @@ class ProcessingManager(ABC):
             for channel in image.observing_session.camera.channels
         }
 
-    def __init__(self, pipeline_run_id, version=None, dummy=False):
+    def __init__(self, pipeline_run_id, version=None):
         """
         Set the public class attributes per the given configuartion version.
 
         Args:
             pipeline_run_id(int):    The ID of the PipelineRun using the
-                instance.
+                instance. If set to None, all logging is suppressed and no
+                processing can be performed. Useful for reviewing the results
+                of past processing.
 
             version(int):    The version of the parameters to get. If a
                 parameter value is not specified for this exact version use the
                 value with the largest version not exceeding ``version``. By
                 default us the latest configuration version in the database.
 
-            dummy(bool):    If set to true, all logging is suppressed and no
-                processing can be performed. Useful for reviewing the results
-                of past processing.
-
         Returns:
             None
         """
 
-        if dummy:
+        if pipeline_run_id is None:
             logging.disable()
         DataReductionFile.get_file_structure()
         LightCurveFile.get_file_structure()
@@ -657,7 +607,7 @@ class ProcessingManager(ABC):
             del self._processing_config["processing_step"]
             del self._processing_config["image_type"]
 
-            if not dummy:
+            if pipeline_run_id is not None:
                 setup_process(
                     task="main",
                     parent_pid="",
@@ -687,10 +637,10 @@ class ProcessingManager(ABC):
                 for step in db_session.scalars(select(Step)).all()
             }
 
-            if not dummy:
+            if pipeline_run_id is not None:
                 self._cleanup_interrupted(db_session)
 
-    def get_config( # pylint: disable=too-many-arguments
+    def get_config(  # pylint: disable=too-many-arguments
         self,
         matched_expressions,
         db_session,
