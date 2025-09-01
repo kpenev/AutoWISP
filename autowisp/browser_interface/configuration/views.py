@@ -16,7 +16,7 @@ from autowisp.database.user_interface import (
     import_json_to_survey,
     export_survey_to_json,
 )
-from autowisp.database.interface import start_db_session, set_sqlite_database
+from autowisp.database.interface import start_db_session
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -32,8 +32,6 @@ from autowisp.database.data_model import (
 
 def config_tree(request, version=0, step="All", force_unlock=False):
     """Landing page for the configuration interface."""
-
-    set_sqlite_database(request.session["project_db_path"])
 
     with start_db_session() as db_session:
         defined_versions = sorted(
@@ -65,7 +63,6 @@ def config_tree(request, version=0, step="All", force_unlock=False):
 def save_config(request, version):
     """Save a user-defined configuration to the database."""
 
-    set_sqlite_database(request.session["project_db_path"])
     save_json_config(request.body, version)
     return redirect("configuration:config_tree")
 
@@ -292,7 +289,6 @@ def edit_survey(
         selected_id = None
 
     selected = None
-    set_sqlite_database(request.session["project_db_path"])
     with start_db_session() as db_session:
 
         if selected_component is not None and selected_type_id is None:
@@ -349,7 +345,6 @@ def delete_from_survey(
         provenance,
         component_type.title() + ("Type" if component_id is None else ""),
     )
-    set_sqlite_database(request.session["project_db_path"])
     with start_db_session() as db_session:
         if db_class == provenance.CameraType:  # pylint: disable=no-member
             db_type = db_session.scalar(
@@ -367,8 +362,6 @@ def delete_from_survey(
 
 def update_survey_component_type(request, component_type, type_id):
     """Add or update a survey component type."""
-
-    set_sqlite_database(request.session["project_db_path"])
 
     with start_db_session() as db_session:
         type_id, incomplete = update_db_entry(
@@ -393,8 +386,6 @@ def update_survey_component_type(request, component_type, type_id):
 
 def update_survey_component(request, component_type, component_id):
     """Add new or edit a component of the survey network."""
-
-    set_sqlite_database(request.session["project_db_path"])
 
     with start_db_session() as db_session:
         update_db_entry(
@@ -431,7 +422,6 @@ def change_access(  # pylint: disable=too-many-positional-arguments too-many-arg
         )
     equipment_column += "_id"
 
-    set_sqlite_database(request.session["project_db_path"])
     with start_db_session() as db_session:
         if new_access:
             db_session.add(
@@ -457,7 +447,6 @@ def import_survey_info(request):
     """Add survey equipment from JSON file."""
 
     assert request.method == "POST"
-    set_sqlite_database(request.session["project_db_path"])
     import_json_to_survey(request.FILES["survey-import"])
     return redirect('configuration:survey')
 

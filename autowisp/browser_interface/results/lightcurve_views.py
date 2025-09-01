@@ -44,7 +44,7 @@ def _init_session(request):
     color_map = matplotlib.colormaps.get_cmap("tab10")
     request.session["lc_plotting"] = {
         "lc_fname_template": ImageProcessingManager(
-            dummy=True
+            pipeline_run_id=None
         ).get_param_values({1}, ["lc-fname"])["lc-fname"],
         "target_fname": "",
         "color_map": [hex_color(color_map(i)) for i in range(10)],

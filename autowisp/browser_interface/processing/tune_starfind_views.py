@@ -93,7 +93,7 @@ def _init_session(request, processing, db_session):
 def _get_pending(request):
     """Add to ``request.session`` all image/channel pending star finding ."""
 
-    processing = ImageProcessingManager(dummy=True)
+    processing = ImageProcessingManager(pipeline_run_id=None)
 
     with start_db_session() as db_session:
         _init_session(request, processing, db_session)
@@ -247,7 +247,7 @@ def project_catalog(request, fits_fname):
     try:
         header = get_primary_header(fits_fname)
         evaluate = Evaluator(header)
-        processing = ImageProcessingManager(dummy=True)
+        processing = ImageProcessingManager(pipeline_run_id=None)
         with start_db_session() as db_session:
             config = prepare_configuration(
                 processing.get_config(

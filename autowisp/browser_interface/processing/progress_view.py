@@ -8,7 +8,7 @@ from sqlalchemy import select, sql
 from psutil import pid_exists
 from django.shortcuts import render
 
-from autowisp.database.interface import start_db_session, set_sqlite_database
+from autowisp.database.interface import start_db_session
 from autowisp.database.user_interface import (
     get_processing_sequence,
     get_progress,
@@ -30,7 +30,6 @@ def progress(request):
     """Display the current processing progress."""
 
     assert "project_db_path" in request.session, "No project selected"
-    set_sqlite_database(request.session["project_db_path"])
     context = {"running": False, "refresh_seconds": 0}
     with start_db_session() as db_session:
         context["channels"] = sorted(list_channels(db_session))

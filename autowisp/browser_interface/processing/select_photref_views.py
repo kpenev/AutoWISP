@@ -34,7 +34,7 @@ def _get_missing_photref(request):
     """Add all frame sets missing photometric reference to the session."""
 
     assert 'need_photref' not in request.session
-    processing = ImageProcessingManager(dummy=True)
+    processing = ImageProcessingManager(pipeline_run_id=None)
     with start_db_session() as db_session:
         master_type_id = db_session.scalar(
             select(MasterType.id).filter_by(name='single_photref')
@@ -327,7 +327,7 @@ def record_photref_selection(request, target_index, image_index):
 
     request.session.modified = True
 
-    ImageProcessingManager(dummy=True).add_masters(
+    ImageProcessingManager(pipeline_run_id=None).add_masters(
         {
             'type': 'single_photref',
             'filename': dr_fname,
