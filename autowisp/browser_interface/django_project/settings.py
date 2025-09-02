@@ -19,7 +19,6 @@ import platformdirs
 #BASE_DIR = Path(__file__).resolve().parent.parent
 
 BASE_DIR = Path(platformdirs.user_data_dir('autowisp'))
-os.makedirs(str(BASE_DIR), exist_ok=True)
 
 
 # Quick-start development settings - unsuitable for production
