@@ -1,0 +1,45 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.top-bar {
+    width: fit-content;
+}
+
+/* Scrollable Path styling */
+.scrollable-path {
+    /*display: flex;*/
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    white-space: nowrap;
+    align-items: center; 
+    height: auto;
+    padding: 0; 
+    margin: 0;
+    scrollbar-width: thin;
+}
+
+.scrollable-item {
+    flex-shrink: 0; 
+    margin-right: 2px; 
+}
+
+.scrollable-path::-webkit-scrollbar {
+    height: 3px; 
+}
+
+.scrollable-path::-webkit-scrollbar-thumb {
+    background-color: #81d4fa;
+    border-radius: 4px;
+}
+
+.submit {
+    font-size: 200%;
+    background-color: #388e3c;
+}
+
+.selectdir {
+    font-weight: bold;
+    color: #59f;
+}

@@ -8,7 +8,7 @@ import numpy
 from numpy.lib.recfunctions import append_fields
 
 from autowisp import Evaluator
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 from autowisp.catalog import read_catalog_file
 from autowisp.light_curves.apply_correction import load_correction_statistics
 
@@ -96,10 +96,7 @@ def find_magfit_stat_catalog(master_id):
         .join(MasterType, MasterFile.type_id == MasterType.id)
         .where(master_file_alias.id == master_id)
     )
-    # False positive
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         stat_fname = db_session.scalar(
             master_select.where(MasterType.name == "magfit_stat")
         )

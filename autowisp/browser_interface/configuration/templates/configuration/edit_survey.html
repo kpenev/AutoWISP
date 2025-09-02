@@ -1,0 +1,86 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}{% block app_title %}
+The Survey
+{% endblock %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
+{% endblock %}
+
+{% block left_menu %}
+<form enctype="multipart/form-data" 
+      action="{% url 'configuration:survey_import' %}" 
+      method="post"> 
+    {% csrf_token %}
+
+    <label for="survey-import"
+           class="lcars-element button lcars-husk-bg lcars-u-1-2">
+        Import Servey Info
+    </label>
+
+    <input type="file" 
+           name="survey-import"
+           id="survey-import"
+           onchange="form.submit()"
+           style="display:none"
+           accept="application/json"/>
+</form>
+
+<a href="{% url 'configuration:survey_export' %}">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-2">
+        Export Servey Info
+    </div>
+</a>
+
+
+{% endblock %}
+
+{% block edit_survey_link %}{% endblock %}
+
+{% block main %}
+{% with 'camera telescope mount' as equipment_components_str %}
+{% with equipment_components_str.split as equipment_components %}
+<div class="lcars-row">
+    <div class="lcars-column centered" style="width:100%">
+        {% with component="observer" item_list=observers attribute_list=attributes.observer %}
+        {% if selected_component in equipment_components and not selected_type_id %}
+        {% include "./survey_class.html" with track_access=1%}
+        {% else %}
+        {% include "./survey_class.html" with track_access=0%}
+        {% endif %}
+        <div class="lcars-bar double-spacer"></div>
+        <div class="lcars-bar double-spacer"></div>
+
+        {% endwith %}
+
+        {% include "./survey_class.html" with component="observatory" item_list=observatories attribute_list=attributes.observatory%}
+    </div>
+    <div class="lcars-column" style="width: 100%">
+        {% for component in equipment_components %}
+        {% cycle cameras telescopes mounts as item_list silent %}
+        {% cycle attributes.camera attributes.telescope attributes.mount as attribute_list silent %}
+        {% cycle types.camera types.telescope types.mount as component_types silent %}
+
+        {% if selected_component == "observer" %}
+        {% include "./survey_class.html" with track_access=1 types=component_types %}
+        {% else %}
+        {% include "./survey_class.html" with track_access=0 types=component_types %}
+        {% endif %}
+        {% if not forloop.last %}
+        <div class="lcars-bar double-spacer"></div>
+        <div class="lcars-bar double-spacer"></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endwith %}
+{% endwith %}
+
+{% endblock %}

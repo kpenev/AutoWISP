@@ -48,6 +48,11 @@ class Mount(DataModelBase):
             f"({self.serial_number})"
         )
 
+    def to_dict(self):
+        """Return dict representation of the mount."""
+
+        return {"serial no": self.serial_number, "notes": self.notes}
+
     # not sure how to use these
     # __table_args__ = (
     #     Index('description_index', 'description', unique=True),

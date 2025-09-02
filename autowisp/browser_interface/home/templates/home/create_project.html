@@ -1,0 +1,277 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'home/css/create_project.css' %}">
+{% endblock extra_head %}
+
+{% block header_title %}
+Create New Project
+{% endblock header_title %}
+
+{% block app_title %}
+CREATE PROJECT
+{% endblock app_title %}
+
+{% block left_menu %}
+{% if path %}
+<input type="submit" 
+       id="create-project-submit" 
+       name="create-project-submit" 
+       value="Create Project"
+       form="create-project"
+       class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
+{% endif %}
+
+<a href="{% url 'home:reset_project_config' %}">
+    <div class="lcars-element button lcars-husk-bg">Reset</div>
+</a>
+
+
+{{ block.super }}
+
+<a href="{% url 'home:home' %}">
+    <div class="lcars-element button lcars-red-alert-bg">Cancel</div>
+</a>
+
+{% endblock left_menu %}
+
+
+{% block main %}
+
+{% if path %}
+{% url 'home:select_project_home' dirname=path as home_url%}
+{% else %}
+{% url 'home:select_project_home'  as home_url%}
+{% endif %}
+
+<form enctype="multipart/form-data" id="create-project" method="post">
+    {% csrf_token %}
+    <input type="submit" 
+           id="select-home" 
+           name="redirect" 
+           value="{{ home_url }}"
+           style="display: none;"/>
+
+    <input type="submit" 
+           id="update-project-config" 
+           name="redirect" 
+           value="{% url 'home:new_project' %}"
+           style="display: none;"/>
+    <input type="submit" 
+           id="export-master-config" 
+           name="redirect" 
+           value="{% url 'home:export_master_config' %}"
+           style="display: none;"/>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th style="width: 100%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <label for="project-name" class="project-param-label"> 
+                        Project Name:
+                    </label>
+                </td>
+                <td>
+                    <input type="text"
+                           id="project-name"
+                           name="project-name"
+                           value="{{ name }}"
+                           required
+                           class="project-text-input lcars-u-3-1"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="project-description" 
+                           class="lcars-u--2 project-param-label"> 
+                        Project&nbsp;Description (optional):
+                    </label>
+                </td>
+                <td>
+                    <textarea id="project-description"
+                              name="project-description"
+                              class="project-text-input 
+                                     lcars-u-3-2">{{ description }}</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="select-home" 
+                           class="project-param-label button">
+                        Project&nbsp;Home:
+                    </label>
+                </td>
+                <td>
+                    <label for="select-home"
+                           class="project-text-input button lcars-u--1" 
+                           style="text-wrap-mode: nowrap;">
+                        {{ path }}
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="config-file"
+                           class="project-param-label lcars-u-3-5 button">
+                        Custom Configuration (optional):<br>
+                        click to load from file
+                    </label>
+                </td>
+                <td class='lcars-column' style="width: 100%;">
+                    <div>
+                        <div id="config-file-message" style="display: none;"></div>
+
+                        <input type="file" 
+                               id="config-file" 
+                               name="config-file"
+                               style="display:none"/>
+                    </div>
+                    <textarea id="custom-config"
+                              name="custom-config"
+                              class="lcars-u-3-5 project-text-input"
+                              wrap="off">{{ config }}</textarea>
+                </td>
+            </tr>
+            <tr class="masters">
+                <td>
+                    <label for="import-master-config"
+                           class="project-param-label lcars-u-3 button">
+                        <div style="position: sticky; bottom: 0;">
+                            Master Configuration:<br>
+                            click to load from file
+                        </div>
+                    </label>
+                    <input type="file" 
+                           name="import-master-config"
+                           id="import-master-config"
+                           onchange="form.submit()"
+                           style="display:none"
+                           accept="application/json"/>
+
+                </td>
+                <td>
+                    <label for="export-master-config"
+                           class="export-button lcars-u--1 lcars-chestnut-rose-bg"
+                           style="position: sticky; top: 0;">
+                        Export Current Master Configuration
+                    </label>
+                    <table>
+                        <colgroup>
+                            <col style="width: 1px;">
+                            <col span=2 style="width: 50%;">
+                        </colgroup>
+                        <thead>
+                            <th></th>
+                            <th>Split Expressions</th>
+                            <th>Match Expressions</th>
+                        </thead>
+                        <tbody>
+                            {% for master_type, enabled, usage, split, match in master_info %}
+                            <input type="submit"
+                                   id="update-master-{{ master_type }}"
+                                   name="redirect"
+                                   value="{% url 'home:change_master_config' master_type=master_type %}"
+                                   style="display: none">
+
+                            <tr class="master-row">
+                                <td>
+                                    <label for="update-master-{{ master_type }}" 
+                                           class="master-label 
+                                                  lcars-u-2
+                                                  {% if enabled == 'always' %}
+                                                  lcars-melrose-bg
+                                                  {% else %}
+                                                      button
+                                                      {% if enabled == '1' %}
+                                                      lcars-husk-bg
+                                                      {% else %}
+                                                      lcars-gray-bg
+                                                      {% endif %}
+                                                  {% endif %}
+                                                  ">
+                                        {{ master_type }}<br>
+                                        ({{ usage }})<br>
+                                        {% if enabled != 'always' %}
+                                            click to
+                                            {% if enabled == '1' %}
+                                            disable
+                                            {% else %}
+                                            enable
+                                            {% endif %}
+                                        {% endif %}
+
+                                    </label>
+                                    <input type="hidden" 
+                                           name="master-{{ master_type }}-enabled"
+                                           value="{{ enabled }}"/>
+                                </td>
+
+                                <td class="lcar-column">
+                                    {% for expr in split %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-split"
+                                           value="{{ expr }}"
+                                           class="master-expression 
+                                                  project-text-input 
+                                                  lcars-u--1"/>
+                                    {% endfor %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-split"
+                                           value=""
+                                           class="master-expression
+                                                  project-text-input 
+                                                  lcars-u--1"/>
+                                </td>
+                                <td class="lcar-column">
+                                    {% for expr in match %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-match"
+                                           value="{{ expr }}"
+                                           class="master-expression
+                                                  project-text-input 
+                                                  lcars-u--1"/>
+                                    {% endfor %}
+                                    <input type="text" 
+                                           name="master-{{ master_type }}-match"
+                                           value=""
+                                           class="master-expression
+                                                  project-text-input
+                                                  lcars-u--1"/>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% if path %}
+    <input type="hidden" 
+           name="project-home" 
+           value="{{path}}"/>
+    <input type="submit" 
+           style="display: none;"
+           name="create-project-submit" 
+           value="Create Project"/>
+    {% endif %}
+
+</form>
+
+{{ block.super }}
+
+{% endblock main %}
+
+{% block scripts %}
+<script src="{% static 'home/js/create.project.js' %}"></script>
+{{ block.super }}
+{% endblock scripts %}

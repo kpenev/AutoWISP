@@ -22,7 +22,9 @@ class Target(DataModelBase):
 
     ra = Column(Float, nullable=True, doc="The ra of the target")
     dec = Column(Float, nullable=True, doc="The dec of the target")
-    name = Column(String(100), nullable=False, doc="The name of the target")
+    name = Column(
+        String(100), nullable=False, unique=True, doc="The name of the target"
+    )
     notes = Column(
         String(1000), nullable=True, doc="The notes about the target"
     )

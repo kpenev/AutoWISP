@@ -31,3 +31,13 @@ class MountType(DataModelBase):
     )
 
     mounts = relationship("Mount", back_populates="mount_type")
+
+    def to_dict(self):
+        """Return dict representation of the mount type."""
+
+        return {
+            "make": self.make,
+            "model": self.model,
+            "version": self.version,
+            "notes": self.notes,
+        }

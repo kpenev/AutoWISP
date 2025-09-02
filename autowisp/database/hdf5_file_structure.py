@@ -3,7 +3,7 @@
 from sqlalchemy.orm import contains_eager
 
 from autowisp.hdf5_file import HDF5File
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 
 # Pylint false positive due to quirky imports.
 # pylint: disable=no-name-in-module
@@ -66,10 +66,7 @@ class HDF5FileDatabaseStructure(HDF5File):
         if version in cls._file_structure:
             return cls._file_structure[version]
 
-        # False positive
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             query = (
                 db_session.query(HDF5Product)
                 .join(HDF5Product.structure_versions)

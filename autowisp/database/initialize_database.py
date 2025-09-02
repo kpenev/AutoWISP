@@ -8,7 +8,7 @@ import logging
 from configargparse import ArgumentParser, DefaultsFormatter
 from sqlalchemy import sql, select, delete, MetaData, update
 
-from autowisp.database.interface import db_engine, Session
+from autowisp.database.interface import get_db_engine, start_db_session
 from autowisp.database.data_model.base import DataModelBase
 
 from autowisp.database.initialize_data_reduction_structure import (
@@ -26,6 +26,7 @@ from autowisp.database.data_model import (
     Step,
     StepDependencies,
     Parameter,
+    AlternateParameterName,
     Configuration,
     Condition,
     ConditionExpression,
@@ -39,19 +40,6 @@ from autowisp.database.data_model import (
 _logger = logging.getLogger(__name__)
 
 master_info = {
-    "mask": {
-        "must_match": frozenset(("CAMSN", "CLRCHNL")),
-        "config_name": "master-mask",
-        "created_by": None,
-        "split_by": frozenset(),
-        "used_by": [
-            ("calibrate", "zero", False),
-            ("calibrate", "dark", False),
-            ("calibrate", "flat", False),
-            ("calibrate", "object", False),
-        ],
-        "description": "A bit mask indicating hot/dead/... bad pixels.",
-    },
     "zero": {
         "must_match": frozenset(("CAMSN", "CLRCHNL")),
         "config_name": "master-bias",
@@ -139,7 +127,7 @@ master_info = {
     },
     "lightcurve_catalog": {
         "must_match": frozenset(("FIELD", "CLRCHNL", "EXPTIME")),
-        "config_name": "lightcurve-catalog-fname",
+        "config_name": "detrending-catalog",
         "created_by": ("create_lightcurves", "object"),
         "split_by": frozenset(),
         "used_by": [
@@ -153,7 +141,7 @@ master_info = {
     "epd_stat": {
         "must_match": frozenset(("FIELD", "CLRCHNL", "EXPTIME")),
         "config_name": "epd-statistics-fname",
-        "created_by": ("epd", "object"),
+        "created_by": ("generate_epd_statistics", "object"),
         "split_by": frozenset(),
         "used_by": [("tfa", "object", False)],
         "description": "The statistics file showing the performance after EPD.",
@@ -161,7 +149,7 @@ master_info = {
     "tfa_stat": {
         "must_match": frozenset(("FIELD", "CLRCHNL", "EXPTIME")),
         "config_name": "tfa-statistics-fname",
-        "created_by": ("tfa", "object"),
+        "created_by": ("generate_tfa_statistics", "object"),
         "split_by": frozenset(),
         "used_by": [],
         "description": "The statistics file showing the performance after TFA.",
@@ -187,6 +175,7 @@ step_dependencies = [
         [
             ("stack_to_master", "zero"),
             ("stack_to_master", "dark"),
+            ("stack_to_master_flat", "flat"),
         ],
     ),
     ("find_stars", "object", [("calibrate", "object")]),
@@ -318,10 +307,7 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
             initialized?
     """
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         if data_reduction:
             db_session.add(get_default_data_reduction_structure())
         if light_curve:
@@ -336,10 +322,7 @@ class StepCreator:
     def __init__(self):
         """Get ready to add steps to the database."""
 
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             self._step_id = 1
             self._db_parameters = {}
 
@@ -415,6 +398,17 @@ class StepCreator:
                     )
                     # pylint: enable=not-callable
                     configuration.parameter = self._db_parameters[param]
+
+                    for alt_name in default_step_config[
+                        "alternate_argument_names"
+                    ][param]:
+                        alt_name_entry = AlternateParameterName(
+                            alt_name=alt_name
+                        )
+                        self._db_parameters[param].alternate_names.append(
+                            alt_name_entry
+                        )
+
                     db_session.add(configuration)
 
                 new_step.parameters.append(self._db_parameters[param])
@@ -483,7 +477,7 @@ def add_master_dependencies(db_session):
                 next_condition_id += 1
         db_master_type = MasterType(
             name=master_type,
-            condition_id=condition_ids[master_config["must_match"]],
+            condition_id=condition_ids.get(master_config["must_match"], 1),
             maker_step_id=(
                 None
                 if master_config["created_by"] is None
@@ -527,10 +521,7 @@ def init_processing():
 
     add_processing_step = StepCreator()
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         for image_type_id, image_type in enumerate(image_type_list, 1):
             db_session.add(ImageType(id=image_type_id, name=image_type))
         db_steps = {}
@@ -576,11 +567,11 @@ def drop_tables_matching(pattern):
 
     if pattern is None:
         metadata = MetaData()
-        metadata.reflect(db_engine)
-        metadata.drop_all(db_engine)
+        metadata.reflect(get_db_engine())
+        metadata.drop_all(get_db_engine())
     else:
         DataModelBase.metadata.drop_all(
-            db_engine,
+            get_db_engine(),
             filter(
                 lambda table: pattern.fullmatch(table.name),
                 reversed(DataModelBase.metadata.sorted_tables),
@@ -593,14 +584,17 @@ def _overwrite_defaults(new_defaults):
 
     db_conditions = {}
     db_expressions = {}
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         for param, all_values in new_defaults.items():
+            alternate = db_session.execute(
+                select(AlternateParameterName).filter_by(alt_name=param)
+            ).scalar_one_or_none()
+            if alternate is not None:
+                param = alternate.parameter.name
             param_id = db_session.scalar(
                 select(Parameter.id).filter_by(name=param)
             )
+            assert param_id is not None, f"Parameter {param} not found in DB"
             delete_default = True
             for condition_expressions, value in all_values:
                 if condition_expressions is None:
@@ -611,7 +605,7 @@ def _overwrite_defaults(new_defaults):
                             .values(value=value)
                         ).rowcount
                         == 1
-                    )
+                    ), f"Failed to update default for {param!r} to {value!r}"
                     delete_default = False
                 else:
                     for expression in condition_expressions:
@@ -678,7 +672,7 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
     if cmdline_args.drop_all_tables:
         drop_tables_matching(re.compile(".*"))
 
-    DataModelBase.metadata.create_all(db_engine)
+    DataModelBase.metadata.create_all(get_db_engine())
     add_default_hdf5_structures()
     if not cmdline_args.drop_all_tables:
         return

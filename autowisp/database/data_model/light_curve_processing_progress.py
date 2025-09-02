@@ -15,6 +15,12 @@ class LightCurveProcessingProgress(DataModelBase):
 
     __tablename__ = "light_curve_processing_progress"
 
+    run_id = Column(
+        Integer,
+        ForeignKey("pipeline_run.id", onupdate="CASCADE", ondelete="RESTRICT"),
+        nullable=False,
+        doc="The id of the pipeline run that this processing is part of",
+    )
     step_id = Column(
         Integer,
         ForeignKey("step.id", onupdate="CASCADE", ondelete="RESTRICT"),
@@ -29,17 +35,6 @@ class LightCurveProcessingProgress(DataModelBase):
     )
     configuration_version = Column(
         Integer, nullable=False, doc="config version of image"
-    )
-    host = Column(
-        String(1000),
-        nullable=False,
-        doc="Hostname or other identifier of the computer where processing "
-        "is/was done",
-    )
-    process_id = Column(
-        Integer,
-        nullable=False,
-        doc="Identifier of the process performing this calibration step",
     )
     started = Column(
         TIMESTAMP, nullable=True, doc="The time processing started"
@@ -68,7 +63,7 @@ class LightCurveProcessingProgress(DataModelBase):
         return (
             f"({self.id}) {self.step} v{self.configuration_version} on LCs "
             f"fit against {self.sphotref.filename} started "
-            f"{self.started} on {self.host} "
+            f"{self.started} on {self.run.host} "
             + (
                 "in progress"
                 if self.finished is None
@@ -79,3 +74,4 @@ class LightCurveProcessingProgress(DataModelBase):
 
     step = relationship("Step")
     sphotref = relationship("MasterFile")
+    run = relationship("PipelineRun")

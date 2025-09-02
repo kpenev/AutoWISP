@@ -4,23 +4,15 @@
 """Handle data processing DB interactions."""
 
 import logging
-import os
-
-from os import path, getpid
-
-import sys
-import subprocess
 
 from sqlalchemy import sql, select, update, and_, or_
-from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.multiprocessing_util import (
     setup_process,
     get_log_outerr_filenames,
 )
 from autowisp.database.processing import ProcessingManager
-from autowisp.database.interface import Session
-from autowisp.file_utilities import find_fits_fnames
+from autowisp.database.interface import start_db_session
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -86,7 +78,7 @@ class ExpressionMatcher:
             for expression_id in self._master_expression_ids
         )
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         evaluated_expressions,
         ref_image_id,
@@ -249,8 +241,14 @@ class ImageProcessingManager(ProcessingManager):
         """Retrun the specially formatted argument for the calibration step."""
 
         config["split_channels"] = self._get_split_channels(first_image)
+        obs_session = first_image.observing_session
         config["extra_header"] = {
-            "OBS-SESN": first_image.observing_session.label
+            "OBS-SESN": obs_session.label,
+            "TARGETID": obs_session.target.name,
+            "IMAGETYP": first_image.image_type.name,
+            "OBSERVER": obs_session.observer.name,
+            "CAMERAID": obs_session.camera.serial_number,
+            "TELSCPID": obs_session.telescope.serial_number,
         }
         result = {
             (
@@ -645,7 +643,7 @@ class ImageProcessingManager(ProcessingManager):
 
         return pending_images, step_input_type
 
-    def _process_batch(
+    def _process_batch(  # pylint: disable=too-many-arguments
         self, batch, *, start_status, config, step_name, image_type_name
     ):
         """Run the current step for a batch of images given configuration."""
@@ -680,10 +678,7 @@ class ImageProcessingManager(ProcessingManager):
             "Starting processing IDs: %s",
             repr(self._processed_ids[input_fname]),
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             for starting_id in self._processed_ids[input_fname]:
                 db_session.add(
                     ProcessedImages(
@@ -715,10 +710,7 @@ class ImageProcessingManager(ProcessingManager):
         self._logger.debug(
             "Finished processing %s", repr(self._processed_ids[input_fname])
         )
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable-no-member
+        with start_db_session() as db_session:
             for finished_id in self._processed_ids[input_fname]:
                 db_session.execute(
                     update(ProcessedImages)
@@ -782,9 +774,7 @@ class ImageProcessingManager(ProcessingManager):
     def _prepare_processing(self, step, image_type, limit_to_steps):
         """Prepare for processing images of given type by a calibration step."""
 
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             setup_process(
                 task="main",
                 parent_pid="",
@@ -825,9 +815,7 @@ class ImageProcessingManager(ProcessingManager):
     def _finalize_processing(self):
         """Update database and instance after processing."""
 
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             self._current_processing = db_session.merge(
                 self._current_processing
             )
@@ -970,7 +958,7 @@ class ImageProcessingManager(ProcessingManager):
         )
 
         for step, image_type in steps_imtypes or get_processing_sequence(
-            db_session
+            db_session, True
         ):
             failed_prereq_subquery = (
                 select(ProcessedImages.image_id, ProcessedImages.channel)
@@ -1041,23 +1029,22 @@ class ImageProcessingManager(ProcessingManager):
                 .outerjoin(
                     failed_prereq_subquery,
                     and_(
-                        Image.id == failed_prereq_subquery.c.image_id,
+                        Image.id  # pylint: disable=no-member
+                        == failed_prereq_subquery.c.image_id,
                         CameraChannel.name == failed_prereq_subquery.c.channel,
                     ),
                 )
                 .outerjoin(
                     status_subquery,
                     and_(
-                        Image.id == status_subquery.c.image_id,
+                        Image.id  # pylint: disable=no-member
+                        == status_subquery.c.image_id,
                         CameraChannel.name == status_subquery.c.channel,
                     ),
                 )
                 .where(
-                    # False positive
-                    # pylint: disable=no-member
-                    Image.image_type_id
+                    Image.image_type_id  # pylint: disable=no-member
                     == image_type.id
-                    # pylint: enable=no-member
                 )
             )
             # This is how NULL comparison is done in SQLAlchemy
@@ -1088,7 +1075,7 @@ class ImageProcessingManager(ProcessingManager):
 
         self._logger.debug("Pending: %s", repr(self.pending))
 
-    def group_pending_by_conditions(
+    def group_pending_by_conditions(  # pylint: disable=too-many-arguments
         self,
         pending_images,
         db_session,
@@ -1173,10 +1160,8 @@ class ImageProcessingManager(ProcessingManager):
 
         if db_session is None:
             # False positivie
-            # pylint: disable=no-member
             # pylint: disable=redefined-argument-from-local
-            with Session.begin() as db_session:
-                # pylint: enable=no-member
+            with start_db_session() as db_session:
                 # pylint: enable=redefined-argument-from-local
                 return self.find_processing_outputs(
                     processing_progress, db_session
@@ -1193,7 +1178,7 @@ class ImageProcessingManager(ProcessingManager):
             )
 
         main_fnames = get_log_outerr_filenames(
-            existing_pid=processing_progress.process_id,
+            existing_pid=processing_progress.run.process_id,
             task="*",
             parent_pid="",
             processing_step=processing_progress.step.name,
@@ -1208,7 +1193,7 @@ class ImageProcessingManager(ProcessingManager):
             get_log_outerr_filenames(
                 existing_pid="*",
                 task="*",
-                parent_pid=processing_progress.process_id,
+                parent_pid=processing_progress.run.process_id,
                 processing_step=processing_progress.step.name,
                 image_type=processing_progress.image_type.name,
                 **self._processing_config,
@@ -1218,11 +1203,8 @@ class ImageProcessingManager(ProcessingManager):
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
 
-        # False positivie
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
-            processing_sequence = get_processing_sequence(db_session)
+        with start_db_session() as db_session:
+            processing_sequence = get_processing_sequence(db_session, True)
 
         DataReductionFile.get_file_structure()
 
@@ -1246,10 +1228,7 @@ class ImageProcessingManager(ProcessingManager):
                 config,
                 batch,
             ) in processing_batches.items():
-                # False positivie
-                # pylint: disable=no-member
-                with Session.begin() as db_session:
-                    # pylint: enable=no-member
+                with start_db_session() as db_session:
                     self._create_current_processing(
                         step, ("image_type", image_type.id), db_session
                     )
@@ -1288,9 +1267,7 @@ class ImageProcessingManager(ProcessingManager):
     def add_raw_images(self, image_collection):
         """Add the given RAW images to the database for processing."""
 
-        # pylint: disable=no-member
-        with Session.begin() as db_session:
-            # pylint: enable=no-member
+        with start_db_session() as db_session:
             default_expression_id = db_session.scalar(
                 select(ConditionExpression.id).where(
                     ConditionExpression.notes == "Default expression"
@@ -1307,102 +1284,3 @@ class ImageProcessingManager(ProcessingManager):
 
 
 # pylint: enable=too-many-instance-attributes
-
-
-def parse_command_line():
-    """Return the command line configuration."""
-
-    parser = ArgumentParser(
-        description="Manually invoke the fully automated processing",
-        default_config_files=[],
-        formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=False,
-    )
-    parser.add_argument(
-        "--add-raw-images",
-        "-i",
-        nargs="+",
-        default=[],
-        help="Before processing add new raw images for processing. Can be "
-        "specified as a combination of image files and directories which will"
-        "be searched for FITS files.",
-    )
-    parser.add_argument(
-        "--steps",
-        nargs="+",
-        default=None,
-        help="Process using only the specified steps. Leave empty for full "
-        "processing.",
-    )
-    parser.add_argument(
-        "--detached",
-        action="store_true",
-        help="Indicates that the script is running as a detached process.",
-    )
-    logging.info("Parsed arguments: %s", parser.parse_args())
-    return parser.parse_args()
-
-
-def main(config):
-    """Avoid global variables."""
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-
-    logging.debug("Config add_raw_images: %s", config.add_raw_images)
-    logging.debug("Config steps: %s", config.steps)
-
-    processing = ImageProcessingManager()
-    for img_to_add in config.add_raw_images:
-        logging.debug("Adding raw images from: %s", img_to_add)
-        processing.add_raw_images(find_fits_fnames(path.abspath(img_to_add)))
-
-    logging.debug("Starting processing...")
-    processing(limit_to_steps=config.steps)
-    logging.debug("Processing completed.")
-
-
-if __name__ == "__main__":
-    if os.name == "posix":  # Linux/macOS
-        from os import getpgid, setsid, fork
-
-        try:
-            setsid()
-        except OSError:
-            print(f"pid={getpid():d}  pgid={getpgid(0):d}")
-
-        pid = fork()
-        if pid < 0:
-            raise RuntimeError("fork fail")
-        if pid != 0:
-            sys.exit(0)
-
-        setsid()
-        main(parse_command_line())  # Run main function in child process
-
-    elif os.name == "nt":  # Windows
-        from subprocess import DETACHED_PROCESS
-
-        if "--detached" not in sys.argv:
-            try:
-                with open("detached_process.log", "w") as log_file:
-                    subprocess.Popen(
-                        [
-                            sys.executable,
-                            os.path.abspath(sys.argv[0]),
-                            "--detached",
-                        ]
-                        + sys.argv[1:],  # Relaunch with --detached
-                        creationflags=DETACHED_PROCESS,
-                        stdout=log_file,
-                        stderr=log_file,
-                    )
-                sys.exit(0)  # Exit parent process
-            except Exception as e:
-                sys.stderr.write(f"Failed to detach: {e}\n")
-                sys.exit(1)
-        else:
-            try:
-                main(parse_command_line())
-            except Exception as e:
-                with open("detached_process_error.log", "w") as error_log:
-                    error_log.write(f"Error in main: {e}\n")

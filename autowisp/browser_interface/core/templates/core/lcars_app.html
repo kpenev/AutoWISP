@@ -1,0 +1,126 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>
+            {% block header_title %}
+            Unknown
+            {% endblock %}
+        </title>
+        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
+
+        {% block extra_head %}
+        {% endblock %}
+    </head>
+    <body>
+        {% csrf_token %}
+        <div class="lcars-app-container">
+            <div id="header" class="lcars-row header">
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                {% block header_bar_extra %}
+                {% endblock %}
+                <div class="lcars-bar horizontal top-bar">
+                    <div class="lcars-title right">
+                        {% block app_title %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <!-- ROUNDED EDGE DECORATED -->
+                <div class="lcars-bar horizontal right-end decorated"></div>
+            </div>
+
+            <!-- LEFT MENU -->
+            <div id="left-menu" 
+                 class="lcars-column start-space lcars-u-1" 
+                 style="text-transform: uppercase;">
+
+                {% block left_menu %}
+                {% endblock %}
+
+                {% block processing_link %}
+                <a href="{% url 'processing:progress' %}">
+                    <div class="lcars-element 
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
+                        Processing Status
+                    </div>
+                </a>
+                {% endblock processing_link %}
+
+                {% block configuration_link %}
+                <a href="{% url 'configuration:config_tree' %}">
+                    <div class="lcars-element 
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
+                        Configure Processing
+                    </div>
+                </a>
+                {% endblock configuration_link %}
+
+                {% block edit_survey_link %}
+                <a href="{% url 'configuration:survey' %}">
+                    <div class="lcars-element 
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
+                        Edit Survey
+                    </div>
+                </a>
+                {% endblock edit_survey_link %}
+
+                {% block review_results_link %}
+                <a href="{% url 'results:results' %}">
+                    <div class="lcars-element 
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
+                        Review Results
+                    </div>
+                </a>
+                {% endblock review_results_link %}
+
+                {% block home_link %}
+                <a href="{% url 'home:home' %}">
+                    <div class="lcars-element 
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
+                        Exit
+                    </div>
+                </a>
+                {% endblock home_link %}
+
+                <div class="lcars-bar lcars-u-1"></div>
+            </div>
+
+            <!-- FOOTER -->
+            <div id="footer" class="lcars-row ">
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-top lcars-golden-tanoi-bg"></div>
+                {% block footer_bar_extra %}
+                {% endblock footer_bar_extra %}
+                <!-- BAR -->
+                <div class="lcars-bar horizontal both-divider bottom"></div>
+                <!-- ROUNDED EDGE -->
+                <div class="lcars-bar horizontal right-end left-divider bottom">
+                </div>
+            </div>
+
+            <div id="container">
+                {% block main %}
+                {% endblock %}
+            </div>
+
+        </div>
+        {% block scripts %}
+        {% endblock scripts %}
+    </body>
+</html>

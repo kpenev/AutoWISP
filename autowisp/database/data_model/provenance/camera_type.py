@@ -43,3 +43,21 @@ class CameraType(DataModelBase):
     )
     cameras = relationship("Camera", back_populates="camera_type")
     channels = relationship("CameraChannel")
+
+    def to_dict(self):
+        """Return dict representation of the camera type."""
+
+        channels = {}
+        for chnl in self.channels:
+            channels.update(chnl.to_dict())
+        return {
+            "make": self.make,
+            "model": self.model,
+            "version": self.version,
+            "sensor type": self.sensor_type,
+            "x resolution": self.x_resolution,
+            "y resolution": self.y_resolution,
+            "pixel size": self.pixel_size,
+            "channels": channels,
+            "notes": self.notes,
+        }

@@ -53,3 +53,13 @@ class Observer(DataModelBase):
         """Human readable string identifying the observer."""
 
         return self.name
+
+    def to_dict(self):
+        """Return dict representation of the observer."""
+
+        return {
+            'name': self.name,
+            'email': self.email,
+            'phone': self.phone,
+            'notes': self.notes,
+        }

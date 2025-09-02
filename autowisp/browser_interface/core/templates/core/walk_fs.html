@@ -1,0 +1,162 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/walk_fs.css' %}">
+{% endblock %}
+
+{% block processing_link %}
+{% endblock processing_link %}
+
+{% block configuration_link %}
+{% endblock configuration_link %}
+
+{% block edit_survey_link %}
+{% endblock edit_survey_link %}
+
+{% block review_results_link %}
+{% endblock review_results_link %}
+
+{% block home_link %}
+{% endblock home_link %}
+
+{% block header_bar_extra %}
+
+<!-- scrollable path added  -->
+<div class="scrollable-path"> 
+    {% for dpath, dname in parent_dir_list %}
+    <a href={% url url_name dirname=dpath %} class="scrollable-item">
+        <div class="lcars-bar 
+                    horizontal 
+                    lcars-u-2 
+                    lcars-melrose-bg
+                    lcars-element
+                    right-rounded">
+            {{dname}} 
+        </div>
+    </a>
+    {% if forloop.last %}
+    <input type="hidden" 
+           form="update_img_selector" 
+           name="currentdir" 
+           value="{{dpath}}"/>
+    {% endif %}
+    {% endfor %}
+</div>
+
+{% endblock header_bar_extra %}
+
+{% block left_menu %}
+<a href="{% url cancel_url_name %}">
+    <div class="lcars-element button lcars-red-alert-bg">Cancel</div>
+</a>
+{% endblock left_menu %}
+
+{% block main %}
+
+<div class="lcars-column">
+    <form method="get"
+          action="{% url url_name %}"
+          id="update_img_selector">
+        <div class="lcars-column">
+            <div class="lcars-row left-centered">
+                <label for="filename_filter" class="lcars-u-1 right"> 
+                    File Filter: 
+                </label>
+                <input type="text" 
+                       id="filename_filter" 
+                       name="filename_filter"
+                       value="{{filename_filter}}"
+                       class="lcars-text-input 
+                              decorated 
+                              rounded
+                              lcars-lilac-color 
+                              lcars-u-2-1"
+                       onchange="getElementById('update_img_selector').submit()"/>
+                <input type="button" 
+                       id="filefilter_type_button" 
+                       value="{{filename_filter_type}}"
+                       class="lcars-element rounded button lcars-u-2"
+                       onclick="swapFilterType('file');"/>
+                <input type="hidden" 
+                       id="filefilter_type" 
+                       name="filefilter_type"
+                       value="{{filename_filter_type}}"/>
+            </div>
+            <div class="lcars-row left-centered">
+                <label class="lcars-u-1" for="dirname_filter"> 
+                    Directory Filter: 
+                </label>
+                <input type="text" 
+                       id="dirname_filter" 
+                       name="dirname_filter"
+                       value="{{dirname_filter}}"
+                       class="lcars-text-input 
+                              decorated 
+                              rounded
+                              lcars-lilac-color 
+                              lcars-u-2-1"
+                       onchange="getElementById('update_img_selector').submit()"/>
+                <input type="button" 
+                       id="dirfilter_type_button" 
+                       value="{{dirname_filter_type}}"
+                       class="lcars-element button rounded lcars-u-2"
+                       onclick="swapFilterType('dir');"/>
+                <input type="hidden" 
+                       id="dirfilter_type" 
+                       name="dirfilter_type"
+                       value="{{dirname_filter_type}}"/>
+            </div>
+        </div>
+    </form>
+
+
+    <form id="selection" method="post">
+        {% csrf_token %}
+        {% with num_files=file_list|length %}
+        <div class="lcars-row">
+
+            <div class="lcars-bracket left hollow"></div>
+            <div class="lcars-column">
+                {% block selectable_entries_begin %}
+                {% endblock %}
+                <select multiple 
+                        name="selected"
+                        class="lcars-text-input decorated rounded"
+                        size="{{dir_list|length|add:num_files}}" 
+                        onDblClick="enterDirectory(this.value)">
+                    {% for dname in dir_list %}
+                    <option value="{{dname}}" class="selectdir">{{dname}}</option>
+                    {% endfor %}
+                    {% for fname in file_list %}
+                    <option value="{{fname}}" class="selectfile">{{fname}}</option>
+                    {% endfor %}
+                </select>
+                {% block selectable_entries_end %}
+                {% endblock %}
+            </div>
+            <div class="lcars-bracket right hollow"></div>
+
+        </div>
+        <input type="hidden" 
+               name="currentdir"
+               value="{{parent_dir_list|last|first}}">
+        {% endwith %}
+        <input type="submit" 
+               id="add-selected-img" 
+               value="Add Images" 
+               style="visibility:hidden"/>
+    </form>
+</div>
+
+{% endblock main %}
+
+{% block scripts %}
+<script type="text/javascript" 
+        src="{% static 'js/autowisp.util.js' %}">
+</script>
+<script type="text/javascript" 
+        src="{% static 'js/walk.fs.js' %}">
+</script>
+
+{% endblock scripts %}

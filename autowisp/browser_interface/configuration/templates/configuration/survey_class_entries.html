@@ -1,0 +1,412 @@
+{% load custom_filters %}
+
+<thead>
+    <tr>
+        {% if is_type %}
+        <th><div class="lcars-bar horizontal top lcars-red-damask-bg left-menu"></div></th>
+        {% else %}
+        <th class="lcars-elbow left-bottom lcars-red-damask-bg"></th>
+        {% endif %}
+        {% for attribute in attribute_list %}
+        <th>
+            <div class="lcars-bar horizontal lcars-red-damask-bg">
+                {{attribute.0}}
+            </div>
+        </th>
+
+        {% if forloop.last %}
+        <th class="top-bar bubble-name">
+            <div class="lcars-row">
+                <div class="lcars-bar horizontal lcars-red-damask-bg"></div>
+                <div class="lcars-title right" style="text-transform: uppercase;">
+                    {{title}}
+                </div>
+                <!-- ROUNDED EDGE DECORATED -->
+                <div class="lcars-bar 
+                            horizontal 
+                            right-end 
+                            lcars-red-damask-bg">
+                </div>
+            </div>
+        </th>
+        {% endif %}
+        {% endfor %}
+    </tr>
+</thead>
+
+{% if is_type %}
+{% url 'configuration:survey' selected_component=component selected_type_id=item.id as select_url %}
+{% else %}
+{% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
+{% endif %}
+
+<tbody>
+    {% for item in item_list %}
+    {% if is_type %}
+    {% url 'configuration:survey' selected_component=component selected_type_id=item.id as select_url %}
+    {% url 'configuration:delete_from_survey' component_type=component component_type_id=item.id as delete_url %}
+
+    {% else %}
+    {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
+    {% url 'configuration:delete_from_survey' component_type=component component_id=item.id as delete_url %}
+    {% endif %}
+
+    <tr>
+        {% comment %} Render Add/Update/Delete button {% endcomment %}
+        <td class="left-menu">
+            {% if component == selected_component and item.id == selected_id %}
+            {% comment %} Start Add/Update button for selected item {% endcomment %}
+            <input type="submit"
+                   name="todo" 
+                   {% if item.id < 0 %}
+                   value="Add"
+                   {% else %}
+                   value="Update"
+                   {% endif %}
+                   class="lcars-element button lcars-orange-peel-bg"/>
+            {% comment %} End Add/Update button for selected item {% endcomment %}
+            {% else %}
+            {% comment %} Start Add/Delete/Can't delete button for not selected item {% endcomment %}
+            {% if item.id >= 0 %}
+            {% comment %} Start Delete/Can't delete botton for unselected existing item {% endcomment %}
+            {% if item.can_delete %}
+            <a href="{{ delete_url }}">
+                <div class="lcars-element button lcars-red-alert-bg"> 
+                    Delete
+                </div>
+            </a>
+            {% else %}
+            <a href="{{select_url}}">
+                <div class="lcars-element lcars-red-damask-bg">
+                    Can't delete has {% if is_type %} components {% else %} images {% endif %}
+                </div>
+            </a>
+            {% comment %} End Delete/Can't delete botton for unselected existing item {% endcomment %}
+            {% endif %}
+            {% else %}
+            {% comment %} Start Add botton for new items {% endcomment %}
+            <a href="{{select_url}}">
+                <div class="lcars-element button lcars-husk-bg">
+                    {% if is_type %}
+                    New Type
+                    {% else %}
+                    Add {{component}}
+                    {% endif %}
+                </div>
+            </a>
+            {% comment %} End Add botton for new items {% endcomment %}
+            {% endif %}
+            {% endif %}
+
+        </td>
+
+        {% for attribute in attribute_list %}
+
+        <td>
+
+            {% if component == selected_component and item.id == selected_id %}
+            {% if attribute.0 == 'type' %}
+            <select name="type-id"
+                    class="lcars-text-box lcars-gray-bg lcars-husk-color"
+                    style="width: 100%"
+                    id="type">
+                {% for type_entry in types %}
+                {% if type_entry.id >= 0 %}
+                <option value="{{type_entry.id}}"
+                        {% if item.type_id == type_entry.id %}
+                        selected
+                        {% endif %}>
+                {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+
+            {% comment %} end rendering type of selected item {% endcomment %}
+            {% elif attribute.0 == 'channels' %}
+
+            {% comment %} render channels only for already defined items {% endcomment %}
+            {% if item.id >= 0 %} 
+            <table class="camera-channels">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Offset</th>
+                    </tr>
+                    {% for chnl_id, chnl_name, chnl_slice in item|get_key:attribute.1 %}
+                    <tr>
+                        <td>
+                            <input type="text" 
+                                   name="channel-{{ chnl_id }}-name"
+                                   value="{{ chnl_name }}"
+                                   class="lcars-grey-bg">
+                            </input>
+                        </td>
+                        <td>
+                            <input type="text" 
+                                   name="channel-{{ chnl_id }}-slice"
+                                   value="{{ chnl_slice }}"
+                                   class="lcars-grey-bg">
+                            </input>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>
+                            <input type="text" 
+                                   name="channel-new-name"
+                                   value=""
+                                   size="1">
+                            </input>
+                        </td>
+                        <td>
+                            <input type="text" 
+                                   name="channel-new-slice"
+                                   value=""
+                                   size="1">
+                            </input>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+            {% comment %} end rendering camera channels of selected item {% endcomment %}
+
+            {% else %} 
+            {% comment %} start rendering attribute other than channel and type for selected item {% endcomment %}
+            <input type="text"
+                   name="{{attribute.0}}"
+                   class="lcars-text-input 
+                          decorated 
+                          lcars-husk-color 
+                          lcars-gray-bg
+                          rounded 
+                          lcars-u--1"
+                   style="box-sizing: border-box; width:100%;"
+                   value="{{item|get_key:attribute.1}}"> 
+            </input>
+
+            {% endif %} 
+            {% comment %} end rendering any attribute of selected item {% endcomment %}
+
+            {% else %}
+            {% comment %} start rendering attribute of item that is not selected {% endcomment %}
+
+            <a href="{{select_url}}">
+
+
+                {% if attribute.0 == 'channels' %}
+                {% comment %} render channels of unselected item {% endcomment %}
+                <table>
+                    <tbody>
+                        {% for chnl_id, chnl_name, chnl_slice in item|get_key:attribute.1 %}
+                        <tr>
+                            <td>{{ chnl_name }}</td>
+                            <td>{{ chnl_slice }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% comment %} end rendering channels of non select item {% endcomment %}
+
+                {% else %}
+                {% comment %} start rendering attribute other than channel of not selected item {% endcomment %}
+
+                <div class="lcars-text-box centered-left" style="width:100%"> 
+                    {{item|get_key:attribute.1}} 
+                </div>
+
+                {% endif %}
+
+
+            </a>
+            {% endif %}
+            {% comment %} end rendering attribute {% endcomment %}
+
+        </td>
+        {% endfor %} {% comment %} end attribute iteration {% endcomment %}
+
+        {% if track_access %}
+        <td>
+            {% if item.id >= 0 %}
+            {% if item.access %}
+            {% url 'configuration:change_access' new_access=0 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
+            {% else %}
+            {% url 'configuration:change_access' new_access=1 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
+            {% endif %}
+
+            <a href="{{access_url}}">
+                <div class="lcars-element 
+                            button 
+                            full-centered
+                            {% if item.access %}
+                            lcars-melrose-bg
+                            {% else %}
+                            lcars-red-damask-bg
+                            {% endif %}
+                            rounded" style="width:100%"> 
+                    {% if component == 'observer' %}
+                    {% if not item.access %}
+                    no
+                    {% endif %}
+                    {{selected_component}} access
+                    {% else %}
+                    observer has
+                    {% if not item.access %}
+                    no
+                    {% endif %}
+                    access
+                    {% endif %}
+                </div>
+            </a>
+            {% endif %}
+
+        </td>
+        {% endif %}
+
+    </tr>
+
+    {% endfor %} {% comment %} end item iteration {% endcomment %}
+
+</tbody>
+
+{% if is_type or not type_attributes|get_key:component %}
+<tfoot>
+    <tr>
+        <td>
+            <div class="lcars-elbow left-top lcars-red-damask-bg"></div>
+        </td>
+        <td colspan="{{ attribute_list|length|add:1 }}">
+            <div class="lcars-row">
+                <!-- BAR -->
+                <div class="lcars-bar 
+                            horizontal 
+                            both-divider 
+                            lcars-red-damask-bg">
+                </div>
+                <!-- ROUNDED EDGE -->
+                <div class="lcars-bar 
+                            horizontal 
+                            right-end 
+                            left-divider 
+                            lcars-red-damask-bg">
+                </div>
+            </div>
+        </td>
+
+    </tr>
+</tfoot>
+{% endif %}
+
+{% comment %}
+
+{% for attribute in attribute_list %}
+<div class="lcars-column" style="width: 100%; visibility: hidden">
+    {% for item in item_list %}
+
+    {% if component == selected_component and item.id == selected_id %}
+    {% if attribute.0 == 'type' %}
+    <select name="type-id"
+            class="lcars-text-box lcars-gray-bg lcars-husk-color"
+            style="width: 100%"
+            id="type">
+        {% for type_entry in types %}
+        {% if type_entry.id >= 0 %}
+        <option value="{{type_entry.id}}"
+                {% if item.type_id == type_entry.id %}
+                selected
+                {% endif %}>
+        {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
+        </option>
+        {% endif %}
+        {% endfor %}
+    </select>
+
+    {% elif attribute.0 == 'channels' %}
+
+    {% if item.id >= 0 %}
+    <table class="camera-channels">
+        <tbody>
+            <tr>
+                <th>Name</th>
+                <th>Offset</th>
+            </tr>
+            {% for chnl_id, chnl_name, chnl_slice in item|get_key:attribute.1 %}
+            <tr>
+                <td>
+                    <input type="text" 
+                           name="channel-{{ chnl_id }}-name"
+                           value="{{ chnl_name }}"
+                           class="lcars-grey-bg">
+                    </input>
+                </td>
+                <td>
+                    <input type="text" 
+                           name="channel-{{ chnl_id }}-slice"
+                           value="{{ chnl_slice }}"
+                           class="lcars-grey-bg">
+                    </input>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    <input type="text" 
+                           name="channel-new-name"
+                           value=""
+                           size="1">
+                    </input>
+                </td>
+                <td>
+                    <input type="text" 
+                           name="channel-new-slice"
+                           value=""
+                           size="1">
+                    </input>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% else %}
+    <input type="text"
+           name="{{attribute.0}}"
+           class="lcars-text-input 
+                  decorated 
+                  lcars-husk-color 
+                  lcars-gray-bg
+                  rounded 
+                  lcars-u--1"
+           style="box-sizing: border-box; width:100%;"
+           value="{{item|get_key:attribute.1}}"> 
+    </input>
+    {% endif %}
+    {% else %}
+    <a href="{{select_url}}">
+        {% if attribute.0 == 'channels' %}
+        <table>
+            <tbody>
+                {% for chnl_id, chnl_name, chnl_slice in item|get_key:attribute.1 %}
+                <tr>
+                    <td>{{ chnl_name }}</td>
+                    <td>{{ chnl_slice }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+        <div class="lcars-text-box centered-left" style="width:100%"> 
+            {{item|get_key:attribute.1}} 
+        </div>
+        {% endif %}
+    </a>
+    {% endif %}
+
+    {% endfor %}
+
+</div>
+{% endfor %}
+
+{% endcomment %}

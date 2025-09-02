@@ -188,6 +188,9 @@ class Calibrator(Processor):
         "allow_overwrite": False,
     }
 
+    extra_header_expressions = {
+    }
+
     @staticmethod
     def check_calib_params(raw_image, calib_params):
         """

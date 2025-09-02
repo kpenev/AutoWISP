@@ -1,12 +1,16 @@
+#pylint: disable=too-many-lines
 """Define interface to the pipeline database."""
 
 import json
 import logging
 from time import sleep
+from traceback import print_exc
 
-from sqlalchemy import sql, select, delete, func, and_
+from sqlalchemy import sql, select, delete, inspect, func, and_
+from sqlalchemy.orm import ColumnProperty
 
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session, set_sqlite_database
+from autowisp.database.data_model import provenance
 from autowisp.data_reduction import DataReductionFile
 
 # False positive
@@ -32,6 +36,7 @@ from autowisp.database.data_model import (
     ProcessedImages,
     ProcessingSequence,
     Step,
+    StepDependencies,
     step_param_association,
 )
 
@@ -79,12 +84,15 @@ def get_db_configuration(
     # pylint: enable=no-member
 
 
-def get_processing_sequence(db_session):
+def get_processing_sequence(db_session, no_lc_postprocessing=False):
     """
-    Return the sequence of steps in the pipeline.
+    Return the sequence of (step, image type) the pipeline can run.
 
-    For image processing this will be a sequence of step/image type pairs, and
-    for lightcurves it will just be a sequence of steps.
+    Args:
+        db_session:    The database session to issue queries.
+
+        no_lc_postprocessing(bool):    If True, any steps which are blocked by
+            ``create_lightcurves`` are not included.
     """
 
     select_seq = (
@@ -93,8 +101,27 @@ def get_processing_sequence(db_session):
         .join(Step, ProcessingSequence.step_id == Step.id)
         .join(ImageType, ProcessingSequence.image_type_id == ImageType.id)
     )
+    if no_lc_postprocessing:
+        create_lc_step_id = db_session.scalar(
+            select(Step.id).filter_by(name="create_lightcurves")
+        )
+        select_postprocessing = (
+            select(StepDependencies)
+            .filter_by(blocking_step_id=create_lc_step_id)
+            .subquery()
+        )
+        select_seq = select_seq.outerjoin(
+            select_postprocessing,
+            and_(
+                select_postprocessing.c.blocked_step_id == Step.id,
+                select_postprocessing.c.blocked_image_type_id == ImageType.id,
+            ),
+        ).where(
+            select_postprocessing.c.blocked_step_id  # pylint: disable=singleton-comparison
+            == None
+        )
 
-    return db_session.execute(select_seq).all()
+    return db_session.execute(select_seq.order_by(ProcessingSequence.id)).all()
 
 
 def list_channels(db_session):
@@ -256,7 +283,7 @@ def get_progress_lightcurves(
                             .select_from(Image)
                             .join(ImageType)
                             .where(
-                                Image.raw_fname.contains(
+                                Image.raw_fname.contains(  # pylint: disable=no-member
                                     header["RAWFNAME"] + ".fits"
                                 )
                             )
@@ -313,10 +340,7 @@ def get_progress(step, *args, **kwargs):
 def _get_config_info(version, step="All"):
     """Return info for displaying the configuration with given version."""
 
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         if step != "All":
             restrict_param_ids = set(
                 param.id
@@ -328,7 +352,11 @@ def _get_config_info(version, step="All"):
         config_list = get_db_configuration(version, db_session)
         config_info = {}
         for config in config_list:
-            if step != "All" and config.parameter.id not in restrict_param_ids:
+            if (
+                step != "All"
+                and config.parameter.id
+                not in restrict_param_ids  # pylint: disable=possibly-used-before-assignment
+            ):
                 continue
             if config.parameter.name not in config_info:
                 config_info[config.parameter.name] = {
@@ -593,10 +621,7 @@ def save_json_config(json_config, version):
     configuration, expressions = _parse_json_config(
         json.loads(json_config.decode("ascii"))
     )
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         compare_config = get_db_configuration(version, db_session)
 
         _save_conditions(
@@ -658,24 +683,383 @@ def save_json_config(json_config, version):
 def list_steps():
     """List the pipeline steps."""
 
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         return db_session.scalars(select(Step.name)).all()
+
+
+def add_camera_type_channels(camera_type_id, properties, db_session):
+    """
+    Add channels to the given camera type and return partial channel entries.
+
+    Args:
+        camera_type_id(int):    The ID of the camera type to which to add
+            channels.
+
+        properties(dict-like):    The information being changed for the survey.
+            For each channel to add there should be exactly two keywords:
+            ``"channel-{channel_id}-name"`` and
+            ``"channel-{channel_id}-slice"``. Where ``{channel_id}`` should be
+            either an int specifying the identifier of the channel in the
+            database or ``"new"`` specifying a new channel to add.
+            ``{channel_id}``entries should be unique (for example only one new
+            channel can be added). Channel slices have the format:
+            ``"{x_offset}:{x_step};{y_offset}:{y_step}"``. Anything not related
+            to channels is ignored.
+
+        db_session:    The database session to use for updating.
+
+    Returns:
+        int or None, str or None:
+            The channel ID and property (one of ``"name"`` or ``"slice"``)
+            which is not fully specified or is mal-formatted. If more than one,
+            the one wit the lowest ID is returned. If the new channel is
+            unspecified, the channel returned is ``None``. If everything is
+            fully specified ``None, None`` is returned.
+    """
+
+    def get_channel_info():
+        """From the inputs extract the information to add to the database."""
+
+        result = {}
+        for key in properties:
+            if key.startswith("channel-"):
+                channel_id, channel_property = key.rsplit("-")[1:]
+                assert channel_property in [
+                    "name",
+                    "slice",
+                ], f"Unrecognized channel property {key}"
+                if channel_id != "new":
+                    channel_id = int(channel_id)
+                if channel_id not in result:
+                    result[channel_id] = {}
+                if channel_property == "name":
+                    assert "name" not in result[channel_id], (
+                        "Duplicate name entry encountered for channel ID "
+                        f"{channel_id}"
+                    )
+                    result[channel_id]["name"] = properties[key]
+                else:
+                    try:
+                        values = sum(
+                            (
+                                dir_slice.split(":")
+                                for dir_slice in properties[key].split(";")
+                            ),
+                            [],
+                        )
+                        values = [int(v) for v in values]
+                        for attr, val in zip(
+                            ["x_offset", "x_step", "y_offset", "y_step"], values
+                        ):
+                            assert attr not in result[channel_id], (
+                                "Duplicate slice entry encountered for channel "
+                                f"ID {channel_id}"
+                            )
+                            result[channel_id][attr] = val
+                    except ValueError:
+                        print_exc()
+        return result
+
+    def remove_unspecified(channel_info):
+        """Leave only fully specified channels in update info, return result."""
+
+        edit_id = None
+        edit_property = None
+        to_delete = set()
+        required_attributes = get_editable_attributes(
+            provenance.CameraChannel  # pylint: disable=no-member
+        )
+        required_attributes.remove("type")
+
+        for channel_id, channel_attrs in channel_info.items():
+            for attr in required_attributes:
+                if attr not in channel_attrs:
+                    print(
+                        f"Attribute {attr} mising. "
+                        f"Deleting channel {channel_id}."
+                    )
+                    if edit_id is None or edit_id > channel_id:
+                        edit_id = channel_id
+                        edit_property = "name" if attr == "name" else "slice"
+                    to_delete.add(channel_id)
+        for channel_id in to_delete:
+            del channel_info[channel_id]
+        return edit_id, edit_property
+
+    channel_info = get_channel_info()
+    print(80 * "*")
+    print(f"Channel info: {channel_info!r}")
+    result = remove_unspecified(channel_info)
+    print(f"Cleaned channel info: {channel_info!r}")
+    print(f"Result: {result!r}")
+    if channel_info:
+        assert (
+            camera_type_id >= 0
+        ), "Attempting to set channels of non-existant camera type"
+
+    for channel_id, channel_properties in channel_info.items():
+        print(f"Editing channel {channel_id} per: {channel_properties!r}")
+        if channel_id == "new":
+            db_channel = provenance.CameraChannel(  # pylint: disable=no-member
+                camera_type_id=camera_type_id, **channel_properties
+            )
+        else:
+            db_channel = db_session.scalar(
+                select(
+                    provenance.CameraChannel  # pylint: disable=no-member
+                ).filter_by(id=channel_id, camera_type_id=camera_type_id)
+            )
+            for attr, value in channel_properties.items():
+                setattr(db_channel, attr, value)
+
+        if channel_id == "new":
+            db_session.add(db_channel)
+    print(80 * "*")
+    return result
+
+
+def get_editable_attributes(db_class):
+    """List the user-editable attributes for the given component DB class."""
+
+    def sort_key(colname):
+        """Define the order in which attributes should be displayed."""
+
+        if colname in ["name", "serial_number"]:
+            return 0
+        if colname == "type":
+            return 1
+        if colname == "notes":
+            return 3
+        return 2
+
+    columns = [
+        str(a).split(".", 1)[1]
+        for a in inspect(db_class).attrs
+        if isinstance(a, ColumnProperty)
+    ]
+    result = [
+        "type" if col_name.endswith("_type_id") else col_name
+        for col_name in columns
+        if col_name not in ["id", "timestamp"]
+    ]
+    if "type" in result:
+        result.remove("type")
+        result.append("type")
+    if db_class == provenance.CameraType:  # pylint: disable=no-member
+        result.append("channels")
+    return sorted(result, key=sort_key)
+
+
+def get_human_name(column_name):
+    """Return human friendly name for the given column."""
+
+    if column_name == "serial_number":
+        return "serial no"
+    if column_name == "f_ratio":
+        return "focal ratio"
+    if column_name.endswith("_type_id"):
+        return "type"
+    return column_name.replace("_", " ")
+
+
+def update_db_entry(
+    db_session, properties, db_class, entry_id, component_type=None
+):
+    """
+    Add/update a survey component or type, return its ID and what to autofocus.
+    """
+
+    print(80 * "*")
+    print(repr(properties))
+    print(80 * "*")
+
+    incomplete = None
+    entry_id = int(entry_id)
+    if entry_id < 0:
+        db_item = db_class()
+    else:
+        db_item = db_session.scalar(
+            select(db_class).where(db_class.id == entry_id)
+        )
+
+    attribute_names = get_editable_attributes(db_class)
+    for attr in attribute_names:
+        if attr == "channels":
+            assert (
+                db_class == provenance.CameraType  # pylint: disable=no-member
+            ), (
+                f"Attempting to set channels for {db_class} (not a camera "
+                "type)!"
+            )
+            channel_incomplete = add_camera_type_channels(
+                entry_id, properties, db_session
+            )
+            if (
+                channel_incomplete[0] is not None
+                or channel_incomplete[1] is not None
+            ):
+                incomplete = {"channel": channel_incomplete}
+        elif attr != "type":
+            print(f"Updating {type(db_item)}.{attr} with {properties}")
+            setattr(db_item, attr, properties[get_human_name(attr)])
+
+    if "type" in attribute_names:
+        type_id = int(properties.get("type-id"))
+        assert type_id >= 0
+        setattr(db_item, component_type + "_type_id", type_id)
+
+    if entry_id < 0:
+        db_session.add(db_item)
+    db_session.flush()
+    return db_item.id, incomplete
+
+
+def import_json_to_survey(json_file):
+    """Add to the survey configuration from given JSON encoding string."""
+
+    def add_equipment_type(type_class, item_class, type_properties):
+        """Add a single equipment type and all its devices."""
+
+        type_id, incomplete = update_db_entry(
+            db_session, type_properties, type_class, -1
+        )
+        if incomplete:
+            return incomplete
+
+        for component in type_properties["devices"]:
+            component["type-id"] = type_id
+            update_db_entry(
+                db_session,
+                component,
+                item_class,
+                -1,
+                item_class.__tablename__,
+            )
+        if type_class == provenance.CameraType:  # pylint: disable=no-member
+            for channel_name, channel_config in type_properties[
+                "channels"
+            ].items():
+                channel_config["name"] = channel_name
+                channel_config["type-id"] = type_id
+                incomplete = update_db_entry(
+                    db_session,
+                    channel_config,
+                    provenance.CameraChannel,  # pylint: disable=no-member
+                    -1,
+                    "camera",
+                )[1]
+                if incomplete:
+                    return incomplete
+        return None
+
+    config = json.load(json_file)
+    assert isinstance(
+        config, dict
+    ), "Malformatted JSON file encountered during import"
+
+    with start_db_session() as db_session:
+        for key, value in config.items():
+            key = key.title()
+            assert key.endswith(
+                "s"
+            ), f"Survey class {key} does not end with 's'."
+            if key in ["Observers", "Observatories"]:
+                db_class = (
+                    provenance.Observer  # pylint: disable=no-member
+                    if key == "Observers"
+                    else provenance.Observatory  # pylint: disable=no-member
+                )
+                for properties in value:
+                    incomplete = update_db_entry(
+                        db_session, properties, db_class, -1
+                    )[1]
+            else:
+                component_type = key[:-1]
+                for type_properties in value:
+                    incomplete = add_equipment_type(
+                        getattr(provenance, component_type + "Type"),
+                        getattr(provenance, component_type),
+                        type_properties,
+                    )
+            assert incomplete is None, (
+                "Mal-formatted or not fully specified configuration for "
+                f"{key}: {value!r}"
+            )
+
+
+def plural(word):
+    """Mostly working pluralization."""
+
+    if word.endswith("y"):
+        return word[:-1] + "ies"
+    return word + "s"
+
+
+def export_survey_to_json(destination, **limit_to):
+    """Create JSON file storing selected survey information."""
+
+    def get_export_objects(equipment_class, db_type=None):
+        """Return list of DB types of equipment of given class to export."""
+
+        is_type = (
+            equipment_class not in ["Observer", "Observatory"]
+            and db_type is None
+        )
+        export_limit = limit_to.get(
+            equipment_class.lower() + ("_type" if is_type else ""),
+            "all",
+        )
+        if export_limit == "none":
+            return []
+
+        db_class = getattr(
+            provenance, equipment_class + ("Type" if is_type else "")
+        )
+        export_select = select(db_class)
+        if db_type is not None:
+            export_select = export_select.filter_by(
+                **{f"{equipment_class.lower()}_type_id": db_type.id}
+            )
+        if export_limit != "all":
+            export_select = export_select.where(db_class.id.in_(export_limit))
+        return db_session.scalars(export_select).all()
+
+    def get_config(equipment_class, db_class):
+        """Return the configuration of the given class, including children."""
+
+        result = db_class.to_dict()
+        if equipment_class not in ["Observer", "Observatory"]:
+            result["devices"] = [
+                device.to_dict()
+                for device in get_export_objects(equipment_class, db_class)
+            ]
+        return result
+
+    config = {}
+    with start_db_session() as db_session:
+        for equipment_class in [
+            "Camera",
+            "Telescope",
+            "Mount",
+            "Observer",
+            "Observatory",
+        ]:
+            export_list = get_export_objects(equipment_class)
+            config[plural(equipment_class)] = [
+                get_config(equipment_class, export) for export in export_list
+            ]
+    json.dump(config, destination, indent=4)
 
 
 def main():
     """Avoid polluting the global namespace."""
 
+    set_sqlite_database("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    # False positive:
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
-        print("Channels: " + repr(list_channels(db_session)))
-        print(get_progress(8, 4, 0, db_session))
+    with open("test_survey.json", "w", encoding="utf-8") as outf:
+        export_survey_to_json(outf)
+    # import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
 
 
 if __name__ == "__main__":

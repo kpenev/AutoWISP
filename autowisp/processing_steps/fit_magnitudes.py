@@ -18,7 +18,7 @@ from autowisp.processing_steps.manual_util import (
     ignore_progress,
     get_catalog_config,
 )
-from autowisp.database.interface import Session
+from autowisp.database.interface import start_db_session
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -311,10 +311,7 @@ def fit_magnitudes(
 def delete_master(filename, master_type):
     """Delete the master from file system and database."""
 
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
+    with start_db_session() as db_session:
         assert (
             # False positive
             # pylint: disable=not-callable
@@ -362,6 +359,7 @@ def clean_dr(dr_fname, dr_substitutions):
                 aperture_index=aperture_index,
                 **dr_substitutions,
             ):
+                print(f'No aperture photometry for aperture {aperture_index}')
                 break
             dr_file.delete_dataset(
                 "apphot.magfit.magnitude",

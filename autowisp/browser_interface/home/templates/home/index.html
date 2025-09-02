@@ -1,0 +1,58 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}
+AutoWISP Projects
+{% endblock header_title %}
+
+{% block app_title %}
+Projects
+{% endblock app_title %}
+
+{% block processing_link %}
+{% endblock processing_link %}
+
+{% block configuration_link %}
+{% endblock configuration_link %}
+
+{% block edit_survey_link %}
+{% endblock edit_survey_link %}
+
+{% block review_results_link %}
+{% endblock review_results_link %}
+
+{% block home_link %}
+{% endblock home_link %}
+
+{% block left_menu %}
+<a href="{% url 'home:new_project' %}">
+    <div class="lcars-element 
+                button 
+                lcars-melrose-bg
+                lcars-u-1-2">
+        New Project
+    </div>
+</a>
+{% endblock %}
+
+{% block main %}
+<table class="lcars-table standard-header">
+    <thead>
+        <tr>
+            {% for col in columns %}
+            <th>{{ col|title }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody class="lcars-table select-row">
+        {% for project_id, project_data in projects.items %}
+        {% url 'home:select_project' project_id=project_id as project_url %}
+        <tr onclick="window.location='{{ project_url }}'">
+            {% for value in project_data %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock main %}

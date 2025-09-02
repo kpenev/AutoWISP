@@ -1,0 +1,142 @@
+a {
+    color: inherit;
+}
+
+.survey-container {
+    display: grid;
+    background-color: #2196F3;
+    padding: 10px;
+    column-gap: 30px;
+}
+
+.survey-component {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    text-align: center;
+    vertical-align: top;
+    margin: 0 auto;
+    width: 100%
+}
+
+.survey-component-table {
+    margin: 0 auto
+}
+
+.survey-item {
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.selected {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+}
+
+.survey-item:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.survey-add-button {
+    width:100%;
+    height:60px;
+}
+
+.survey-del-button {
+    background-color: orange
+}
+
+.survey-component-table {
+    text-align: center;
+}
+
+.access-button {
+    width:100%; 
+}
+
+.survey-edit-button {
+    width:100%
+}
+
+.camera-channels input {
+    background-color: #234;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.survey-class-bubble {
+    table-layout: fixed;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.survey-class-bubble th {
+    box-sizing: border-box;
+    table-layout: auto;
+}
+
+.survey-class-bubble * {
+    padding: 0;
+    margin: 0;
+}
+
+.survey-class-bubble .lcars-bar {
+}
+
+.survey-class-bubble th {
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.survey-class-bubble tfoot td {
+    vertical-align: bottom;
+}
+
+.survey-class-bubble tfoot * {
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.survey-class-bubble .bubble-name {
+    white-space: nowrap;
+}
+
+col.bubble-name {
+    white-space: nowrap;
+    float: left;
+}
+
+col.attr-column {
+    float: right;
+}
+
+.bubble-name .right-end {
+    min-width: 0;
+}
+
+.survey-class-bubble .left-menu {
+    width: 9.5rem;
+}
+
+.survey-class-bubble tr {
+    height:1px;
+}
+
+.survey-class-bubble tbody tr:hover {
+    background-color: #333;
+}
+
+.survey-class-bubble tbody tr:hover *:not(.button) {
+    background-color: #333;
+}
+
+.survey-class-bubble td.left-menu {
+    height:100%;
+}
+
+.survey-class-bubble .left-menu .button {
+    height:100%;
+}

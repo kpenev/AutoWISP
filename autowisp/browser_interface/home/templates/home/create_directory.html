@@ -1,0 +1,23 @@
+{% extends 'home/select_project_home.html' %}
+{% load static %}
+
+{% block main %}
+<form id="create-dir-form" method="post">
+    {% csrf_token %}
+    <input type="submit" form="create-dir-form" style="visibility: hidden;"/>
+    <input type="hidden" 
+           name="currentdir"
+           value="{{parent_dir_list|last|first}}">
+</form>
+
+{{ block.super }}
+{% endblock main %}
+
+
+{% block selectable_entries_begin %}
+<input type="text" 
+       form="create-dir-form" 
+       id="create-dir" 
+       name="create-dir" 
+       autofocus/>
+{% endblock selectable_entries_begin %}

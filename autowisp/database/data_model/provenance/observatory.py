@@ -40,3 +40,13 @@ class Observatory(DataModelBase):
         """Human readable identifier for the observatory."""
 
         return f"{self.name} (lat={self.latitude}, lon={self.longitude})"
+
+    def to_dict(self):
+        """Return dict representation of the observatory."""
+
+        return {
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "altitude": self.altitude,
+            "name": self.name,
+        }

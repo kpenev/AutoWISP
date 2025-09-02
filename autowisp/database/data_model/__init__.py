@@ -33,6 +33,7 @@ def import_table_definitions():
         # Pylint false positive
         # pylint: disable=cell-var-from-loop
         def is_table(mod_attr):
+            print('Checking', mod_attr)
             return (
                 mod_attr[0] != "_"
                 and mod_attr != "DataModelBase"

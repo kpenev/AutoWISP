@@ -1,0 +1,121 @@
+{% load custom_filters %}
+<div class="lcars-column" style="width:100%; margin: 0; padding:0;">
+    {% if component == selected_component and selected_id %}
+    {% url 'configuration:update_survey_component' component_type=component component_id=selected_id as update_url %}
+    <form action="{{update_url}}" method="post">
+        {% csrf_token %}
+        {% endif %}
+
+        <table class="survey-class-bubble">
+            <colgroup>
+                <col class="left-menu"/>
+                <col span="{{ attribute_list|length }}" class="attr-column"/>
+                <col class="bubble-name"/>
+            </colgroup>
+            {% if component == "observatory" %}
+            {% include "./survey_class_entries.html" with title='Observatories' %}
+            {% else %}
+            {% include "./survey_class_entries.html" with title=component|add:'s' %}
+            {% endif %}
+        </table>
+
+    {% if component == selected_component and selected_id %}
+    </form>
+    {% endif %}
+
+    {% if component == selected_component and selected_type_id %}
+    {% url 'configuration:update_survey_component_type' component_type=component type_id=selected_type_id as update_url %}
+    <form action="{{update_url}}" method="post">
+    {% csrf_token %}
+    {% endif %}
+
+    {% with attributes=type_attributes|get_key:component %}
+    <table class="survey-class-bubble">
+        <colgroup>
+            <col class="left-menu"/>
+            <col span="{{ attributes|length }}" class="attr-column"/>
+        </colgroup>
+        {% if type_attributes|get_key:component %}
+        {% include "./survey_class_entries.html" with attribute_list=attributes track_access=0 title="types" item_list=types selected_id=selected_type_id track_access=0 is_type=1 %}
+        {% endif %}
+    </table>
+    {% endwith %}
+
+    {% comment %}
+    <div class="lcars-row" style="width:100%;">
+        <div class="lcars-column"> 
+            {% if type_attributes|get_key:component %}
+            <div class="lcars-bar horizontal top lcars-red-damask-bg">
+            </div>
+            {% for type_entry in types %}
+            {% if component == selected_component and type_entry.id == selected_type_id %}
+            <input type="submit"
+                   name="todo" 
+                   value="Update"
+                   class="lcars-element button lcars-orange-peel-bg"/>
+
+            {% else %}
+            {% url 'configuration:survey' selected_component=component selected_type_id=type_entry.id as select_url %}
+            {% if type_entry.can_delete %}
+            <a href="{% url 'configuration:delete_from_survey' component_type=component component_type_id=type_entry.id %}">
+                <div class="lcars-element button lcars-red-alert-bg"> 
+                    Delete
+                </div>
+            </a>
+            {% else %}
+            <a href="{{select_url}}">
+                {% if type_entry.id < 0 %}
+                <div class="lcars-element lcars-husk-bg">
+                    New Type
+                </div>
+                {% else %}
+                <div class="lcars-element lcars-red-damask-bg">
+                    Can't delete has {{component}}s
+                </div>
+                {% endif %}
+            </a>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            <!-- ELBOW -->
+            <div class="lcars-elbow left-top lcars-red-damask-bg"></div>
+        </div>
+
+
+        <div class="lcars-column" style="width: 100%; position: relative"> 
+
+            {% if type_attributes|get_key:component %}
+            <div class="lcars-row" style="width: 100%">
+                {% include "./survey_class_entries.html" with attribute_list=type_attributes|get_key:component track_access=0 title="types" item_list=types selected_id=selected_type_id track_access=0 is_type=1 %}
+
+            </div>
+            {% endif %}
+
+            <div class="lcars-row" style="position: absolute; bottom:0">
+                <!-- BAR -->
+                <div class="lcars-bar 
+                                 horizontal 
+                                 both-divider 
+                                 bottom 
+                                 lcars-red-damask-bg">
+                </div>
+                <!-- ROUNDED EDGE -->
+                <div class="lcars-bar 
+                                 horizontal 
+                                 right-end 
+                                 left-divider 
+                                 bottom
+                                 lcars-red-damask-bg">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% endcomment %}
+    {% if component == selected_component and selected_type_id %}
+    </form>
+    {% endif %}
+
+    <!-- FOOTER -->
+</div>

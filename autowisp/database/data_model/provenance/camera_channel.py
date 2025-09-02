@@ -17,7 +17,7 @@ class CameraChannel(DataModelBase):
 
     camera_type_id = Column(
         Integer,
-        ForeignKey("camera_type.id"),
+        ForeignKey("camera_type.id", onupdate="CASCADE", ondelete="RESTRICT"),
         doc="The camera type to which this channel belongs.",
     )
     name = Column(String(10), doc="A label to assign to the channel.")
@@ -56,3 +56,15 @@ class CameraChannel(DataModelBase):
             f"{self.x_offset}, {self.x_step}; "
             f"{self.y_offset}, {self.y_step})"
         )
+
+    def to_dict(self):
+        """Return dict representation of the channel."""
+
+        return {
+            self.name: {
+                "x offset": self.x_offset,
+                "x step": self.x_step,
+                "y offset": self.y_offset,
+                "y step": self.y_step,
+            }
+        }

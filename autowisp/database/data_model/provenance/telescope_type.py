@@ -39,3 +39,15 @@ class TelescopeType(DataModelBase):
     )
 
     telescopes = relationship("Telescope", back_populates="telescope_type")
+
+    def to_dict(self):
+        """Return dict representation of the telescope type."""
+
+        return {
+            "make": self.make,
+            "model": self.model,
+            "version": self.version,
+            "focal ratio": self.f_ratio,
+            "focal length": self.focal_length,
+            "notes": self.notes,
+        }
