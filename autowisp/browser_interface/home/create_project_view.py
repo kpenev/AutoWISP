@@ -141,7 +141,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
+                        "{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
                     ),
                 )
             ],
@@ -151,7 +151,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
+                        "{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
                     ),
                 )
             ],
@@ -161,7 +161,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "MASTERS",
-                        "low{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
+                        "low{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
                     ),
                 )
             ],

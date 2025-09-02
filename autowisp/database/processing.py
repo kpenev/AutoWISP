@@ -356,6 +356,20 @@ class ProcessingManager(ABC):
 
         return evaluated_expressions
 
+    @staticmethod
+    def _get_extra_header(db_image):
+        """Return the kewyords to auto-add to FITS headers at calibration."""
+
+        obs_session = db_image.observing_session
+        return {
+            "IMAGETYP": db_image.image_type.name,
+            "OBSSSNID": obs_session.label,
+            "TARGETID": obs_session.target.name,
+            "OBSERVER": obs_session.observer.name,
+            "CAMERAID": obs_session.camera.serial_number,
+            "TELSCPID": obs_session.telescope.serial_number,
+        }
+
     def get_matched_expressions(self, evaluate):
         """Return set of matching expressions given an evaluator for image."""
 
@@ -399,11 +413,7 @@ class ProcessingManager(ABC):
 
         self._logger.debug("Evaluating expressions for: %s", repr(image))
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
-        evaluate.symtable.update(
-            IMAGETYP=image.image_type.name,
-            OBS_SESN=image.observing_session.label,
-            TARGETID=image.observing_session.target.name,
-        )
+        evaluate.symtable.update(self._get_extra_header(image))
         self._logger.debug(
             "Matched expressions: %s",
             repr(self.get_matched_expressions(evaluate)),

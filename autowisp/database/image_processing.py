@@ -241,15 +241,7 @@ class ImageProcessingManager(ProcessingManager):
         """Retrun the specially formatted argument for the calibration step."""
 
         config["split_channels"] = self._get_split_channels(first_image)
-        obs_session = first_image.observing_session
-        config["extra_header"] = {
-            "OBS-SESN": obs_session.label,
-            "TARGETID": obs_session.target.name,
-            "IMAGETYP": first_image.image_type.name,
-            "OBSERVER": obs_session.observer.name,
-            "CAMERAID": obs_session.camera.serial_number,
-            "TELSCPID": obs_session.telescope.serial_number,
-        }
+        config["extra_header"] = self._get_extra_header(first_image)
         result = {
             (
                 "split_channels",
@@ -258,7 +250,7 @@ class ImageProcessingManager(ProcessingManager):
                     for c in first_image.observing_session.camera.channels
                 ),
             ),
-            ("observing_session", config["extra_header"]["OBS-SESN"]),
+            ("observing_session", config["extra_header"]["OBSSSNID"]),
         }
         self._logger.debug(
             "Calibration step configuration:\n%s",
