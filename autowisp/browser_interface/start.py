@@ -1,0 +1,43 @@
+"""Start django server wait to initialize and open in browser."""
+
+import subprocess
+import time
+import sys
+from http.client import HTTPConnection
+import webbrowser
+
+
+def wait_for_server(hostname, port):
+    """Waits for the Django server to respond to requests."""
+
+    url = f"http://{hostname}:{port}"
+
+    while True:
+        conn = None
+        try:
+            conn = HTTPConnection(hostname, port, timeout=1)
+            conn.request("HEAD", "/")
+            response = conn.getresponse()
+            if 200 <= response.status < 400:
+                print(f"Server is ready at {url}")
+                return
+        except Exception:  # pylint: disable=broad-exception-caught
+            time.sleep(0.5)
+        finally:
+            if conn:
+                conn.close()
+
+
+def start_server(port, hostname="localhost"):
+    """Starts the Django development server."""
+
+    cmd = ["python3", "manage.py", "runserver", f"{port}"]
+    print(f"Starting server with command: {' '.join(cmd)}")
+    with subprocess.Popen(cmd) as server_cmd:
+        wait_for_server(hostname, port)
+        webbrowser.open_new_tab(f"http://{hostname}:{port}")
+        server_cmd.wait()
+
+
+if __name__ == "__main__":
+    start_server(int(sys.argv[1]))
