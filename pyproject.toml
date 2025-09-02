@@ -58,6 +58,7 @@ dependencies = [
     'scipy',
     'sqlalchemy',
     'zarr',
+    'platformdirs',
 ]
 
 description = 'Pipeline for extracting photometry from wide-field night sky images'

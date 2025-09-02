@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Start django server wait to initialize and open in browser."""
 
 import subprocess
@@ -5,6 +6,9 @@ import time
 import sys
 from http.client import HTTPConnection
 import webbrowser
+from os import path, makedirs
+
+from autowisp.browser_interface.django_project import settings
 
 
 def wait_for_server(hostname, port):
@@ -31,7 +35,12 @@ def wait_for_server(hostname, port):
 def start_server(port, hostname="localhost"):
     """Starts the Django development server."""
 
-    cmd = ["python3", "manage.py", "runserver", f"{port}"]
+    cmd = ["python3", path.join(path.dirname(__file__), "manage.py")]
+    if not path.exists(str(settings.BASE_DIR)):
+        makedirs(str(settings.BASE_DIR))
+    subprocess.run(cmd + ['migrate'], check=True)
+
+    cmd.extend(["runserver", f"{port}"])
     print(f"Starting server with command: {' '.join(cmd)}")
     with subprocess.Popen(cmd) as server_cmd:
         wait_for_server(hostname, port)
