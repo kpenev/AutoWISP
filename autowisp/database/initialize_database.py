@@ -127,7 +127,7 @@ master_info = {
     },
     "lightcurve_catalog": {
         "must_match": frozenset(("FIELD", "CLRCHNL", "EXPTIME")),
-        "config_name": "lightcurve-catalog-fname",
+        "config_name": "detrending-catalog",
         "created_by": ("create_lightcurves", "object"),
         "split_by": frozenset(),
         "used_by": [
@@ -141,7 +141,7 @@ master_info = {
     "epd_stat": {
         "must_match": frozenset(("FIELD", "CLRCHNL", "EXPTIME")),
         "config_name": "epd-statistics-fname",
-        "created_by": ("epd", "object"),
+        "created_by": ("generate_epd_statistics", "object"),
         "split_by": frozenset(),
         "used_by": [("tfa", "object", False)],
         "description": "The statistics file showing the performance after EPD.",
@@ -149,7 +149,7 @@ master_info = {
     "tfa_stat": {
         "must_match": frozenset(("FIELD", "CLRCHNL", "EXPTIME")),
         "config_name": "tfa-statistics-fname",
-        "created_by": ("tfa", "object"),
+        "created_by": ("generate_tfa_statistics", "object"),
         "split_by": frozenset(),
         "used_by": [],
         "description": "The statistics file showing the performance after TFA.",

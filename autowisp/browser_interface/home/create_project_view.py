@@ -131,8 +131,7 @@ class CreateProjectView(WalkFSView):
                     os.path.join(
                         root_dir,
                         "LOGS",
-                        "{processing_step:s}_{task:s}_{now:s}"
-                        "_pid{pid:d}.outerr",
+                        "{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log",
                     ),
                 )
             ],
@@ -163,6 +162,26 @@ class CreateProjectView(WalkFSView):
                         root_dir,
                         "MASTERS",
                         "low{IMAGETYP}_{OBS-SESN}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ],
+            "epd-statistics-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "mphotref_{TARGETID}_{CLRCHNL}_{EXPTIME}sec.txt",
+                    ),
+                )
+            ],
+            "tfa-statistics-fname": [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "mphotref_{TARGETID}_{CLRCHNL}_{EXPTIME}sec.txt",
                     ),
                 )
             ],

@@ -359,6 +359,7 @@ def clean_dr(dr_fname, dr_substitutions):
                 aperture_index=aperture_index,
                 **dr_substitutions,
             ):
+                print(f'No aperture photometry for aperture {aperture_index}')
                 break
             dr_file.delete_dataset(
                 "apphot.magfit.magnitude",

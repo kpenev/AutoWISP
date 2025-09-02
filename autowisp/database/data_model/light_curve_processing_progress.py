@@ -36,11 +36,6 @@ class LightCurveProcessingProgress(DataModelBase):
     configuration_version = Column(
         Integer, nullable=False, doc="config version of image"
     )
-    process_id = Column(
-        Integer,
-        nullable=False,
-        doc="Identifier of the process performing this calibration step",
-    )
     started = Column(
         TIMESTAMP, nullable=True, doc="The time processing started"
     )

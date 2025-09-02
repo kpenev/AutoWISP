@@ -825,6 +825,7 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_path in self:
             self._add_repack_dataset(dataset_path)
+            print(f'Deleting {dataset_path} from {self.filename}')
             del self[dataset_path]
             return True
 
