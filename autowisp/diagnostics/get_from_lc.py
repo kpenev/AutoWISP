@@ -106,6 +106,7 @@ def set_substitutions(
                 + lightcurve.get_num_magfit_iterations(
                     photometry_mode,
                     lc_eval.lc_points_selection,
+                    aperture_index=0,
                     **lc_eval.lc_substitutions,
                 )
             }

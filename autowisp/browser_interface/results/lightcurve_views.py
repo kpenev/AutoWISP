@@ -476,6 +476,8 @@ def _update_plotting_info(plotting_session, updates):
 def update_lightcurve_figure(request):
     """Generate and return a new figure for the current lightcurve."""
 
+    print(f"LC plotting session:\n{request.session['lc_plotting']}")
+    print(f"Updates: {request.body.decode()}")
     request.session.modified = _update_plotting_info(
         request.session["lc_plotting"], json.loads(request.body.decode())
     )
