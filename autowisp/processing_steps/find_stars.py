@@ -13,7 +13,8 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
-from autowisp import SourceFinder, DataReductionFile, init_autowisp_process
+from autowisp.multiprocessing_util import init_autowisp_process
+from autowisp import SourceFinder, DataReductionFile
 
 input_type = "calibrated + dr"
 

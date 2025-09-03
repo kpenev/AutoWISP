@@ -10,7 +10,7 @@ import numpy
 import h5py
 import pandas
 
-from autowisp.multiprocessing_util import setup_process_map
+# from autowisp.multiprocessing_util import setup_process_map
 from autowisp.hat.file_parsers import parse_anmatch_transformation
 from autowisp.miscellaneous import RECOGNIZED_HAT_ID_PREFIXES
 

@@ -174,9 +174,9 @@ def setup_process_map(config):
 def init_autowisp_process(configuration):
     """All multiprocessing in AutoWISP should call this function as init."""
 
+    setup_process_map(configuration)
     set_sqlite_database(get_sqlite_fname())
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
-    setup_process_map(configuration)
 
 
 if __name__ == "__main__":
