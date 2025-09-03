@@ -9,6 +9,9 @@ from glob import glob
 import inspect
 import sys
 
+from autowisp.database.interface import get_sqlite_fname, set_sqlite_database
+from autowisp.data_reduction import DataReductionFile
+
 try:
     import git
 except ImportError:
@@ -140,7 +143,7 @@ def setup_process(**config):
     logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
     if std_out_err_fname is not None:
         ensure_directory(std_out_err_fname)
-        sys.stdout = open(std_out_err_fname, "w", encoding="utf-8")
+        sys.stdout = open(std_out_err_fname, "w", encoding="utf-8") #pylint: disable=consider-using-with
         sys.stderr = sys.stdout
 
     ensure_directory(logging_fname)
@@ -166,6 +169,14 @@ def setup_process_map(config):
     """Like `setup_process`, but more convenient for `multiprocessing.Pool`."""
 
     setup_process(**config)
+
+
+def init_autowisp_process(configuration):
+    """All multiprocessing in AutoWISP should call this function as init."""
+
+    set_sqlite_database(get_sqlite_fname())
+    DataReductionFile.fname_template = configuration["data_reduction_fname"]
+    setup_process_map(configuration)
 
 
 if __name__ == "__main__":

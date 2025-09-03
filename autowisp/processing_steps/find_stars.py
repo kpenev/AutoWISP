@@ -13,7 +13,7 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
-from autowisp import SourceFinder, DataReductionFile, init_dr_process
+from autowisp import SourceFinder, DataReductionFile, init_autowisp_process
 
 input_type = "calibrated + dr"
 
@@ -115,7 +115,7 @@ def find_stars(
         configuration["parent_pid"] = getpid()
         with Pool(
             configuration["num_parallel_processes"],
-            initializer=init_dr_process,
+            initializer=init_autowisp_process,
             initargs=(configuration,),
         ) as pool:
             pool.map(

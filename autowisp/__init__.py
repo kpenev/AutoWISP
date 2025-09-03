@@ -11,6 +11,7 @@ try:
     from autowisp.light_curves.tfa_correction import TFACorrection
     from autowisp.source_finder import SourceFinder
     from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
+    from autowisp.multiprocessing_util import init_autowisp_process
 
     # pylint: disable=bare-except
 except:
