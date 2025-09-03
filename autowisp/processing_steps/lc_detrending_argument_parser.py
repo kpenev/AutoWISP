@@ -419,6 +419,12 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "contains at least this many sources. By default, no splitting by "
             "magnitude is done.",
         )
+        parser.add_argument(
+            "--ignore-missing-epd-lcs",
+            action="store_true",
+            default=False,
+            help="Ignore light curve files missing the required EPD dataset. Default: %(default)s",
+        )
 
     def __init__(
         self,
