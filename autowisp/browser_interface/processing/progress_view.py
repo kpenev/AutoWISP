@@ -3,6 +3,7 @@
 import logging
 from socket import getfqdn
 import os
+from datetime import datetime
 
 from sqlalchemy import select, sql
 from psutil import pid_exists
@@ -26,11 +27,23 @@ from .log_views import datetime_fmt
 logger = logging.getLogger(__name__)
 
 
-def progress(request):
+def progress(request, await_start=-1):
     """Display the current processing progress."""
 
-    assert "project_db_path" in request.session, "No project selected"
-    context = {"running": False, "refresh_seconds": 0}
+    print(f"Generating progress page with await start: {await_start}")
+    context = {"await_start": await_start + 1}
+    if 0 <= await_start < 10:
+        context = {
+            "await_start": await_start + 1,
+            "running": True,
+            "refresh_seconds": 6,
+        }
+    else:
+        context = {
+            "await_start": -1,
+            "running": False,
+            "refresh_seconds": 0,
+        }
     with start_db_session() as db_session:
         context["channels"] = sorted(list_channels(db_session))
         channel_index = {
@@ -86,9 +99,11 @@ def progress(request):
         for check_running in db_session.scalars(
             select(PipelineRun).filter_by(finished=None, host=getfqdn())
         ).all():
+            elapsed_time = datetime.now() - check_running.started
             if (
                 pid_exists(check_running.process_id)
                 and check_running.process_id != os.getpid()
+                or (elapsed_time.days < 0 and elapsed_time.seconds <= 60)
             ):
                 logger.info(
                     "Calibration process with ID %s still exists.",
@@ -96,6 +111,7 @@ def progress(request):
                 )
                 context["running"] = True
                 context["refresh_seconds"] = 5
+                context["await_start"] = -1
             else:
                 logger.info("Marking %s as finished", check_running)
                 check_running.finished = (

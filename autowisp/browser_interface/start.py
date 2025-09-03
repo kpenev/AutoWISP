@@ -35,7 +35,7 @@ def wait_for_server(hostname, port):
 def start_server(port, hostname="localhost"):
     """Starts the Django development server."""
 
-    cmd = ["python3", path.join(path.dirname(__file__), "manage.py")]
+    cmd = [sys.executable, path.join(path.dirname(__file__), "manage.py")]
     if not path.exists(str(settings.BASE_DIR)):
         makedirs(str(settings.BASE_DIR))
     subprocess.run(cmd + ['migrate'], check=True)

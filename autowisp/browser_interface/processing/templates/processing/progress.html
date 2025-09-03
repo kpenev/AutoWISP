@@ -6,9 +6,6 @@ AutoWISP Reductions Progress
 {% endblock header_title %}
 
 {% block extra_head %}
-{% if refresh_seconds %}
-<meta http-equiv="refresh" content="{{refresh_seconds}}">
-{% endif %}
 <link rel="stylesheet" 
       href="{% static 'processing/css/jquery.orgchart.css' %}">
 <link rel="stylesheet" 
@@ -29,12 +26,26 @@ Processing Progress
 {% endblock app_title %}
 
 {% block left_menu %}
-{% if not running %}
-<a href="{% url 'processing:start_processing' %}">
+{% if running %}
+{% if await_start >= 0 %}
+<div class="lcars-element 
+            lcars-golden-tanoi-bg
+            lcars-u-1-1">
+    Waiting to start {{ await_start }}
+</div>
+{% else %}
+<div class="lcars-element 
+            lcars-golden-tanoi-bg
+            lcars-u-1-1">
+    Processing
+</div>
+{% endif %}
+{% else %}
+<a href="{% url 'processing:start_processing'%}">
     <div class="lcars-element 
                               button 
                               lcars-melrose-bg
-                              lcars-u-1">
+                              lcars-u-1-1">
         Start Processing
     </div>
 </a>
@@ -51,6 +62,7 @@ Processing Progress
 {% endblock left_menu %}
 
 {% block main %}
+
 <table class="lcars-table standard-header">
     <thead>
         <tr>
@@ -175,3 +187,17 @@ Processing Progress
 </table>
 {% endblock main %}
 
+{% block scripts %}
+{% if refresh_seconds %}
+{% if await_start >= 0 %}
+{% url 'processing:progress' await_start=await_start as refresh_url%}
+{% else %}
+{% url 'processing:progress' as refresh_url%}
+{% endif %}
+<script>
+    setTimeout(function(){
+        window.location.href = "{{ refresh_url }}";
+    }, {{ refresh_seconds }}000);
+</script>
+{% endif %}
+{% endblock %}

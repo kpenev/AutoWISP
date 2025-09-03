@@ -2,9 +2,9 @@
 
 from subprocess import Popen
 from sys import executable  # Import the Python interpreter path
+from time import sleep
 
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import redirect
 
 # from django.contrib import messages
 # from django.template import loader
@@ -42,6 +42,7 @@ from .display_fits_util import update_fits_display
 def start_processing(request):
     """Run the pipeline to complete any pending processing tasks."""
 
+    print('Starting')
     # We don't want processing to stop when this goes out of scope.
     # pylint: disable=consider-using-with
     Popen(
@@ -53,5 +54,6 @@ def start_processing(request):
         start_new_session=True,
         encoding="ascii",
     )
+    print('Started')
     # pylint: enable=consider-using-with
-    return HttpResponseRedirect(reverse("processing:progress"))
+    return redirect("processing:progress", await_start=0)
