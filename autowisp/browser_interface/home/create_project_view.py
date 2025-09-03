@@ -4,6 +4,7 @@ import os
 from argparse import Namespace
 import re
 import json
+import copy
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
@@ -47,6 +48,9 @@ class CreateProjectView(WalkFSView):
     db_fname = "autowisp.db"
     """The base filename of the SQLite database tracking all projects."""
 
+    _orig_step_dependencies = copy.deepcopy(step_dependencies)
+    _orig_master_info = copy.deepcopy(master_info)
+
     def _get_context(self, config, search_dir):
         """Return the context required by the home selection template."""
 
@@ -66,7 +70,7 @@ class CreateProjectView(WalkFSView):
         return context
 
     @staticmethod
-    def _get_path_overwrites(root_dir):
+    def _get_path_overwrites(root_dir, config):
         """Return the config overwrites to place outputs under given root."""
 
         result = {
@@ -135,36 +139,6 @@ class CreateProjectView(WalkFSView):
                     ),
                 )
             ],
-            "stacked-master-fname": [
-                (
-                    None,
-                    os.path.join(
-                        root_dir,
-                        "MASTERS",
-                        "{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
-                    ),
-                )
-            ],
-            "high-flat-master-fname": [
-                (
-                    None,
-                    os.path.join(
-                        root_dir,
-                        "MASTERS",
-                        "{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
-                    ),
-                )
-            ],
-            "low-flat-master-fname": [
-                (
-                    None,
-                    os.path.join(
-                        root_dir,
-                        "MASTERS",
-                        "low{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
-                    ),
-                )
-            ],
             "epd-statistics-fname": [
                 (
                     None,
@@ -186,6 +160,42 @@ class CreateProjectView(WalkFSView):
                 )
             ],
         }
+
+        if int(config["master-zero-enabled"]) or int(
+            config["master-dark-enabled"]
+        ):
+            result["stacked-master-fname"] = [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ]
+
+        if int(config["master-flat-enabled"]):
+            result["high-flat-master-fname"] = [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ]
+            result["low-flat-master-fname"] = [
+                (
+                    None,
+                    os.path.join(
+                        root_dir,
+                        "MASTERS",
+                        "low{IMAGETYP}_{OBSSSNID}_{CLRCHNL}.fits.fz",
+                    ),
+                )
+            ]
 
         for cat_type in ["astrometry", "photometry", "magfit"]:
             result[f"{cat_type}-catalog"] = [
@@ -286,11 +296,19 @@ class CreateProjectView(WalkFSView):
         for line in config["custom-config"].splitlines():
             parsed = config_rex.match(line)
             overwrites[parsed.group("key")] = [(None, parsed.group("value"))]
-        overwrites.update(self._get_path_overwrites(proj.path))
+        overwrites.update(self._get_path_overwrites(proj.path, config))
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
             overwrites,
         )
+
+        # pylint: disable=global-statement
+        global step_dependencies
+        global master_info
+        # pylint: enable=global-statement
+
+        step_dependencies = copy.deepcopy(self._orig_step_dependencies)
+        master_info = copy.deepcopy(self._orig_step_dependencies)
 
     def _save_form(self, request):
         """Save the current state of the form to the session."""

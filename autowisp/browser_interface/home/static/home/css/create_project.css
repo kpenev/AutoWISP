@@ -64,7 +64,7 @@ label.project-text-input {
     align-content: center;
 }
 
-#create-project table, tbody {
+#create-project table {
     table-layout: auto; 
     border-collapse: collapse;
     width: 100%;
@@ -148,4 +148,8 @@ tr.masters > td:first-child > label {
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
+}
+
+.master-config {
+    height: 100%;
 }
