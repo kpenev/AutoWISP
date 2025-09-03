@@ -1,6 +1,5 @@
 """Define base class for processing images or lightcurves."""
 
-from abc import ABC, abstractmethod
 import logging
 import os
 from os import path
@@ -56,7 +55,7 @@ class ProcessingInProgress(Exception):
 
 
 # pylint: disable=too-many-instance-attributes
-class ProcessingManager(ABC):
+class ProcessingManager:
     """
     Utilities for automated processing of images or lightcurves.
 
@@ -529,9 +528,12 @@ class ProcessingManager(ABC):
         db_session.add(self._current_processing)
         db_session.flush()
 
-    @abstractmethod
     def _cleanup_interrupted(self, db_session):
         """Cleanup previously interrupted processing for the current step."""
+
+        raise RuntimeError(
+            "Cleanup is not defined for ProcessingManager base class"
+        )
 
     def _get_split_channels(self, image):
         """Return the ``split_channels`` option for the given image."""
@@ -698,7 +700,6 @@ class ProcessingManager(ABC):
                     config_key,
                 )
 
-    @abstractmethod
     def set_pending(self, db_session):
         """
         Set the unprocessed images and channels split by step and image type.
@@ -711,6 +712,11 @@ class ProcessingManager(ABC):
                 The images and channels of the specified type for which the
                 specified step has not applied with the current configuration.
         """
+
+        raise RuntimeError(
+            "Setting pending is not defined for ProcessingManager base class"
+        )
+
 
     def add_masters(self, new_masters, step_name=None, image_type_name=None):
         """
@@ -841,9 +847,13 @@ class ProcessingManager(ABC):
                     db_session=db_session,
                 )
 
-    @abstractmethod
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
+
+        raise RuntimeError(
+            "Calling instance of ProcessingManager base class!"
+        )
+
 
     # pylint: enable=too-many-locals
     # pylint: enable=too-many-branches

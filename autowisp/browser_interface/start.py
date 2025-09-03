@@ -6,7 +6,7 @@ import time
 import sys
 from http.client import HTTPConnection
 import webbrowser
-from os import path, makedirs
+import os
 
 from autowisp.browser_interface.django_project import settings
 
@@ -35,10 +35,8 @@ def wait_for_server(hostname, port):
 def start_server(port, hostname="localhost"):
     """Starts the Django development server."""
 
-    cmd = [sys.executable, path.join(path.dirname(__file__), "manage.py")]
-    if not path.exists(str(settings.BASE_DIR)):
-        makedirs(str(settings.BASE_DIR))
-    subprocess.run(cmd + ['migrate'], check=True)
+    cmd = [sys.executable, os.path.join(os.path.dirname(__file__), "manage.py")]
+    subprocess.run(cmd + ["migrate"], check=True)
 
     cmd.extend(["runserver", f"{port}"])
     print(f"Starting server with command: {' '.join(cmd)}")
@@ -49,4 +47,13 @@ def start_server(port, hostname="localhost"):
 
 
 if __name__ == "__main__":
-    start_server(int(sys.argv[1]))
+    if not os.path.exists(str(settings.BASE_DIR)):
+        os.makedirs(str(settings.BASE_DIR))
+    with open(
+        str(settings.BASE_DIR / "bui.out"), "w", encoding="utf-8"
+    ) as outf, open(
+        str(settings.BASE_DIR / "bui.err"), "w", encoding="utf-8"
+    ) as errf:
+        sys.stdout = outf
+        sys.stderr = errf
+        start_server(int(sys.argv[1]))

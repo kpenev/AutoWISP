@@ -92,11 +92,11 @@ def get_log_outerr_filenames(existing_pid=False, **config):
     return result
 
 
-def setup_process(db_fname, **config):
+def setup_process_map(db_fname, config):
     """
     Logging and I/O setup for the current processes.
 
-    Args (keyword only):
+    KWArgs:
         std_out_err_fname(str):    Format string for the standard output/error
             file name with substitutions including any keyword arguments passed
             to this function, ``now`` which gets replaced by current date/time,
@@ -169,10 +169,10 @@ def setup_process(db_fname, **config):
     logging.basicConfig(**logging_config)
 
 
-def setup_process_map(db_fname, config):
+def setup_process(db_fname, **config):
     """Like `setup_process`, but more convenient for `multiprocessing.Pool`."""
 
-    setup_process(db_fname, **config)
+    setup_process_map(db_fname, config)
 
 
 if __name__ == "__main__":
