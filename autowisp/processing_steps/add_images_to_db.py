@@ -10,6 +10,7 @@ from astropy.time import Time
 from astropy.coordinates import EarthLocation, SkyCoord
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.database.interface import get_sqlite_fname
 from autowisp import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
@@ -441,7 +442,7 @@ def add_images_to_db(image_collection, configuration):
 
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
-    setup_process(task="main", **cmdline_config)
+    setup_process(db_fname=get_sqlite_fname(), task="main", **cmdline_config)
     add_images_to_db(
         find_fits_fnames(cmdline_config.pop("raw_images")), cmdline_config
     )

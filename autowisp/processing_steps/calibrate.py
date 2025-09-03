@@ -10,6 +10,7 @@ from argparse import _StoreAction
 from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.database.interface import get_sqlite_fname
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.image_calibration import Calibrator, overscan_methods
 from autowisp.processing_steps.manual_util import (
@@ -322,7 +323,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(task="main", **cmdline_config)
+    setup_process(db_fname=get_sqlite_fname(), task="main", **cmdline_config)
     calibrate(
         find_fits_fnames(
             cmdline_config.pop("raw_images"),

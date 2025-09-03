@@ -3,6 +3,7 @@
 """Apply EPD correction to lightcurves."""
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.database.interface import get_sqlite_fname
 from autowisp import EPDCorrection
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
@@ -51,7 +52,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(task="manage", **cmdline_config)
+    setup_process(db_fname=get_sqlite_fname(), task="manage", **cmdline_config)
     epd(
         find_lc_fnames(cmdline_config.pop("lc_files")),
         0,

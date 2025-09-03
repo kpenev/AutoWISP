@@ -11,6 +11,7 @@ from os import getpid
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.database.interface import get_sqlite_fname
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -800,6 +801,7 @@ def solve_astrometry(
 
     web_lock = Lock()
     configuration["parent_pid"] = getpid()
+    configuration["db_fname"] = get_sqlite_fname()
     workers = [
         Process(
             target=astrometry_process,
@@ -875,7 +877,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(task="manage", **cmdline_config)
+    setup_process(db_fname=get_sqlite_fname(), task="manage", **cmdline_config)
 
     solve_astrometry(
         list(

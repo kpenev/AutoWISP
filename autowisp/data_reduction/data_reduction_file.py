@@ -10,7 +10,6 @@ import numpy
 import h5py
 import pandas
 
-# from autowisp.multiprocessing_util import setup_process_map
 from autowisp.hat.file_parsers import parse_anmatch_transformation
 from autowisp.miscellaneous import RECOGNIZED_HAT_ID_PREFIXES
 
@@ -19,13 +18,6 @@ from autowisp.database.hdf5_file_structure import HDF5FileDatabaseStructure
 git_id = "$Id$"
 
 # TODO: Add missed attributes: bg.cfg.annulus, bg.cfg.zero.
-
-
-def init_dr_process(configuration):
-    """Initialize the process with the given configuration."""
-
-    DataReductionFile.fname_template = configuration["data_reduction_fname"]
-    setup_process_map(configuration)
 
 
 # The class has to satisfy many needs, hence many public methods.

@@ -11,12 +11,12 @@ from contextlib import nullcontext
 import numpy
 import pandas
 
-from autowisp.multiprocessing_util import setup_process
+from autowisp.multiprocessing_util import setup_process, setup_process_map
+from autowisp.database.interface import get_sqlite_fname
 from autowisp import (
     Evaluator,
     PiecewiseBicubicPSFMap,
     DataReductionFile,
-    init_dr_process,
 )
 from autowisp.astrometry import Transformation
 from autowisp.file_utilities import find_fits_with_dr_fnames
@@ -769,8 +769,8 @@ def fit_star_shape(
         configuration["parent_pid"] = getpid()
         with Pool(
             processes=configuration["num_parallel_processes"],
-            initializer=init_dr_process,
-            initargs=(configuration,),
+            initializer=setup_process_map,
+            initargs=(get_sqlite_fname(), configuration),
             maxtasksperchild=1,
         ) as pool, Manager() as manager:
             catalog_lock = manager.Lock()
@@ -825,7 +825,7 @@ def main():
     """Run the step for fitting star shapes from the command line."""
 
     configuration = parse_command_line()
-    setup_process(task="manage", **configuration)
+    setup_process(db_fname=get_sqlite_fname(), task="manage", **configuration)
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     dr_path_substitutions = get_dr_substitutions(configuration)
     fit_star_shape(

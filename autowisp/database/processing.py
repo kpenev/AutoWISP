@@ -10,7 +10,7 @@ from sqlalchemy import sql, select
 from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import start_db_session
+from autowisp.database.interface import start_db_session, get_sqlite_fname
 from autowisp import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -619,6 +619,7 @@ class ProcessingManager(ABC):
 
             if pipeline_run_id is not None:
                 setup_process(
+                    db_fname=get_sqlite_fname(),
                     task="main",
                     parent_pid="",
                     processing_step="init_processing",

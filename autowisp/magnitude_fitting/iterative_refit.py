@@ -10,6 +10,7 @@ import numpy
 from astropy.io import fits
 
 from autowisp.multiprocessing_util import setup_process_map
+from autowisp.database.interface import get_sqlite_fname
 from autowisp import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import (
@@ -86,7 +87,7 @@ def single_iteration(
         with Pool(
             configuration.num_parallel_processes,
             initializer=setup_process_map,
-            initargs=(vars(configuration),),
+            initargs=(get_sqlite_fname(), vars(configuration)),
         ) as magfit_pool:
             if magfit_stat_collector is None:
                 magfit_pool.map(pool_magfit, fit_dr_filenames)

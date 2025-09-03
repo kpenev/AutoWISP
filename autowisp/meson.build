@@ -26,6 +26,7 @@ py.install_sources(
 )
 
 subdir('astrometry')
+subdir('browser_interface')
 subdir('data_reduction')
 subdir('database')
 subdir('diagnostics')

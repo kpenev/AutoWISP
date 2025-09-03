@@ -21,7 +21,9 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.processing_steps.fit_star_shape import add_image_options
 
-from autowisp import DataReductionFile, init_dr_process
+from autowisp import DataReductionFile
+from autowisp.database.interface import get_sqlite_fname
+from autowisp.multiprocessing_util import setup_process_map
 from autowisp.data_reduction.utils import (
     fill_aperture_photometry_input_tree,
     add_aperture_photometry,
@@ -185,8 +187,8 @@ def measure_aperture_photometry(
             processes=min(
                 configuration["num_parallel_processes"], len(image_collection)
             ),
-            initializer=init_dr_process,
-            initargs=(configuration,),
+            initializer=setup_process_map,
+            initargs=(get_sqlite_fname(), configuration),
             maxtasksperchild=1,
         ) as pool:
             pool.map(photometer_one, image_collection)
@@ -244,7 +246,7 @@ def main():
     cmdline_config = parse_command_line()
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
-    init_dr_process(cmdline_config)
+    setup_process_map(get_sqlite_fname(), cmdline_config)
     del cmdline_config["task"]
     measure_aperture_photometry(
         [

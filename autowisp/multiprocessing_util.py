@@ -9,7 +9,7 @@ from glob import glob
 import inspect
 import sys
 
-from autowisp.database.interface import get_sqlite_fname, set_sqlite_database
+from autowisp.database.interface import set_sqlite_database
 from autowisp.data_reduction import DataReductionFile
 
 try:
@@ -92,7 +92,7 @@ def get_log_outerr_filenames(existing_pid=False, **config):
     return result
 
 
-def setup_process(**config):
+def setup_process(db_fname, **config):
     """
     Logging and I/O setup for the current processes.
 
@@ -134,6 +134,10 @@ def setup_process(**config):
                 if not os.path.isdir(dirname):
                     raise
 
+    set_sqlite_database(db_fname)
+    if "data_reduction_fname" in config:
+        DataReductionFile.fname_template = config["data_reduction_fname"]
+
     for param, value in default_config.items():
         if param not in config and (
             param != "logging_verbosity" or "verbose" not in config
@@ -165,18 +169,10 @@ def setup_process(**config):
     logging.basicConfig(**logging_config)
 
 
-def setup_process_map(config):
+def setup_process_map(db_fname, config):
     """Like `setup_process`, but more convenient for `multiprocessing.Pool`."""
 
-    setup_process(**config)
-
-
-def init_autowisp_process(db_fname, configuration):
-    """All multiprocessing in AutoWISP should call this function as init."""
-
-    setup_process_map(configuration)
-    set_sqlite_database(db_fname)
-    DataReductionFile.fname_template = configuration["data_reduction_fname"]
+    setup_process(db_fname, **config)
 
 
 if __name__ == "__main__":

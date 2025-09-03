@@ -12,7 +12,7 @@ from autowisp.multiprocessing_util import (
     get_log_outerr_filenames,
 )
 from autowisp.database.processing import ProcessingManager
-from autowisp.database.interface import start_db_session
+from autowisp.database.interface import start_db_session, get_sqlite_fname
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -768,6 +768,7 @@ class ImageProcessingManager(ProcessingManager):
 
         with start_db_session() as db_session:
             setup_process(
+                db_fname=get_sqlite_fname(),
                 task="main",
                 parent_pid="",
                 processing_step=step.name,

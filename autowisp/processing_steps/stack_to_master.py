@@ -12,6 +12,7 @@ from astropy.io import fits
 from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.database.interface import get_sqlite_fname
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.master_maker import MasterMaker
 from autowisp.processing_steps.manual_util import (
@@ -226,7 +227,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(task="main", **cmdline_config)
+    setup_process(db_fname=get_sqlite_fname(), task="main", **cmdline_config)
     stack_to_master(
         list(find_fits_fnames(cmdline_config["calibrated_images"])),
         None,

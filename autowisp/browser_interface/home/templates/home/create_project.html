@@ -184,7 +184,11 @@ CREATE PROJECT
 
                             <tr class="master-row">
                                 <td>
+                                    {% if enabled == 'always' %}
+                                    <div 
+                                    {% else %}
                                     <label for="update-master-{{ master_type }}" 
+                                    {% endif %}
                                            class="master-label 
                                                   lcars-u-2
                                                   {% if enabled == 'always' %}
@@ -209,7 +213,11 @@ CREATE PROJECT
                                             {% endif %}
                                         {% endif %}
 
+                                    {% if enabled == 'always' %}
+                                    </div>
+                                    {% else %}
                                     </label>
+                                    {% endif %}
                                     <input type="hidden" 
                                            name="master-{{ master_type }}-enabled"
                                            value="{{ enabled }}"/>

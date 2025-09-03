@@ -14,7 +14,7 @@ from autowisp.processing_steps.manual_util import (
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
 from autowisp.database.interface import get_sqlite_fname
-from autowisp.multiprocessing_util import init_autowisp_process
+from autowisp.multiprocessing_util import setup_process_map
 from autowisp import SourceFinder, DataReductionFile
 
 input_type = "calibrated + dr"
@@ -117,7 +117,7 @@ def find_stars(
         configuration["parent_pid"] = getpid()
         with Pool(
             configuration["num_parallel_processes"],
-            initializer=init_autowisp_process,
+            initializer=setup_process_map,
             initargs=(get_sqlite_fname(), configuration),
         ) as pool:
             pool.map(
@@ -157,7 +157,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(task="manage", **cmdline_config)
+    setup_process(db_fname=get_sqlite_fname(), task="manage", **cmdline_config)
     find_stars(
         find_fits_fnames(
             cmdline_config["calibrated_images"],
