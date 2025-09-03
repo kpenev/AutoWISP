@@ -13,6 +13,7 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
+from autowisp.database.interface import get_sqlite_fname
 from autowisp.multiprocessing_util import init_autowisp_process
 from autowisp import SourceFinder, DataReductionFile
 
@@ -117,7 +118,7 @@ def find_stars(
         with Pool(
             configuration["num_parallel_processes"],
             initializer=init_autowisp_process,
-            initargs=(configuration,),
+            initargs=(get_sqlite_fname(), configuration),
         ) as pool:
             pool.map(
                 partial(
