@@ -652,7 +652,6 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
 
     result = []
     for magfit_dset in magfit_datasets:
-        print(f"Magfit dataset: {magfit_dset!s}")
         magfit_tail = "/MagnitudeFitting/Magnitude"
         assert magfit_dset.abspath.endswith(magfit_tail)
         root_path = (

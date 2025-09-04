@@ -436,7 +436,6 @@ class LightCurveProcessingManager(ProcessingManager):
         """
 
         pending = self.select_step_sphotref(db_session)
-        print("\n\t" + "\n\t".join([repr(e) for e in pending]))
         for step, sphotref_fname in pending:
             # pylint: disable=no-member
             with DataReductionFile(sphotref_fname, "r") as sphotref_dr:
