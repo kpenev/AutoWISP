@@ -10,7 +10,7 @@ import pandas
 from autowisp.multiprocessing_util import setup_process
 from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
-from autowisp.database.interface import get_sqlite_fname
+from autowisp.database.interface import get_sqlite_fname, get_db_engine
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import ReconstructiveCorrectionTransit
 
@@ -224,6 +224,7 @@ def apply_parallel_correction(
     if num_parallel_processes == 1:
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
     else:
+        get_db_engine().dispose()
         with Pool(
             num_parallel_processes,
             initializer=setup_process,

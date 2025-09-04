@@ -39,6 +39,9 @@ def set_sqlite_database(db_path):
 
     global _db_engine, _Session, _sqlite_fname  # pylint: disable=global-statement
 
+    if _db_engine is not None:
+        _db_engine.dispose()
+
     _sqlite_fname = path.abspath(db_path)
     _db_engine = create_engine(
         (
