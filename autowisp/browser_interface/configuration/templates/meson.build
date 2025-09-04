@@ -1,1 +1,1 @@
-subdit('configuration')
+subdir('configuration')

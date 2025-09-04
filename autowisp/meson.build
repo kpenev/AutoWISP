@@ -1,5 +1,6 @@
 py_src = [
   '__init__.py',
+  'bui_util.py',
   'catalog.py',
   'evaluator.py',
   'file_utilities.py',
@@ -13,6 +14,7 @@ py_src = [
   'piecewise_bicubic_psf_map.py',
   'pipeline_exceptions.py',
   'processor.py',
+  'run_pipeline.py',
   'source_finder.py',
   'source_finder_util.py',
   'split_sources.py',

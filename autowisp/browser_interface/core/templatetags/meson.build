@@ -4,7 +4,7 @@ py_src = [
 ]
 
 py.install_sources(
-    src,
+    py_src,
     subdir: 'autowisp/browser_interface/core/templatetags',
     pure: true,
 )

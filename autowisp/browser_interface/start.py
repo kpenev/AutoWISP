@@ -32,27 +32,9 @@ def wait_for_server(hostname, port):
                 conn.close()
 
 
-def start_server(port, hostname="localhost"):
+def start_server():
     """Starts the Django development server."""
 
-    cmd = [sys.executable, os.path.join(os.path.dirname(__file__), "manage.py")]
-    subprocess.run(
-        cmd + ["migrate"], check=True, stdout=sys.stdout, stderr=sys.stderr
-    )
-
-    cmd.extend(["runserver", f"{port}"])
-    print(f"Starting server with command: {' '.join(cmd)}")
-    sys.stdout.flush()
-    sys.stderr.flush()
-    with subprocess.Popen(
-        cmd, stdout=sys.stdout, stderr=sys.stderr
-    ) as server_cmd:
-        wait_for_server(hostname, port)
-        webbrowser.open_new_tab(f"http://{hostname}:{port}")
-        server_cmd.wait()
-
-
-if __name__ == "__main__":
     if not os.path.exists(str(settings.BASE_DIR)):
         os.makedirs(str(settings.BASE_DIR))
 
@@ -63,4 +45,48 @@ if __name__ == "__main__":
     ) as errf:
         sys.stdout = outf
         sys.stderr = errf
-        start_server(int(sys.argv[1]))
+
+        print("Test redirect")
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+
+    with open(
+        str(settings.BASE_DIR / "bui.out"), "w", encoding="utf-8"
+    ) as outf, open(
+        str(settings.BASE_DIR / "bui.err"), "w", encoding="utf-8"
+    ) as errf:
+        sys.stdout = outf
+        sys.stderr = errf
+
+        if ":" in sys.argv[1]:
+            hostname, port = sys.argv[1].split(":")
+        else:
+            port = sys.argv[1]
+            hostname = "localhost"
+        port = int(port)
+
+        cmd = [
+            sys.executable,
+            os.path.join(os.path.dirname(__file__), "manage.py"),
+        ]
+        subprocess.run(
+            cmd + ["migrate"], check=True, stdout=sys.stdout, stderr=sys.stderr
+        )
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        cmd.extend(["runserver", f"{port}"])
+        print(f"Starting server with command: {' '.join(cmd)}")
+        sys.stdout.flush()
+        sys.stderr.flush()
+        with subprocess.Popen(
+            cmd, stdout=sys.stdout, stderr=sys.stderr
+        ) as server_cmd:
+            wait_for_server(hostname, port)
+            webbrowser.open_new_tab(f"http://{hostname}:{port}")
+            server_cmd.wait()
+
+
+if __name__ == "__main__":
+    start_server()

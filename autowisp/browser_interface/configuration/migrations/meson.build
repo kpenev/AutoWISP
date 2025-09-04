@@ -1,4 +1,4 @@
-py_src [
+py_src = [
   '__init__.py',
 ]
 

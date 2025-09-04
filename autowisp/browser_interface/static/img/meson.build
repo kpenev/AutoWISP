@@ -4,7 +4,7 @@ src = [
 ]
 
 py.install_sources(
-    py_src,
+    src,
     subdir: 'autowisp/browser_interface/static/img',
     pure: true,
 )

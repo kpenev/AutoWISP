@@ -7,7 +7,7 @@ import numpy
 from scipy.optimize import minimize
 import pandas
 
-from autowisp.multiprocessing_util import setup_process
+from autowisp.multiprocessing_util import setup_process_map
 from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import get_sqlite_fname, get_db_engine
@@ -227,7 +227,7 @@ def apply_parallel_correction(
         get_db_engine().dispose()
         with Pool(
             num_parallel_processes,
-            initializer=setup_process,
+            initializer=setup_process_map,
             initargs=(get_sqlite_fname(), config)
         ) as correction_pool:
             result = numpy.concatenate(correction_pool.map(correct, lc_fnames))

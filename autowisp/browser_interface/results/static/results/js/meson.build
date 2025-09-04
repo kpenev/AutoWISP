@@ -1,4 +1,4 @@
-src = ['display_lightcurves.js']
+src = ['display.lightcurves.js']
 
 py.install_sources(
     src,
