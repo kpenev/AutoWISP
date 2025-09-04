@@ -7,6 +7,8 @@ from io import BytesIO
 import os
 import os.path
 from sys import exc_info
+from itertools import count
+from time import sleep
 
 # from ast import literal_eval
 from traceback import format_exception
@@ -303,6 +305,7 @@ class HDF5File(ABC, h5py.File):
                 A string giving the path the element does/will have in the file.
         """
 
+        path_template = None
         for element_type, recognized in self.elements.items():
             if element_id.rstrip(".") in recognized:
                 if element_type == "attribute":
@@ -312,6 +315,8 @@ class HDF5File(ABC, h5py.File):
                     )
                 else:
                     path_template = self._file_structure[element_id].abspath
+
+        assert path_template is not None
 
         if substitutions:
             return path_template % substitutions
@@ -1146,7 +1151,7 @@ class HDF5File(ABC, h5py.File):
                 f'{self.filename!r}: {if_exists.rstrip("e")}ing!'
             )
             if if_exists == "ignore":
-                return
+                return None
             if if_exists == "error":
                 raise IOError(
                     f"Dataset ('{dataset_key}') '{dataset_path}' already exists"
@@ -1236,13 +1241,17 @@ class HDF5File(ABC, h5py.File):
                         if not os.path.exists(path):
                             raise
 
-            try:
-                super().__init__(fname, mode, **kwargs)
-            except IOError as details:
-                raise HDF5LayoutError(
-                    f"Problem opening {fname:s} in mode={mode:s}"
-                    + "".join(format_exception(*exc_info()))
-                ) from details
+            for retry in count():
+                try:
+                    super().__init__(fname, mode, **kwargs)
+                    break
+                except OSError as details:
+                    if retry == 10:
+                        raise HDF5LayoutError(
+                            f"Problem opening {fname:s} in mode={mode:s}"
+                            + "".join(format_exception(*exc_info()))
+                        ) from details
+                    sleep(60)
 
         layout_version_path, layout_version_attr = (
             self._layout_version_attribute

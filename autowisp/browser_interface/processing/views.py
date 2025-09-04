@@ -2,7 +2,7 @@
 
 from subprocess import Popen
 from sys import executable  # Import the Python interpreter path
-from time import sleep
+import os
 
 from django.shortcuts import redirect
 
@@ -47,7 +47,7 @@ def start_processing(request):
     # pylint: disable=consider-using-with
     Popen(
         [
-            executable,
+            'pythonw' if os.name == 'nt' else executable,
             run_pipeline.__file__,
             request.session["project_db_path"],
         ],  # Use the Python interpreter
