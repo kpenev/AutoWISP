@@ -16,6 +16,7 @@ py_src = [
   'light_curve_status.py',
   'master_files.py',
   'observing_session.py',
+  'pipeline_run.py',
   'processing_sequence.py',
   'step_dependencies.py',
   'steps_and_parameters.py',

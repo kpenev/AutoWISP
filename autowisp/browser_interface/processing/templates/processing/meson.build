@@ -12,6 +12,6 @@ src = [
 
 py.install_sources(
     src,
-    subdir: 'autowisp/browser_interface/processing',
+    subdir: 'autowisp/browser_interface/processing/templates/processing',
     pure: true,
 )
