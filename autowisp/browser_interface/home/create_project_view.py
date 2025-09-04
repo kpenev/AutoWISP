@@ -308,7 +308,7 @@ class CreateProjectView(WalkFSView):
         # pylint: enable=global-statement
 
         step_dependencies = copy.deepcopy(self._orig_step_dependencies)
-        master_info = copy.deepcopy(self._orig_step_dependencies)
+        master_info = copy.deepcopy(self._orig_master_info)
 
     def _save_form(self, request):
         """Save the current state of the form to the session."""
