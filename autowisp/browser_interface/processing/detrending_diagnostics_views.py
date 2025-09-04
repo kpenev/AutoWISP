@@ -109,7 +109,7 @@ def _init_detrending_session(request):
 def _init_lc_detrending_session(request):
     """Add to browser session which EPD and TFA runs can be diagnosed."""
 
-    lc_processing = LightCurveProcessingManager(dummy=True)
+    lc_processing = LightCurveProcessingManager(pipeline_run_id=True)
     photref_entries = request.session['diagnostics']['detrending']['photref']
     match_expressions = request.session[
         'diagnostics'
