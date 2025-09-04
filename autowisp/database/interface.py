@@ -81,7 +81,7 @@ def set_sqlite_database(db_path):
     _sqlite_fname = path.abspath(db_path)
     _db_engine = create_engine(
         ("sqlite:///" + _sqlite_fname + "?timeout=100&uri=true"),
-        echo=True,
+        echo=False,
         pool_pre_ping=True,
         pool_recycle=3600,
         poolclass=NullPool,
