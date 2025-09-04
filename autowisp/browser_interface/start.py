@@ -36,11 +36,13 @@ def start_server(port, hostname="localhost"):
     """Starts the Django development server."""
 
     cmd = [sys.executable, os.path.join(os.path.dirname(__file__), "manage.py")]
-    subprocess.run(cmd + ["migrate"], check=True)
+    subprocess.run(cmd + ["migrate"], check=True, stdout=outf, stderr=errf)
 
     cmd.extend(["runserver", f"{port}"])
     print(f"Starting server with command: {' '.join(cmd)}")
-    with subprocess.Popen(cmd) as server_cmd:
+    sys.stdout.flush()
+    sys.stderr.flush()
+    with subprocess.Popen(cmd, stdout=outf, stderr=errf) as server_cmd:
         wait_for_server(hostname, port)
         webbrowser.open_new_tab(f"http://{hostname}:{port}")
         server_cmd.wait()
@@ -49,6 +51,7 @@ def start_server(port, hostname="localhost"):
 if __name__ == "__main__":
     if not os.path.exists(str(settings.BASE_DIR)):
         os.makedirs(str(settings.BASE_DIR))
+    
     with open(
         str(settings.BASE_DIR / "bui.out"), "w", encoding="utf-8"
     ) as outf, open(
