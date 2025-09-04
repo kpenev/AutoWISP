@@ -825,7 +825,10 @@ def main():
     """Run the step for fitting star shapes from the command line."""
 
     configuration = parse_command_line()
-    setup_process(db_fname=None, task="manage", **configuration)
+    setup_process(
+        db_fname=configuration["database_fname"], task="main", **configuration
+    )
+
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     dr_path_substitutions = get_dr_substitutions(configuration)
     fit_star_shape(

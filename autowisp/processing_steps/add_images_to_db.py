@@ -336,14 +336,16 @@ def get_or_create_observing_session(
             end_time_utc=exposure_end,
         )
     else:
-        if any([
-            result.observer_id != observer.id,
-            result.camera_id != camera.id,
-            result.telescope_id != telescope.id,
-            result.mount_id != mount.id,
-            result.observatory_id != observatory.id,
-            result.target_id != target.id,
-        ]):
+        if any(
+            [
+                result.observer_id != observer.id,
+                result.camera_id != camera.id,
+                result.telescope_id != telescope.id,
+                result.mount_id != mount.id,
+                result.observatory_id != observatory.id,
+                result.target_id != target.id,
+            ]
+        ):
             raise RuntimeError(
                 "Mismatch between observing session and other header "
                 "information:\n\t"
@@ -442,7 +444,9 @@ def add_images_to_db(image_collection, configuration):
 
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
-    setup_process(db_fname=get_sqlite_fname(), task="main", **cmdline_config)
+    setup_process(
+        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+    )
     add_images_to_db(
         find_fits_fnames(cmdline_config.pop("raw_images")), cmdline_config
     )

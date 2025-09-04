@@ -10,7 +10,6 @@ import logging
 from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp import magnitude_fitting, DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.catalog import ensure_catalog
@@ -444,7 +443,10 @@ def main():
     """Run the step from command line."""
 
     configuration = parse_command_line()
-    setup_process(db_fname=None, task="manage", **configuration)
+    setup_process(
+        db_fname=configuration["database_fname"], task="main", **configuration
+    )
+
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r+"
     ) as single_photref_dr:

@@ -12,7 +12,6 @@ from astropy.io import fits
 from astropy.table import Table
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp import LightCurveFile
@@ -360,7 +359,10 @@ def main():
     """Run the light curve creation step from the command line."""
 
     configuration = parse_command_line()
-    setup_process(db_fname=None, task="manage", **configuration)
+    setup_process(
+        db_fname=configuration["database_fname"], task="main", **configuration
+    )
+
     dr_path_substitutions = get_path_substitutions(configuration)
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r+"

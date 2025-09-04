@@ -10,6 +10,7 @@ from astropy import units
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
+from autowisp.multiprocessing_util import setup_process
 from autowisp.astrometry import Transformation
 from autowisp.processing_steps.fit_source_extracted_psf_map import (
     get_predictors_and_weights,
@@ -308,6 +309,9 @@ def calculate_photref_merit(dr_filenames, config):
 
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
+    setup_process(
+        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+    )
     _logger.info(
         "Merit info:\n%s",
         repr(

@@ -319,6 +319,14 @@ class ManualStepArgumentParser(ArgumentParser):
             help="Hack around limitation of configargparse to allow for "
             "setting a second config file.",
         )
+        self.add_argument(
+            "--database-fname",
+            default=None,
+            help="The name of a SQLite database to attach processing to. "
+            "Should at least define HDF5 structure for DR files and lightcurves"
+            " for BUI a lot more is needed but that is automatically managed "
+            "by the BUI.",
+        )
 
         if input_type == "raw":
             input_name = "raw_images"
@@ -375,7 +383,8 @@ class ManualStepArgumentParser(ArgumentParser):
         if not skip_io:
             self.add_argument(
                 "--std-out-err-fname",
-                default="{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.outerr",
+                default="{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
+                ".outerr",
                 help="The filename pattern to redirect stdout and stderr during"
                 "multiprocessing. Should include substitutions to distinguish "
                 "output from different multiprocessing processes. May include "
@@ -385,8 +394,8 @@ class ManualStepArgumentParser(ArgumentParser):
             self.add_argument(
                 "--fname-datetime-format",
                 default="%Y%m%d%H%M%S",
-                help="How to format date and time as part of filenames (e.g. when "
-                "creating output files for multiprocessing.",
+                help="How to format date and time as part of filenames (e.g. "
+                "when creating output files for multiprocessing.",
             )
             self.add_argument(
                 "--logging-fname",
@@ -408,14 +417,14 @@ class ManualStepArgumentParser(ArgumentParser):
                     "%(levelname)s %(asctime)s %(name)s: %(message)s | "
                     "%(pathname)s.%(funcName)s:%(lineno)d"
                 ),
-                help="The format string to use for log messages. See python logging"
-                " module for details.",
+                help="The format string to use for log messages. See python "
+                "logging module for details.",
             )
             self.add_argument(
                 "--logging-datetime-format",
                 default=None,
-                help="How to format date and time as part of filenames (e.g. when "
-                "creating output files for multiprocessing.",
+                help="How to format date and time as part of filenames (e.g. "
+                "when creating output files for multiprocessing.",
             )
         if add_catalog:
             self._add_catalog_args(add_catalog)

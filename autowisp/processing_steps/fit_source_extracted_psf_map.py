@@ -8,7 +8,6 @@ from collections import namedtuple
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.file_utilities import find_dr_fnames
 from autowisp import DataReductionFile
 from autowisp.fit_expression import (
@@ -318,7 +317,10 @@ def main():
     """Run the step from the command line."""
 
     configuration = parse_command_line()
-    setup_process(db_fname=None, task="main", **configuration)
+    setup_process(
+        db_fname=configuration["database_fname"], task="main", **configuration
+    )
+
     dr_substitutions = get_dr_substitutions(configuration)
     fit_source_extracted_psf_map(
         [

@@ -1,7 +1,6 @@
 """Implement shared argument parsing for LC detrending processing steps."""
 
 import re
-from os import path
 
 from asteval import Interpreter
 

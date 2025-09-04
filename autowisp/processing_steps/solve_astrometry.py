@@ -877,7 +877,10 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(db_fname=None, task="manage", **cmdline_config)
+    setup_process(
+        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+    )
+
 
     solve_astrometry(
         list(

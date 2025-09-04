@@ -5,7 +5,6 @@
 from functools import partial
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
     LCDetrendingArgumentParser,
@@ -37,6 +36,10 @@ def main():
 
     cmdline_config = parse_command_line()
     setup_process(db_fname=None, task="manage", **cmdline_config)
+    setup_process(
+        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+    )
+
     generate_epd_statistics(
         find_lc_fnames(cmdline_config.pop("lc_files")),
         0,
