@@ -227,7 +227,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(db_fname=get_sqlite_fname(), task="main", **cmdline_config)
+    setup_process(db_fname=None, task="main", **cmdline_config)
     stack_to_master(
         list(find_fits_fnames(cmdline_config["calibrated_images"])),
         None,

@@ -72,7 +72,7 @@ class TestCalibrate(FITSTestCase):
         )
 
     def test_object_calibration(self):
-        """Check if flat calibration works as expected."""
+        """Check if object calibration works as expected."""
 
         self._test_calibration(
             "object",

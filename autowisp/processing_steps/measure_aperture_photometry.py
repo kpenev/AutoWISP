@@ -246,7 +246,7 @@ def main():
     cmdline_config = parse_command_line()
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
-    setup_process_map(get_sqlite_fname(), cmdline_config)
+    setup_process_map(None, cmdline_config)
     del cmdline_config["task"]
     measure_aperture_photometry(
         [

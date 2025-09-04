@@ -318,7 +318,7 @@ def main():
     """Run the step from the command line."""
 
     configuration = parse_command_line()
-    setup_process(db_fname=get_sqlite_fname(), task="main", **configuration)
+    setup_process(db_fname=None, task="main", **configuration)
     dr_substitutions = get_dr_substitutions(configuration)
     fit_source_extracted_psf_map(
         [

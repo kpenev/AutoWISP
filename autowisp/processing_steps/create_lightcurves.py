@@ -360,7 +360,7 @@ def main():
     """Run the light curve creation step from the command line."""
 
     configuration = parse_command_line()
-    setup_process(db_fname=get_sqlite_fname(), task="manage", **configuration)
+    setup_process(db_fname=None, task="manage", **configuration)
     dr_path_substitutions = get_path_substitutions(configuration)
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r+"

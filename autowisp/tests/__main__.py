@@ -34,6 +34,7 @@ from autowisp.tests.test_detrending_stat import TestDetrendingStat
 # pylint: enable=unused-import
 
 if __name__ == "__main__":
+    print("Starting tests")
     with TemporaryDirectory() as temp_dir:
         get_test_data(temp_dir)
         # temp_dir = (

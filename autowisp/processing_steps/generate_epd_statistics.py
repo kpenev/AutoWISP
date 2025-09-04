@@ -36,7 +36,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(db_fname=get_sqlite_fname(), task="manage", **cmdline_config)
+    setup_process(db_fname=None, task="manage", **cmdline_config)
     generate_epd_statistics(
         find_lc_fnames(cmdline_config.pop("lc_files")),
         0,
