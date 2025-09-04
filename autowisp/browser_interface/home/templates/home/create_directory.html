@@ -17,7 +17,17 @@
 {% block selectable_entries_begin %}
 <input type="text" 
        form="create-dir-form" 
-       id="create-dir" 
        name="create-dir" 
        autofocus/>
 {% endblock selectable_entries_begin %}
+
+{% block create_dir_button %}
+<label for="create-dir"
+       class="lcars-element button lcars-u-1-2 lcars-chestnut-rose-bg">
+       Create Directory
+</label>
+<input type="submit" 
+       form="create-dir-form"
+       id="create-dir" 
+       style="display: none"/>
+{% endblock create_dir_button %}

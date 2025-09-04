@@ -15,13 +15,19 @@ SELECT PROJECT HOME
 {% endblock app_title %}
 
 {% block left_menu %}
+
+{% block create_dir_button %}
 {% if valid_home %}
+<label for="set-project-home"
+       class="lcars-element button lcars-u-1-2 lcars-melrose-bg">
+       Set Project Home
+</label>
 <input type="submit" 
        id="set-project-home" 
        name="set-project-home" 
        value="Set Project Home"
        form="selection"
-       class="lcars-element button lcars-u-1-2 lcars-melrose-bg"/>
+       style="display: none"/>
 {% endif %}
 
 {% with parent_dir_list|last as current_dir %}
@@ -32,6 +38,7 @@ SELECT PROJECT HOME
 </a>
 {% endwith %}
 
+{% endblock create_dir_button %}
 
 {{ block.super }}
 
