@@ -66,18 +66,17 @@ def main(config):
     set_sqlite_database(db_fname)
     with start_db_session() as db_session:
         dummy_processing = ProcessingManager(None)
-        setup_process_map(
-            db_fname,
-            task="run_pipeline",
-            parent_pid="",
-            processing_step="none",
-            image_type="none",
-            **dummy_processing.get_config(
-                dummy_processing.get_matched_expressions(Evaluator()),
-                db_session,
-                step_name="add_images_to_db",
-            )[0],
-        )
+        dummy_config = dummy_processing.get_config(
+            dummy_processing.get_matched_expressions(Evaluator()),
+            db_session,
+            step_name="add_images_to_db",
+        )[0]
+        dummy_config['task'] = "run_pipeline"
+        dummy_config['parent_pid']=""
+        dummy_config['processing_step']="none"
+        dummy_config['image_type']="none"
+
+        setup_process_map(db_fname, dummy_config)
 
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
