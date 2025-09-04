@@ -8,15 +8,13 @@ import logging
 from configargparse import ArgumentParser, DefaultsFormatter
 from sqlalchemy import sql, select, delete, MetaData, update
 
-from autowisp.database.interface import get_db_engine, start_db_session
+from autowisp.database.interface import (
+    get_db_engine,
+    start_db_session,
+    initialize_cmdline_database,
+)
 from autowisp.database.data_model.base import DataModelBase
 
-from autowisp.database.initialize_data_reduction_structure import (
-    get_default_data_reduction_structure,
-)
-from autowisp.database.initialize_light_curve_structure import (
-    get_default_light_curve_structure,
-)
 from autowisp import processing_steps
 
 # false positive due to unusual importing
@@ -294,25 +292,6 @@ def get_command_line_parser():
         help="Set the verbosity of the DB logger.",
     )
     return parser
-
-
-def add_default_hdf5_structures(data_reduction=True, light_curve=True):
-    """
-    Add a default HDF5 structure to the database.
-
-    Args:
-        data_reduction(bool):    Should the structure of data reduction files be
-            initialized?
-
-        light_curve(bool):    Should the structure of light curve files be
-            initialized?
-    """
-
-    with start_db_session() as db_session:
-        if data_reduction:
-            db_session.add(get_default_data_reduction_structure())
-        if light_curve:
-            db_session.add(get_default_light_curve_structure(db_session))
 
 
 # This is meant to function as callable
@@ -674,7 +653,7 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
         drop_tables_matching(re.compile(".*"))
 
     DataModelBase.metadata.create_all(get_db_engine())
-    add_default_hdf5_structures()
+    initialize_cmdline_database()
     if not cmdline_args.drop_all_tables:
         return
 

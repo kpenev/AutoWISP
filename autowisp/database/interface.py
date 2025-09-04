@@ -48,6 +48,15 @@ def get_sqlite_fname():
     return _sqlite_fname
 
 
+def initialize_cmdline_database():
+    """Initialize the current database HDF5 structure tables."""
+
+    DataModelBase.metadata.create_all(_db_engine)
+    with start_db_session() as db_session:
+        db_session.add(get_default_data_reduction_structure())
+        db_session.add(get_default_light_curve_structure(db_session))
+
+
 def set_sqlite_database(db_path):
     """
     Set the database engine and session to use the given SQLite database.
@@ -80,7 +89,4 @@ def set_sqlite_database(db_path):
     _Session = sessionmaker(_db_engine, expire_on_commit=False)
 
     if initialize:
-        DataModelBase.metadata.create_all(_db_engine)
-        with start_db_session() as db_session:
-            db_session.add(get_default_data_reduction_structure())
-            db_session.add(get_default_light_curve_structure(db_session))
+        initialize_cmdline_database()
