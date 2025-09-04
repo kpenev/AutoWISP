@@ -1,13 +1,15 @@
 """Some general purpose low level tools for source extraction."""
 
-from subprocess import Popen, PIPE
+import os
+
+import subprocess
 from astrowisp import fistar_path
 
 
-def start_hatphot(unpacked_fits_fname, threshold, stdout=PIPE):
+def start_hatphot(unpacked_fits_fname, threshold, stdout=subprocess.PIPE):
     """Find sources in the given frame using hatphot."""
 
-    return Popen(
+    return subprocess.Popen(
         [
             "hatphot",
             "--thresh",
@@ -20,7 +22,7 @@ def start_hatphot(unpacked_fits_fname, threshold, stdout=PIPE):
     )
 
 
-def start_fistar(unpacked_fits_fname, threshold, stdout=PIPE):
+def start_fistar(unpacked_fits_fname, threshold, stdout=subprocess.PIPE):
     """Find sources in the given frame using fistar."""
 
     command = [
@@ -36,7 +38,13 @@ def start_fistar(unpacked_fits_fname, threshold, stdout=PIPE):
         repr(threshold),
     ]
     print("Running: " + repr(command))
-    return Popen(command, stdout=stdout)
+    if os.name == "nt":
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+    else:
+        startupinfo = None
+    return subprocess.Popen(command, stdout=stdout, startupinfo=startupinfo)
 
 
 def get_srcextract_columns(tool):
