@@ -1,10 +1,12 @@
 """The views to display and edit pipeline configuration."""
 
 from collections import namedtuple
-from io import StringIO
+from io import StringIO, BytesIO
+import json
 
 from sqlalchemy import select, func, delete
 from django.shortcuts import render, redirect, HttpResponse
+from django.http import FileResponse
 
 from autowisp.database.user_interface import (
     get_json_config,
@@ -45,13 +47,19 @@ def config_tree(request, version=0, step="All", force_unlock=False):
         if max_used_version is None:
             max_used_version = -1
 
+    if request.method == "POST":
+        config = request.FILES["import-config"].read().decode()
+        force_unlock = True
+    else:
+        config = get_json_config(version, step=step, indent=4)
+
     return render(
         request,
         "configuration/config_tree.html",
         {
             "selected_step": step,
             "selected_version": version,
-            "config_json": get_json_config(version, step=step, indent=4),
+            "config_json": config,
             "pipeline_steps": ["All"] + list_steps(),
             "config_versions": defined_versions,
             "max_locked_version": max_used_version,
@@ -448,7 +456,7 @@ def import_survey_info(request):
 
     assert request.method == "POST"
     import_json_to_survey(request.FILES["survey-import"])
-    return redirect('configuration:survey')
+    return redirect("configuration:survey")
 
 
 def export_survey_info(_):
@@ -457,11 +465,9 @@ def export_survey_info(_):
     with StringIO() as export_stream:
         export_survey_to_json(export_stream)
         return HttpResponse(
-            export_stream.getvalue().encode('utf-8'),
+            export_stream.getvalue().encode("utf-8"),
             headers={
-                'Content-Type': 'application/json',
-                'Content-Disposition': (
-                    'attachment; filename="survey.json"'
-                )
-            }
+                "Content-Type": "application/json",
+                "Content-Disposition": ('attachment; filename="survey.json"'),
+            },
         )

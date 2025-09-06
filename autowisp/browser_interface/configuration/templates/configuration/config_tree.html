@@ -66,6 +66,33 @@
                 </div>
             </div> 
             <div class="dropdown">
+                <button class="dropbtn" 
+                        onclick="theTree.export()">
+                    Export
+                </button>
+            </div>
+            {% if not locked %}
+            <div class="dropdown">
+                <form enctype="multipart/form-data" 
+                      action="{% url 'configuration:import_config' version=selected_version %}" 
+                      method="post"> 
+                    {% csrf_token %}
+
+                    <label for="import-config" class="dropbtn">
+                        Import
+                    </label>
+
+                    <input type="file" 
+                           name="import-config"
+                           id="import-config"
+                           onchange="form.submit()"
+                           style="display:none"
+                           accept="application/json"/>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="dropdown">
                 <button class="dropbtn" onclick="displayHelp()">
                     Help
                 </button>

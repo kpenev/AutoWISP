@@ -255,6 +255,20 @@ class configTree {
         postJson(saveURL, this.data).then(function() {location.reload();});
     }
 
+    async export()
+    {
+        const blob = new Blob(
+            [JSON.stringify(this.data, null, 4)], 
+            {type: "application/json",}
+        );
+        const fileURL = URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = fileURL;
+        downloadLink.download = 'wisp_config_' + this.data.name + '.json';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        URL.revokeObjectURL(fileURL);
+    }
 }
 
 // track unsaved changes
