@@ -45,6 +45,7 @@ dependencies = [
     'astroquery',
     'astrowisp >= 1.5',
     'configargparse',
+    'Django',
     'h5py',
     'lxml',
     'matplotlib',
