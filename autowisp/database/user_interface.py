@@ -11,7 +11,7 @@ from sqlalchemy.orm import ColumnProperty
 
 from autowisp.database.interface import start_db_session, set_sqlite_database
 from autowisp.database.data_model import provenance
-from autowisp.data_reduction import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 # False positive
 # pylint: disable=no-name-in-module

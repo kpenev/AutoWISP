@@ -21,7 +21,7 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.processing_steps.fit_star_shape import add_image_options
 
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.database.interface import get_sqlite_fname
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.data_reduction.utils import (

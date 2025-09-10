@@ -30,7 +30,8 @@ from command_line_util import get_default_frame_processing_cmdline
 from autowisp.image_utilities import zscale_image
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import read_image_components
-from autowisp import SourceFinder, Evaluator
+from autowisp.source_finder import SourceFinder
+from autowisp.evaluator import Evaluator
 #pylint: enable=wrong-import-position
 
 def parse_configuration(default_config_files=('find_sources.cfg',),

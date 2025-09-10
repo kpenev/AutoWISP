@@ -10,7 +10,8 @@ import logging
 from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp import magnitude_fitting, DataReductionFile
+from autowisp import magnitude_fitting
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.catalog import ensure_catalog
 from autowisp.processing_steps.manual_util import (

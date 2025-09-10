@@ -8,7 +8,8 @@ from scipy.optimize import minimize
 import pandas
 
 from autowisp.multiprocessing_util import setup_process_map
-from autowisp import DataReductionFile, LightCurveFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import get_sqlite_fname, get_db_engine
 from .epd_correction import EPDCorrection

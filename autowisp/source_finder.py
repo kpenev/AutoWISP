@@ -1,5 +1,7 @@
 """Uniform interface for source extractoin using several methods."""
 
+import logging
+
 import numpy
 from astropy.io import fits
 from scipy import spatial
@@ -129,6 +131,7 @@ class SourceFinder:
                 The extracted source from the image, if source_fname was None.
         """
 
+        logger = logging.getLogger(__name__)
         configuration = {**self.configuration, **configuration}
         if configuration["tool"] == "mock":
             return self._create_mock_source_list(fits_fname, configuration)
@@ -137,6 +140,9 @@ class SourceFinder:
             source_finder_util, "start_" + configuration["tool"]
         )
         with get_unpacked_fits(fits_fname) as unpacked_fname:
+            logger.debug(
+                f"Extracting sources from {unpacked_fname!r} to {source_fname!r}"
+            )
             extraction_args = (
                 unpacked_fname,
                 configuration["brightness_threshold"],
@@ -153,8 +159,13 @@ class SourceFinder:
                     return None
                 sources_file = source_fname
             else:
+                print("Creating extraction process.")
                 extraction_process = start_extraction(*extraction_args)
+                print("Extraction process started.")
                 sources_file = extraction_process.stdout
+
+            print("Parsing source list from " + repr(unpacked_fname))
+            logger.debug("Parsing source list from %s", repr(unpacked_fname))
 
             result = numpy.genfromtxt(
                 sources_file,
@@ -171,13 +182,23 @@ class SourceFinder:
                 result = result[
                     Evaluator(result)(configuration["filter_sources"])
                 ]
+            logger.debug(f"Sorting {unpacked_fname!r} sources")
+
             result.sort(order="flux")
             result = numpy.flip(result)
             if configuration["max_sources"] > 0:
                 result = result[: configuration["max_sources"]]
 
             if not source_fname:
+                logger.debug(
+                    "Waiting for source extraction process for %s to finish",
+                    repr(unpacked_fname),
+                )
                 extraction_process.communicate()
+            logger.debug(
+                f"Adding saturation flags for {unpacked_fname!r} sources"
+            )
+
             return self._add_saturation_flags(unpacked_fname, result)
 
 

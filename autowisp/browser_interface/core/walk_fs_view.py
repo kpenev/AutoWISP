@@ -36,7 +36,7 @@ class WalkFSView(View):
             'url_name': self.url_name,
             'cancel_url_name': self.cancel_url_name,
         }
-        filename_check = config.get("filename_filter", ".*")
+        filename_check = config.get("filename_filter", "[^.]")
         result["filename_filter"] = filename_check
         result["filename_filter_type"] = config.get(
             "filefilter_type", "Regular Expression"
@@ -48,7 +48,7 @@ class WalkFSView(View):
         except re.error:
             filename_check = re.compile("")
 
-        dirname_check = config.get("dirname_filter", ".*")
+        dirname_check = config.get("dirname_filter", "[^.]")
         result["dirname_filter"] = dirname_check
         result["dirname_filter_type"] = config.get(
             "dirfilter_type", "Regular Expression"

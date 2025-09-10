@@ -5,7 +5,7 @@ import os.path
 from glob import iglob
 from logging import getLogger
 
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 
 _logger = getLogger(__name__)

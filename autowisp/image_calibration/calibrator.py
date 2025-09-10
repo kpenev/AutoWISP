@@ -17,7 +17,7 @@ from autowisp.image_calibration.fits_util import (
 )
 
 from autowisp.pipeline_exceptions import OutsideImageError, ImageMismatchError
-from autowisp import Processor
+from autowisp.processor import Processor
 
 from autowisp.image_calibration.mask_utilities import (
     git_id as mask_utilities_git_id,

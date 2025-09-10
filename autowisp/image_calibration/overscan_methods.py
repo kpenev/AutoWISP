@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy
 
 from autowisp.pipeline_exceptions import ConvergenceError
-from autowisp import Processor
+from autowisp.processor import Processor
 
 git_id = "$Id$"
 

@@ -15,14 +15,14 @@ from autowisp.astrometry import Transformation
 from autowisp.processing_steps.fit_source_extracted_psf_map import (
     get_predictors_and_weights,
 )
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.fit_expression import (
     Interface as FitTermsInterface,
     iterative_fit,
 )
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 
 _logger = logging.getLogger(__name__)
 input_type = "dr"

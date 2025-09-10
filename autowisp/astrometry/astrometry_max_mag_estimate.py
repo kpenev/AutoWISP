@@ -13,7 +13,7 @@ from astropy import units
 from asteval import Interpreter
 from scipy.spatial import cKDTree
 
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import astrometry
 from autowisp.processing_steps.solve_astrometry import (
     add_anet_cmdline_args,

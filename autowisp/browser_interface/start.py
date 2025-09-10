@@ -77,7 +77,9 @@ def start_server():
         sys.stderr.flush()
 
         cmd.extend(["runserver", f"{port}"])
-        print(f"Starting server with command: {' '.join(cmd)}")
+        print(f"Starting server with command: {' '.join(cmd)} in environment:")
+        print('\n\t'.join([f"{k}={v}" for k, v in os.environ.items()]))
+        print('Python paths:\n\t' + '\n\t'.join(sys.path))
         sys.stdout.flush()
         sys.stderr.flush()
         with subprocess.Popen(

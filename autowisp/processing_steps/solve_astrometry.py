@@ -24,8 +24,8 @@ from autowisp.astrometry import (
     Transformation,
 )
 from autowisp.catalog import ensure_catalog, check_catalog_coverage
-from autowisp import DataReductionFile
-from autowisp import Evaluator
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.evaluator import Evaluator
 
 _logger = logging.getLogger(__name__)
 

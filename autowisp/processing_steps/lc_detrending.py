@@ -6,8 +6,8 @@ import logging
 import numpy
 from pytransit import QuadraticModel
 
-from autowisp import DataReductionFile
-from autowisp import LightCurveFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.magnitude_fitting.util import format_master_catalog
 from autowisp.light_curves.apply_correction import (
@@ -16,7 +16,7 @@ from autowisp.light_curves.apply_correction import (
     save_correction_statistics,
     recalculate_correction_statistics,
 )
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 
 _logger = logging.getLogger(__name__)
 

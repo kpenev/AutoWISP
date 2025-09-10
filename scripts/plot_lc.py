@@ -9,7 +9,7 @@ import numpy
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.diagnostics.plot_lc import get_plot_data, calculate_combined
-from autowisp import LightCurveFile, DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 
 def parse_range(range_str):

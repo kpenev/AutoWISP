@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from sqlalchemy import select, sql
 
-from autowisp import SourceFinder, Evaluator
+from autowisp.source_finder import SourceFinder, Evaluator
 from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.astrometry import estimate_transformation

@@ -11,7 +11,7 @@ from astropy.io import fits
 
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.database.interface import get_sqlite_fname
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import (
     LinearMagnitudeFit,

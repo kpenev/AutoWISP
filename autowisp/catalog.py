@@ -14,7 +14,8 @@ from astropy import units
 from astropy.io import fits
 from astroquery.gaia import GaiaClass, conf
 
-from autowisp import Evaluator, DataReductionFile
+from autowisp.evaluator import Evaluator
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import Transformation
 from autowisp.astrometry.map_projections import (
     gnomonic_projection,

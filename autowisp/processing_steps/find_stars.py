@@ -5,6 +5,7 @@
 from functools import partial
 from multiprocessing import Pool
 from os import path, getpid
+import logging
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.processing_steps.manual_util import (
@@ -15,9 +16,11 @@ from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
 from autowisp.database.interface import get_sqlite_fname
 from autowisp.multiprocessing_util import setup_process_map
-from autowisp import SourceFinder, DataReductionFile
+from autowisp.source_finder import SourceFinder
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 input_type = "calibrated + dr"
+_logger = logging.getLogger(__name__)
 
 
 def parse_command_line(*args):
@@ -76,18 +79,24 @@ def find_stars_single(
     """Find the stars in a single image."""
 
     fits_header = get_primary_header(image_fname)
+    _logger.debug(f"Extracting sources from {image_fname!r}")
+    extracted_sources = find_stars_in_image(image_fname)
+    _logger.debug(f"Finished extracting sources: {extracted_sources!r}")
+    mark_start(image_fname)
+    _logger.debug(f"Marked started: {extracted_sources!r}")
+
     with DataReductionFile(header=fits_header, mode="a") as dr_file:
         dr_file.add_frame_header(fits_header)
-        extracted_sources = find_stars_in_image(image_fname)
-        print(f"Extracted sources: {extracted_sources!r}")
-        mark_start(image_fname)
+        _logger.debug(f"Added header from: {extracted_sources!r}")
         dr_file.add_sources(
             extracted_sources,
             "srcextract.sources",
             "srcextract_column_name",
             srcextract_version=srcextract_version,
         )
+        _logger.debug(f"Added sources from: {extracted_sources!r}")
         mark_end(image_fname)
+        _logger.debug(f"Marked end for: {extracted_sources!r}")
 
 
 def find_stars(
@@ -95,6 +104,13 @@ def find_stars(
 ):
     """Extract sources from all input images and save them to DR files."""
 
+    _logger.debug(
+        "Start of find_stars steps for DB %s for %d images with configuration "
+        "%s",
+        get_sqlite_fname(),
+        len(image_collection),
+        repr(configuration),
+    )
     assert start_status is None
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
@@ -104,8 +120,13 @@ def find_stars(
         filter_sources=configuration["filter_sources"],
         max_sources=configuration["srcextract_max_sources"],
     )
+    _logger.debug("Created source finder")
     if configuration["num_parallel_processes"] == 1:
+        _logger.debug(
+            "Running in serial mode for images: %s", repr(image_collection)
+        )
         for image_fname in image_collection:
+            _logger.debug("Extracting stars in image %s", image_fname)
             find_stars_single(
                 image_fname,
                 find_stars_in_image,
@@ -113,8 +134,16 @@ def find_stars(
                 mark_start,
                 mark_end,
             )
+            _logger.debug("Finished extracting stars in image %s", image_fname)
+
     else:
         configuration["parent_pid"] = getpid()
+        _logger.debug(
+            "Running in parallel mode with config %s and DB fname %s",
+            configuration,
+            get_sqlite_fname(),
+        )
+
         with Pool(
             configuration["num_parallel_processes"],
             initializer=setup_process_map,
@@ -162,15 +191,18 @@ def main():
     )
 
     find_stars(
-        find_fits_fnames(
-            cmdline_config["calibrated_images"],
-            cmdline_config["srcextract_only_if"],
+        list(
+            find_fits_fnames(
+                cmdline_config["calibrated_images"],
+                cmdline_config["srcextract_only_if"],
+            )
         ),
         None,
         cmdline_config,
         ignore_progress,
         ignore_progress,
     )
+
 
 if __name__ == "__main__":
     main()

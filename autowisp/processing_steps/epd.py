@@ -3,7 +3,7 @@
 """Apply EPD correction to lightcurves."""
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp import EPDCorrection
+from autowisp.light_curves.epd_correction import EPDCorrection
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
     LCDetrendingArgumentParser,

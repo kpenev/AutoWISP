@@ -18,7 +18,7 @@ from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 from autowisp.magnitude_fitting.util import format_master_catalog
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.miscellaneous import get_hat_source_id_str
 from autowisp.data_reduction.utils import get_source_extracted_psf_map
 

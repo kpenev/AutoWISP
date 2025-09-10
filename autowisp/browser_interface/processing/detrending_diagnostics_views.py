@@ -1,6 +1,5 @@
 """Views for displaying diagnostics for the calibration steps."""
 
-import logging
 from io import StringIO, BytesIO
 import json
 
@@ -11,9 +10,9 @@ from sqlalchemy import select
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 from autowisp.bui_util import hex_color
-from autowisp.data_reduction import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.database.interface import start_db_session
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.diagnostics.detrending import \

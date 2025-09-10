@@ -34,7 +34,7 @@ import pandas
 from matplotlib import pyplot
 
 from autowisp.catalog import read_catalog_file
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.detrending import detect_stat_columns
 
 def parse_command_line():

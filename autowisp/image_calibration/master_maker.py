@@ -13,7 +13,7 @@ from autowisp.iterative_rejection_util import iterative_rejection_average
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.fits_util import create_result
 
-from autowisp import Processor
+from autowisp.processor import Processor
 
 
 # pylint does not count __call__ but should.

@@ -10,7 +10,8 @@ import pandas
 from pytransit import RoadRunnerModel
 from configargparse import ArgumentParser, DefaultsFormatter
 
-from autowisp import LightCurveFile, DataReductionFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import LightCurveEvaluator
 
 # TODO:Document all expected entries in configuration for `get_plot_data()`

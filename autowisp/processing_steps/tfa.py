@@ -3,8 +3,8 @@
 """Apply TFA correction to lightcurves."""
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
-from autowisp import TFACorrection, DataReductionFile
+from autowisp.light_curves.tfa_correction import TFACorrection
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
     LCDetrendingArgumentParser,

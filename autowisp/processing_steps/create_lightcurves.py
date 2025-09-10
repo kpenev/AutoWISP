@@ -12,9 +12,9 @@ from astropy.io import fits
 from astropy.table import Table
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
-from autowisp import LightCurveFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,

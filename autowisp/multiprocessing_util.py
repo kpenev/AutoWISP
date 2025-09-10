@@ -9,8 +9,10 @@ from glob import glob
 import inspect
 import sys
 
+import platformdirs
+
 from autowisp.database.interface import set_sqlite_database
-from autowisp.data_reduction import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 try:
     import git
@@ -86,6 +88,16 @@ def get_log_outerr_filenames(existing_pid=False, **config):
         std_out_err_fname,
     )
 
+    if config.get("parent_pid"):
+        result = tuple(
+            os.path.join(
+                os.path.dirname(fname),
+                str(config["parent_pid"]),
+                os.path.basename(fname),
+            )
+            for fname in result
+        )
+
     if existing_pid:
         return tuple(sorted(glob(glob_str)) for glob_str in result)
 
@@ -134,20 +146,42 @@ def setup_process_map(db_fname, config):
                 if not os.path.isdir(dirname):
                     raise
 
-    set_sqlite_database(db_fname)
-    if "data_reduction_fname" in config:
-        DataReductionFile.fname_template = config["data_reduction_fname"]
-
     for param, value in default_config.items():
         if param not in config and (
             param != "logging_verbosity" or "verbose" not in config
         ):
             config[param] = value
 
-    logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
+    with open(
+        os.path.join(
+            platformdirs.user_data_dir("autowisp"), "setup_process.outerr"
+        ),
+        "a",
+        encoding="utf-8",
+    ) as info_file:
+        info_file.write(
+            f"Setting up process with DB {db_fname} and configuration:\n\t"
+            + "\n\t".join(
+                f"{key!r}: {value!r}" for key, value in config.items()
+            )
+            +"\n"
+        )
+
+        logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
+        info_file.write(
+            f"Logging to {logging_fname!r}, "
+            f"stdout/stderr to {std_out_err_fname!r}\n"
+        )
+
     if std_out_err_fname is not None:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        sys.stdout.close()
+        sys.stderr.close()
         ensure_directory(std_out_err_fname)
-        sys.stdout = open(std_out_err_fname, "w", encoding="utf-8") #pylint: disable=consider-using-with
+        sys.stdout = open(  # pylint: disable=consider-using-with
+            std_out_err_fname, "w", encoding="utf-8", buffering=1
+        )
         sys.stderr = sys.stdout
 
     ensure_directory(logging_fname)
@@ -162,11 +196,18 @@ def setup_process_map(db_fname, config):
             config.get("logging_verbosity", config.get("verbose")).upper(),
         ),
         "format": config["logging_message_format"],
+        "force": True,
     }
     if config.get("logging_datetime_format") is not None:
         logging_config["datefmt"] = config["logging_datetime_format"]
 
     logging.basicConfig(**logging_config)
+
+    logging.info("Starting process with configuration: %s", repr(config))
+
+    set_sqlite_database(db_fname)
+    if "data_reduction_fname" in config:
+        DataReductionFile.fname_template = config["data_reduction_fname"]
 
 
 def setup_process(db_fname, **config):

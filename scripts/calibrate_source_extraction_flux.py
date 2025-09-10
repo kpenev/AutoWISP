@@ -9,8 +9,8 @@ from matplotlib import pyplot
 import pandas
 import numpy
 
-from autowisp import DataReductionFile
-from autowisp import Evaluator
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.processing_steps.manual_util import \
     ManualStepArgumentParser

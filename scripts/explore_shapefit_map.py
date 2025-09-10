@@ -12,7 +12,7 @@ from astropy.io import fits
 
 from astrowisp.utils import explore_prf
 
-from autowisp import PiecewiseBicubicPSFMap
+from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import\
     get_primary_header,\

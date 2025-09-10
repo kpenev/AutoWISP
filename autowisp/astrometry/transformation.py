@@ -9,7 +9,7 @@ from numpy.lib.recfunctions import unstructured_to_structured
 from scipy.optimize import root
 from configargparse import ArgumentParser, DefaultsFormatter
 
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import map_projections
 from autowisp import fit_expression
 

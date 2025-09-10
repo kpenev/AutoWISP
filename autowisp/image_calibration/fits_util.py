@@ -8,7 +8,7 @@ from astropy.time import Time, TimeISO
 import numpy
 
 from autowisp.fits_utilities import read_image_components, get_primary_header
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 from autowisp.image_calibration.mask_utilities import combine_masks
 
 

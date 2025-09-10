@@ -9,8 +9,13 @@ from traceback import format_exc
 
 from configargparse import ArgumentParser, DefaultsFormatter, SUPPRESS
 from sqlalchemy import sql, update
+import platformdirs
 
-from autowisp.database.interface import start_db_session, set_sqlite_database
+from autowisp.database.interface import (
+    start_db_session,
+    set_sqlite_database,
+    get_sqlite_fname,
+)
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
@@ -64,25 +69,20 @@ def main(config):
 
     db_fname = os.path.abspath(config.processing_database)
     set_sqlite_database(db_fname)
-    with start_db_session() as db_session:
-        dummy_processing = ProcessingManager(None)
-        dummy_config = dummy_processing.get_config(
-            dummy_processing.get_matched_expressions(Evaluator()),
-            db_session,
-            step_name="add_images_to_db",
-        )[0]
-        dummy_config['task'] = "run_pipeline"
-        dummy_config['parent_pid']=""
-        dummy_config['processing_step']="none"
-        dummy_config['image_type']="none"
+    #with start_db_session() as db_session:
+    #    dummy_processing = ProcessingManager(None)
+    #    dummy_config = dummy_processing.get_config(
+    #        dummy_processing.get_matched_expressions(Evaluator()),
+    #        db_session,
+    #        step_name="add_images_to_db",
+    #    )[0]
 
-        setup_process_map(db_fname, dummy_config)
+    #dummy_config["task"] = "run_pipeline"
+    #dummy_config["parent_pid"] = ""
+    #dummy_config["processing_step"] = "none"
+    #dummy_config["image_type"] = "none"
 
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-
-    logging.debug("Config add_raw_images: %s", config.add_raw_images)
-    logging.debug("Config steps: %s", config.steps)
+    #setup_process_map(db_fname, dummy_config)
 
     with start_db_session() as db_session:
         pipeline_run = PipelineRun(
@@ -96,13 +96,21 @@ def main(config):
 
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
     for img_to_add in config.add_raw_images:
-        logging.debug("Adding raw images from: %s", img_to_add)
+        logging.info("Adding raw images from: %s", img_to_add)
         processing.add_raw_images(find_fits_fnames(os.path.abspath(img_to_add)))
 
     if config.steps is None or config.steps:
-        logging.debug("Starting processing...")
+        logging.info(
+            "Starting processing for database %s...",
+            get_sqlite_fname(),
+        )
+        sys.stdout.flush()
+        sys.stderr.flush()
+
         processing(limit_to_steps=config.steps)
-        logging.debug("Processing completed.")
+        logging.info("Processing completed.")
+        sys.stdout.flush()
+        sys.stderr.flush()
 
         LightCurveProcessingManager(pipeline_run_id=pipeline_run)()
 
@@ -115,55 +123,67 @@ def main(config):
 
 
 if __name__ == "__main__":
-    with open(os.devnull, "w", encoding="utf-8") as devnull:
-        sys.stdout = devnull
-        sys.stderr = devnull
+#    with open(
+#        os.path.join(
+#            platformdirs.user_data_dir("autowisp"), "run_pipeline.out"
+#        ),
+#        "w",
+#        encoding="utf-8",
+#        buffering=1,
+#    ) as outf:
+#        sys.stdout = outf
+#        sys.stderr = outf
 
-        if os.name == "posix":  # Linux/macOS
-            from os import getpgid, setsid, fork
+    if os.name == "posix":  # Linux/macOS
+        from os import getpgid, setsid, fork
+        import platform
 
-            try:
-                setsid()
-            except OSError:
-                print(f"pid={os.getpid():d}  pgid={getpgid(0):d}")
+        if platform.system() == "Darwin":
+            main(parse_command_line())
+            sys.exit(0)
 
-            pid = fork()
-            if pid < 0:
-                raise RuntimeError("fork fail")
-            if pid != 0:
-                sys.exit(0)
-
+        try:
             setsid()
-            main(parse_command_line())  # Run main function in child process
+        except OSError:
+            print(f"pid={os.getpid():d}  pgid={getpgid(0):d}")
 
-        elif os.name == "nt":  # Windows
-            from subprocess import DETACHED_PROCESS
+        pid = fork()
+        if pid < 0:
+            raise RuntimeError("fork fail")
+        if pid != 0:
+            sys.exit(0)
 
-            if "--detached" not in sys.argv:
-                try:
-                    with open(
-                        "detached_process.log", "w", encoding="utf-8"
-                    ) as log_file:
-                        subprocess.Popen(  # pylint: disable=consider-using-with
-                            [
-                                sys.executable,
-                                os.path.abspath(sys.argv[0]),
-                                "--detached",
-                            ]
-                            + sys.argv[1:],  # Relaunch with --detached
-                            creationflags=DETACHED_PROCESS,
-                            stdout=log_file,
-                            stderr=log_file,
-                        )
-                    sys.exit(0)  # Exit parent process
-                except Exception as e:  # pylint: disable=broad-except
-                    sys.stderr.write(f"Failed to detach: {format_exc()}\n")
-                    sys.exit(1)
-            else:
-                try:
-                    main(parse_command_line())
-                except Exception as e:  # pylint: disable=broad-except
-                    with open(
-                        "detached_process_error.log", "w", encoding="utf-8"
-                    ) as error_log:
-                        error_log.write(f"Error in main: {format_exc()}\n")
+        setsid()
+        main(parse_command_line())  # Run main function in child process
+
+    elif os.name == "nt":  # Windows
+        from subprocess import DETACHED_PROCESS
+
+        if "--detached" not in sys.argv:
+            try:
+                with open(
+                    "detached_process.log", "w", encoding="utf-8"
+                ) as log_file:
+                    subprocess.Popen(  # pylint: disable=consider-using-with
+                        [
+                            sys.executable,
+                            os.path.abspath(sys.argv[0]),
+                            "--detached",
+                        ]
+                        + sys.argv[1:],  # Relaunch with --detached
+                        creationflags=DETACHED_PROCESS,
+                        stdout=log_file,
+                        stderr=log_file,
+                    )
+                sys.exit(0)  # Exit parent process
+            except Exception as e:  # pylint: disable=broad-except
+                sys.stderr.write(f"Failed to detach: {format_exc()}\n")
+                sys.exit(1)
+        else:
+            try:
+                main(parse_command_line())
+            except Exception as e:  # pylint: disable=broad-except
+                with open(
+                    "detached_process_error.log", "w", encoding="utf-8"
+                ) as error_log:
+                    error_log.write(f"Error in main: {format_exc()}\n")

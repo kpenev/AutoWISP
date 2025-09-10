@@ -5,9 +5,9 @@
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 
-from autowisp import DataReductionFile
-
 from plot_detrending_stat import detect_stat_columns
+
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 def parse_command_line():
     """Return command line configuration."""

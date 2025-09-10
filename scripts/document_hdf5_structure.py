@@ -7,7 +7,8 @@ from tempfile import TemporaryDirectory
 
 from lxml import etree
 
-from autowisp import DataReductionFile, LightCurveFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
 
 #TODO: fix output of root attributes.
 

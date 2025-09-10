@@ -8,7 +8,8 @@ from sqlalchemy import select, and_, literal, update, sql, delete
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp import DataReductionFile, LightCurveFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import start_db_session, get_sqlite_fname
 from autowisp.database.processing import ProcessingManager

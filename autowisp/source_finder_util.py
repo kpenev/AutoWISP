@@ -1,9 +1,15 @@
 """Some general purpose low level tools for source extraction."""
 
 import os
+import sys
+import traceback
 
 import subprocess
 from astrowisp import fistar_path
+
+import faulthandler
+
+faulthandler.enable()
 
 
 def start_hatphot(unpacked_fits_fname, threshold, stdout=subprocess.PIPE):
@@ -37,13 +43,21 @@ def start_fistar(unpacked_fits_fname, threshold, stdout=subprocess.PIPE):
         "--flux-threshold",
         repr(threshold),
     ]
-    print("Running: " + repr(command))
+    print(
+        "Running: "
+        + repr(command)
+        + "in environment\n\t"
+        + "\n\t".join([f"{key} = {value}" for key, value in os.environ.items()])
+    )
     if os.name == "nt":
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
     else:
         startupinfo = None
+    print(
+        f"Starting fistar with stdout = {stdout!r}, startupinfo={startupinfo!r}"
+    )
     return subprocess.Popen(command, stdout=stdout, startupinfo=startupinfo)
 
 

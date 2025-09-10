@@ -6,7 +6,7 @@ import astrowisp
 from astrowisp.utils import flux_from_magnitude
 
 from autowisp import fit_expression
-from autowisp.data_reduction import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.data_reduction.utils import (
     get_aperture_photometry_inputs,
     add_star_shape_fit,

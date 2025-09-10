@@ -18,7 +18,8 @@ from colormath.color_conversions import convert_color
 import scipy.optimize as optimize
 from scipy.optimize import LinearConstraint
 
-from autowisp import LightCurveFile, Evaluator
+from autowisp.light_curves.light_curve_file import LightCurveFile
+from autowisp.evaluator import Evaluator
 from autowisp.catalog import read_catalog_file
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.light_curves.apply_correction import\

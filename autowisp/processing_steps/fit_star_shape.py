@@ -13,11 +13,9 @@ import pandas
 
 from autowisp.multiprocessing_util import setup_process, setup_process_map
 from autowisp.database.interface import get_sqlite_fname
-from autowisp import (
-    Evaluator,
-    PiecewiseBicubicPSFMap,
-    DataReductionFile,
-)
+from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.evaluator import Evaluator
 from autowisp.astrometry import Transformation
 from autowisp.file_utilities import find_fits_with_dr_fnames
 from autowisp.fits_utilities import get_primary_header

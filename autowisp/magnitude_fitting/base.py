@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from numpy.lib import recfunctions
 import numpy
 
-from autowisp import DataReductionFile
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
 from autowisp.magnitude_fitting.util import get_magfit_sources
 

@@ -10,7 +10,7 @@ from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import start_db_session, get_sqlite_fname
-from autowisp import Evaluator
+from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
     add_required_keywords,
@@ -567,6 +567,9 @@ class ProcessingManager:
 
         if pipeline_run_id is None:
             logging.disable()
+        else:
+            logging.disable(logging.NOTSET)
+
         DataReductionFile.get_file_structure()
         LightCurveFile.get_file_structure()
 
