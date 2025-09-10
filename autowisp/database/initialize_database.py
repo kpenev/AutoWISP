@@ -14,6 +14,7 @@ from autowisp.database.interface import (
     initialize_cmdline_database,
 )
 from autowisp.database.data_model.base import DataModelBase
+from autowisp.database import defaults
 
 from autowisp import processing_steps
 
@@ -36,222 +37,6 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 
 _logger = logging.getLogger(__name__)
-
-master_info = {
-    "zero": {
-        "must_match": frozenset(("CAMERAID", "CLRCHNL")),
-        "config_name": "master-bias",
-        "created_by": ("stack_to_master", "zero"),
-        "split_by": frozenset(("OBSSSNID",)),
-        "used_by": [
-            ("calibrate", "dark", False),
-            ("calibrate", "flat", False),
-            ("calibrate", "object", False),
-        ],
-        "description": "An estimate of the zero level of a camera.",
-    },
-    "dark": {
-        "must_match": frozenset(("CAMERAID", "CLRCHNL")),
-        "config_name": "master-dark",
-        "created_by": ("stack_to_master", "dark"),
-        "split_by": frozenset(("OBSSSNID",)),
-        "used_by": [
-            ("calibrate", "flat", False),
-            ("calibrate", "object", False),
-        ],
-        "description": "An estimate of the dark current of a camera.",
-    },
-    "highflat": {
-        "must_match": frozenset(("CAMERAID", "TELSCPID", "CLRCHNL")),
-        "config_name": "master-flat",
-        "created_by": ("stack_to_master_flat", "flat"),
-        "split_by": frozenset(("OBSSSNID",)),
-        "used_by": [("calibrate", "object", False)],
-        "description": "An estimate of the relative sensitivity of image "
-        "pixels to light from infinity entering the telescope. Constructed from"
-        " flat frames with high (but not saturated) light.",
-    },
-    "lowflat": {
-        "must_match": frozenset(("CAMERAID", "TELSCPID", "CLRCHNL")),
-        "config_name": "low-flat-master-fname",
-        "created_by": ("stack_to_master_flat", "flat"),
-        "split_by": frozenset(("OBSSSNID",)),
-        "used_by": [],
-        "description": "An estimate of the relative sensitivity of image "
-        "pixels to light from infinity entering the telescope. Constructed from"
-        " flat frames with low light.",
-    },
-    "single_photref": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "single-photref-dr-fname",
-        "created_by": None,
-        "split_by": frozenset(),
-        "used_by": [
-            ("fit_magnitudes", "object", False),
-            ("create_lightcurves", "object", False),
-            ("epd", "object", False),
-            ("generate_epd_statistics", "object", False),
-            ("tfa", "object", False),
-            ("generate_tfa_statistics", "object", False),
-        ],
-        "description": "The reference image to use to start magnitude "
-        "fitting. Subsequently replaced by average of the corrected "
-        "brightnes of each star.",
-    },
-    "master_photref": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "master-photref-dr-fname",
-        "created_by": ("fit_magnitudes", "object"),
-        "split_by": frozenset(),
-        "used_by": [("fit_magnitudes", "object", True)],
-        "description": "The master photometric reference to use for magnitude "
-        "fitting if available.",
-    },
-    "magfit_stat": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "magfit-stat-fname",
-        "created_by": ("fit_magnitudes", "object"),
-        "split_by": frozenset(),
-        "used_by": [],
-        "description": "The statistics file generated during magnitude "
-        "fitting.",
-    },
-    "magfit_catalog": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "magfit-catalog-fname",
-        "created_by": ("fit_magnitudes", "object"),
-        "split_by": frozenset(),
-        "used_by": [],
-        "description": "The catalog file generated during magnitude fitting.",
-    },
-    "lightcurve_catalog": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "detrending-catalog",
-        "created_by": ("create_lightcurves", "object"),
-        "split_by": frozenset(),
-        "used_by": [
-            ("epd", "object", False),
-            ("generate_epd_statistics", "object", False),
-            ("tfa", "object", False),
-            ("generate_tfa_statistics", "object", False),
-        ],
-        "description": "The catalog file generated for collecting lightcurves.",
-    },
-    "epd_stat": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "epd-statistics-fname",
-        "created_by": ("generate_epd_statistics", "object"),
-        "split_by": frozenset(),
-        "used_by": [("tfa", "object", False)],
-        "description": "The statistics file showing the performance after EPD.",
-    },
-    "tfa_stat": {
-        "must_match": frozenset(("TARGETID", "CLRCHNL", "EXPTIME")),
-        "config_name": "tfa-statistics-fname",
-        "created_by": ("generate_tfa_statistics", "object"),
-        "split_by": frozenset(),
-        "used_by": [],
-        "description": "The statistics file showing the performance after TFA.",
-    },
-}
-
-
-step_dependencies = [
-    ("add_images_to_db", None, []),
-    ("calibrate", "zero", []),
-    ("stack_to_master", "zero", [("calibrate", "zero")]),
-    ("calibrate", "dark", [("stack_to_master", "zero")]),
-    ("stack_to_master", "dark", [("calibrate", "dark")]),
-    (
-        "calibrate",
-        "flat",
-        [("stack_to_master", "zero"), ("stack_to_master", "dark")],
-    ),
-    ("stack_to_master_flat", "flat", [("calibrate", "flat")]),
-    (
-        "calibrate",
-        "object",
-        [
-            ("stack_to_master", "zero"),
-            ("stack_to_master", "dark"),
-            ("stack_to_master_flat", "flat"),
-        ],
-    ),
-    ("find_stars", "object", [("calibrate", "object")]),
-    ("solve_astrometry", "object", [("find_stars", "object")]),
-    (
-        "fit_star_shape",
-        "object",
-        [("solve_astrometry", "object"), ("calibrate", "object")],
-    ),
-    (
-        "measure_aperture_photometry",
-        "object",
-        [("fit_star_shape", "object"), ("calibrate", "object")],
-    ),
-    (
-        "fit_source_extracted_psf_map",
-        "object",
-        [("find_stars", "object"), ("solve_astrometry", "object")],
-    ),
-    (
-        "fit_magnitudes",
-        "object",
-        [
-            ("solve_astrometry", "object"),
-            ("fit_star_shape", "object"),
-            ("measure_aperture_photometry", "object"),
-            ("fit_source_extracted_psf_map", "object"),
-        ],
-    ),
-    (
-        "create_lightcurves",
-        "object",
-        [
-            ("solve_astrometry", "object"),
-            ("fit_star_shape", "object"),
-            ("measure_aperture_photometry", "object"),
-            ("fit_magnitudes", "object"),
-            ("fit_source_extracted_psf_map", "object"),
-        ],
-    ),
-    (
-        "calculate_photref_merit",
-        "object",
-        [
-            ("calibrate", "object"),
-            ("find_stars", "object"),
-            ("solve_astrometry", "object"),
-            ("fit_star_shape", "object"),
-            ("fit_source_extracted_psf_map", "object"),
-        ],
-    ),
-    (
-        "epd",
-        "object",
-        [("create_lightcurves", "object"), ("fit_magnitudes", "object")],
-    ),
-    (
-        "generate_epd_statistics",
-        "object",
-        [("create_lightcurves", "object"), ("epd", "object")],
-    ),
-    (
-        "tfa",
-        "object",
-        [
-            ("epd", "object"),
-            ("generate_epd_statistics", "object"),
-            ("create_lightcurves", "object"),
-            ("fit_magnitudes", "object"),
-        ],
-    ),
-    (
-        "generate_tfa_statistics",
-        "object",
-        [("create_lightcurves", "object"), ("tfa", "object")],
-    ),
-]
 
 
 def get_command_line_parser():
@@ -351,7 +136,7 @@ class StepCreator:
                     "config-file",
                     "extra-config-file",
                     "split-channels",
-                    'database-fname',
+                    "database-fname",
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")
@@ -401,7 +186,7 @@ class StepCreator:
 # pylint: enable=too-few-public-methods
 
 
-def add_master_dependencies(db_session):
+def add_master_dependencies(db_session, master_info):
     """Fill the master_types table."""
 
     def get_imtype_id(imtype_name):
@@ -489,7 +274,7 @@ def add_master_dependencies(db_session):
 
 # No good way to simplify
 # pylint: disable=too-many-locals
-def init_processing():
+def init_processing(step_dependencies, master_info):
     """Initialize the tables controlling how processing is to be done."""
 
     image_type_list = []
@@ -537,7 +322,7 @@ def init_processing():
                         + 1,
                     )
                 )
-        add_master_dependencies(db_session)
+        add_master_dependencies(db_session, master_info)
 
 
 # pylint: enable=too-many-locals
@@ -560,13 +345,13 @@ def drop_tables_matching(pattern):
         )
 
 
-def _overwrite_defaults(new_defaults):
+def _overwrite_default_config(new_default_config):
     """Overwrite default values from what is defined in the steps."""
 
     db_conditions = {}
     db_expressions = {}
     with start_db_session() as db_session:
-        for param, all_values in new_defaults.items():
+        for param, all_values in new_default_config.items():
             alternate = db_session.execute(
                 select(AlternateParameterName).filter_by(alt_name=param)
             ).scalar_one_or_none()
@@ -582,7 +367,10 @@ def _overwrite_defaults(new_defaults):
                     assert (
                         db_session.execute(
                             update(Configuration)
-                            .where(Configuration.parameter_id == param_id)
+                            .where(
+                                Configuration.parameter_id  # pylint: disable=no-member
+                                == param_id
+                            )
                             .values(value=value)
                         ).rowcount
                         == 1
@@ -612,20 +400,25 @@ def _overwrite_defaults(new_defaults):
 
                     if condition_id is None:
                         condition_id = db_session.scalar(
-                            select(sql.functions.max(Condition.id) + 1)
+                            select(
+                                sql.functions.max(
+                                    Condition.id  # pylint: disable=no-member
+                                )
+                                + 1
+                            )
                         )
                         _logger.debug("New condition id: %d", condition_id)
 
                         for expression_id in expression_set:
                             db_session.add(
-                                Condition(
+                                Condition(  # pylint: disable=not-callable
                                     id=condition_id, expression_id=expression_id
                                 )
                             )
                             db_session.flush()
                         db_conditions[expression_set] = condition_id
                     db_session.add(
-                        Configuration(
+                        Configuration(  # pylint: disable=not-callable
                             parameter_id=param_id,
                             condition_id=condition_id,
                             version=0,
@@ -636,16 +429,24 @@ def _overwrite_defaults(new_defaults):
                 assert (
                     db_session.execute(
                         delete(Configuration).where(
-                            Configuration.parameter_id == param_id,
-                            Configuration.condition_id == 1,
-                            Configuration.version == 0,
+                            Configuration.parameter_id  # pylint: disable=no-member
+                            == param_id,
+                            Configuration.condition_id  # pylint: disable=no-member
+                            == 1,
+                            Configuration.version  # pylint: disable=no-member
+                            == 0,
                         )
                     ).rowcount
                     == 1
                 )
 
 
-def initialize_database(cmdline_args, overwrite_defaults=None):
+def initialize_database(
+    cmdline_args,
+    step_dependencies=None,
+    master_info=None,
+    overwrite_default_config=None,
+):
     """Initialize the database as specified on the command line."""
 
     if cmdline_args.drop_hdf5_structure_tables:
@@ -658,9 +459,12 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
     if not cmdline_args.drop_all_tables:
         return
 
-    init_processing()
-    if overwrite_defaults is None:
-        overwrite_defaults = {
+    init_processing(
+        step_dependencies or defaults.step_dependencies,
+        master_info or defaults.master_info,
+    )
+    if overwrite_default_config is None:
+        overwrite_default_config = {
             param: [(("False",), None)]
             for param in [
                 "srcfind-tool",
@@ -669,7 +473,7 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
                 "srcextract-max-sources",
             ]
         }
-    _overwrite_defaults(overwrite_defaults)
+    _overwrite_default_config(overwrite_default_config)
 
 
 if __name__ == "__main__":

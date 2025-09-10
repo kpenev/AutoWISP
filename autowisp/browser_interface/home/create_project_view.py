@@ -10,11 +10,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 
 from autowisp.database.interface import set_sqlite_database
-from autowisp.database.initialize_database import (
-    initialize_database,
-    master_info,
-    step_dependencies,
-)
+from autowisp.database.initialize_database import initialize_database
+from autowisp import database
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from .models import Project
 
@@ -47,9 +44,6 @@ class CreateProjectView(WalkFSView):
 
     db_fname = "autowisp.db"
     """The base filename of the SQLite database tracking all projects."""
-
-    _orig_step_dependencies = copy.deepcopy(step_dependencies)
-    _orig_master_info = copy.deepcopy(master_info)
 
     def _get_context(self, config, search_dir):
         """Return the context required by the home selection template."""
@@ -208,8 +202,11 @@ class CreateProjectView(WalkFSView):
             ]
         return result
 
-    def _specialize_dependencies(self, config):
+    def _get_steps_and_masters(self, config):
         """Set the processing sequence and masters per configuration."""
+
+        step_dependencies = copy.deepcopy(database.defaults.step_dependencies)
+        master_info = copy.deepcopy(database.defaults.master_info)
 
         disabled_masters = [
             master_type
@@ -268,6 +265,8 @@ class CreateProjectView(WalkFSView):
                 filter(None, config.getlist(f"master-{master_type}-split"))
             )
 
+        return step_dependencies, master_info
+
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
@@ -276,7 +275,6 @@ class CreateProjectView(WalkFSView):
             f"Directory {config['project-home']} appears to already contain a "
             "project."
         )
-        self._specialize_dependencies(config)
 
         proj = Project(
             name=config["project-name"],
@@ -299,16 +297,9 @@ class CreateProjectView(WalkFSView):
         overwrites.update(self._get_path_overwrites(proj.path, config))
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
+            *self._get_steps_and_masters(config),
             overwrites,
         )
-
-        # pylint: disable=global-statement
-        global step_dependencies
-        global master_info
-        # pylint: enable=global-statement
-
-        step_dependencies = copy.deepcopy(self._orig_step_dependencies)
-        master_info = copy.deepcopy(self._orig_master_info)
 
     def _save_form(self, request):
         """Save the current state of the form to the session."""
@@ -321,7 +312,7 @@ class CreateProjectView(WalkFSView):
         ]:
             request.session[key] = request.POST.get(key, "")
 
-        for master_type in master_info:
+        for master_type in database.defaults.master_info:
             if master_type == "lowflat":
                 continue
             if master_type == "highflat":
@@ -339,7 +330,7 @@ class CreateProjectView(WalkFSView):
 
         config = json.load(request.FILES["import-master-config"])
 
-        for master_type in master_info:
+        for master_type in database.defaults.master_info:
             if master_type in ["highflat", "lowflat"]:
                 master_type = "flat"
             for param in ["enabled", "split", "match"]:
@@ -423,7 +414,10 @@ class CreateProjectView(WalkFSView):
                     "config": request.session.get("custom-config", ""),
                     "master_info": [
                         get_master_info(master_type, master_config)
-                        for master_type, master_config in master_info.items()
+                        for (
+                            master_type,
+                            master_config,
+                        ) in database.defaults.master_info.items()
                         if master_type != "lowflat"
                     ],
                 },

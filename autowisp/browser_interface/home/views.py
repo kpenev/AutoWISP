@@ -6,7 +6,7 @@ from io import StringIO
 
 from django.shortcuts import render, redirect, HttpResponse
 
-from autowisp.database.initialize_database import master_info
+from autowisp.database.defaults import master_info
 
 from .create_project_view import (  # pylint: disable=unused-import
     CreateProjectView,
