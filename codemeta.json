@@ -1,0 +1,43 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "name": "AutoWISP: High-precision photometry pipeline",
+    "description": "The AutoWISP pipeline extracts high-precision photometry from astronomical observations, with special features designed for consumer-grade color cameras (<i>e.g.</i>, DSLRs). Based on AstroWISP (ascl:2508.002), the code provides a complete, automated workflow from raw images to science-ready light curves. The package is flexible and modular, allowing different parts of the package to function independently, which allows for easier maintenance and updates. AutoWISP is designed to be accessible to citizen scientists with access to observing equipment.",
+    "identifier": "ascl:2508.003",
+    "author": [
+        {
+            "@type": "Person",
+            "givenName": "Kaloyan",
+            "familyName": "Penev",
+            "@id": "https://orcid.org/0000-0003-4464-1371"
+        },
+        {
+            "@type": "Person",
+            "givenName": "Angel",
+            "familyName": "Romero",
+            "@id": "https://orcid.org/0000-0001-9436-6027"
+        },
+        {
+            "@type": "Person",
+            "givenName": "S. Javad",
+            "familyName": "Jafarzadeh",
+            "@id": "https://orcid.org/0000-0002-9490-2093"
+        }
+    ],
+    "citation": "https://ui.adsabs.harvard.edu/abs/2025ascl.soft08003P",
+    "relatedLink": [
+        "https://pypi.org/project/autowisp/"
+    ],
+    "codeRepository": [
+        "https://github.com/kpenev/AutoWISP"
+    ],
+    "referencePublication": [
+        {
+            "@type": "ScholarlyArticle",
+            "url": "https://ui.adsabs.harvard.edu/abs/2025arXiv250715830R",
+            "@id": "https://doi.org/10.3847/1538-3881/adfe6c"
+        }
+    ],
+    "version": "PLACEHOLDER: Add version here",
+    "license": "https://spdx.org/licenses/MIT.html"
+}
