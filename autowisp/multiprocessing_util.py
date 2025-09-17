@@ -138,19 +138,14 @@ def setup_process_map(db_fname, config):
 
     def ensure_directory(fname):
         """Make sure the directory containing the given name exists."""
-        with open('C:\\WISP\\out\\file_multi.txt', mode='a', encoding='utf-8') as f:
-            f.write(f'Ensuring directory for {fname}\n')
         dirname = os.path.dirname(fname)
         if dirname and not os.path.exists(dirname):
             try:
                 os.makedirs(dirname)
-                with open('C:\\WISP\\out\\file_multi.txt', mode='a', encoding='utf-8') as f:
-                    f.write(f'Created directory {dirname}\n')
             except FileExistsError:
                 if not os.path.isdir(dirname):
                     raise
-    with open('C:\\WISP\\out\\file_multi.txt', mode='a', encoding='utf-8') as f:
-        f.write(f'Setting up process map with DB {db_fname} and config {config}\n')
+
     for param, value in default_config.items():
         if param not in config and (
             param != "logging_verbosity" or "verbose" not in config
@@ -171,10 +166,6 @@ def setup_process_map(db_fname, config):
             )
             +"\n"
         )
-        # if os.name == "nt":
-            # with open('C:\\WISP\\out\\file_multi.txt', mode='a', encoding='utf-8') as f:
-            #     f.write('Setting multiprocessing executable to pythonw.exe\n')
-            # multiprocessing.set_executable(os.path.join(sys.exec_prefix, 'pythonw.exe'))
         logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
         info_file.write(
             f"Logging to {logging_fname!r}, "
@@ -182,8 +173,6 @@ def setup_process_map(db_fname, config):
         )
 
     if std_out_err_fname is not None:
-        with open('C:\\WISP\\out\\file_multi.txt', mode='a', encoding='utf-8') as f:
-            f.write(f'Redirecting output to {std_out_err_fname}\n')
         sys.stdout.flush()
         sys.stderr.flush()
         sys.stdout.close()

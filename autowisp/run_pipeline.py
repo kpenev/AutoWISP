@@ -66,8 +66,6 @@ def parse_command_line():
 
 def main(config):
     """Avoid global variables."""
-    with open('C:\\WISP\\out\\file_out.txt', mode='a', encoding='utf-8') as f:
-        f.write('Starting pipeline main\n')
 
     db_fname = os.path.abspath(config.processing_database)
     set_sqlite_database(db_fname)
@@ -97,8 +95,6 @@ def main(config):
         pipeline_run = pipeline_run.id
 
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
-    with open('C:\\WISP\\out\\file_out.txt', mode='a', encoding='utf-8') as f:
-        f.write('Starting pipeline main...created processing manager\n')
 
     for img_to_add in config.add_raw_images:
         logging.info("Adding raw images from: %s", img_to_add)
@@ -111,8 +107,6 @@ def main(config):
         )
         sys.stdout.flush()
         sys.stderr.flush()
-        with open('C:\\WISP\\out\\file_out.txt', mode='a', encoding='utf-8') as f:
-            f.write('Starting pipeline main...created and before calling processing\n')
 
         processing(limit_to_steps=config.steps)
         logging.info("Processing completed.")
@@ -130,9 +124,6 @@ def main(config):
 
 
 if __name__ == "__main__":
-    with open('C:\\WISP\\out\\file_out.txt', mode='a', encoding='utf-8') as f:
-        f.write('Starting pipeline...\n')
-        f.flush()
     with open(
         os.path.join(
             platformdirs.user_data_dir("autowisp"), "run_pipeline.out"
@@ -167,30 +158,6 @@ if __name__ == "__main__":
             main(parse_command_line())  # Run main function in child process
 
         elif os.name == "nt":  # Windows
-            with open('C:\\WISP\\out\\file_out.txt', mode='a', encoding='utf-8') as f:
-                f.write('Starting inside nt...\n')
-
-            # if "--detached" not in sys.argv:
-                # try:
-                #     with open(
-                #         "detached_process.log", "w", encoding="utf-8"
-                #     ) as log_file:
-                #         subprocess.Popen(  # pylint: disable=consider-using-with
-                #             [
-                #                 sys.executable,
-                #                 os.path.abspath(sys.argv[0]),
-                #                 "--detached",
-                #             ]
-                #             + sys.argv[1:],  # Relaunch with --detached
-                #             creationflags=subprocess.DETACHED_PROCESS,
-                #             stdout=log_file,
-                #             stderr=log_file,
-                #         )
-                #     sys.exit(0)  # Exit parent process
-                # except Exception as e:  # pylint: disable=broad-except
-                #     sys.stderr.write(f"Failed to detach: {format_exc()}\n")
-                #     sys.exit(1)
-            # else:
                 try:
                     main(parse_command_line())
                 except Exception as e:  # pylint: disable=broad-except
