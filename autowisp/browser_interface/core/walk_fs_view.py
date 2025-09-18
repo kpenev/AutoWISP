@@ -16,7 +16,7 @@ class WalkFSView(View):
 
     _logger = logging.getLogger(__name__)
 
-    _root_dir = [("Computer", "Computer")] if os.name == "nt" else [("/", "Computer")]
+    _root_dir = ("Computer", "Computer") if os.name == "nt" else ("/", "Computer")
 
     template = 'core/walk_fs.html'
     url_name = None
@@ -80,19 +80,16 @@ class WalkFSView(View):
         result["file_list"].sort()
         result["dir_list"].sort()
 
-        parent_dir_list = self._root_dir[:]
+        parent_dir_list = [self._root_dir]
         if not(search_dir == "Computer"):
             head = path.abspath(search_dir)
-            while True:
+            while head != self._root_dir[0]:
                 drive, tail = path.splitdrive(head)
                 if drive and (tail == "" or tail == "\\"):
                     parent_dir_list.insert(1, (f"{drive}\\", f"{drive[0]} Drive"))
                     break
                 parent_dir_list.insert(1, (head, path.basename(head)))
-                new_head = path.dirname(head)
-                if new_head == head:  # safety guard
-                    break
-                head = new_head
+                head = path.dirname(head)
 
         result["parent_dir_list"] = parent_dir_list
 
