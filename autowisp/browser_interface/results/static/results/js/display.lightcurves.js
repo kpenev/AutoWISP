@@ -333,6 +333,10 @@ function showConfig(url, parentId, onSuccess) {
     };
 }
 
+// Ensure showConfig is accessible on the global object even if script execution context changes
+// (defensive: browsers normally expose function declarations globally, but make it explicit)
+try { window.showConfig = window.showConfig || showConfig; } catch (_) {}
+
 function showEditPlot(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
     if (plotId !== null && activeBoundary === null) {
@@ -837,46 +841,53 @@ function initLightcurveDisplay(urls) {
             }
         }]
     }];
-    showConfig(configURLs.subplot.slice(0, -1) + "0", "config-parent", function() {
-        var configParent = document.getElementById("config-parent");
-        configParent.style.display = "none";
-        if (configParent.parentNode) {
-            configParent.parentNode.style.display = "none";
-        }
-        plotCurves = new plotCurvesType(lcDataSelect);
-        getPlottingConfig.mode = "subplot";
-        getPlottingConfig.plotId = 0;
-        // --- Add Open Config button next to Apply and Figure Config ---
-        var applyBtn = document.getElementById("apply");
-        var figConfigBtn = document.getElementById("rcParams");
-        if (applyBtn && figConfigBtn) {
-            var openConfigBtn = document.createElement("button");
-            openConfigBtn.id = "open-config";
-            openConfigBtn.textContent = "Open Config";
-            openConfigBtn.style.marginLeft = "4px";
-            openConfigBtn.style.height = figConfigBtn.style.height;
-            openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
-            openConfigBtn.className = figConfigBtn.className;
-            figConfigBtn.parentNode.insertBefore(openConfigBtn, figConfigBtn.nextSibling);
-            openConfigBtn.onclick = function() {
-                var configParent = document.getElementById("config-parent");
-                var parentContainer = configParent.parentNode;
-                if (configParent.style.display === "none" || configParent.style.display === "") {
-                    configParent.style.display = "inline";
-                    parentContainer.style.display = "inline-flex";
-                } else {
-                    configParent.style.display = "none";
-                    parentContainer.style.display = "none";
-                }
-            };
-        }
-        document.getElementById("rcParams").onclick = () =>
-            showConfig(urls.rcParams, "config-parent", () => {
-                getPlottingConfig.mode = "rcParams";
-            });
-        document.getElementById("apply").onclick = updateFigure;
-        updateFigure();
-    });
+
+
+
+    function initConfigPanel() {
+    var configParent = document.getElementById("config-parent");
+    configParent.style.display = "none";
+    if (configParent.parentNode) {
+        configParent.parentNode.style.display = "none";
+    }
+    plotCurves = new plotCurvesType(lcDataSelect);
+    getPlottingConfig.mode = "subplot";
+    getPlottingConfig.plotId = 0;
+
+    // --- Add Open Config button next to Apply and Figure Config ---
+    var applyBtn = document.getElementById("apply");
+    var figConfigBtn = document.getElementById("rcParams");
+    if (applyBtn && figConfigBtn) {
+        var openConfigBtn = document.createElement("button");
+        openConfigBtn.id = "open-config";
+        openConfigBtn.textContent = "Open Config";
+        openConfigBtn.style.marginLeft = "4px";
+        openConfigBtn.style.height = figConfigBtn.style.height;
+        openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
+        openConfigBtn.className = figConfigBtn.className;
+        figConfigBtn.parentNode.insertBefore(openConfigBtn, figConfigBtn.nextSibling);
+        openConfigBtn.onclick = function() {
+            var configParent = document.getElementById("config-parent");
+            var parentContainer = configParent.parentNode;
+            if (configParent.style.display === "none" || configParent.style.display === "") {
+                configParent.style.display = "inline";
+                parentContainer.style.display = "inline-flex";
+            } else {
+                configParent.style.display = "none";
+                parentContainer.style.display = "none";
+            }
+        };
+    }
+    document.getElementById("rcParams").onclick = () =>
+        showConfig(configURLs.rcParams, "config-parent", () => {
+            getPlottingConfig.mode = "rcParams";
+        });
+    document.getElementById("apply").onclick = updateFigure;
+    updateFigure();
+}
+
+    showConfig(configURLs.subplot.slice(0, -1) + "0", "config-parent", initConfigPanel);
+
     
 }
 
@@ -884,8 +895,6 @@ function initLightcurveDisplay(urls) {
 * Function to persist the "star-id" input across reloads.
 * Works both for initial page load and dynamically added DOM elements.
 */
-
-(function () {
     /**
     * save the value of a given input field to localStorage and restore on load.
     * @param {string} id - DOM element ID of the input field.
@@ -900,16 +909,16 @@ function initLightcurveDisplay(urls) {
         input[`_persisted_${key}`] = true;
     }
 
-    /**
+   /**
     * Observe DOM for the target input element and persist once it appears.
-    */
+    */    
     function observeInput(id, key) {
         new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
-    }
+    }    
 
-    document.addEventListener("DOMContentLoaded", () => persistInput("star-id", "savedStarId"));
+    document.addEventListener("DOMContentLoaded", () =>
+    persistInput("star-id", "savedStarId"));
     observeInput("star-id", "savedStarId");
-})();
 
 /**
 * Replace occurrences of `{mode}.{from}.` in a string with `{mode}.{to}.`.
@@ -1010,55 +1019,53 @@ if (!window.setupMagfitTfaButtonsLoaded) {
 /**
  * Monkey-patch `showConfig` to call `setupMagfitTfaButtons` after loading config.
  */
-if (typeof window.showConfig === "function") {
+function patchShowConfig() {
+    if (typeof window.showConfig === "function") {
     const origShowConfig = window.showConfig;
     window.showConfig = function (url, parentId, onSuccess) {
         origShowConfig(url, parentId, () => {
-            setupMagfitTfaButtons();
-            if (typeof onSuccess === "function") onSuccess();
+            // Re-bind magfit/tfa handlers whenever config HTML is (re)loaded
+             if (typeof onSuccess === "function") onSuccess();
         });
     };
-}
+}};
+
 
 
 /**
  * IIFE to persist minimize and magnitude inputs dynamically as they appear.
  * Uses MutationObservers for dynamic updates.
  */
-
-(function () {
-    function persistMinimize() {
+function persistMinimize() {
         const input = document.getElementById("minimize");
         if (!input || input._persisted_minimize) return;
         const saved = localStorage.getItem("persistedMinimize");
         if (saved !== null) input.value = saved;
         input.addEventListener("input", () => localStorage.setItem("persistedMinimize", input.value));
         input._persisted_minimize = true;
-    }
 
-    function persistMagnitude() {
-        const table = document.getElementById("lc-expressions");
-        if (!table) return;
-        for (const row of table.querySelectorAll("tr")) {
-            const nameInput = row.querySelector("input[id^='lc-expression-key']");
-            const valueInput = row.querySelector("input[id^='lc-expression-value']");
-            if (nameInput?.value.trim() === "magnitude" && valueInput && !valueInput._persisted_magnitude) {
-                const saved = localStorage.getItem("persistedMagnitude");
-                if (saved !== null) valueInput.value = saved;
-                valueInput.addEventListener("input", () => localStorage.setItem("persistedMagnitude", valueInput.value));
-                valueInput._persisted_magnitude = true;
-            }
+}
+function persistMagnitude() {
+    const table = document.getElementById("lc-expressions");
+    if (!table) return;
+    for (const row of table.querySelectorAll("tr")) {
+        const nameInput = row.querySelector("input[id^='lc-expression-key']");
+        const valueInput = row.querySelector("input[id^='lc-expression-value']");
+        if (nameInput?.value.trim() === "magnitude" && valueInput && !valueInput._persisted_magnitude) {
+            const saved = localStorage.getItem("persistedMagnitude");
+            if (saved !== null) valueInput.value = saved;
+            valueInput.addEventListener("input", () => localStorage.setItem("persistedMagnitude", valueInput.value));
+            valueInput._persisted_magnitude = true;
         }
     }
+}
 
-    document.addEventListener("DOMContentLoaded", () => {
-        persistMinimize();
-        persistMagnitude();
-    });
+document.addEventListener("DOMContentLoaded", () => {
+    persistMinimize();
+    persistMagnitude();
+}); 
 
-    new MutationObserver(persistMinimize).observe(document.body, { childList: true, subtree: true });
-    new MutationObserver(persistMagnitude).observe(document.body, { childList: true, subtree: true });
-})();
+;
 
 
 // Function to get CSRF token from cookies
@@ -1129,5 +1136,27 @@ function updateFigure() {
     };
     xhr.send(JSON.stringify(updateFigure.getParam()));
 }
+
+// Delegated click handlers so magfit/tfa buttons work even when inserted dynamically
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest && e.target.closest("button");
+    if (!btn) return;
+    switch (btn.id) {
+        case "btn-magfit-minimize":
+            if (typeof setMinimizeMode === "function") setMinimizeMode("magfit");
+            break;
+        case "btn-tfa-minimize":
+            if (typeof setMinimizeMode === "function") setMinimizeMode("tfa");
+            break;
+        case "btn-magfit-magnitude":
+            if (typeof setMagnitudeMode === "function") setMagnitudeMode("magfit");
+            break;
+        case "btn-tfa-magnitude":
+            if (typeof setMagnitudeMode === "function") setMagnitudeMode("tfa");
+            break;
+        default:
+            break;
+    }
+});
 
 
