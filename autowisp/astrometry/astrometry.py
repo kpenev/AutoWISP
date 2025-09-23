@@ -5,6 +5,7 @@ import logging
 from tempfile import TemporaryDirectory
 import subprocess
 import os
+import shlex
 from traceback import format_exc
 import time
 from urllib.request import Request, urlopen
@@ -237,10 +238,37 @@ def create_sources_file(xy_extracted, sources_fname):
     return xy_extracted
 
 
-def create_config_file(config_fname, fov_range, anet_indices):
-    """Create configuration file set up to solve imaves FOV in given range."""
+def _win_to_cygwin_path(p: str) -> str:
+    """Convert a Windows path (C:\foo\bar) to a Cygwin path (/cygdrive/c/foo/bar)."""
+    drive, rest = os.path.splitdrive(p)
+    if not drive:
+        return p.replace("\\", "/")
+    letter = drive[0].lower()
+    posix = f"/cygdrive/{letter}{rest.replace('\\', '/')}"
 
-    with open(config_fname, "w", encoding="utf-8") as config_file:
+    # collapse any // to /
+    return posix.replace("//", "/")
+
+
+def _ansvr_posix_path(p: str) -> str:
+    """For ANSVR, map paths under the cygwin root to /usr/...; otherwise use /cygdrive/.."""
+    root = os.path.normpath(os.path.expandvars(r"%LOCALAPPDATA%\cygwin_ansvr"))
+    q = os.path.normpath(p)
+    if q.lower().startswith(root.lower()):
+        rel = q[len(root):].lstrip("\\/")             # -> usr\share\astrometry\...
+        posix = "/" + rel.replace("\\", "/")          # -> /usr/share/astrometry/...
+        return posix.replace("//", "/")
+    return _win_to_cygwin_path(q)
+
+def _ansvr_arg_path(p: str) -> str:
+    """Windows absolute path with forward slashes for ANSVR args."""
+    return os.path.abspath(p).replace("\\", "/")
+
+
+def create_config_file(config_fname, fov_range, anet_indices):
+    """Create configuration file set up to solve images FOV in given range."""
+
+    with open(config_fname, "w", encoding="utf-8", newline="\n") as config_file:
         if min(fov_range) < 2.0:
             config_file.write(f"add_path {anet_indices[0]}\n")
         if max(fov_range) > 0.5:
@@ -264,10 +292,37 @@ def get_initial_corr_local(
         config_fname,
     ):
         xy_extracted = create_sources_file(xy_extracted, sources_fname)
-        create_config_file(config_fname, fov_range, anet_indices)
+        # Detect ANSVR on Windows (cygwin bash)
+        use_ansvr = False
+        bash_exe = None
+        if os.name == "nt":
+            bash_exe = os.environ.get(
+                "ANSVR_BASH",
+                os.path.expandvars(r"%LOCALAPPDATA%\cygwin_ansvr\bin\bash.exe"),
+            )
+            use_ansvr = os.path.exists(bash_exe)
+
+        # Ensure the config file has paths the solver understands
+        if use_ansvr:
+            # _logger.debug(f"anet_indices (before): {anet_indices}")
+            # indices_for_solver = tuple(_ansvr_posix_path(p) for p in anet_indices)
+            # _logger.debug(f"anet_indices (after): {indices_for_solver}")
+            indices_for_solver = anet_indices
+        else:
+            indices_for_solver = anet_indices
+        create_config_file(config_fname, fov_range, indices_for_solver)
+
         for tweak in range(tweak_order_range[0], tweak_order_range[1] + 1):
-            solve_field_command = [
-                "solve-field",
+            # Build args: use C:/... for temp files when using ANSVR
+            if use_ansvr:
+                src_fname  = _ansvr_arg_path(sources_fname)
+                cfg_fname  = _ansvr_arg_path(config_fname)
+                corr_fname = _ansvr_arg_path(corr_fname)
+            else:
+                src_arg, cfg_arg, corr_arg = sources_fname, config_fname, corr_fname
+
+            solve_field_args = [
+                "/usr/bin/solve-field" if use_ansvr else "solve-field",
                 sources_fname,
                 "--backend-config",
                 config_fname,
@@ -289,8 +344,8 @@ def get_initial_corr_local(
                 "none",
                 "--solved",
                 "none",
-                "--axy",
-                axy_fname,
+                # "--axy",
+                # axy_fname,
                 "--no-plots",
                 "--scale-low",
                 repr(fov_range[0]),
@@ -300,10 +355,32 @@ def get_initial_corr_local(
             ]
             _logger.debug(
                 "Starting solve-field command:\n\t%s",
-                "\n\t\t".join(solve_field_command),
+                "\n\t\t".join(solve_field_args if not use_ansvr else ["bash --login -c", *solve_field_args]),
             )
             try:
-                subprocess.run(solve_field_command, check=True)
+                if use_ansvr:
+                    cmd_str = " ".join(shlex.quote(a) for a in solve_field_args)
+                    res = subprocess.run(
+                        [bash_exe, "--login", "-c", cmd_str],
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
+                else:
+                    res = subprocess.run(
+                        solve_field_args,
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
+                if res.returncode != 0:
+                    _logger.critical(
+                        "solve-field exited %d\nSTDOUT:\n%s\nSTDERR:\n%s",
+                        res.returncode,
+                        res.stdout,
+                        res.stderr,
+                    )
+                    continue
             except subprocess.SubprocessError:
                 _logger.critical("solve-field failed with error:\n%s", format_exc())
                 continue

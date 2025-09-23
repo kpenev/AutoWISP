@@ -6,6 +6,7 @@
 import logging
 from multiprocessing import Queue, Process, Lock
 from traceback import format_exc
+import os
 from os import getpid
 
 import numpy
@@ -46,7 +47,8 @@ def add_anet_cmdline_args(parser):
     parser.add_argument(
         "--anet-indices",
         nargs=2,
-        default=("/data/anet_indices/narrow", "/data/anet_indices/wide"),
+        default=("/usr/share/astrometry/data", "") if os.name == "nt" \
+            else ("/data/anet_indices/narrow", "/data/anet_indices/wide"),
         help="Full paths to the narrow and wide astometry.net index files. If "
         "these directories are not found, the web solver is used instead.",
     )
