@@ -841,7 +841,6 @@ function initLightcurveDisplay(urls) {
             }
         }]
     }];
-<<<<<<< HEAD
 
 
 
@@ -892,60 +891,10 @@ function initLightcurveDisplay(urls) {
     
 }
 
-=======
-    showConfig(configURLs.subplot.slice(0, -1) + "0", "config-parent", function() {
-        var configParent = document.getElementById("config-parent");
-        configParent.style.display = "none";
-        if (configParent.parentNode) {
-            configParent.parentNode.style.display = "none";
-        }
-        plotCurves = new plotCurvesType(lcDataSelect);
-        getPlottingConfig.mode = "subplot";
-        getPlottingConfig.plotId = 0;
-        // --- Add Open Config button next to Apply and Figure Config ---
-        var applyBtn = document.getElementById("apply");
-        var figConfigBtn = document.getElementById("rcParams");
-        if (applyBtn && figConfigBtn) {
-            var openConfigBtn = document.createElement("button");
-            openConfigBtn.id = "open-config";
-            openConfigBtn.textContent = "Open Config";
-            openConfigBtn.style.marginLeft = "4px";
-            openConfigBtn.style.height = figConfigBtn.style.height;
-            openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
-            openConfigBtn.className = figConfigBtn.className;
-            figConfigBtn.parentNode.insertBefore(openConfigBtn, figConfigBtn.nextSibling);
-            openConfigBtn.onclick = function() {
-                var configParent = document.getElementById("config-parent");
-                var parentContainer = configParent.parentNode;
-                if (configParent.style.display === "none" || configParent.style.display === "") {
-                    configParent.style.display = "inline";
-                    parentContainer.style.display = "inline-flex";
-                } else {
-                    configParent.style.display = "none";
-                    parentContainer.style.display = "none";
-                }
-            };
-        }
-        document.getElementById("rcParams").onclick = () =>
-            showConfig(urls.rcParams, "config-parent", () => {
-                getPlottingConfig.mode = "rcParams";
-            });
-        document.getElementById("apply").onclick = updateFigure;
-        updateFigure();
-    });
-    
-}
-
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
 /**
 * Function to persist the "star-id" input across reloads.
 * Works both for initial page load and dynamically added DOM elements.
 */
-<<<<<<< HEAD
-=======
-
-(function () {
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
     /**
     * save the value of a given input field to localStorage and restore on load.
     * @param {string} id - DOM element ID of the input field.
@@ -960,7 +909,6 @@ function initLightcurveDisplay(urls) {
         input[`_persisted_${key}`] = true;
     }
 
-<<<<<<< HEAD
    /**
     * Observe DOM for the target input element and persist once it appears.
     */    
@@ -971,18 +919,6 @@ function initLightcurveDisplay(urls) {
     document.addEventListener("DOMContentLoaded", () =>
     persistInput("star-id", "savedStarId"));
     observeInput("star-id", "savedStarId");
-=======
-    /**
-    * Observe DOM for the target input element and persist once it appears.
-    */
-    function observeInput(id, key) {
-        new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => persistInput("star-id", "savedStarId"));
-    observeInput("star-id", "savedStarId");
-})();
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
 
 /**
 * Replace occurrences of `{mode}.{from}.` in a string with `{mode}.{to}.`.
@@ -1083,7 +1019,6 @@ if (!window.setupMagfitTfaButtonsLoaded) {
 /**
  * Monkey-patch `showConfig` to call `setupMagfitTfaButtons` after loading config.
  */
-<<<<<<< HEAD
 function patchShowConfig() {
     if (typeof window.showConfig === "function") {
     const origShowConfig = window.showConfig;
@@ -1095,37 +1030,19 @@ function patchShowConfig() {
     };
 }};
 
-=======
-if (typeof window.showConfig === "function") {
-    const origShowConfig = window.showConfig;
-    window.showConfig = function (url, parentId, onSuccess) {
-        origShowConfig(url, parentId, () => {
-            setupMagfitTfaButtons();
-            if (typeof onSuccess === "function") onSuccess();
-        });
-    };
-}
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
 
 
 /**
  * IIFE to persist minimize and magnitude inputs dynamically as they appear.
  * Uses MutationObservers for dynamic updates.
  */
-<<<<<<< HEAD
 function persistMinimize() {
-=======
-
-(function () {
-    function persistMinimize() {
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
         const input = document.getElementById("minimize");
         if (!input || input._persisted_minimize) return;
         const saved = localStorage.getItem("persistedMinimize");
         if (saved !== null) input.value = saved;
         input.addEventListener("input", () => localStorage.setItem("persistedMinimize", input.value));
         input._persisted_minimize = true;
-<<<<<<< HEAD
 
 }
 function persistMagnitude() {
@@ -1149,33 +1066,6 @@ document.addEventListener("DOMContentLoaded", () => {
 }); 
 
 ;
-=======
-    }
-
-    function persistMagnitude() {
-        const table = document.getElementById("lc-expressions");
-        if (!table) return;
-        for (const row of table.querySelectorAll("tr")) {
-            const nameInput = row.querySelector("input[id^='lc-expression-key']");
-            const valueInput = row.querySelector("input[id^='lc-expression-value']");
-            if (nameInput?.value.trim() === "magnitude" && valueInput && !valueInput._persisted_magnitude) {
-                const saved = localStorage.getItem("persistedMagnitude");
-                if (saved !== null) valueInput.value = saved;
-                valueInput.addEventListener("input", () => localStorage.setItem("persistedMagnitude", valueInput.value));
-                valueInput._persisted_magnitude = true;
-            }
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        persistMinimize();
-        persistMagnitude();
-    });
-
-    new MutationObserver(persistMinimize).observe(document.body, { childList: true, subtree: true });
-    new MutationObserver(persistMagnitude).observe(document.body, { childList: true, subtree: true });
-})();
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
 
 
 // Function to get CSRF token from cookies
@@ -1247,7 +1137,6 @@ function updateFigure() {
     xhr.send(JSON.stringify(updateFigure.getParam()));
 }
 
-<<<<<<< HEAD
 // Delegated click handlers so magfit/tfa buttons work even when inserted dynamically
 document.addEventListener("click", function (e) {
     const btn = e.target.closest && e.target.closest("button");
@@ -1270,6 +1159,4 @@ document.addEventListener("click", function (e) {
     }
 });
 
-=======
->>>>>>> 474b915 (Made apply button work without having to open config tab, added a config tab toggel button, added buttons to change config from tfa to magfit, Save GAIA ID on reloads.)
 
