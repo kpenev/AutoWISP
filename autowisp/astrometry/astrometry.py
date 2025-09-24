@@ -324,7 +324,6 @@ def get_initial_corr_local(
                         capture_output=True,
                         text=True,
                     )
-                    continue
             except subprocess.SubprocessError:
                 _logger.critical("solve-field failed with error:\n%s", format_exc())
                 continue
