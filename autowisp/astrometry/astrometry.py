@@ -169,9 +169,6 @@ def estimate_transformation_from_corr(
 
         matrix:
             Estimate of the transformation y(xi, eta)
-
-
-
     """
 
     projected = numpy.empty(
@@ -202,7 +199,7 @@ def estimate_transformation_from_corr(
 class TempAstrometryFiles:
     """Context manager for the temporary files needed for astrometry."""
 
-    def __init__(self, file_types=("sources", "corr", "axy", "config")):
+    def __init__(self, file_types=("sources", "corr", "config")):
         """Create all required temporary files."""
         self._temp_dir_obj = TemporaryDirectory()
         self.temp_dir_path = self._temp_dir_obj.name
@@ -238,11 +235,6 @@ def create_sources_file(xy_extracted, sources_fname):
     return xy_extracted
 
 
-def _ansvr_arg_path(p: str) -> str:
-    """Windows absolute path with forward slashes for ANSVR args."""
-    return os.path.abspath(p).replace("\\", "/")
-
-
 def create_config_file(config_fname, fov_range, anet_indices):
     """Create configuration file set up to solve images FOV in given range."""
 
@@ -266,11 +258,9 @@ def get_initial_corr_local(
     with TempAstrometryFiles() as (
         sources_fname,
         corr_fname,
-        axy_fname,
         config_fname,
     ):
         xy_extracted = create_sources_file(xy_extracted, sources_fname)
-        # Detect ANSVR on Windows (cygwin bash)
         use_ansvr = False
         bash_exe = None
         if os.name == "nt":
@@ -283,15 +273,6 @@ def get_initial_corr_local(
         create_config_file(config_fname, fov_range, anet_indices)
 
         for tweak in range(tweak_order_range[0], tweak_order_range[1] + 1):
-            # Build args: use C:/... for temp files when using ANSVR
-            # if use_ansvr:
-                # src_fname  = _ansvr_arg_path(sources_fname)
-                # cfg_fname  = _ansvr_arg_path(config_fname)
-                # _logger.debug("**** corr_fname %s", repr(corr_fname))
-                # corr_fname_new = _ansvr_arg_path(corr_fname)
-                # _logger.debug("**** corr_fname_new %s", repr(corr_fname_new))
-            # else:
-            #     src_arg, cfg_arg, corr_arg = sources_fname, config_fname, corr_fname
 
             solve_field_args = [
                 "/usr/bin/solve-field" if use_ansvr else "solve-field",
@@ -342,13 +323,6 @@ def get_initial_corr_local(
                         check=False,
                         capture_output=True,
                         text=True,
-                    )
-                if res.returncode != 0:
-                    _logger.critical(
-                        "solve-field exited %d\nSTDOUT:\n%s\nSTDERR:\n%s",
-                        res.returncode,
-                        res.stdout,
-                        res.stderr,
                     )
                     continue
             except subprocess.SubprocessError:
