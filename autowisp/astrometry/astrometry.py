@@ -249,17 +249,6 @@ def _win_to_cygwin_path(p: str) -> str:
     # collapse any // to /
     return posix.replace("//", "/")
 
-
-def _ansvr_posix_path(p: str) -> str:
-    """For ANSVR, map paths under the cygwin root to /usr/...; otherwise use /cygdrive/.."""
-    root = os.path.normpath(os.path.expandvars(r"%LOCALAPPDATA%\cygwin_ansvr"))
-    q = os.path.normpath(p)
-    if q.lower().startswith(root.lower()):
-        rel = q[len(root):].lstrip("\\/")             # -> usr\share\astrometry\...
-        posix = "/" + rel.replace("\\", "/")          # -> /usr/share/astrometry/...
-        return posix.replace("//", "/")
-    return _win_to_cygwin_path(q)
-
 def _ansvr_arg_path(p: str) -> str:
     """Windows absolute path with forward slashes for ANSVR args."""
     return os.path.abspath(p).replace("\\", "/")
@@ -302,15 +291,7 @@ def get_initial_corr_local(
             )
             use_ansvr = os.path.exists(bash_exe)
 
-        # Ensure the config file has paths the solver understands
-        if use_ansvr:
-            # _logger.debug(f"anet_indices (before): {anet_indices}")
-            # indices_for_solver = tuple(_ansvr_posix_path(p) for p in anet_indices)
-            # _logger.debug(f"anet_indices (after): {indices_for_solver}")
-            indices_for_solver = anet_indices
-        else:
-            indices_for_solver = anet_indices
-        create_config_file(config_fname, fov_range, indices_for_solver)
+        create_config_file(config_fname, fov_range, anet_indices)
 
         for tweak in range(tweak_order_range[0], tweak_order_range[1] + 1):
             # Build args: use C:/... for temp files when using ANSVR
