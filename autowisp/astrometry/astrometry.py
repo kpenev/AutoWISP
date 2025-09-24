@@ -311,14 +311,14 @@ def get_initial_corr_local(
             try:
                 if use_ansvr:
                     cmd_str = " ".join(shlex.quote(a) for a in solve_field_args)
-                    res = subprocess.run(
+                    subprocess.run(
                         [bash_exe, "--login", "-c", cmd_str],
                         check=False,
                         capture_output=True,
                         text=True,
                     )
                 else:
-                    res = subprocess.run(
+                    subprocess.run(
                         solve_field_args,
                         check=False,
                         capture_output=True,
