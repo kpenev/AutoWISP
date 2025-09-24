@@ -50,8 +50,10 @@ def add_anet_cmdline_args(parser):
         nargs=2,
         default=(
             rf"C:\Users\{getpass.getuser()}\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\narrow",
-            rf"C:\Users\{getpass.getuser()}\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\wide")\
-                if os.name == "nt" else ("/data/anet_indices/narrow", "/data/anet_indices/wide"),
+            rf"C:\Users\{getpass.getuser()}\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\wide",
+        )
+        if os.name == "nt"
+        else ("/data/anet_indices/narrow", "/data/anet_indices/wide"),
         help="Full paths to the narrow and wide astometry.net index files. If "
         "these directories are not found, the web solver is used instead.",
     )
@@ -885,7 +887,6 @@ def main():
     setup_process(
         db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
     )
-
 
     solve_astrometry(
         list(
