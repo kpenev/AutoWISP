@@ -238,17 +238,6 @@ def create_sources_file(xy_extracted, sources_fname):
     return xy_extracted
 
 
-def _win_to_cygwin_path(p: str) -> str:
-    """Convert a Windows path (C:\foo\bar) to a Cygwin path (/cygdrive/c/foo/bar)."""
-    drive, rest = os.path.splitdrive(p)
-    if not drive:
-        return p.replace("\\", "/")
-    letter = drive[0].lower()
-    posix = f"/cygdrive/{letter}{rest.replace('\\', '/')}"
-
-    # collapse any // to /
-    return posix.replace("//", "/")
-
 def _ansvr_arg_path(p: str) -> str:
     """Windows absolute path with forward slashes for ANSVR args."""
     return os.path.abspath(p).replace("\\", "/")
@@ -295,12 +284,14 @@ def get_initial_corr_local(
 
         for tweak in range(tweak_order_range[0], tweak_order_range[1] + 1):
             # Build args: use C:/... for temp files when using ANSVR
-            if use_ansvr:
-                src_fname  = _ansvr_arg_path(sources_fname)
-                cfg_fname  = _ansvr_arg_path(config_fname)
-                corr_fname = _ansvr_arg_path(corr_fname)
-            else:
-                src_arg, cfg_arg, corr_arg = sources_fname, config_fname, corr_fname
+            # if use_ansvr:
+                # src_fname  = _ansvr_arg_path(sources_fname)
+                # cfg_fname  = _ansvr_arg_path(config_fname)
+                # _logger.debug("**** corr_fname %s", repr(corr_fname))
+                # corr_fname_new = _ansvr_arg_path(corr_fname)
+                # _logger.debug("**** corr_fname_new %s", repr(corr_fname_new))
+            # else:
+            #     src_arg, cfg_arg, corr_arg = sources_fname, config_fname, corr_fname
 
             solve_field_args = [
                 "/usr/bin/solve-field" if use_ansvr else "solve-field",
@@ -325,8 +316,6 @@ def get_initial_corr_local(
                 "none",
                 "--solved",
                 "none",
-                # "--axy",
-                # axy_fname,
                 "--no-plots",
                 "--scale-low",
                 repr(fov_range[0]),
