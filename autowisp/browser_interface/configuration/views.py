@@ -31,10 +31,65 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 
+def _merge_children(old_children, new_children, parent_type=None):
+    """Merge lists of child nodes by (name,type); keep order, append new."""
+    old_children = old_children or []
+    new_children = new_children or []
+
+    # For parameter nodes the child is usually a single 'value' node.
+    if parent_type == "parameter":
+        # If the new file supplied a value, use it; otherwise keep old.
+        return new_children if new_children else old_children
+
+    # Generic case: merge by (name, type)
+    merged = list(old_children)
+    index = {
+        (c.get("name"), c.get("type")): i
+        for i, c in enumerate(old_children)
+        if isinstance(c, dict)
+    }
+
+    for child in new_children:
+        if isinstance(child, dict):
+            key = (child.get("name"), child.get("type"))
+            if key in index:
+                i = index[key]
+                merged[i] = deep_merge_config(merged[i], child)
+                continue
+        merged.append(child)
+    return merged
+
+
+def deep_merge_config(existing, new):
+    """Recursively merge config trees; new overrides only where provided."""
+    if new is None:
+        return existing
+
+    if isinstance(existing, dict) and isinstance(new, dict):
+        result = dict(existing)
+        # Merge/override scalar keys; handle children specially.
+        for k, v in new.items():
+            if k == "children":
+                result["children"] = _merge_children(
+                    existing.get("children", []), v, parent_type=result.get("type")
+                )
+            else:
+                if isinstance(v, (dict, list)):
+                    result[k] = deep_merge_config(existing.get(k), v)
+                else:
+                    # Only override when new value is not None
+                    result[k] = v if v is not None else existing.get(k)
+        return result
+
+    if isinstance(existing, list) and isinstance(new, list):
+        return _merge_children(existing, new)
+
+    # Fallback for scalars
+    return new if new is not None else existing
+
 
 def config_tree(request, version=0, step="All", force_unlock=False):
     """Landing page for the configuration interface."""
-
     with start_db_session() as db_session:
         defined_versions = sorted(
             db_session.scalars(
@@ -48,7 +103,11 @@ def config_tree(request, version=0, step="All", force_unlock=False):
             max_used_version = -1
 
     if request.method == "POST":
-        config = request.FILES["import-config"].read().decode()
+        new_config = json.loads(request.FILES["import-config"].read().decode())
+        existing_config = json.loads(get_json_config(version, step=step, indent=4))
+        merged_config = deep_merge_config(existing_config, new_config)
+        config = json.dumps(merged_config, indent=4)
+
         force_unlock = True
     else:
         config = get_json_config(version, step=step, indent=4)
