@@ -58,30 +58,22 @@ def _merge_children(old_children, new_children, parent_type=None):
 
     return merged
 
-# Add a small helper to detect special names
-def _children_have_special_names(children):
-    """Return True if any child's 'name' includes 'fname' or 'catalog'."""
-    for ch in children or []:
-        name = str(ch.get("name", "")).lower()
-        if "fname" in name or "catalog" in name:
-            return True
-    return False
-
 def deep_merge_config(existing, new):
     """Recursively merge config trees; new overrides only where provided."""
     if new is None:
         return existing
+
+    special_names = {'astrometry-catalog','photometry-catalog','magfit-catalog'}
 
     assert isinstance(existing, dict) and isinstance(new, dict)
     result = dict(existing)
     # Merge/override scalar keys; handle children specially.
     for k, v in new.items():
         if k == "children":
-            # If any child name is special, KEEP the existing children unchanged.
-            if _children_have_special_names(v):
+            node_name = str(new.get("name", "")).lower()
+            if node_name in special_names or "fname" in node_name:
                 result["children"] = existing.get("children", [])
             else:
-                # Otherwise, merge children normally.
                 result["children"] = _merge_children(
                     existing.get("children", []), v, parent_type=result.get("type")
                 )
