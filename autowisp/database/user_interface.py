@@ -9,7 +9,7 @@ from traceback import print_exc
 from sqlalchemy import sql, select, delete, inspect, func, and_
 from sqlalchemy.orm import ColumnProperty
 
-from autowisp.database.interface import start_db_session, set_sqlite_database
+from autowisp.database.interface import start_db_session, set_project_home
 from autowisp.database.data_model import provenance
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
@@ -1054,7 +1054,7 @@ def export_survey_to_json(destination, **limit_to):
 def main():
     """Avoid polluting the global namespace."""
 
-    set_sqlite_database("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
+    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
     with open("test_survey.json", "w", encoding="utf-8") as outf:

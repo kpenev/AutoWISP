@@ -9,7 +9,7 @@ import copy
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 
-from autowisp.database.interface import set_sqlite_database
+from autowisp.database.interface import set_project_home
 from autowisp.database.initialize_database import initialize_database
 from autowisp import database
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
@@ -282,7 +282,7 @@ class CreateProjectView(WalkFSView):
             description=config["project-description"],
         )
         proj.save()
-        set_sqlite_database(db_fname)
+        set_project_home(db_fname)
         overwrites = {}
 
         config_rex = re.compile(

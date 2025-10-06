@@ -1,6 +1,6 @@
 """Define middleware to handle multiple AutoWISP BUI projects."""
 
-from autowisp.database.interface import set_sqlite_database
+from autowisp.database.interface import set_project_home
 
 
 def set_project_middleware(get_response):
@@ -11,7 +11,7 @@ def set_project_middleware(get_response):
 
         db_path = request.session.get("project_db_path")
         if db_path is not None:
-            set_sqlite_database(db_path)
+            set_project_home(db_path)
         response = get_response(request)
 
         return response
