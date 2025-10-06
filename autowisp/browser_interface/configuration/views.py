@@ -63,7 +63,7 @@ def deep_merge_config(existing, new):
     if new is None:
         return existing
 
-    special_names = {'astrometry-catalog','photometry-catalog','magfit-catalog'}
+    # special_names = {'astrometry-catalog','photometry-catalog','magfit-catalog'}
 
     assert isinstance(existing, dict) and isinstance(new, dict)
     result = dict(existing)
@@ -71,12 +71,12 @@ def deep_merge_config(existing, new):
     for k, v in new.items():
         if k == "children":
             node_name = str(new.get("name", "")).lower()
-            if node_name in special_names or "fname" in node_name:
-                result["children"] = existing.get("children", [])
-            else:
-                result["children"] = _merge_children(
-                    existing.get("children", []), v, parent_type=result.get("type")
-                )
+            # if node_name in special_names or "fname" in node_name:
+                # result["children"] = existing.get("children", [])
+            # else:
+            result["children"] = _merge_children(
+                existing.get("children", []), v, parent_type=result.get("type")
+            )
         else:
             assert not isinstance(v, (dict, list))
             result[k] = v if v is not None else existing.get(k)

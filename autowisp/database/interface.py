@@ -1,6 +1,6 @@
 """Connect to the database and provide a session scope for queries."""
 
-from os import path
+from os import path, makedirs
 from contextlib import contextmanager
 
 import platformdirs
@@ -57,7 +57,7 @@ def initialize_cmdline_database():
         db_session.add(get_default_light_curve_structure(db_session))
 
 
-def set_sqlite_database(db_path):
+def set_project_home(db_path, db_name="autowisp.db"):
     """
     Set the database engine and session to use the given SQLite database.
 
@@ -72,11 +72,16 @@ def set_sqlite_database(db_path):
 
     initialize = False
     if db_path is None:
-        db_path = path.join(
-            platformdirs.user_data_dir("autowisp"), "autowisp.db"
-        )
-        if not path.exists(db_path):
-            initialize = True
+        proj_home = platformdirs.user_data_dir("autowisp")
+        db_path = path.join(proj_home, db_name)
+    elif path.isdir(db_path):
+        db_path = path.join(db_path, db_name)
+
+    # Ensure directory exists
+    makedirs(path.dirname(db_path), exist_ok=True)
+    
+    if not path.exists(db_path):
+        initialize = True
 
     _sqlite_fname = path.abspath(db_path)
     _db_engine = create_engine(
