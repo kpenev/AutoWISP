@@ -196,7 +196,7 @@ def add_required_keywords(header, calibration_params, for_eval=False):
 
     header["FNUM"] = header_eval(calibration_params["fnum"])
     header["EXPTIME"] = header_eval(calibration_params["exposure_seconds"])
-    header["PROJHOME"] = calibration_params["PROJHOME"]
+    header["PROJHOME"] = calibration_params["project_home"]
 
 
 def get_raw_header(raw_image, calibration_params):
