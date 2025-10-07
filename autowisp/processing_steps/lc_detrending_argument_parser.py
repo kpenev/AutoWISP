@@ -397,7 +397,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         parser.add_argument(
             "--epd-statistics-fname",
-            default="epd_statistics.txt",
+            default="{PROJHOME}/MASTERS/epd_statistics.txt",
             help="The statistics filename for the results of the EPD fit. "
             "Default: %(default)s",
         )

@@ -706,12 +706,6 @@ class ProcessingManager:
                 self._logger.debug(
                     "Wrote config file %s", repr(config_file.name)
                 )
-                # return (
-                #     getattr(
-                #         processing_steps, db_step.name if db_step else step_name
-                #     ).parse_command_line(["-c", config_file.name]),
-                #     config_key,
-                # )
                 config = getattr(
                     processing_steps, db_step.name if db_step else step_name
                 ).parse_command_line(["-c", config_file.name])

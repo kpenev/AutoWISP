@@ -70,7 +70,7 @@ def parse_command_line(*args):
     parser.add_argument(
         "--master-photref-fname-format",
         default=(
-            "MASTERS/mphotref_"
+            "{PROJHOME}/MASTERS/mphotref_"
             "{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter{magfit_iteration:03d}.fits"
         ),
         help="A format string involving a {magfit_iteration} substitution along"
@@ -82,7 +82,7 @@ def parse_command_line(*args):
     parser.add_argument(
         "--magfit-stat-fname-format",
         default=(
-            "MASTERS/mfit_stat_{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter"
+            "{PROJHOME}/MASTERS/mfit_stat_{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter"
             "{magfit_iteration:03d}.txt"
         ),
         help="Similar to ``master_photref_fname_format``, but defines the name"
