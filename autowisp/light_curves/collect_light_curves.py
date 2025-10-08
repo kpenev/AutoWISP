@@ -126,7 +126,9 @@ def collect_light_curves(
         (
             source_id,
             srcid_formatter.format(
-                configuration["lc_fname"], *numpy.atleast_1d(source_id)
+                configuration["lc_fname"],
+                *numpy.atleast_1d(source_id),
+                PROJHOME=configuration['project_home']
             ),
         )
         for source_id in data_io.source_destinations.keys()
