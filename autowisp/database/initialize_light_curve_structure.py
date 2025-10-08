@@ -294,14 +294,14 @@ def _get_frame_datasets():
             ),
             (
                 "MTID",
-                "MointID",
+                "MountID",
                 "numpy.uint",
                 None,
                 "ID of the mount used for this observing session.",
             ),
             (
                 "MTVER",
-                "MointVersion",
+                "MountVersion",
                 "numpy.uint",
                 None,
                 "Version of the mount used for this observing session.",
