@@ -117,6 +117,16 @@ class ProcessingManager:
             image vs lightcurve processing managers.
     """
 
+    _project_home = None
+
+    @classmethod
+    def set_project_home(cls, project_home):
+        """
+        Set the project home directory used for for all
+        ProcessingManager instances.
+        """
+        cls._project_home = project_home
+
     def get_param_values(
         self, matched_expressions, parameters=None, db_session=None
     ):
@@ -696,12 +706,15 @@ class ProcessingManager:
                 self._logger.debug(
                     "Wrote config file %s", repr(config_file.name)
                 )
-                return (
-                    getattr(
-                        processing_steps, db_step.name if db_step else step_name
-                    ).parse_command_line(["-c", config_file.name]),
-                    config_key,
-                )
+                config = getattr(
+                    processing_steps, db_step.name if db_step else step_name
+                ).parse_command_line(["-c", config_file.name])
+                
+                config['project_home'] = self._project_home or path.dirname(get_sqlite_fname())
+                
+                return (config, config_key)
+            
+
 
     def set_pending(self, db_session):
         """

@@ -13,7 +13,7 @@ import platformdirs
 
 from autowisp.database.interface import (
     start_db_session,
-    set_sqlite_database,
+    set_project_home,
     get_sqlite_fname,
 )
 from autowisp.multiprocessing_util import setup_process_map
@@ -68,7 +68,7 @@ def main(config):
     """Avoid global variables."""
 
     db_fname = os.path.abspath(config.processing_database)
-    set_sqlite_database(db_fname)
+    set_project_home(db_fname)
     #with start_db_session() as db_session:
     #    dummy_processing = ProcessingManager(None)
     #    dummy_config = dummy_processing.get_config(

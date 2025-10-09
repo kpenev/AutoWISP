@@ -270,7 +270,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--calibrated-fname",
-        default="CAL/{RAWFNAME}.fits.fz",
+        default="{PROJHOME}/CAL/{RAWFNAME}.fits.fz",
         help="Format string to generate the filenames for saving the "
         "calibrated images. Replacement fields can be anything from the header "
         "of the generated image (including {CLRCHNL} - name of channel if "

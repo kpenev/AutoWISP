@@ -12,7 +12,7 @@ import multiprocessing
 
 import platformdirs
 
-from autowisp.database.interface import set_sqlite_database
+from autowisp.database.interface import set_project_home
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 try:
@@ -204,7 +204,7 @@ def setup_process_map(db_fname, config):
 
     logging.info("Starting process with configuration: %s", repr(config))
 
-    set_sqlite_database(db_fname)
+    set_project_home(db_fname)
     if "data_reduction_fname" in config:
         DataReductionFile.fname_template = config["data_reduction_fname"]
 
