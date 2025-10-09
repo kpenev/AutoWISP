@@ -8,7 +8,7 @@ from glob import glob
 from astrowisp.tests.utilities import FloatTestCase
 
 from autowisp.database.interface import (
-    set_sqlite_database,
+    set_project_home,
     initialize_cmdline_database,
 )
 from autowisp.database.initialize_database import initialize_database
@@ -66,7 +66,7 @@ class AutoWISPTestCase(FloatTestCase):
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
         )
-        set_sqlite_database(path.join(self.processing_directory, "autowisp.db"))
+        set_project_home(self.processing_directory)
         initialize_cmdline_database()
 
         self.successful_test = False
