@@ -491,9 +491,13 @@ class TFACorrection(Correction):
         """Return the file name of the lightcurve for the given source ID."""
 
         try:
-            return self._configuration["lc_fname"].format(*source_id)
+            return self._configuration["lc_fname"].format(
+                *source_id, PROJHOME=self._configuration['project_home']
+                )
         except TypeError:
-            return self._configuration["lc_fname"].format(source_id)
+            return self._configuration["lc_fname"].format(
+                source_id, PROJHOME=self._configuration['project_home']
+                )
 
     # Organized into pieces as much as I could figure out how to.
     # pylint: disable=too-many-locals

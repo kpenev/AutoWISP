@@ -139,7 +139,9 @@ class LightCurveProcessingManager(ProcessingManager):
 
         lc_fnames = map(
             lambda src_id: srcid_formatter.format(
-                lc_fname, *numpy.atleast_1d(src_id)
+                lc_fname,
+                *numpy.atleast_1d(src_id),
+                PROJHOME=self._processing_config['project_home']
             ),
             source_list,
         )
