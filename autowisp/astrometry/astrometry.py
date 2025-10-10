@@ -77,7 +77,7 @@ def transformation_matrix(astrometry_order, xi, eta):
     col = 1
     for i in range(1, astrometry_order + 1):
         for j in range(i + 1):
-            trans_matrix[:, col] = ((xi ** (i - j)) * (eta ** j)).ravel()
+            trans_matrix[:, col] = ((xi ** (i - j)) * (eta**j)).ravel()
             col += 1
 
     return trans_matrix
@@ -129,10 +129,10 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
         for i in range(1, astrometry_order + 1):
             for j in range(i + 1):
                 new_xieta_cent[0] = (
-                    new_xieta_cent[0] + trans_x[k, 0] * xi ** (i - j) * eta ** j
+                    new_xieta_cent[0] + trans_x[k, 0] * xi ** (i - j) * eta**j
                 )
                 new_xieta_cent[1] = (
-                    new_xieta_cent[1] + trans_y[k, 0] * xi ** (i - j) * eta ** j
+                    new_xieta_cent[1] + trans_y[k, 0] * xi ** (i - j) * eta**j
                 )
                 k = k + 1
         return new_xieta_cent
@@ -258,6 +258,12 @@ def get_initial_corr_local(
 ):
     """Get inital extracted to catalog source match using ``solve-field``."""
 
+    _logger.debug(
+        "Attempting to match catalog to a list of %d extracted sources: %s",
+        xy_extracted.size,
+        repr(xy_extracted),
+    )
+
     with TempAstrometryFiles() as (
         sources_fname,
         corr_fname,
@@ -333,13 +339,18 @@ def get_initial_corr_local(
                     )
             except subprocess.SubprocessError:
                 _logger.critical(
-                    "solve-field failed with error:\n%s", format_exc()
+                    "solve-field failed with exception:\n%s",
+                    format_exc(),
                 )
                 continue
 
             if not os.path.isfile(corr_fname):
                 _logger.critical(
-                    "Correspondence file %s not created.", repr(corr_fname)
+                    "Correspondence file %s not created!\nstdout:\n%s\n"
+                    "stderr:%s\n",
+                    repr(corr_fname),
+                    res.stdout,
+                    res.stderr,
                 )
                 return "solve-field failed", 0
 
@@ -493,16 +504,13 @@ def estimate_transformation(*, config, **initial_corr_kwarg):
     initial_corr["RA"] = field_corr["index_ra"]
     initial_corr["Dec"] = field_corr["index_dec"]
 
-    return (
-        estimate_transformation_from_corr(
-            initial_corr=initial_corr,
-            tweak_order=tweak_order,
-            astrometry_order=config["astrometry_order"],
-            ra_cent=config["ra_cent"],
-            dec_cent=config["dec_cent"],
-        )
-        + ("success",)
-    )
+    return estimate_transformation_from_corr(
+        initial_corr=initial_corr,
+        tweak_order=tweak_order,
+        astrometry_order=config["astrometry_order"],
+        ra_cent=config["ra_cent"],
+        dec_cent=config["dec_cent"],
+    ) + ("success",)
 
 
 def refine_transformation(

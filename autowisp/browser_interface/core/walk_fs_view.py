@@ -16,9 +16,11 @@ class WalkFSView(View):
 
     _logger = logging.getLogger(__name__)
 
-    _root_dir = ("Computer", "Computer") if os.name == "nt" else ("/", "Computer")
+    _root_dir = (
+        ("Computer", "Computer") if os.name == "nt" else ("/", "Computer")
+    )
 
-    template = 'core/walk_fs.html'
+    template = "core/walk_fs.html"
     url_name = None
     cancel_url_name = None
 
@@ -26,8 +28,8 @@ class WalkFSView(View):
         """Return the context required by the file system walk template."""
 
         result = {
-            'url_name': self.url_name,
-            'cancel_url_name': self.cancel_url_name,
+            "url_name": self.url_name,
+            "cancel_url_name": self.cancel_url_name,
         }
         filename_check = config.get("filename_filter", "[^.]")
         result["filename_filter"] = filename_check
@@ -58,7 +60,9 @@ class WalkFSView(View):
             search_dir = config.get("currentdir", path.expanduser("~"))
             if "enter_dir" in config:
                 search_dir = path.join(search_dir, config["enter_dir"])
-        result["currentdir"] = path.abspath(search_dir) if search_dir != "Computer" else "Computer"
+        result["currentdir"] = (
+            path.abspath(search_dir) if search_dir != "Computer" else "Computer"
+        )
 
         result["file_list"] = []
         result["dir_list"] = []
@@ -81,12 +85,14 @@ class WalkFSView(View):
         result["dir_list"].sort()
 
         parent_dir_list = [self._root_dir]
-        if not(search_dir == "Computer"):
+        if not search_dir == "Computer":
             head = path.abspath(search_dir)
             while head != self._root_dir[0]:
                 drive, tail = path.splitdrive(head)
-                if drive and (tail == "" or tail == "\\"):
-                    parent_dir_list.insert(1, (f"{drive}\\", f"{drive[0]} Drive"))
+                if drive and tail in ["", "\\"]:
+                    parent_dir_list.insert(
+                        1, (f"{drive}\\", f"{drive[0]} Drive")
+                    )
                     break
                 parent_dir_list.insert(1, (head, path.basename(head)))
                 head = path.dirname(head)

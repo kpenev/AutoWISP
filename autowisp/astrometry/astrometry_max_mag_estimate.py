@@ -13,6 +13,7 @@ from astropy import units
 from asteval import Interpreter
 from scipy.spatial import cKDTree
 
+from autowisp.database.interface import set_project_home
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import astrometry
 from autowisp.processing_steps.solve_astrometry import (
@@ -54,6 +55,11 @@ def parse_command_line():
         "margin to account for: some extracted sources are fake, and not all"
         "real sources are extracted."
         "(default: 1.1)",
+    )
+    parser.add_argument(
+        '--project-home',
+        default='.',
+        help="The path to the calibration project."
     )
 
     add_anet_cmdline_args(parser)
@@ -259,6 +265,7 @@ def main():
     """Main function to run the astrometry matching process."""
 
     cmdline_args = parse_command_line()
+    set_project_home(cmdline_args.project_home)
     dr_paths = cmdline_args.dr_paths
     flux_threshold = cmdline_args.flux_threshold
     image_scale_factor = cmdline_args.image_scale_factor
