@@ -246,9 +246,9 @@ def iterative_rej_linear_leastsq(
         residual /= num_surviving
         if iteration == max_iterations:
             break
-        outliers = (
-            numpy.square(fit_rhs - fit_matrix.dot(fit_coef))
-            > outlier_threshold**2 * residual
+        outliers = flag_outliers(
+            fit_rhs - fit_matrix.dot(fit_coef),
+            outlier_threshold
         )
         num_surviving -= outliers.sum()
         fit_rhs[outliers] = 0
