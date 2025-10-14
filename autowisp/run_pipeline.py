@@ -67,7 +67,11 @@ def main(config):
     """Avoid global variables."""
 
     db_fname = os.path.abspath(config.processing_database)
-    set_project_home(db_fname)
+    
+    # set_project_home(db_fname)
+    db_home = db_fname if os.path.isdir(db_fname) else os.path.dirname(db_fname)
+    set_project_home(db_home)
+
     #with start_db_session() as db_session:
     #    dummy_processing = ProcessingManager(None)
     #    dummy_config = dummy_processing.get_config(
