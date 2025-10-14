@@ -380,7 +380,7 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
             _subdivide_figure(plot_config, new_splits, *child)
 
 
-def update_subplot(plotting_session, updates):
+def update_subplot(plotting_session, updates, project_home=None):
     """Change a given sub-plot (and/or add plot quantities)."""
 
     print(f'Updating plot {updates["plot_id"]} with: {updates!r}')
@@ -442,7 +442,7 @@ def update_subplot(plotting_session, updates):
 
     plotting_session["target_fname"] = plotting_session[
         "lc_fname_template"
-    ].format(int(gaia_id))
+    ].format(int(gaia_id), PROJHOME=project_home)
     _add_lightcurve_to_session(
         plotting_session, plotting_session["target_fname"]
     )
@@ -468,7 +468,7 @@ def _update_plotting_info(plotting_session, updates):
         for param, value in updates["rcParams"].items():
             rcParams[param] = value.strip("[]")
     if "subplot" in updates:
-        update_subplot(plotting_session, updates["subplot"])
+        update_subplot(plotting_session, updates["subplot"], updates["project_home"])
         modified_session = True
     return modified_session
 
@@ -478,8 +478,13 @@ def update_lightcurve_figure(request):
 
     print(f"LC plotting session:\n{request.session['lc_plotting']}")
     print(f"Updates: {request.body.decode()}")
+
+    updates = json.loads(request.body.decode())
+    print("Full updates payload:\n", json.dumps(request.session, indent=2, sort_keys=True))
+
+    updates['project_home'] = request.session["project_home"]
     request.session.modified = _update_plotting_info(
-        request.session["lc_plotting"], json.loads(request.body.decode())
+        request.session["lc_plotting"], updates
     )
 
     matplotlib.use("svg")

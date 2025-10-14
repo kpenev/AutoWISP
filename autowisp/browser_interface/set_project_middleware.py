@@ -9,9 +9,14 @@ def set_project_middleware(get_response):
     def activate_project(request):
         """Set the correct database before processing the request."""
 
-        db_path = request.session.get("project_db_path")
-        if db_path is not None:
-            set_project_home(db_path)
+        # db_path = request.session.get("project_db_path")
+        # if db_path is not None:
+        #     set_project_home(db_path)
+
+        project_home = request.session.get("project_home")
+        if project_home is not None:
+            set_project_home(project_home)
+
         response = get_response(request)
 
         return response

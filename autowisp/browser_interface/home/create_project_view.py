@@ -143,7 +143,8 @@ class CreateProjectView(WalkFSView):
             description=config["project-description"],
         )
         proj.save()
-        set_project_home(db_fname)
+        # set_project_home(db_fname)
+        set_project_home(config["project-home"])  # as we assert it to be a dir?
         overwrites = {}
 
         config_rex = re.compile(

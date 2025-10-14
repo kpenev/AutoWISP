@@ -4,12 +4,16 @@ import logging
 import os
 from os import path
 from tempfile import TemporaryDirectory
-
+import platformdirs
 from sqlalchemy import sql, select
 from numpy import inf as infinity
 
+# from sqlalchemy.orm import sessionmaker
+# from sqlalchemy import create_engine
+# from sqlalchemy.pool import NullPool
+
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import start_db_session, get_sqlite_fname
+from autowisp.database.interface import start_db_session, get_sqlite_fname, set_project_home
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -117,7 +121,7 @@ class ProcessingManager:
             image vs lightcurve processing managers.
     """
 
-    _project_home = None
+    project_home = None
 
     @classmethod
     def set_project_home(cls, project_home):
@@ -125,7 +129,11 @@ class ProcessingManager:
         Set the project home directory used for for all
         ProcessingManager instances.
         """
-        cls._project_home = project_home
+        cls.project_home = project_home
+
+        
+
+
 
     def get_param_values(
         self, matched_expressions, parameters=None, db_session=None
@@ -710,7 +718,7 @@ class ProcessingManager:
                     processing_steps, db_step.name if db_step else step_name
                 ).parse_command_line(["-c", config_file.name])
                 
-                config['project_home'] = self._project_home or path.dirname(get_sqlite_fname())
+                config['project_home'] = self.project_home or path.dirname(get_sqlite_fname())
                 
                 return (config, config_key)
             
@@ -870,6 +878,58 @@ class ProcessingManager:
             "Calling instance of ProcessingManager base class!"
         )
 
+
+
+# def set_project_home(project_home):
+#     """
+#     Set the database engine and session to use the given SQLite database.
+
+#     If ``db_path`` is None, it sets the database for the one needed for command
+#     line processing.
+#     """
+
+#     ProcessingManager.set_project_home(project_home)
+
+#     global _db_engine, _Session, _sqlite_fname  # pylint: disable=global-statement
+#     # print(f"Setting project home to {project_home!r}")
+#     if _db_engine is not None:
+#         _db_engine.dispose()
+
+#     initialize = False
+#     # if db_path is None:
+#     #     proj_home = platformdirs.user_data_dir("autowisp")
+#     #     db_path = path.join(proj_home, db_name)
+#     # elif path.isdir(db_path):
+#     #     db_path = path.join(db_path, db_name)
+
+#     if project_home is None:
+#         project_home = platformdirs.user_data_dir("autowisp")
+#     else:
+#         assert path.isdir(project_home), (
+#             f"Project home {project_home!r} is not a directory." 
+#         )
+
+#     # ProcessingManager.set_project_home(db_path)
+
+#     # Ensure directory exists
+#     makedirs(project_home, exist_ok=True)
+
+#     db_path = path.join(project_home, "autowisp.db")
+#     if not path.exists(db_path):
+#         initialize = True
+
+#     _sqlite_fname = path.abspath(db_path)
+#     _db_engine = create_engine(
+#         ("sqlite:///" + _sqlite_fname + "?timeout=100&uri=true"),
+#         echo=False,
+#         pool_pre_ping=True,
+#         pool_recycle=3600,
+#         poolclass=NullPool,
+#     )
+#     _Session = sessionmaker(_db_engine, expire_on_commit=False)
+
+#     if initialize:
+#         initialize_cmdline_database()
 
     # pylint: enable=too-many-locals
     # pylint: enable=too-many-branches

@@ -16,6 +16,7 @@ from autowisp.database.initialize_data_reduction_structure import (
 from autowisp.database.initialize_light_curve_structure import (
     get_default_light_curve_structure,
 )
+# from autowisp.database.processing import ProcessingManager
 
 _db_engine = None
 
@@ -57,7 +58,7 @@ def initialize_cmdline_database():
         db_session.add(get_default_light_curve_structure(db_session))
 
 
-def set_project_home(db_path, db_name="autowisp.db"):
+def set_project_home(project_home):
     """
     Set the database engine and session to use the given SQLite database.
 
@@ -66,20 +67,30 @@ def set_project_home(db_path, db_name="autowisp.db"):
     """
 
     global _db_engine, _Session, _sqlite_fname  # pylint: disable=global-statement
-
+    # print(f"Setting project home to {project_home!r}")
     if _db_engine is not None:
         _db_engine.dispose()
 
     initialize = False
-    if db_path is None:
-        proj_home = platformdirs.user_data_dir("autowisp")
-        db_path = path.join(proj_home, db_name)
-    elif path.isdir(db_path):
-        db_path = path.join(db_path, db_name)
+    # if db_path is None:
+    #     proj_home = platformdirs.user_data_dir("autowisp")
+    #     db_path = path.join(proj_home, db_name)
+    # elif path.isdir(db_path):
+    #     db_path = path.join(db_path, db_name)
+
+    if project_home is None:
+        project_home = platformdirs.user_data_dir("autowisp")
+    else:
+        assert path.isdir(project_home), (
+            f"Project home {project_home!r} is not a directory." 
+        )
+
+    # ProcessingManager.set_project_home(db_path)
 
     # Ensure directory exists
-    makedirs(path.dirname(db_path), exist_ok=True)
-    
+    makedirs(project_home, exist_ok=True)
+
+    db_path = path.join(project_home, "autowisp.db")
     if not path.exists(db_path):
         initialize = True
 
