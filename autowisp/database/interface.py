@@ -16,7 +16,6 @@ from autowisp.database.initialize_data_reduction_structure import (
 from autowisp.database.initialize_light_curve_structure import (
     get_default_light_curve_structure,
 )
-# from autowisp.database.processing import ProcessingManager
 
 _db_engine = None
 
@@ -72,11 +71,6 @@ def set_project_home(project_home):
         _db_engine.dispose()
 
     initialize = False
-    # if db_path is None:
-    #     proj_home = platformdirs.user_data_dir("autowisp")
-    #     db_path = path.join(proj_home, db_name)
-    # elif path.isdir(db_path):
-    #     db_path = path.join(db_path, db_name)
 
     if project_home is None:
         project_home = platformdirs.user_data_dir("autowisp")
@@ -84,8 +78,6 @@ def set_project_home(project_home):
         assert path.isdir(project_home), (
             f"Project home {project_home!r} is not a directory." 
         )
-
-    # ProcessingManager.set_project_home(db_path)
 
     # Ensure directory exists
     makedirs(project_home, exist_ok=True)

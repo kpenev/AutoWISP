@@ -480,7 +480,6 @@ def update_lightcurve_figure(request):
     print(f"Updates: {request.body.decode()}")
 
     updates = json.loads(request.body.decode())
-    print("Full updates payload:\n", json.dumps(request.session, indent=2, sort_keys=True))
 
     updates['project_home'] = request.session["project_home"]
     request.session.modified = _update_plotting_info(

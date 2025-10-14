@@ -20,7 +20,6 @@ from autowisp.multiprocessing_util import setup_process_map
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
 )
-# from autowisp.database.processing import ProcessingManager
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.file_utilities import find_fits_fnames
