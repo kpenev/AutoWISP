@@ -126,6 +126,7 @@ class ProcessingManager:
         ProcessingManager instances.
         """
         cls.project_home = project_home
+        set_project_home(project_home)
 
         
 
