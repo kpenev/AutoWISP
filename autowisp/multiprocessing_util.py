@@ -105,7 +105,7 @@ def get_log_outerr_filenames(existing_pid=False, **config):
     return result
 
 
-def setup_process_map(db_fname, config):
+def setup_process_map(project_home, config):
     """
     Logging and I/O setup for the current processes.
 
@@ -160,13 +160,13 @@ def setup_process_map(db_fname, config):
         encoding="utf-8",
     ) as info_file:
         info_file.write(
-            f"Setting up process with DB {db_fname} and configuration:\n\t"
+            f"Setting up process with project home {project_home} and configuration:\n\t"
             + "\n\t".join(
                 f"{key!r}: {value!r}" for key, value in config.items()
             )
             +"\n"
         )
-        logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
+        logging_fname, std_out_err_fname = get_log_outerr_filenames(project_home=project_home, **config)
         info_file.write(
             f"Logging to {logging_fname!r}, "
             f"stdout/stderr to {std_out_err_fname!r}\n"
@@ -204,15 +204,15 @@ def setup_process_map(db_fname, config):
 
     logging.info("Starting process with configuration: %s", repr(config))
 
-    set_project_home(db_fname if os.path.isdir(db_fname) else os.path.dirname(db_fname))
+    set_project_home(project_home)
     if "data_reduction_fname" in config:
         DataReductionFile.fname_template = config["data_reduction_fname"]
 
 
-def setup_process(db_fname, **config):
+def setup_process(project_home, **config):
     """Like `setup_process`, but more convenient for `multiprocessing.Pool`."""
 
-    setup_process_map(db_fname, config)
+    setup_process_map(project_home, config)
 
 
 if __name__ == "__main__":
