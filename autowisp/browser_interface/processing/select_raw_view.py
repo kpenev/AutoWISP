@@ -56,7 +56,7 @@ class SelectRawImages(WalkFSView):
         try:
             run_pipeline(
                 Namespace(
-                    processing_database=request.session["project_home"],
+                    project_home=request.session["project_home"],
                     add_raw_images=image_list,
                     steps=[],
                 )

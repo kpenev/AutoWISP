@@ -16,7 +16,6 @@ from autowisp.database.interface import (
     set_project_home,
     get_sqlite_fname,
 )
-from autowisp.multiprocessing_util import setup_process_map
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
 )
@@ -36,7 +35,7 @@ def parse_command_line():
         ignore_unknown_config_file_keys=False,
     )
     parser.add_argument(
-        "processing_database", help="Path to the processing database."
+        "project_home", help="Path to the project home directory."
     )
     parser.add_argument(
         "--add-raw-images",
@@ -66,11 +65,7 @@ def parse_command_line():
 def main(config):
     """Avoid global variables."""
 
-    db_fname = os.path.abspath(config.processing_database)
-    
-    # set_project_home(db_fname)
-    db_home = db_fname if os.path.isdir(db_fname) else os.path.dirname(db_fname)
-    set_project_home(db_home)
+    set_project_home(config.project_home)
 
     #with start_db_session() as db_session:
     #    dummy_processing = ProcessingManager(None)
