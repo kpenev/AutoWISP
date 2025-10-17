@@ -14,7 +14,6 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.source_finder import SourceFinder
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -107,7 +106,7 @@ def find_stars(
     _logger.debug(
         "Start of find_stars steps for DB %s for %d images with configuration "
         "%s",
-        get_sqlite_fname(),
+        configuration['project_home'],
         len(image_collection),
         repr(configuration),
     )
@@ -141,13 +140,13 @@ def find_stars(
         _logger.debug(
             "Running in parallel mode with config %s and DB fname %s",
             configuration,
-            get_sqlite_fname(),
+            configuration['project_home'],
         )
 
         with Pool(
             configuration["num_parallel_processes"],
             initializer=setup_process_map,
-            initargs=(get_sqlite_fname(), configuration),
+            initargs=(configuration["project_home"], configuration),
         ) as pool:
             pool.map(
                 partial(
