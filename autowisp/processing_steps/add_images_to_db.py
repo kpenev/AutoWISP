@@ -445,7 +445,7 @@ def add_images_to_db(image_collection, configuration):
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
     setup_process(
-        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+        project_home=cmdline_config["project_home"], task="main", **cmdline_config
     )
     add_images_to_db(
         find_fits_fnames(cmdline_config.pop("raw_images")), cmdline_config

@@ -823,7 +823,7 @@ def main():
 
     configuration = parse_command_line()
     setup_process(
-        db_fname=configuration["database_fname"], task="main", **configuration
+        project_home=configuration["project_home"], task="main", **configuration
     )
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]

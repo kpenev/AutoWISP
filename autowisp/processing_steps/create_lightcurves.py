@@ -360,7 +360,7 @@ def main():
 
     configuration = parse_command_line()
     setup_process(
-        db_fname=configuration["database_fname"], task="main", **configuration
+        project_home=configuration["project_home"], task="main", **configuration
     )
 
     dr_path_substitutions = get_path_substitutions(configuration)

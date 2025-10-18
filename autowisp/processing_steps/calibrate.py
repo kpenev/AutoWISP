@@ -324,7 +324,7 @@ def main():
 
     cmdline_config = parse_command_line()
     setup_process(
-        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+        project_home=cmdline_config["project_home"], task="main", **cmdline_config
     )
 
     calibrate(
