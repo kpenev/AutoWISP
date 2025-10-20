@@ -13,7 +13,6 @@ import getpass
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -808,7 +807,6 @@ def solve_astrometry(
 
     web_lock = Lock()
     configuration["parent_pid"] = getpid()
-    configuration["db_fname"] = get_sqlite_fname()
     workers = [
         Process(
             target=astrometry_process,

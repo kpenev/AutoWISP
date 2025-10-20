@@ -639,7 +639,6 @@ class ProcessingManager:
 
             if pipeline_run_id is not None:
                 setup_process(
-                    db_fname=get_sqlite_fname(),
                     task="main",
                     parent_pid="",
                     processing_step="init_processing",

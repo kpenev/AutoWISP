@@ -348,7 +348,6 @@ class LightCurveProcessingManager(ProcessingManager):
 
             self._current_image_type = image.image_type.name
             setup_process(
-                db_fname=get_sqlite_fname(),
                 task="main",
                 parent_pid="",
                 processing_step=step_name,

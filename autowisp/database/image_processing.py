@@ -768,7 +768,6 @@ class ImageProcessingManager(ProcessingManager):
 
         with start_db_session() as db_session:
             setup_process(
-                db_fname=get_sqlite_fname(),
                 task="main",
                 parent_pid="",
                 processing_step=step.name,
