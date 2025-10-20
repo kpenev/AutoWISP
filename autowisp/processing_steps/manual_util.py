@@ -383,7 +383,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if not skip_io:
             self.add_argument(
                 "--std-out-err-fname",
-                default="{PROJHOME}/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
+                default="{project_home}/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
                 ".outerr",
                 help="The filename pattern to redirect stdout and stderr during"
                 "multiprocessing. Should include substitutions to distinguish "
@@ -399,7 +399,7 @@ class ManualStepArgumentParser(ArgumentParser):
             )
             self.add_argument(
                 "--logging-fname",
-                default="{PROJHOME}/LOGS/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log",
+                default="{project_home}/LOGS/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log",
                 help="The filename pattern to use for log files. Should include"
                 " substitutions to distinguish logs from different "
                 "multiprocessing processes. May include substitutions for any "
