@@ -14,7 +14,7 @@ import platformdirs
 from autowisp.database.interface import (
     start_db_session,
     set_project_home,
-    get_sqlite_fname,
+    get_project_home,
 )
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
@@ -100,8 +100,8 @@ def main(config):
 
     if config.steps is None or config.steps:
         logging.info(
-            "Starting processing for database %s...",
-            get_sqlite_fname(),
+            "Starting processing for project home %s...",
+            get_project_home(),
         )
         sys.stdout.flush()
         sys.stderr.flush()

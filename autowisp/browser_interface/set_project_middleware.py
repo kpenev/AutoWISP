@@ -2,7 +2,7 @@
 
 from os import path
 # from autowisp.database.interface import set_project_home
-from autowisp.database.processing import set_project_home
+from autowisp.database.interface import set_project_home
 
 
 def set_project_middleware(get_response):

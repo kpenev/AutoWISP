@@ -12,7 +12,7 @@ from autowisp.multiprocessing_util import (
     get_log_outerr_filenames,
 )
 from autowisp.database.processing import ProcessingManager
-from autowisp.database.interface import start_db_session, get_sqlite_fname
+from autowisp.database.interface import start_db_session, get_project_home
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -1205,10 +1205,10 @@ class ImageProcessingManager(ProcessingManager):
                 self._prepare_processing(step, image_type, limit_to_steps)
             )
             self._logger.debug(
-                "At start of %s step for %s images, DB %s pending:\n\t%s",
+                "At start of %s step for %s images, project home %s pending:\n\t%s",
                 step_name,
                 image_type_name,
-                get_sqlite_fname(),
+                get_project_home(),
                 "\n\t".join(
                     f"{key!r}: {len(val)}" for key, val in self.pending.items()
                 ),

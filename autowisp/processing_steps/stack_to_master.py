@@ -12,7 +12,6 @@ from astropy.io import fits
 from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.master_maker import MasterMaker
 from autowisp.processing_steps.manual_util import (

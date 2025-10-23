@@ -42,10 +42,10 @@ def start_db_session():
         yield db_session
 
 
-def get_sqlite_fname():
-    """Return the path to the sqlite database currently being used."""
+def get_project_home():
+    """Return the directory to the sqlite database currently being used."""
 
-    return _sqlite_fname
+    return path.dirname(_sqlite_fname)
 
 
 def initialize_cmdline_database():

@@ -10,7 +10,6 @@ from astropy.time import Time
 from astropy.coordinates import EarthLocation, SkyCoord
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
