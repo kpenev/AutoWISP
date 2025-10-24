@@ -18,6 +18,7 @@ from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.database.interface import get_project_home
 
 _custom_aggregators = {"len": len}
 
@@ -380,7 +381,7 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
             _subdivide_figure(plot_config, new_splits, *child)
 
 
-def update_subplot(plotting_session, updates, project_home=None):
+def update_subplot(plotting_session, updates):
     """Change a given sub-plot (and/or add plot quantities)."""
 
     print(f'Updating plot {updates["plot_id"]} with: {updates!r}')
@@ -442,7 +443,7 @@ def update_subplot(plotting_session, updates, project_home=None):
 
     plotting_session["target_fname"] = plotting_session[
         "lc_fname_template"
-    ].format(int(gaia_id), PROJHOME=project_home)
+    ].format(int(gaia_id), PROJHOME=get_project_home())
     _add_lightcurve_to_session(
         plotting_session, plotting_session["target_fname"]
     )
@@ -468,7 +469,7 @@ def _update_plotting_info(plotting_session, updates):
         for param, value in updates["rcParams"].items():
             rcParams[param] = value.strip("[]")
     if "subplot" in updates:
-        update_subplot(plotting_session, updates["subplot"], updates["project_home"])
+        update_subplot(plotting_session, updates["subplot"])
         modified_session = True
     return modified_session
 
@@ -481,7 +482,7 @@ def update_lightcurve_figure(request):
 
     updates = json.loads(request.body.decode())
 
-    updates['project_home'] = request.session["project_home"]
+    updates['project_home'] = get_project_home()
     request.session.modified = _update_plotting_info(
         request.session["lc_plotting"], updates
     )
