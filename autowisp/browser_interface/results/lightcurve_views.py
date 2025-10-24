@@ -482,7 +482,6 @@ def update_lightcurve_figure(request):
 
     updates = json.loads(request.body.decode())
 
-    updates['project_home'] = get_project_home()
     request.session.modified = _update_plotting_info(
         request.session["lc_plotting"], updates
     )
