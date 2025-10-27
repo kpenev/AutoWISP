@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-"""Find the appropriate astrometry-catalog-max-magnitude based on the
-flux threshold"""
+"""
+Find the appropriate value for astrometry-catalog-max-magnitude
+parameter based on the flux threshold
+"""
 
 import contextlib
 import pandas as pd
@@ -27,7 +29,7 @@ def parse_command_line():
     """Return the parsed command line arguments."""
 
     parser = ArgumentParser(
-        description="Match astrometry catalog with Gaia DR3",
+        description=__doc__,
         formatter_class=DefaultsFormatter,
     )
     parser.add_argument(
