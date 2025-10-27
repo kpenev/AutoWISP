@@ -126,7 +126,7 @@ def read_dr_file(dr_path, cmdline_args):
             header=None,
             web_lock=web_lock,
         )
-        print(field_corr)
+        print(f'field_corr from astrometry.net:\n: {field_corr}')
 
     return field_corr, dr_df
 
@@ -141,7 +141,7 @@ def match_sources(field_corr, dr_df):
         the DR file.
 
     Returns:
-        corr_df (pd.DataFrame): DataFrame containing the matched sources.
+        corr_matched (pd.DataFrame): DataFrame containing the matched sources.
         n_extracted (int): Number of extracted sources.
     """
 
@@ -247,8 +247,9 @@ def query_gaia(
         gaia_results.iloc[int(n_extracted * image_margin)]["phot_g_mean_mag"], 2
     )
     print(
-        f"Gaia G mag of the faintest star among {n_extracted} * {image_margin} "
-        f"brightest sources in the FOV: {g_mag_10_percent} "
+        f"Gaia G mag of the faintest star among "
+        f"{n_extracted} (n_extracted) * {image_margin} (image_margin) "
+        f"of the brightest sources in the FOV: {g_mag_10_percent} "
     )
 
     # Assign Gaia G magnitude to sources
@@ -294,7 +295,7 @@ def main():
         y0 = corr_matched_sorted["cum_median"].iloc[3]  # top 3 faintest sources
         mags.append(-2.5 * np.log10(flux_threshold) + y0 + 0.2)
 
-    print(f"Suggested max_mag_astrometry based on "
+    print(f"Suggested minimum max_mag_astrometry based on "
           f"matching flux and mag ~ {np.array(mags).mean():.2f}")
 
 
