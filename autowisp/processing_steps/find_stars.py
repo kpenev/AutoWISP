@@ -146,7 +146,7 @@ def find_stars(
         with Pool(
             configuration["num_parallel_processes"],
             initializer=setup_process_map,
-            initargs=(configuration["project_home"], configuration),
+            initargs=(configuration,),
         ) as pool:
             pool.map(
                 partial(

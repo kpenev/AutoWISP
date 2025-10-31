@@ -86,7 +86,7 @@ def single_iteration(
         with Pool(
             configuration.num_parallel_processes,
             initializer=setup_process_map,
-            initargs=(configuration['project_home'], vars(configuration)),
+            initargs=(vars(configuration),),
         ) as magfit_pool:
             if magfit_stat_collector is None:
                 magfit_pool.map(pool_magfit, fit_dr_filenames)

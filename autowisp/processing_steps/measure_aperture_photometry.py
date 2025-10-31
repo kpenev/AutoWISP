@@ -187,7 +187,7 @@ def measure_aperture_photometry(
                 configuration["num_parallel_processes"], len(image_collection)
             ),
             initializer=setup_process_map,
-            initargs=(configuration["project_home"], configuration),
+            initargs=(configuration,),
             maxtasksperchild=1,
         ) as pool:
             pool.map(photometer_one, image_collection)
@@ -245,7 +245,7 @@ def main():
     cmdline_config = parse_command_line()
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
-    setup_process_map(cmdline_config["database_fname"], cmdline_config)
+    setup_process_map(cmdline_config,)
 
 
     del cmdline_config["task"]

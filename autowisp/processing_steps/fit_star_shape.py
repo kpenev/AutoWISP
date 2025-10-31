@@ -767,7 +767,7 @@ def fit_star_shape(
         with Pool(
             processes=configuration["num_parallel_processes"],
             initializer=setup_process_map,
-            initargs=(configuration["project_home"], configuration),
+            initargs=(configuration,),
             maxtasksperchild=1,
         ) as pool, Manager() as manager:
             catalog_lock = manager.Lock()

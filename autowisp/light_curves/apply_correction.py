@@ -229,7 +229,7 @@ def apply_parallel_correction(
         with Pool(
             num_parallel_processes,
             initializer=setup_process_map,
-            initargs=(config["project_home"], config)
+            initargs=(config,),
         ) as correction_pool:
             result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
 
