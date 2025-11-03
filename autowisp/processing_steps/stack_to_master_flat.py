@@ -503,7 +503,7 @@ def main():
 
     cmdline_config = parse_command_line()
     setup_process(
-        project_home=cmdline_config["project_home"], task="main", **cmdline_config
+        task="main", **cmdline_config
     )
 
     stack_to_master_flat(

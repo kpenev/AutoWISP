@@ -310,7 +310,7 @@ def calculate_photref_merit(dr_filenames, config):
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
     setup_process(
-        project_home=cmdline_config["project_home"], task="main", **cmdline_config
+        task="main", **cmdline_config
     )
     _logger.info(
         "Merit info:\n%s",

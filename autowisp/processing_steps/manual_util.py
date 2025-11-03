@@ -320,9 +320,9 @@ class ManualStepArgumentParser(ArgumentParser):
             "setting a second config file.",
         )
         self.add_argument(
-            "--database-fname",
+            "--project-home",
             default=None,
-            help="The name of a SQLite database to attach processing to. "
+            help="The name of the project home directory to attach processing to. "
             "Should at least define HDF5 structure for DR files and lightcurves"
             " for BUI a lot more is needed but that is automatically managed "
             "by the BUI.",

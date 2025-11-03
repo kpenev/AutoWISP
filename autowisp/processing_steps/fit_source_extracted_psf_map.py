@@ -318,7 +318,7 @@ def main():
 
     configuration = parse_command_line()
     setup_process(
-        project_home=configuration["project_home"], task="main", **configuration
+        task="main", **configuration
     )
 
     dr_substitutions = get_dr_substitutions(configuration)

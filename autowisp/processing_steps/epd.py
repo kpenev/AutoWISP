@@ -52,7 +52,7 @@ def main():
 
     cmdline_config = parse_command_line()
     setup_process(
-        project_home=cmdline_config["project_home"], task="main", **cmdline_config
+        task="main", **cmdline_config
     )
     epd(
         find_lc_fnames(cmdline_config.pop("lc_files")),

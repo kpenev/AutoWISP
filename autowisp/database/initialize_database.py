@@ -136,7 +136,7 @@ class StepCreator:
                     "config-file",
                     "extra-config-file",
                     "split-channels",
-                    "database-fname",
+                    "project-home",
                 ]
                 and not param.endswith("-only-if")
                 and not param.endswith("-version")
