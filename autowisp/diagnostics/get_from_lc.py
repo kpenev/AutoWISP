@@ -2,7 +2,7 @@
 """Utilities for plotting individual lightcurves."""
 
 from itertools import product, count
-import sys
+import sys, os
 
 from matplotlib import pyplot
 import numpy
@@ -13,6 +13,7 @@ from configargparse import ArgumentParser, DefaultsFormatter
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import LightCurveEvaluator
+from autowisp.database.interface import set_project_home
 
 # TODO:Document all expected entries in configuration for `get_plot_data()`
 
@@ -438,6 +439,8 @@ def main():
     """Avoid polluting global scope."""
 
     configuration = vars(parse_command_line())
+    if not configuration.get("project-home"):
+        set_project_home(os.path.abspath("."))
     out_fname = configuration.pop("output")
     if out_fname:
         configuration["lc_substitutions"] = {}
