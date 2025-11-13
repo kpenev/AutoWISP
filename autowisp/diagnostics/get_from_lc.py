@@ -2,7 +2,7 @@
 """Utilities for plotting individual lightcurves."""
 
 from itertools import product, count
-import sys, os
+import sys
 
 from matplotlib import pyplot
 import numpy
@@ -439,8 +439,7 @@ def main():
     """Avoid polluting global scope."""
 
     configuration = vars(parse_command_line())
-    if not configuration.get("project-home"):
-        set_project_home(os.path.abspath("."))
+    set_project_home(configuration.get("project_home"))
     out_fname = configuration.pop("output")
     if out_fname:
         configuration["lc_substitutions"] = {}

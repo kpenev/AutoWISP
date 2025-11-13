@@ -57,7 +57,7 @@ class ManualStepArgumentParser(ArgumentParser):
             f"--{prefix}-catalog",
             f"--{prefix}-catalogue",
             "--cat",
-            default=catalog_config.get("fname", "MASTERS/Gaia/{checksum:s}.fits"),
+            default=catalog_config.get("fname", "{PROJHOME}/MASTERS/Gaia/{checksum:s}.fits"),
             help="A file containing (approximately) all the same stars that "
             "were extracted from the frame for the area of the sky covered by "
             "the image. It is perferctly fine to include a larger area of sky "
@@ -357,7 +357,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if "+" in input_type and input_type.split("+")[1].strip() == "dr":
             self.add_argument(
                 "--data-reduction-fname",
-                default="DR/{RAWFNAME}.h5",
+                default="{PROJHOME}/DR/{RAWFNAME}.h5",
                 help="Format string to generate the filename(s) of the data "
                 "reduction files where extracted sources are saved. Replacement"
                 " fields can be anything from the header of the calibrated "
@@ -376,14 +376,14 @@ class ManualStepArgumentParser(ArgumentParser):
         if add_lc_fname_arg:
             self.add_argument(
                 "--lc-fname",
-                default="LC/GDR3_{:d}.h5",
+                default="{PROJHOME}/LC/GDR3_{:d}.h5",
                 help="The light curve dumping filename pattern to use.",
             )
 
         if not skip_io:
             self.add_argument(
                 "--std-out-err-fname",
-                default="{project_home}/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
+                default="{project_home}/LOGS/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
                 ".outerr",
                 help="The filename pattern to redirect stdout and stderr during"
                 "multiprocessing. Should include substitutions to distinguish "
