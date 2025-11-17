@@ -52,6 +52,12 @@ def parse_command_line():
         "processing.",
     )
     parser.add_argument(
+        "--step-imtypes",
+        nargs="+",
+        default=[],
+        help="Fine-grained filter as step:imagetype pairs (e.g., calibrate:flat calibrate:science).",
+    )
+    parser.add_argument(
         "--detached",
         action="store_true",
         help=SUPPRESS,  # Only used internally to detach in windows
@@ -89,6 +95,23 @@ def main(config):
         db_session.add(pipeline_run)
         db_session.commit()
         pipeline_run = pipeline_run.id
+
+    #set environment variable for image-type filtering
+    if hasattr(config, 'step_imtypes') and config.step_imtypes:
+        per_step = {}
+        for pair in config.step_imtypes:
+            if ":" not in pair:
+                continue
+            step, imt = pair.split(":", 1)
+            step = step.strip()
+            imt = imt.strip()
+            if not step or not imt:
+                continue
+            per_step.setdefault(step, set()).add(imt)
+        if per_step:
+            filt = ";".join(f"{k}={','.join(sorted(v))}" for k, v in per_step.items())
+            os.environ["AUTOWISP_STEP_IMTYPE_FILTER"] = filt
+            logging.info("Applied step-image-type filter: %s", filt)
 
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
 

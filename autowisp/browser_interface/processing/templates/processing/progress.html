@@ -11,14 +11,8 @@ AutoWISP Reductions Progress
 <link rel="stylesheet" 
       href="{% static 'processing/css/progress_bar.css' %}">
 <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-
-<style type="text/css">
-#chart-container { text-align: left; }
-
-.dropdown:hover .dropbtn {
-    display: none;
-}
-</style>
+<link rel="stylesheet" href="{% static 'processing/css/checkboxes.css' %}">
+<script defer src="{% static 'processing/js/progress.js' %}"></script>
 {% endblock extra_head %}
 
 {% block app_title %}
@@ -41,14 +35,14 @@ Processing Progress
 </div>
 {% endif %}
 {% else %}
-<a href="{% url 'processing:start_processing'%}">
-    <div class="lcars-element 
-                              button 
-                              lcars-melrose-bg
-                              lcars-u-1-1">
-        Start Processing
-    </div>
-</a>
+<!-- Submit Start Processing with selected steps -->
+<button type="submit" form="steps-form"
+        class="lcars-element 
+               button 
+               lcars-melrose-bg
+               lcars-u-1-1">
+    Start Processing
+</button>
 {% endif %}
 
 <a href="{% url 'processing:select_raw_images' %}">
@@ -63,10 +57,32 @@ Processing Progress
 
 {% block main %}
 
+<form id="steps-form" method="post" action="{% url 'processing:start_processing' %}">
+    {% csrf_token %}
+
+{# Expose refresh config to JS via data attributes #}
+{% if refresh_seconds %}
+<div id="aw-progress-config"
+     data-refresh-seconds="{{ refresh_seconds }}"
+     data-refresh-url="{% if await_start >= 0 %}{% url 'processing:progress' await_start=await_start %}{% else %}{% url 'processing:progress' %}{% endif %}">
+</div>
+{% endif %}
+
 <table class="lcars-table standard-header">
     <thead>
         <tr>
-            <th>Step</th>
+            <th>
+                <div class="aw-step-header">
+                    <span>Step</span>
+                    {% if not running %}
+                    <div class="aw-select-all">
+                        <span id="aw-select-all" class="aw-select-all-label" role="button" tabindex="0">
+                            Select all
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </th>
             <th>Image Type</th>
             {% for channel in channels %}
             <th style="justify-content: center;">{{ channel }}</th>
@@ -77,16 +93,30 @@ Processing Progress
     <tr style="border-bottom: 3px dotted white;">
         <td class="tooltip">
             <span class="tooltiptext">step configuration</span>
-            <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
-                <div class="lcars-element 
-                                          button 
-                                          rounded 
-                                          lcars-chestnut-rose-bg
-                                          lcars-u-2"
-                     style="align-items: center;">
-                    {{ step|join:" " }}
-                </div>
-            </a>
+
+            <div class="aw-step-puzzle">
+                <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
+                    <div class="lcars-element 
+                                button 
+                                rounded 
+                                lcars-chestnut-rose-bg
+                                lcars-u-2
+                                aw-step-name">
+                        {{ step|join:" " }}
+                    </div>
+                </a>
+
+                <label class="aw-step-checkbox aw-step-checkbox--right">
+                    {% with token=step|join:'_'|add:'_'|add:imtype %}
+                    <input type="checkbox" 
+                           name="steps" 
+                           value="{{ token }}" 
+                           {% if running %}disabled{% endif %}
+                           {% if not running or token in selected_tokens %}checked{% endif %}>
+                    {% endwith %}
+                    <span class="checkbox-ui" aria-hidden="true"></span>
+                </label>
+            </div>
         </td>
         <td class="tooltip">
             {% if step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'find' and step.1 == 'stars' %}
@@ -209,19 +239,11 @@ Processing Progress
     </tr>
     {% endfor %}
 </table>
+
+</form>
+
 {% endblock main %}
 
 {% block scripts %}
-{% if refresh_seconds %}
-{% if await_start >= 0 %}
-{% url 'processing:progress' await_start=await_start as refresh_url%}
-{% else %}
-{% url 'processing:progress' as refresh_url%}
-{% endif %}
-<script>
-    setTimeout(function(){
-        window.location.href = "{{ refresh_url }}";
-    }, {{ refresh_seconds }}000);
-</script>
-{% endif %}
+{# Moved all JS to static/processing/js/progress.js #}
 {% endblock %}

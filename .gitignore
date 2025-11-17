@@ -122,5 +122,4 @@ ENV/
 
 # Ignore database file
 autowisp/database/autowisp.db
-
-envWisp/
+documentation/.DS_Store

@@ -1,0 +1,122 @@
+:root {
+  --aw-step-red: #c96a6a; 
+}
+
+.aw-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* Select-all*/
+.aw-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.aw-select-all-label {
+  display: inline-block;
+  padding: 3px 10px;
+  background: var(--aw-step-red);
+  color: #000;             
+  border: 2px solid var(--aw-step-red);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.aw-select-all-label.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*place the step button and the semicircle inside the first column */
+.aw-step-puzzle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0; /* no gap since no visible number */
+  vertical-align: middle;
+  width: 100%;
+}
+
+.aw-step-puzzle a {
+  display: inline-flex;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/*flatten the right side of the name and center its text */
+.aw-step-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+}
+
+/*when not running flatten right side */
+.aw-step-puzzle:has(.aw-step-checkbox) .aw-step-name {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/*when running keep normal rounded corners */
+.aw-step-puzzle:not(:has(.aw-step-checkbox)) .aw-step-name {
+  border-radius: 9999px !important; /*fully rounded when alone */
+}
+
+/*checkbox container  */
+.aw-step-checkbox {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0;                 /* sit flush with the name */
+  height: var(--aw-step-h, 44px); /* increased fallback so checkbox is visible */
+  flex: 0 0 auto;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/*hide native checkbox */
+.aw-step-checkbox input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*disabled checkbox style */
+.aw-step-checkbox:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/*right-facing semicircle aligned to the button */
+.aw-step-checkbox .checkbox-ui {
+  display: block;
+  height: var(--aw-step-h, 44px);               
+  width: calc(var(--aw-step-h, 44px) / 2);      
+  min-height: 24px;                            
+  min-width: 12px;
+  background: transparent;                      
+  border: 2px solid var(--aw-step-red);
+  border-left: 0;                               
+  border-radius: 0 calc(var(--aw-step-h, 44px) / 2)
+                   calc(var(--aw-step-h, 44px) / 2) 0;
+  box-sizing: border-box;
+  transition: background 120ms ease;
+  margin-left: -10px;                           
+}
+
+/*fill with the same red */
+.aw-step-checkbox input:checked + .checkbox-ui {
+  background: var(--aw-step-red);
+}
+
+
+.aw-step-checkbox input:focus-visible + .checkbox-ui {
+  outline: 2px solid #ffd54f;
+  outline-offset: 2px;
+}

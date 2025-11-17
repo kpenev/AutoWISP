@@ -4,12 +4,10 @@ import subprocess
 from sys import executable
 import os
 import sys
+import logging
 
 from django.shortcuts import redirect
 import platformdirs
-
-# from django.contrib import messages
-# from django.template import loader
 
 from autowisp import run_pipeline
 from autowisp.database.interface import get_project_home
@@ -32,8 +30,8 @@ from .tune_starfind_views import (
     save_starfind_config,
 )
 from .display_fits_util import update_fits_display
-
 # pylint: enable=unused-import
+
 def start_processing(request):
     """Run the pipeline to complete any pending processing tasks."""
     cmd = [
@@ -41,8 +39,42 @@ def start_processing(request):
         run_pipeline.__file__,
         get_project_home(),
     ]
-    # We don't want processing to stop when this goes out of scope.
-    # pylint: disable=consider-using-with
+
+    selected_steps = []
+    selected_step_imtypes = []
+    
+    if request.method == "POST":
+        raw_tokens = request.POST.getlist("steps")
+        
+        # Store which steps were selected
+        request.session['selected_step_tokens'] = list(raw_tokens)
+        
+        seen_base = set()
+        
+        for token in raw_tokens:
+            if not token:
+                continue
+            parts = token.rsplit('_', 1)
+            if len(parts) == 2:
+                base_step, imtype = parts
+                selected_step_imtypes.append(f"{base_step}:{imtype}")
+                if base_step not in seen_base:
+                    selected_steps.append(base_step)
+                    seen_base.add(base_step)
+            else:
+                if token not in seen_base:
+                    selected_steps.append(token)
+                    seen_base.add(token)
+
+    logging.info("start_processing: steps=%s step_imtypes=%s", selected_steps, selected_step_imtypes)
+
+    if selected_steps:
+        cmd.extend(["--steps", *selected_steps])
+    if selected_step_imtypes:
+        cmd.extend(["--step-imtypes", *selected_step_imtypes])
+
+    logging.info("start_processing: cmd=%s", cmd)
+
     sys.stdout.flush()
     sys.stderr.flush()
     with open(
@@ -54,11 +86,10 @@ def start_processing(request):
         buffering=1,
     ) as outf:
         subprocess.Popen(
-        cmd,
-        start_new_session=(os.name == "posix"),
-        stdout=outf,
-        stderr=outf,
+            cmd,
+            start_new_session=(os.name == "posix"),
+            stdout=outf,
+            stderr=outf,
         )
     print('Started')
-    # pylint: enable=consider-using-with
     return redirect("processing:progress", await_start=0)
