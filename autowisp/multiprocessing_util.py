@@ -152,6 +152,8 @@ def setup_process_map(config):
             config[param] = value
 
     app_data_dir = platformdirs.user_data_dir("autowisp")
+    logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
+
     if os.path.exists(app_data_dir): # allow running on GitHub Actions
         with open(
             os.path.join(app_data_dir, "setup_process.outerr"),
@@ -165,9 +167,6 @@ def setup_process_map(config):
                     f"{key!r}: {value!r}" for key, value in config.items()
                 )
                 + "\n"
-            )
-            logging_fname, std_out_err_fname = get_log_outerr_filenames(
-                **config
             )
             info_file.write(
                 f"Logging to {logging_fname!r}, "
