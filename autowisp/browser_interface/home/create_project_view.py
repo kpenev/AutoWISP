@@ -143,7 +143,7 @@ class CreateProjectView(WalkFSView):
             description=config["project-description"],
         )
         proj.save()
-        set_project_home(db_fname)
+        set_project_home(config["project-home"])  # as we assert it to be a dir?
         overwrites = {}
 
         config_rex = re.compile(
@@ -151,6 +151,10 @@ class CreateProjectView(WalkFSView):
             r'(?:(?P<equal>[:=\s])\s*([\'"]?)(?P<value>.+?)?\3)?'
             r"\s*(?:\s[;#]\s*(?P<comment>.*?)\s*)?$"
         )
+        for line in config["custom-config"].splitlines():
+            parsed = config_rex.match(line)
+            overwrites[parsed.group("key")] = [(None, parsed.group("value"))]
+        
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
             *self._get_steps_and_masters(config),

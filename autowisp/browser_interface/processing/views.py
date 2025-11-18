@@ -45,7 +45,7 @@ def start_processing(request):
     cmd = [
         executable,
         run_pipeline.__file__,
-        request.session["project_db_path"],
+        request.session["project_home"],
     ]
     # We don't want processing to stop when this goes out of scope.
     # pylint: disable=consider-using-with

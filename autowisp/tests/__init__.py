@@ -67,7 +67,6 @@ class AutoWISPTestCase(FloatTestCase):
             path.join(self.processing_directory, "test.cfg"),
         )
         set_project_home(self.processing_directory)
-        initialize_cmdline_database()
 
         self.successful_test = False
 

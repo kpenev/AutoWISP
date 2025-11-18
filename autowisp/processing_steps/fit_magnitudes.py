@@ -445,7 +445,7 @@ def main():
 
     configuration = parse_command_line()
     setup_process(
-        db_fname=configuration["database_fname"], task="main", **configuration
+        task="main", **configuration
     )
 
     with DataReductionFile(

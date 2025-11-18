@@ -12,7 +12,6 @@ import numpy
 import pandas
 
 from autowisp.multiprocessing_util import setup_process, setup_process_map
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
@@ -768,7 +767,7 @@ def fit_star_shape(
         with Pool(
             processes=configuration["num_parallel_processes"],
             initializer=setup_process_map,
-            initargs=(get_sqlite_fname(), configuration),
+            initargs=(configuration,),
             maxtasksperchild=1,
         ) as pool, Manager() as manager:
             catalog_lock = manager.Lock()
@@ -824,7 +823,7 @@ def main():
 
     configuration = parse_command_line()
     setup_process(
-        db_fname=configuration["database_fname"], task="main", **configuration
+        task="main", **configuration
     )
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]

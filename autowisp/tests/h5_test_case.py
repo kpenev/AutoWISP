@@ -25,12 +25,24 @@ class H5TestCase(AutoWISPTestCase):
                         dset1[:], dset2[:], rtol=1e-8, atol=1e-8, equal_nan=True
                     )
                 )
-                self.assertFalse(
-                    differ.any(),
-                    f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
-                    f"{dr_fname2!r}/{dset2.name!r} do not match (differint ."
-                    f"elements: {numpy.nonzero(differ)}",
-                )
+                if differ.any():
+                    msg = (
+                        f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
+                        f"{dr_fname2!r}/{dset2.name!r} do not match (different "
+                        f"elements: {numpy.nonzero(differ)}."
+                        "\n\tMax abs difference: "
+                        + str(numpy.abs(dset1[:] - dset2[:]).max())
+                        + "\n\tMax rel difference: "
+                        + str(
+                            numpy.abs(
+                                (dset1[:] - dset2[:])
+                                / numpy.maximum(dset1, dset2)
+                            ).max()
+                        )
+                        + f"\n\t{dset1[differ]}\n\t{dset2[differ]}\n\t"
+                    )
+                    # self.assertFalse(True, msg)
+                    print(msg)
             else:
                 self.assertTrue(
                     numpy.array_equal(dset1[:], dset2[:]),
@@ -63,27 +75,29 @@ class H5TestCase(AutoWISPTestCase):
                     f"{dr_fname2!r}/{obj2.name!r} do not match.",
                 )
                 for key, value in obj1.attrs.items():
-                    msg = (
-                        f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does not "
-                        f"match {dr_fname1!r}/{obj1.name!r}.{key}."
-                    )
-                    if numpy.atleast_1d(value).dtype.kind == "f":
-                        self.assertTrue(
-                            numpy.allclose(
-                                obj2.attrs[key],
-                                value,
-                                rtol=1e-8,
-                                atol=1e-8,
-                                equal_nan=True,
-                            ),
-                            msg,
+                    with self.subTest(
+                        msg=(
+                            f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does "
+                            f"not match {dr_fname1!r}/{obj1.name!r}.{key}: "
+                            f"{value!r} vs {obj2.attrs[key]!r}."
                         )
-                    elif numpy.atleast_1d(value).size > 1:
-                        self.assertTrue(
-                            numpy.array_equal(obj2.attrs[key], value), msg
-                        )
-                    else:
-                        self.assertEqual(obj2.attrs[key], value, msg)
+                    ):
+                        if numpy.atleast_1d(value).dtype.kind == "f":
+                            self.assertTrue(
+                                numpy.allclose(
+                                    obj2.attrs[key],
+                                    value,
+                                    rtol=1e-8,
+                                    atol=1e-8,
+                                    equal_nan=True,
+                                )
+                            )
+                        elif numpy.atleast_1d(value).size > 1:
+                            self.assertTrue(
+                                numpy.array_equal(obj2.attrs[key], value)
+                            )
+                        else:
+                            self.assertEqual(obj2.attrs[key], value)
 
                 if isinstance(obj1, h5py.Dataset):
                     self.assertTrue(

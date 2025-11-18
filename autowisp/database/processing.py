@@ -4,12 +4,12 @@ import logging
 import os
 from os import path
 from tempfile import TemporaryDirectory
-
+import platformdirs
 from sqlalchemy import sql, select
 from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import start_db_session, get_sqlite_fname
+from autowisp.database.interface import start_db_session, get_project_home
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -116,16 +116,6 @@ class ProcessingManager:
             need processing by the various steps. The format is different for
             image vs lightcurve processing managers.
     """
-
-    _project_home = None
-
-    @classmethod
-    def set_project_home(cls, project_home):
-        """
-        Set the project home directory used for for all
-        ProcessingManager instances.
-        """
-        cls._project_home = project_home
 
     def get_param_values(
         self, matched_expressions, parameters=None, db_session=None
@@ -634,7 +624,6 @@ class ProcessingManager:
 
             if pipeline_run_id is not None:
                 setup_process(
-                    db_fname=get_sqlite_fname(),
                     task="main",
                     parent_pid="",
                     processing_step="init_processing",
@@ -709,9 +698,9 @@ class ProcessingManager:
                 config = getattr(
                     processing_steps, db_step.name if db_step else step_name
                 ).parse_command_line(["-c", config_file.name])
-                
-                config['project_home'] = self._project_home or path.dirname(get_sqlite_fname())
-                
+
+                config['project_home'] = get_project_home()
+
                 return (config, config_key)
             
 
@@ -869,7 +858,6 @@ class ProcessingManager:
         raise RuntimeError(
             "Calling instance of ProcessingManager base class!"
         )
-
 
     # pylint: enable=too-many-locals
     # pylint: enable=too-many-branches

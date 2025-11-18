@@ -18,6 +18,7 @@ from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.database.interface import get_project_home
 
 _custom_aggregators = {"len": len}
 
@@ -442,7 +443,7 @@ def update_subplot(plotting_session, updates):
 
     plotting_session["target_fname"] = plotting_session[
         "lc_fname_template"
-    ].format(int(gaia_id))
+    ].format(int(gaia_id), PROJHOME=get_project_home())
     _add_lightcurve_to_session(
         plotting_session, plotting_session["target_fname"]
     )
@@ -478,8 +479,11 @@ def update_lightcurve_figure(request):
 
     print(f"LC plotting session:\n{request.session['lc_plotting']}")
     print(f"Updates: {request.body.decode()}")
+
+    updates = json.loads(request.body.decode())
+
     request.session.modified = _update_plotting_info(
-        request.session["lc_plotting"], json.loads(request.body.decode())
+        request.session["lc_plotting"], updates
     )
 
     matplotlib.use("svg")

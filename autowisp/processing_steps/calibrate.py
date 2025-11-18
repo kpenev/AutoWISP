@@ -10,7 +10,6 @@ from argparse import _StoreAction
 from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.database.interface import get_sqlite_fname
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.image_calibration import Calibrator, overscan_methods
 from autowisp.processing_steps.manual_util import (
@@ -324,7 +323,7 @@ def main():
 
     cmdline_config = parse_command_line()
     setup_process(
-        db_fname=cmdline_config["database_fname"], task="main", **cmdline_config
+        task="main", **cmdline_config
     )
 
     calibrate(

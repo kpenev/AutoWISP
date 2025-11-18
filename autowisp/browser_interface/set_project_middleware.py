@@ -1,5 +1,7 @@
 """Define middleware to handle multiple AutoWISP BUI projects."""
 
+from os import path
+# from autowisp.database.interface import set_project_home
 from autowisp.database.interface import set_project_home
 
 
@@ -9,9 +11,10 @@ def set_project_middleware(get_response):
     def activate_project(request):
         """Set the correct database before processing the request."""
 
-        db_path = request.session.get("project_db_path")
-        if db_path is not None:
-            set_project_home(db_path)
+        project_home = request.session.get("project_home")
+        if project_home is not None:
+            set_project_home(project_home)
+
         response = get_response(request)
 
         return response

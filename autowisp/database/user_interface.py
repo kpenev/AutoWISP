@@ -1054,7 +1054,7 @@ def export_survey_to_json(destination, **limit_to):
 def main():
     """Avoid polluting the global namespace."""
 
-    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test/autowisp.db")
+    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test")    
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
     with open("test_survey.json", "w", encoding="utf-8") as outf:

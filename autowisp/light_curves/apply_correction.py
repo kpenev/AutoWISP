@@ -11,7 +11,7 @@ from autowisp.multiprocessing_util import setup_process_map
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
-from autowisp.database.interface import get_sqlite_fname, get_db_engine
+from autowisp.database.interface import get_db_engine
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import ReconstructiveCorrectionTransit
 
@@ -229,7 +229,7 @@ def apply_parallel_correction(
         with Pool(
             num_parallel_processes,
             initializer=setup_process_map,
-            initargs=(get_sqlite_fname(), config)
+            initargs=(config,),
         ) as correction_pool:
             result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
 

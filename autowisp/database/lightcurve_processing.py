@@ -11,7 +11,7 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
-from autowisp.database.interface import start_db_session, get_sqlite_fname
+from autowisp.database.interface import start_db_session
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
@@ -348,7 +348,6 @@ class LightCurveProcessingManager(ProcessingManager):
 
             self._current_image_type = image.image_type.name
             setup_process(
-                db_fname=get_sqlite_fname(),
                 task="main",
                 parent_pid="",
                 processing_step=step_name,

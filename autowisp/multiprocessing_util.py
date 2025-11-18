@@ -8,7 +8,6 @@ import re
 from glob import glob
 import inspect
 import sys
-import multiprocessing
 
 import platformdirs
 
@@ -105,7 +104,7 @@ def get_log_outerr_filenames(existing_pid=False, **config):
     return result
 
 
-def setup_process_map(db_fname, config):
+def setup_process_map(config):
     """
     Logging and I/O setup for the current processes.
 
@@ -152,25 +151,27 @@ def setup_process_map(db_fname, config):
         ):
             config[param] = value
 
-    with open(
-        os.path.join(
-            platformdirs.user_data_dir("autowisp"), "setup_process.outerr"
-        ),
-        "a",
-        encoding="utf-8",
-    ) as info_file:
-        info_file.write(
-            f"Setting up process with DB {db_fname} and configuration:\n\t"
-            + "\n\t".join(
-                f"{key!r}: {value!r}" for key, value in config.items()
+    app_data_dir = platformdirs.user_data_dir("autowisp")
+    logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
+
+    if os.path.exists(app_data_dir): # allow running on GitHub Actions
+        with open(
+            os.path.join(app_data_dir, "setup_process.outerr"),
+            "a",
+            encoding="utf-8",
+        ) as info_file:
+            info_file.write(
+                f"Setting up process with project home {config['project_home']}"
+                "and configuration:\n\t"
+                + "\n\t".join(
+                    f"{key!r}: {value!r}" for key, value in config.items()
+                )
+                + "\n"
             )
-            +"\n"
-        )
-        logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
-        info_file.write(
-            f"Logging to {logging_fname!r}, "
-            f"stdout/stderr to {std_out_err_fname!r}\n"
-        )
+            info_file.write(
+                f"Logging to {logging_fname!r}, "
+                f"stdout/stderr to {std_out_err_fname!r}\n"
+            )
 
     if std_out_err_fname is not None:
         sys.stdout.flush()
@@ -204,15 +205,15 @@ def setup_process_map(db_fname, config):
 
     logging.info("Starting process with configuration: %s", repr(config))
 
-    set_project_home(db_fname)
+    set_project_home(config["project_home"])
     if "data_reduction_fname" in config:
         DataReductionFile.fname_template = config["data_reduction_fname"]
 
 
-def setup_process(db_fname, **config):
+def setup_process(**config):
     """Like `setup_process`, but more convenient for `multiprocessing.Pool`."""
 
-    setup_process_map(db_fname, config)
+    setup_process_map(config)
 
 
 if __name__ == "__main__":
