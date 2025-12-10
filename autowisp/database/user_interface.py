@@ -1,4 +1,4 @@
-#pylint: disable=too-many-lines
+# pylint: disable=too-many-lines
 """Define interface to the pipeline database."""
 
 import json
@@ -193,27 +193,39 @@ def get_progress_images(step_id, image_type_id, config_version, db_session):
         .join(CameraChannel)
     )
 
-    processed_select = complete_processed_select(
-        select(
-            ProcessedImages.channel,
-            ProcessedImages.status,
-            # False poisitive
-            # pylint: disable=not-callable
-            func.count(ProcessedImages.image_id),
-            # pylint: enable=not-callable
+    processed_subq = (
+        complete_processed_select(
+            select(
+                ProcessedImages.channel,
+                func.max(ProcessedImages.status).label("status"),
+                func.max(ProcessedImages.final).label("final"),
+                # False poisitive
+                # pylint: disable=not-callable
+                ProcessedImages.image_id,
+                # pylint: enable=not-callable
+            )
+            .join(Image)
+            .join(ImageType)
         )
-        .join(Image)
-        .join(ImageType)
-    ).where(ImageType.id == image_type_id)
+        .where(ImageType.id == image_type_id)
+        .group_by(ProcessedImages.image_id, ProcessedImages.channel)
+        .subquery()
+    )
+    processed_select = select(
+        processed_subq.c.channel,
+        processed_subq.c.status,
+        func.count(processed_subq.c.image_id),  # pylint: disable=not-callable
+    )
+
     final = db_session.execute(
-        processed_select.where(ProcessedImages.final).group_by(
-            ProcessedImages.status > 0,
-            ProcessedImages.channel,
+        processed_select.where(processed_subq.c.final).group_by(
+            processed_subq.c.status > 0,
+            processed_subq.c.channel,
         )
     ).all()
     by_status = db_session.execute(
-        processed_select.where(~ProcessedImages.final).group_by(
-            ProcessedImages.status, ProcessedImages.channel
+        processed_select.where(~processed_subq.c.final).group_by(
+            processed_subq.c.status, processed_subq.c.channel
         )
     ).all()
     processed_subquery = (
@@ -221,6 +233,7 @@ def get_progress_images(step_id, image_type_id, config_version, db_session):
             select(ProcessedImages.image_id, ProcessedImages.channel)
         )
         .where(ProcessedImages.final)
+        .group_by(ProcessedImages.image_id, ProcessedImages.channel)
         .subquery()
     )
 
@@ -1054,7 +1067,7 @@ def export_survey_to_json(destination, **limit_to):
 def main():
     """Avoid polluting the global namespace."""
 
-    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test")    
+    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test")
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
     with open("test_survey.json", "w", encoding="utf-8") as outf:
