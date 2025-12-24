@@ -7,14 +7,13 @@ from multiprocessing import Pool
 from os import path, getpid
 import logging
 
-from autowisp.multiprocessing_util import setup_process
+from autowisp.multiprocessing_util import setup_process, setup_process_map
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
-from autowisp.multiprocessing_util import setup_process_map
 from autowisp.source_finder import SourceFinder
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
@@ -47,11 +46,12 @@ def parse_command_line(*args):
     parser.add_argument(
         "--brightness-threshold",
         type=float,
-        default=1000,
-        help="The minimum brightness to require of extracted sources. It should"
-        "be tuned to a value that picks out as many stars as possible, without "
-        "resulting in an appreciable number of spurious detections. Two "
-        "additional parameters (:option:`filter-sources` and "
+        default=None,
+        help="The minimum brightness to require of extracted sources. If not specified, "
+        "it will be automatically calculated from the image using brightness-quantile "
+        "and brightness-quantile-scale parameters. It should be tuned to a value that "
+        "picks out as many stars as possible, without resulting in an appreciable number "
+        "of spurious detections. Two additional parameters (:option:`filter-sources` and "
         ":option:`srcextract-max-sources`) are sometimes useful to eliminate "
         "false positives.",
     )
@@ -68,6 +68,18 @@ def parse_command_line(*args):
         default=4000,
         help="If more than this many sources are extracted, the list is sorted "
         "by flux and truncated to this number.",
+    )
+    parser.add_argument(
+        "--brightness-quantile",
+        default=0.999,
+        type=float,
+        help="The quantile to use for the brightness threshold.",
+    )
+    parser.add_argument(
+        "--brightness-quantile-scale",
+        default=1.0,
+        type=float,
+        help="The scale factor to use for the brightness quantile.",
     )
     return parser.parse_args(*args)
 
@@ -116,6 +128,8 @@ def find_stars(
     find_stars_in_image = SourceFinder(
         tool=configuration["srcfind_tool"],
         brightness_threshold=configuration["brightness_threshold"],
+        brightness_quantile=configuration["brightness_quantile"],
+        brightness_quantile_scale=configuration["brightness_quantile_scale"],
         filter_sources=configuration["filter_sources"],
         max_sources=configuration["srcextract_max_sources"],
     )
