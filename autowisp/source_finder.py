@@ -148,13 +148,16 @@ class SourceFinder:
                 configuration["brightness_threshold"] = (
                     configuration["brightness_quantile_scale"]
                     * numpy.quantile(
-                        image_data.flatten(), configuration["brightness_quantile"]
+                        image_data.flatten(),
+                        configuration["brightness_quantile"]
                     )
                 )
                 logger.info(
-                    f"Computed brightness_threshold = {configuration['brightness_threshold']:.2f} "
-                    f"from {configuration['brightness_quantile']:.3f} quantile "
-                    f"with scale {configuration['brightness_quantile_scale']}"
+                    "Computed brightness_threshold = %.2f from %.3f quantile "
+                    "with scale %.3f",
+                    configuration["brightness_threshold"],
+                    configuration["brightness_quantile"],
+                    configuration["brightness_quantile_scale"],
                 )
 
         start_extraction = getattr(

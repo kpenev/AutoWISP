@@ -47,11 +47,12 @@ def parse_command_line(*args):
         "--brightness-threshold",
         type=float,
         default=None,
-        help="The minimum brightness to require of extracted sources. If not specified, "
-        "it will be automatically calculated from the image using brightness-quantile "
-        "and brightness-quantile-scale parameters. It should be tuned to a value that "
-        "picks out as many stars as possible, without resulting in an appreciable number "
-        "of spurious detections. Two additional parameters (:option:`filter-sources` and "
+        help="The minimum brightness to require of extracted sources. If not "
+        "specified, it will be automatically calculated from the image using "
+        "brightness-quantile and brightness-quantile-scale parameters. It "
+        "should be tuned to a value that picks out as many stars as possible, "
+        "without resulting in an appreciable number of spurious detections. "
+        "Two additional parameters (:option:`filter-sources` and "
         ":option:`srcextract-max-sources`) are sometimes useful to eliminate "
         "false positives.",
     )
