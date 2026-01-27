@@ -18,7 +18,7 @@ from autowisp.evaluator import Evaluator
 # This still makes sense as a class
 # pylint: disable=too-few-public-methods
 class SourceFinder:
-    """Find sources in an image of the night sky and repor properties."""
+    """Find sources in an image of the night sky and report properties."""
 
     @staticmethod
     def _create_mock_source_list(fits_fname, configuration):
@@ -96,6 +96,8 @@ class SourceFinder:
         *,
         tool="hatphot",
         brightness_threshold=10,
+        brightness_quantile=0.999,
+        brightness_quantile_scale=1.0,
         filter_sources="True",
         max_sources=0,
         allow_overwrite=False,
@@ -107,6 +109,8 @@ class SourceFinder:
         self.configuration = {
             "tool": tool,
             "brightness_threshold": brightness_threshold,
+            "brightness_quantile": brightness_quantile,
+            "brightness_quantile_scale": brightness_quantile_scale,
             "allow_overwrite": allow_overwrite,
             "allow_dir_creation": allow_dir_creation,
             "always_return_sources": always_return_sources,
@@ -135,6 +139,26 @@ class SourceFinder:
         configuration = {**self.configuration, **configuration}
         if configuration["tool"] == "mock":
             return self._create_mock_source_list(fits_fname, configuration)
+
+        # Calculate brightness_threshold from image quantile if not specified
+        if not configuration["brightness_threshold"]:
+            with fits.open(fits_fname) as fits_file:
+                hdu_index = 0 if fits_file[0].header["NAXIS"] else 1
+                image_data = fits_file[hdu_index].data
+                configuration["brightness_threshold"] = (
+                    configuration["brightness_quantile_scale"]
+                    * numpy.quantile(
+                        image_data.flatten(),
+                        configuration["brightness_quantile"]
+                    )
+                )
+                logger.info(
+                    "Computed brightness_threshold = %.2f from %.3f quantile "
+                    "with scale %.3f",
+                    configuration["brightness_threshold"],
+                    configuration["brightness_quantile"],
+                    configuration["brightness_quantile_scale"],
+                )
 
         start_extraction = getattr(
             source_finder_util, "start_" + configuration["tool"]
