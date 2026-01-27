@@ -29,6 +29,8 @@ if __name__ == "__main__":
 
 _logger = logging.getLogger(__name__)
 
+# Set timeout for Gaia TAP queries (includes result downloads)
+conf.timeout = 180
 
 class WISPGaia(GaiaClass):
     """Extend queries with condition and sorting."""
@@ -37,6 +39,7 @@ class WISPGaia(GaiaClass):
         """Get and format the result as specified by user."""
 
         job = self.launch_job_async(query, verbose=verbose)
+        _logger.debug("Retrieving async job results with timeout=%d seconds...", conf.timeout)
         result = job.get_results()
         _logger.debug("Gaia query result: %s", repr(result))
         _logger.debug("Gaia query result columns: %s", repr(result.colnames))
@@ -170,11 +173,27 @@ class WISPGaia(GaiaClass):
         select = "SELECT"
         if max_objects is not None:
             select += f" TOP {max_objects}"
+
+        ra_vals = [c['RA'] for c in corners]
+        dec_vals = [c['Dec'] for c in corners]
+        ra_min, ra_max = min(ra_vals), max(ra_vals)
+        dec_min, dec_max = min(dec_vals), max(dec_vals)
+
+        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
+        if (ra_max - ra_min) <= (ra_min + 360.0 - ra_max):
+            ra_condition = f"RA BETWEEN {ra_min} AND {ra_max}"
+        else:
+            ra_condition = f"(RA >= {ra_max} OR RA <= {ra_min})"
+
         query_str = f"""
             {select}
             {columns}
             FROM {table_name}
             WHERE
+                {ra_condition}
+                AND
+                {dec_condition}
+                AND
                 1 = CONTAINS(
                     POINT(
                         {self.MAIN_GAIA_TABLE_RA},
