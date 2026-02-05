@@ -174,7 +174,7 @@ class Client(object):
             except (HTTPError, URLError) as e:
                 self._logger.critical("HTTPError:\n%s", print_exc())
                 self._logger.critical("Retrying...")
-                sleep(60)
+                time.sleep(60)
 
     def login(self, apikey):
         args = {"apikey": apikey}
