@@ -2,6 +2,6 @@ src = ['display_lightcurves.css']
 
 py.install_sources(
     src,
-    subdir: 'autowisp/browser_interface/results/css',
+    subdir: 'autowisp/browser_interface/results/static/results/css/',
     pure: true,
 )
