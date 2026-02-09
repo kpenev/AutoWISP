@@ -66,7 +66,7 @@ MIDDLEWARE = [
     "autowisp.browser_interface.set_project_middleware.set_project_middleware",
 ]
 
-ROOT_URLCONF = "django_project.urls"
+ROOT_URLCONF = "autowisp.browser_interface.django_project.urls"
 
 TEMPLATES = [
     {
@@ -85,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "django_project.wsgi.application"
+WSGI_APPLICATION = "autowisp.browser_interface.django_project.wsgi.application"
 
 
 # Database
