@@ -16,7 +16,7 @@ from autowisp.processing_steps.manual_util import ignore_progress
 
 
 def parse_command_line(*args):
-    """Parse the commandline optinos to a dictionary."""
+    """Parse the commandline options to a dictionary."""
 
     return LCDetrendingArgumentParser(
         mode="TFAstat",

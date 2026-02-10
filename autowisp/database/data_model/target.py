@@ -16,7 +16,7 @@ __all__ = ["Target"]
 
 
 class Target(DataModelBase):
-    """The table dsecribing the target."""
+    """The table describing the target."""
 
     __tablename__ = "target"
 

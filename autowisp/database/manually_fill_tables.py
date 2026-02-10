@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Manually fill whichever datbase tables and define default configuration."""
+"""Manually fill whichever database tables and define default configuration."""
 
 from datetime import datetime
 

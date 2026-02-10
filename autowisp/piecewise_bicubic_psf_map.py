@@ -1,4 +1,4 @@
-"""Define class for working with piecewise bucubic PSF maps."""
+"""Define class for working with piecewise bicubic PSF maps."""
 
 import numpy
 from astropy.io import fits

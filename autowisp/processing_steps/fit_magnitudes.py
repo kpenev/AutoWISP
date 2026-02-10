@@ -430,7 +430,7 @@ def cleanup_interrupted(interrupted, configuration):
 
 
 def has_apphot(dr_fname, substitutions):
-    """Check if the DR file contains a sky-to-frame transformation."""
+    """Check if the DR file contains aperture photometry."""
 
     with DataReductionFile(dr_fname, mode="r") as dr_file:
         try:

@@ -224,7 +224,7 @@ def cleanup_interrupted(interrupted, configuration):
 
 
 def has_psf_model(image_fname, shapefit_version):
-    """Check if the DR file contains a sky-to-frame transformation."""
+    """Check if the DR file contains a PSF model."""
 
     with DataReductionFile(
         header=get_primary_header(image_fname), mode="r"

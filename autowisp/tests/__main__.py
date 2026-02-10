@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Test the calibration of bias images."""
+"""Run the AutoWISP test suite."""
 
 from tempfile import TemporaryDirectory
 from os import path, makedirs

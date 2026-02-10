@@ -545,7 +545,7 @@ def refine_transformation(
         trans_x(numpy array):    Initial estimate for the x transformation
             matrix
 
-        trans_y(numpy array):    Initial estimate for the x transformation
+        trans_y(numpy array):    Initial estimate for the y transformation
             matrix
 
         ra_cent(float):    Initial estimate for the RA of the center of the

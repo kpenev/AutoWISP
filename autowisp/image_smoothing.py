@@ -477,7 +477,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                 respectively.
 
         Returns:
-            None
+            See :meth:`SeparableLinearImageSmoother._apply_smoothing`.
         """
 
         if num_x_nodes is not None:

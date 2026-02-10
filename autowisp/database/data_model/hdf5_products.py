@@ -1,4 +1,4 @@
-"""Define the hdf5_attributes table."""
+"""Define the hdf5_products table."""
 
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship

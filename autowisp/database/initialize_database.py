@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Create all datbase tables and define default configuration."""
+"""Create all database tables and define default configuration."""
 
 import re
 import logging

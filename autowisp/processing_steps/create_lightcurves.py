@@ -343,7 +343,7 @@ def cleanup_interrupted(interrupted, configuration):
 
 
 def has_magfit(dr_fname, substitutions):
-    """Check if the DR file contains a sky-to-frame transformation."""
+    """Check if the DR file contains magnitude fitting data."""
 
     with DataReductionFile(dr_fname, mode="r") as dr_file:
         try:

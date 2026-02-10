@@ -243,8 +243,8 @@ class MasterPhotrefCollector:
             fit_terms_expression(str):    A fitting terms expression to use to
                 generate the terms to include in the fit of the scatter.
 
-            min_counts(int):    The smallest number of observations to require
-                for a source to participate in the fit.
+            enough_counts_flags:    Boolean array indicating which sources have
+                enough observations to participate in the fit.
 
             outlier_average:    See ``fit_outlier_average`` argument to
                 generate_master().

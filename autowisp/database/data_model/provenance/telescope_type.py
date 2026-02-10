@@ -15,7 +15,7 @@ __all__ = ["TelescopeType"]
 # The standard use of SQLAlchemy ORM requires classes with no public methods.
 # pylint: disable=too-few-public-methods
 class TelescopeType(DataModelBase):
-    """The table dscribing the different telescope types"""
+    """The table describing the different telescope types."""
 
     __tablename__ = "telescope_type"
 

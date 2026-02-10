@@ -50,7 +50,7 @@ def iterative_fit_qr(
         fit_identifier:    See iterative_fit().
 
     Returns:
-        See iterative_fit_qr()
+        See iterative_fit().
     """
 
     logger = logging.getLogger(__name__)
@@ -217,7 +217,7 @@ def iterative_fit(
             the predicted values (i.e. the matrix defining the fitting
             problem, apart from weighting).
 
-        target_values:    The values wey are trying to reproduce.
+        target_values:    The values we are trying to reproduce.
 
         max_downdates(float or int):    The maximum number of deletions to
             handle by downdating the QR decomposition, either as a fraction of
@@ -230,9 +230,6 @@ def iterative_fit(
 
         weights:    The weight to give to each entry in `target_values`. If
             None, no weighting is done.
-
-        phot_ind:    The index of the photometry being fit (only used for
-            reporting errors).
 
         error_avg(str):    How to average fitting residuals for outlier
             rejection. Should be a scipy/numpy top-level function (e.g. mean,

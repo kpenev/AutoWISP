@@ -266,7 +266,7 @@ def get_frame_merit_info(
 
 
 def calculate_photref_merit(dr_filenames, config):
-    """Avoid pollutin global namespace."""
+    """Calculate merit scores for photometric reference candidate ranking."""
 
     dr_path_substitutions = {
         what + "_version": config[what + "_version"]

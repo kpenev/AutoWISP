@@ -1,4 +1,4 @@
-"""More convenient interface to estaver interpreters."""
+"""More convenient interface to asteval interpreters."""
 
 from os import path
 

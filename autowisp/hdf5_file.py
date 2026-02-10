@@ -206,7 +206,7 @@ class HDF5File(ABC, h5py.File):
         The inverse of :meth:`write_fitsheader_to_dataset`.
 
         Args:
-            h5dset:    The dataset containing the header to read.
+            dataset_key:    The key identifying the dataset containing the header.
 
         Returns:
             fits.Header:
@@ -479,7 +479,7 @@ class HDF5File(ABC, h5py.File):
         Return all arguments to pass to create_dataset() except the content.
 
         Args:
-            dataset_key:    The key identifying the dataset to delete.
+            dataset_key:    The key identifying the dataset to get creation args for.
 
             path_substitutions:    In theory the dataset creation arguments can
                 depend on the full dataset path (c.f. srcextract.sources).

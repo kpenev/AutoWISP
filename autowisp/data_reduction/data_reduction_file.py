@@ -1,4 +1,4 @@
-"""Define a class for worknig with data reduction files."""
+"""Define a class for working with data reduction files."""
 
 # pylint: disable=too-many-lines
 
@@ -864,7 +864,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         Add astrometry derived by fistar, and anmatch to the DR file.
 
         Args:
-            filanemes(dict):    The files containing the astrometry results.
+            filenames(dict):    The files containing the astrometry results.
                 Should have the following keys: `'fistar'`, `'trans'`,
                 `'match'`, `'catalogue'`.
 

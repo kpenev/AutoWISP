@@ -433,7 +433,7 @@ def fill_aperture_photometry_input_tree(
             assume was used for shape fitting, and to use for aperture
             photometry.
 
-        background_vesrion(int):    The version of the background extraction
+        background_version(int):    The version of the background extraction
             to assume was used for shape fitting, and to use for aperture
             photometry.
 

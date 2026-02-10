@@ -13,7 +13,7 @@ __all__ = ["MountAccess"]
 # The standard use of SQLAlchemy ORM requires classes with no public methods.
 # pylint: disable=too-few-public-methods
 class MountAccess(DataModelBase):
-    """The table dscribing the mount access"""
+    """The table describing the mount access."""
 
     __tablename__ = "mount_access"
 

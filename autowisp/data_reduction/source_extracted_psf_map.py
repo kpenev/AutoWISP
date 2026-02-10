@@ -9,7 +9,7 @@ from autowisp.fit_expression import Interface as FitTermsInterface
 # Instances are intended to work as functions, so no methods other than __call__
 # pylint: disable=too-few-public-methods
 class SourceExtractedPSFMap:
-    """Evaluate smoothed PSF maps based on sorce extraction."""
+    """Evaluate smoothed PSF maps based on source extraction."""
 
     def __init__(self, psf_parameters, terms_expression, coefficients):
         """

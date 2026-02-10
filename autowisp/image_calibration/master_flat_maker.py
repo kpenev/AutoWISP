@@ -444,7 +444,7 @@ class MasterFlatMaker(MasterMaker):
             stamp_statistics_config:    A dictionary mith arguments to pass
                 to :meth:`configure_stamp_statistics`.
 
-            stamp_select_cofig:    A dictionary with arguments to pass
+            stamp_select_config:    A dictionary with arguments to pass
                 to :meth:`configure_stamp_selection`.
 
             large_scale_smoother:    An ImageSmoother instance used when

@@ -343,7 +343,7 @@ def transformation_to_raw(trans_x, trans_y, header, in_place=False):
 
 
 def transformation_from_raw(trans_x, trans_y, header, in_place=False):
-    """Convert the transformation coefficients to pre-channel split coords."""
+    """Convert the transformation coefficients from pre-channel split coords."""
 
     if not in_place:
         trans_x = numpy.copy(trans_x)

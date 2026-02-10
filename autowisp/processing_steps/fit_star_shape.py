@@ -412,10 +412,10 @@ class SourceListCreator:
         Set up to create source lists for PSF/PRF fitting.
 
         Args:
-            catalog_fname:    The filename containing a list of catalog
-                sources to fit the shape and measure the brightness of.
+            catalog_sources:    An array of catalog sources to fit the shape
+                and measure the brightness of.
 
-            extra_fit_variables:    See --map-variables command line argument.
+            fit_variables:    See --map-variables command line argument.
 
             grouping:    A splitting of the input sources in groups, each of
                 which is enabled separately during PRF fitting. Should be a

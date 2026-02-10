@@ -1,4 +1,4 @@
-"""Functions used by multiple bayesian sampling scripts."""
+"""Multiprocessing utilities for the pipeline."""
 
 import os
 import os.path
@@ -211,7 +211,7 @@ def setup_process_map(config):
 
 
 def setup_process(**config):
-    """Like `setup_process`, but more convenient for `multiprocessing.Pool`."""
+    """Like `setup_process_map`, but accepts keyword arguments."""
 
     setup_process_map(config)
 
