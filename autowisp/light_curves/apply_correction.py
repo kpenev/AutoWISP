@@ -44,7 +44,7 @@ def load_correction_statistics(filename, add_catalog=False):
 
     with DataReductionFile() as mem_dr:
         dframe = pandas.read_csv(
-            filename, delim_whitespace=True, index_col="ID"
+            filename, sep="\s+", index_col="ID"
         )
 
         num_sources, num_photometries = dframe.shape
