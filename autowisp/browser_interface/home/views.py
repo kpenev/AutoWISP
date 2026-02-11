@@ -1,6 +1,5 @@
 """Define the vies available on the home page."""
 
-import os.path
 import json
 from io import StringIO
 

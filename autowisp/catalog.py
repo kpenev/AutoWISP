@@ -22,11 +22,6 @@ from autowisp.astrometry.map_projections import (
     inverse_gnomonic_projection,
 )
 
-if __name__ == "__main__":
-    import doctest
-    from configargparse import ArgumentParser, DefaultsFormatter
-    from matplotlib import pyplot
-
 _logger = logging.getLogger(__name__)
 
 # Set timeout for Gaia TAP queries (includes result downloads)
@@ -39,7 +34,11 @@ class WISPGaia(GaiaClass):
         """Get and format the result as specified by user."""
 
         job = self.launch_job_async(query, verbose=verbose)
-        _logger.debug("Retrieving async job results with timeout=%d seconds...", conf.timeout)
+        _logger.debug(
+            "Retrieving async job results with timeout=%d"
+            " seconds...",
+            conf.timeout,
+        )
         result = job.get_results()
         _logger.debug("Gaia query result: %s", repr(result))
         _logger.debug("Gaia query result columns: %s", repr(result.colnames))
@@ -388,6 +387,7 @@ def read_catalog_file(
     result = pandas.DataFrame.from_records(
         cat_fits[1].data.astype(fixed_dtype), index="source_id"
     )
+    metadata = None
     if return_metadata or add_gnomonic_projection:
         metadata = cat_fits[1].header
 
@@ -424,6 +424,8 @@ def read_catalog_file(
 
 def parse_command_line():
     """Return configuration of catalog to create."""
+
+    from configargparse import ArgumentParser, DefaultsFormatter
 
     parser = ArgumentParser(
         description="Create a catalog file from a Gaia query.",
@@ -596,10 +598,13 @@ def _find_best_fov(points, fov_size):
     )
 
     for x_start_index in range(points.size):
-        # No need to check further if peints beyond i are fewer than max found so
-        # far
+        # No need to check further if points beyond i are
+        # fewer than max found so far
         if points.size - x_start_index <= max_count:
-            _logger.debug("Stopping search at x_start_index=%d", x_start_index)
+            _logger.debug(
+                "Stopping search at x_start_index=%d",
+                x_start_index,
+            )
             break
 
         x = points[x_start_index]["RAcosDec"]
@@ -629,7 +634,8 @@ def _find_best_fov(points, fov_size):
                 best_fov = (x, y)
 
             _logger.debug(
-                "For x=%s, y=%s, index range is [%d, %d) with %d points surviving.",
+                "For x=%s, y=%s, index range is "
+                "[%d, %d) with %d points surviving.",
                 repr(x),
                 repr(y),
                 x_start_index,
@@ -964,8 +970,9 @@ def get_catalog_info(
                         != catalog_info["epoch"]
                     ):
                         raise RuntimeError(
-                            "Not all data reduction files to be covered by a single"
-                            " catalog have the same epoch"
+                            "Not all data reduction files to "
+                            "be covered by a single catalog "
+                            "have the same epoch"
                         )
     else:
         catalog_info["epoch"] = Evaluator(header)(configuration["epoch"])
@@ -1197,6 +1204,8 @@ def check_catalog_coverage(
 def show_stars(catalog_fname):
     """Show the stars in the catalog on a 3-D plot of the sky."""
 
+    from matplotlib import pyplot
+
     phi, theta = numpy.mgrid[
         0.0 : numpy.pi / 2.0 : 10j, 0.0 : 2.0 * numpy.pi : 10j
     ]
@@ -1234,6 +1243,8 @@ def show_stars(catalog_fname):
 
 def main(config):
     """Avoid polluting global namespace."""
+
+    import doctest
 
     if config.run_doctests:
         doctest.testmod(verbose=config.verbose)

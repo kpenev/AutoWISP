@@ -215,6 +215,3 @@ step_dependencies = [
         [("create_lightcurves", "object"), ("tfa", "object")],
     ),
 ]
-
-
-

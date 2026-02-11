@@ -22,8 +22,10 @@ key_io_tree_to_dr = {
     "psffit.magnitude_1adu": "shapefit.cfg.magnitude_1adu",
     "psffit.grid": "shapefit.cfg.psf.bicubic.grid",
     "psffit.initial_aperture": "shapefit.cfg.psf.bicubic.initial_aperture",
-    "psffit.max_abs_amplitude_change": "shapefit.cfg.psf.bicubic.max_abs_amplitude_change",
-    "psffit.max_rel_amplitude_change": "shapefit.cfg.psf.bicubic.max_rel_amplitude_change",
+    "psffit.max_abs_amplitude_change":
+        "shapefit.cfg.psf.bicubic.max_abs_amplitude_change",
+    "psffit.max_rel_amplitude_change":
+        "shapefit.cfg.psf.bicubic.max_rel_amplitude_change",
     "psffit.pixrej": "shapefit.cfg.psf.bicubic.pixrej",
     "psffit.smoothing": "shapefit.cfg.psf.bicubic.smoothing",
     "psffit.max_chi2": "shapefit.cfg.psf.max-chi2",

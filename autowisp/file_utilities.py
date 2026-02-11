@@ -74,17 +74,15 @@ def find_data_fnames(
         search_wildcards = ["**/" + wildcard for wildcard in search_wildcards]
     for entry in image_collection:
         if os.path.isdir(entry):
-            for result in get_data_filenames(
+            yield from get_data_filenames(
                 [
                     os.path.join(entry, wildcard)
                     for wildcard in search_wildcards
                 ],
                 include_condition,
-            ):
-                yield result
+            )
         else:
-            for result in get_data_filenames([entry], include_condition):
-                yield result
+            yield from get_data_filenames([entry], include_condition)
 
 
 def find_fits_with_dr_fnames(

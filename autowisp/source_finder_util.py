@@ -1,13 +1,10 @@
 """Some general purpose low level tools for source extraction."""
 
-import os
-import sys
-import traceback
-
-import subprocess
-from astrowisp import fistar_path
-
 import faulthandler
+import os
+import subprocess
+
+from astrowisp import fistar_path
 
 faulthandler.enable()
 

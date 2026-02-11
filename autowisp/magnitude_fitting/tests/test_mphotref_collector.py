@@ -4,8 +4,6 @@ import logging
 from tempfile import TemporaryDirectory
 from os import path
 
-from shutil import copy
-
 import unittest
 import numpy
 import pandas

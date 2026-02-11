@@ -1205,7 +1205,8 @@ class ImageProcessingManager(ProcessingManager):
                 self._prepare_processing(step, image_type, limit_to_steps)
             )
             self._logger.debug(
-                "At start of %s step for %s images, project home %s pending:\n\t%s",
+                "At start of %s step for %s images, "
+                "project home %s pending:\n\t%s",
                 step_name,
                 image_type_name,
                 get_project_home(),

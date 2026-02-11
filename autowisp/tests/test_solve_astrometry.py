@@ -1,7 +1,5 @@
 """Unit tests for the solve_astrometry step."""
 
-import unittest
-
 from autowisp.tests.h5_test_case import H5TestCase
 
 

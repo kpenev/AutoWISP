@@ -340,7 +340,7 @@ class MasterFlatMaker(MasterMaker):
             self._logger.debug("Flat stamp pixel statistics:\n")
 
             self._logger.debug(
-                "Best fit quadratic: " "%f + %f*m + %f*m^2; residual=%f",
+                "Best fit quadratic: %f + %f*m + %f*m^2; residual=%f",
                 *fit_coef,
                 residual,
             )

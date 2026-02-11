@@ -87,7 +87,12 @@ class AlternateParameterName(DataModelBase):
         doc="An alternate name for the parameter.",
     )
 
-    parameter: Mapped[Parameter] = relationship("Parameter", backref="alternate_names")
+    parameter: Mapped[Parameter] = relationship(
+        "Parameter", backref="alternate_names"
+    )
 
     def __str__(self):
-        return f"Parameter ID {self.param_id} has alternate name '{self.alt_name}'"
+        return (
+            f"Parameter ID {self.param_id} "
+            f"has alternate name '{self.alt_name}'"
+        )

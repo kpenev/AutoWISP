@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-import subprocess
 from socket import getfqdn
 from traceback import format_exc
 
@@ -22,7 +21,6 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.file_utilities import find_fits_fnames
-from autowisp.evaluator import Evaluator
 
 
 def parse_command_line():
@@ -156,10 +154,10 @@ if __name__ == "__main__":
             main(parse_command_line())  # Run main function in child process
 
         elif os.name == "nt":  # Windows
-                try:
-                    main(parse_command_line())
-                except Exception as e:  # pylint: disable=broad-except
-                    with open(
-                        "detached_process_error.log", "w", encoding="utf-8"
-                    ) as error_log:
-                        error_log.write(f"Error in main: {format_exc()}\n")
+            try:
+                main(parse_command_line())
+            except Exception as e:  # pylint: disable=broad-except
+                with open(
+                    "detached_process_error.log", "w", encoding="utf-8"
+                ) as error_log:
+                    error_log.write(f"Error in main: {format_exc()}\n")

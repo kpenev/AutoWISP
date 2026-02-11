@@ -4,7 +4,6 @@ import subprocess
 from sys import executable
 import os
 import sys
-from traceback import format_exc
 
 from django.shortcuts import redirect
 import platformdirs

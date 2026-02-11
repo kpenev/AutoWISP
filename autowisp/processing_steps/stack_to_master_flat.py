@@ -318,16 +318,20 @@ def parse_command_line(*args):
     parser.add_argument(
         "--high-flat-master-fname",
         default="MASTERS/flat_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz",
-        help="Filename for the high illumination master flat to generate if "
-        "successful. Can involve header substitutions, but should produce the "
-        "same filename for all input frames. If not, the behavior is undefined.",
+        help="Filename for the high illumination master flat to "
+        "generate if successful. Can involve header "
+        "substitutions, but should produce the same filename "
+        "for all input frames. If not, the behavior is "
+        "undefined.",
     )
     parser.add_argument(
         "--low-flat-master-fname",
         default="MASTERS/lowflat_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz",
-        help="Filename for the low illumination master flat to generate if "
-        "successful. Can involve header substitutions, but should produce the "
-        "same filename for all input frames. If not, the behavior is undefined.",
+        help="Filename for the low illumination master flat to "
+        "generate if successful. Can involve header "
+        "substitutions, but should produce the same filename "
+        "for all input frames. If not, the behavior is "
+        "undefined.",
     )
 
     return parser.parse_args(*args)

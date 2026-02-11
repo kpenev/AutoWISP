@@ -564,6 +564,7 @@ class MagnitudeFit(ABC):
                 if fitted:
                     return phot[fit_indices], fitted[fit_indices]
 
+                fit_results = None
                 if fit_base.size > 0:
                     self.logger.debug("Performing linear fit.")
                     fit_results = self._fit(fit_base)

@@ -1,6 +1,5 @@
 """Define middleware to handle multiple AutoWISP BUI projects."""
 
-from os import path
 # from autowisp.database.interface import set_project_home
 from autowisp.database.interface import set_project_home
 

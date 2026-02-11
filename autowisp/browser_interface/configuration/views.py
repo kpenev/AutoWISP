@@ -1,12 +1,11 @@
 """The views to display and edit pipeline configuration."""
 
 from collections import namedtuple
-from io import StringIO, BytesIO
+from io import StringIO
 import json
 
 from sqlalchemy import select, func, delete
 from django.shortcuts import render, redirect, HttpResponse
-from django.http import FileResponse
 
 from autowisp.database.user_interface import (
     get_json_config,
@@ -41,7 +40,7 @@ def _merge_children(old_children, new_children, parent_type=None):
 
     # Generic case: merge by (name, type)
     merged = list(old_children)
-    index = {                                
+    index = {
         c.get("name"): i
         for i, c in enumerate(old_children)
         if isinstance(c, dict)
@@ -50,9 +49,9 @@ def _merge_children(old_children, new_children, parent_type=None):
     for child in new_children:
         assert child["type"] == "parameter"
         key = child.get("name")
-        
+
         assert key in index
-        i = index[key]           
+        i = index[key]
         merged[i] = deep_merge_config(merged[i], child)
         continue
 
@@ -63,14 +62,16 @@ def deep_merge_config(existing, new):
     if new is None:
         return existing
 
-    # special_names = {'astrometry-catalog','photometry-catalog','magfit-catalog'}
+    # special_names = {
+    #     'astrometry-catalog','photometry-catalog',
+    #     'magfit-catalog'}
 
     assert isinstance(existing, dict) and isinstance(new, dict)
     result = dict(existing)
     # Merge/override scalar keys; handle children specially.
     for k, v in new.items():
         if k == "children":
-            node_name = str(new.get("name", "")).lower()
+            # node_name = str(new.get("name", "")).lower()
             # if node_name in special_names or "fname" in node_name:
                 # result["children"] = existing.get("children", [])
             # else:
@@ -100,7 +101,9 @@ def config_tree(request, version=0, step="All", force_unlock=False):
 
     if request.method == "POST":
         new_config = json.loads(request.FILES["import-config"].read().decode())
-        existing_config = json.loads(get_json_config(version, step=step, indent=4))
+        existing_config = json.loads(
+            get_json_config(version, step=step, indent=4)
+        )
         merged_config = deep_merge_config(existing_config, new_config)
         config = json.dumps(merged_config, indent=4)
 

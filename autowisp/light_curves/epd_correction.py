@@ -389,7 +389,8 @@ class EPDCorrection(Correction):
                                     f"fit_points:\n{fit_points!r}"
                                     f"fit_weights:\n{to_fit[1]!r}"
                                     f"fit_index: {fit_index:d}"
-                                    f"num_extra_predictors: {num_extra_predictors:d}\n"
+                                    "num_extra_predictors: "
+                                    f"{num_extra_predictors:d}\n"
                                 ]
                             )
                             + format_exc()

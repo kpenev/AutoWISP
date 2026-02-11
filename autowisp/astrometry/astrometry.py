@@ -365,7 +365,7 @@ def get_initial_corr_local(
 def get_initial_corr_web(
     header, xy_extracted, tweak_order_range, fov_range, api_key
 ):
-    """Get initial extracted to catalog source match using web astrometry.net."""
+    """Get initial extracted-to-catalog match via web astrometry.net."""
 
     config = {
         "allow_commercial_use": "n",

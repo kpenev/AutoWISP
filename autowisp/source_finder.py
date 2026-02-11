@@ -165,7 +165,9 @@ class SourceFinder:
         )
         with get_unpacked_fits(fits_fname) as unpacked_fname:
             logger.debug(
-                f"Extracting sources from {unpacked_fname!r} to {source_fname!r}"
+                "Extracting sources from %r to %r",
+                unpacked_fname,
+                source_fname,
             )
             extraction_args = (
                 unpacked_fname,
@@ -206,7 +208,7 @@ class SourceFinder:
                 result = result[
                     Evaluator(result)(configuration["filter_sources"])
                 ]
-            logger.debug(f"Sorting {unpacked_fname!r} sources")
+            logger.debug("Sorting %r sources", unpacked_fname)
 
             result.sort(order="flux")
             result = numpy.flip(result)
@@ -220,7 +222,8 @@ class SourceFinder:
                 )
                 extraction_process.communicate()
             logger.debug(
-                f"Adding saturation flags for {unpacked_fname!r} sources"
+                "Adding saturation flags for %r sources",
+                unpacked_fname,
             )
 
             return self._add_saturation_flags(unpacked_fname, result)

@@ -4,7 +4,6 @@ import logging
 import os
 from os import path
 from tempfile import TemporaryDirectory
-import platformdirs
 from sqlalchemy import sql, select
 from numpy import inf as infinity
 
@@ -702,7 +701,7 @@ class ProcessingManager:
                 config['project_home'] = get_project_home()
 
                 return (config, config_key)
-            
+
 
 
     def set_pending(self, db_session):

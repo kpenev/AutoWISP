@@ -542,7 +542,6 @@ class MasterPhotrefCollector:
         for phot, fitted in fit_results:
 
             formal_errors = phot["mag_err"][:, -1]
-            phot_flags = phot["phot_flag"][:, -1]
 
             finite = True
             for column in chain(fitted.T, formal_errors.T):
@@ -680,8 +679,8 @@ class MasterPhotrefCollector:
         )
         if residual_scatter is None:
             raise RuntimeError(
-                "Failed to generate master photometric reference: %s",
-                repr(master_reference_fname),
+                "Failed to generate master photometric reference: "
+                + repr(master_reference_fname)
             )
         primary_header = fits.Header()
         if extra_header is not None:

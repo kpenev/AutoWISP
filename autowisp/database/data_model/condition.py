@@ -24,7 +24,8 @@ class Condition(DataModelBase):
             "condition_expression.id", onupdate="CASCADE", ondelete="RESTRICT"
         ),
         primary_key=True,
-        doc="The id of the condition expression that is part of this condition.",
+        doc="The id of the condition expression "
+        "that is part of this condition.",
     )
     notes = Column(
         String(1000),

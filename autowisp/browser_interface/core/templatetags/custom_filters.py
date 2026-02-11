@@ -13,3 +13,4 @@ def get_key(data, key):
             return data.get(key)
         except AttributeError:
             return getattr(data, key)
+    return None

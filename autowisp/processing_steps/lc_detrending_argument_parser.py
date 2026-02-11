@@ -330,7 +330,8 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             help="Stars are not allowed to be in the template if their RMS is "
             "more than this many sigma away from the mag-rms fit. This is also "
             "the threshold used for rejecting outliers when doing the iterative"
-            " fit for the rms as a function of magnutude. Default: %(default)s.",
+            " fit for the rms as a function of magnitude."
+            " Default: %(default)s.",
         )
         parser.add_argument(
             "--tfa-mag-rms-max-rej-iter",
@@ -533,7 +534,8 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             type=float,
             default=5.0,
             help="How far away from the fit should a point be before "
-            "it is rejected in units of detrend_error_avg. Default: %(default)s",
+            "it is rejected in units of detrend_error_avg."
+            " Default: %(default)s",
         )
         self.add_argument(
             "--detrend-max-rej-iter",

@@ -125,11 +125,6 @@ class MasterPhotrefCollector:
             """Create an empty result to fill with data."""
 
             special_dtypes = {"phqual": "S3", "magsrcflag": "S9"}
-            example_source_id = next(iter(catalog.keys()))
-            if isinstance(example_source_id, tuple):
-                source_id_size = (len(example_source_id),)
-            else:
-                source_id_size = 1
             dtype = [
                 ("source_id", numpy.uint64),
                 ("full_count", numpy.intc, (self._num_photometries,)),
@@ -459,7 +454,8 @@ class MasterPhotrefCollector:
                         "--rejection",
                         (
                             f"column={col:d},iterations="
-                            f"{max_rejection_iterations:d},{rejection_center!s},"
+                            f"{max_rejection_iterations:d},"
+                            f"{rejection_center!s},"
                             f"{rejection_units!s}={outlier_threshold:f}"
                         ),
                     ]
@@ -616,8 +612,8 @@ class MasterPhotrefCollector:
         )
         if residual_scatter is None:
             raise RuntimeError(
-                "Failed to generate master photometric reference: %s",
-                repr(master_reference_fname),
+                "Failed to generate master photometric reference: "
+                + repr(master_reference_fname)
             )
         primary_header = fits.Header()
         if extra_header is not None:

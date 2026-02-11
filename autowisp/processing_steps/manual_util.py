@@ -322,8 +322,9 @@ class ManualStepArgumentParser(ArgumentParser):
         self.add_argument(
             "--project-home",
             default=None,
-            help="The name of the project home directory to attach processing to. "
-            "Should at least define HDF5 structure for DR files and lightcurves"
+            help="The name of the project home directory to "
+            "attach processing to. Should at least define HDF5 "
+            "structure for DR files and lightcurves"
             " for BUI a lot more is needed but that is automatically managed "
             "by the BUI.",
         )

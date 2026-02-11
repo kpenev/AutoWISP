@@ -178,7 +178,7 @@ def select_starfind_batch(request, refresh=False):
                 )
             ).all()
         )
-        logging.info("Found configured: " + repr(configured))
+        logging.info("Found configured: %r", configured)
 
     context = {"batches": []}
     for imtype_name, imtype_batches in request.session["starfind"][
@@ -272,7 +272,7 @@ def project_catalog(request, fits_fname):
             )
         }
 
-        logging.info("Extracted: " + repr(request.session["extracted"]))
+        logging.info("Extracted: %r", request.session["extracted"])
 
         (approx_trans["trans_x"], approx_trans["trans_y"], status) = (
             estimate_transformation(

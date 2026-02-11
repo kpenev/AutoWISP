@@ -91,24 +91,24 @@ def find_stars_single(
     """Find the stars in a single image."""
 
     fits_header = get_primary_header(image_fname)
-    _logger.debug(f"Extracting sources from {image_fname!r}")
+    _logger.debug("Extracting sources from %r", image_fname)
     extracted_sources = find_stars_in_image(image_fname)
-    _logger.debug(f"Finished extracting sources: {extracted_sources!r}")
+    _logger.debug("Finished extracting sources: %r", extracted_sources)
     mark_start(image_fname)
-    _logger.debug(f"Marked started: {extracted_sources!r}")
+    _logger.debug("Marked started: %r", extracted_sources)
 
     with DataReductionFile(header=fits_header, mode="a") as dr_file:
         dr_file.add_frame_header(fits_header)
-        _logger.debug(f"Added header from: {extracted_sources!r}")
+        _logger.debug("Added header from: %r", extracted_sources)
         dr_file.add_sources(
             extracted_sources,
             "srcextract.sources",
             "srcextract_column_name",
             srcextract_version=srcextract_version,
         )
-        _logger.debug(f"Added sources from: {extracted_sources!r}")
+        _logger.debug("Added sources from: %r", extracted_sources)
         mark_end(image_fname)
-        _logger.debug(f"Marked end for: {extracted_sources!r}")
+        _logger.debug("Marked end for: %r", extracted_sources)
 
 
 def find_stars(

@@ -674,7 +674,10 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     compression=magfit_dset.compression,
                     compression_options=magfit_dset.compression_options,
                     replace_nonfinite=magfit_dset.replace_nonfinite,
-                    description=f"The {mode} corrected magnitude fitted magnitudes.",
+                    description=(
+                        f"The {mode} corrected magnitude "
+                        "fitted magnitudes."
+                    ),
                 ),
                 HDF5DataSet(
                     pipeline_key=(property_key_prefix + ".fit_residual"),
@@ -694,8 +697,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     compression="gzip",
                     compression_options="9",
                     description=(
-                        "The number of points used in the last iteration of the "
-                        f"iterative rejction {mode} fit."
+                        "The number of points used in the "
+                        "last iteration of the iterative "
+                        f"rejction {mode} fit."
                     ),
                 ),
                 HDF5DataSet(
@@ -704,7 +708,8 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     dtype="numpy.string_",
                     compression="gzip",
                     compression_options="9",
-                    description="How to calculate the scale for rejecting sources.",
+                    description="How to calculate the scale "
+                    "for rejecting sources.",
                 ),
                 HDF5DataSet(
                     pipeline_key=config_key_prefix + "rej_level",
@@ -712,8 +717,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     dtype="numpy.float64",
                     compression="gzip",
                     compression_options="9",
-                    description="Points rej_level times average error away from the"
-                    " best fit are rejected and the fit is repeated.",
+                    description="Points rej_level times "
+                    "average error away from the best fit "
+                    "are rejected and the fit is repeated.",
                 ),
                 HDF5DataSet(
                     pipeline_key=config_key_prefix + "max_rej_iter",
@@ -721,8 +727,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     dtype="numpy.uint",
                     compression="gzip",
                     compression_options="9",
-                    description="Stop rejecting outlier points after this number "
-                    "of rejection/refitting cycles.",
+                    description="Stop rejecting outlier points"
+                    " after this number of "
+                    "rejection/refitting cycles.",
                 ),
                 HDF5DataSet(
                     pipeline_key=(property_key_prefix + ".cfg_index"),
@@ -746,8 +753,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.string_",
                         compression="gzip",
                         compression_options="9",
-                        description="The list of variables and the datasets they "
-                        "correspond to used in the fitting.",
+                        description="The list of variables and "
+                        "the datasets they correspond to "
+                        "used in the fitting.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "fit_terms",
@@ -755,8 +763,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.string_",
                         compression="gzip",
                         compression_options="9",
-                        description="The expression that expands to the terms to "
-                        "include in the EPD fit.",
+                        description="The expression that "
+                        "expands to the terms to include "
+                        "in the EPD fit.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "fit_filter",
@@ -764,8 +773,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.string_",
                         compression="gzip",
                         compression_options="9",
-                        description="Filtering applied to select points to which to"
-                        " apply the correction.",
+                        description="Filtering applied to "
+                        "select points to which to apply "
+                        "the correction.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "fit_weights",
@@ -774,8 +784,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         compression="gzip",
                         compression_options="9",
                         description=(
-                            "The expression that expands to the weights used for "
-                            f"each point in the {mode} fit."
+                            "The expression that expands to"
+                            " the weights used for each "
+                            f"point in the {mode} fit."
                         ),
                     ),
                 ]
@@ -789,9 +800,10 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.float64",
                         compression="gzip",
                         compression_options="9",
-                        description="The magnitude below which sources are "
-                        "considered saturated and hence are excused from the rms vs"
-                        " magnitude fit.",
+                        description="The magnitude below which"
+                        " sources are considered saturated"
+                        " and hence are excused from the "
+                        "rms vs magnitude fit.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix
@@ -800,9 +812,10 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.uint",
                         compression="gzip",
                         compression_options="9",
-                        description="The polynomial order of the dependence to fit "
-                        "for RMS (after EPD) vs magnitude, when identifying quiet "
-                        "stars.",
+                        description="The polynomial order of "
+                        "the dependence to fit for RMS "
+                        "(after EPD) vs magnitude, when "
+                        "identifying quiet stars.",
                     ),
                     HDF5DataSet(
                         pipeline_key=(
@@ -812,11 +825,14 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.float64",
                         compression="gzip",
                         compression_options="9",
-                        description="Stars are not allowed to be in the template if"
-                        " their RMS is more than this many sigma away from the "
-                        "mag-rms fit. This is also the threshold used for rejecting"
-                        " outliers when doing the iterative fit for the rms as a "
-                        "function of magnutude.",
+                        description="Stars are not allowed to"
+                        " be in the template if their RMS"
+                        " is more than this many sigma "
+                        "away from the mag-rms fit. This "
+                        "is also the threshold used for "
+                        "rejecting outliers when doing "
+                        "the iterative fit for the rms as"
+                        " a function of magnitude.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "mag_rms_max_rej_iter",
@@ -824,8 +840,10 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.uint",
                         compression="gzip",
                         compression_options="9",
-                        description="The maximum number of rejection fit iterations"
-                        " to do when deriving the rms(mag) dependence.",
+                        description="The maximum number of "
+                        "rejection fit iterations to do "
+                        "when deriving the rms(mag) "
+                        "dependence.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "max_rms",
@@ -833,8 +851,9 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.float64",
                         compression="gzip",
                         compression_options="9",
-                        description="Stars are allowed to be in the template only "
-                        "if their RMS is no larger than this.",
+                        description="Stars are allowed to be "
+                        "in the template only if their "
+                        "RMS is no larger than this.",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "faint_mag_limit",
@@ -842,8 +861,8 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.float64",
                         compression="gzip",
                         compression_options="9",
-                        description="Stars fainter than this cannot be template "
-                        "stars.",
+                        description="Stars fainter than this "
+                        "cannot be template stars.",
                     ),
                     HDF5DataSet(
                         pipeline_key=(
@@ -853,9 +872,12 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.float64",
                         compression="gzip",
                         compression_options="9",
-                        description="The minimum number of observations required of"
-                        " template stars is the smaller of this quantile among the "
-                        "input collection of stars and that determined by "
+                        description="The minimum number of "
+                        "observations required of template"
+                        " stars is the smaller of this "
+                        "quantile among the input "
+                        "collection of stars and that "
+                        "determined by "
                         "MinimumObservationsFraction.",
                     ),
                     HDF5DataSet(
@@ -866,10 +888,12 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.float64",
                         compression="gzip",
                         compression_options="9",
-                        description="The minimum number of observations required of"
-                        " template stars is the smaller this fraction of the "
-                        "longest lightcurve and that determined by "
-                        "MinimumObservationsQuantile",
+                        description="The minimum number of "
+                        "observations required of template"
+                        " stars is the smaller this "
+                        "fraction of the longest "
+                        "lightcurve and that determined "
+                        "by MinimumObservationsQuantile",
                     ),
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "num_templates",
@@ -877,7 +901,8 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.uint",
                         compression="gzip",
                         compression_options="9",
-                        description="The maximum number of template stars to use.",
+                        description="The maximum number of "
+                        "template stars to use.",
                     ),
                     HDF5DataSet(
                         pipeline_key=(config_key_prefix + "variables"),
@@ -885,9 +910,11 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.string_",
                         compression="gzip",
                         compression_options="9",
-                        description="The variables to use for selecting which "
-                        "points from a LC can be part of a template or can "
-                        "participate in the de-trending fit.",
+                        description="The variables to use for "
+                        "selecting which points from a LC "
+                        "can be part of a template or can "
+                        "participate in the de-trending "
+                        "fit.",
                     ),
                     HDF5DataSet(
                         pipeline_key=(
@@ -897,9 +924,11 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         dtype="numpy.string_",
                         compression="gzip",
                         compression_options="9",
-                        description="The expression defining which points from a LC"
-                        " can be part of a template or can participate in the "
-                        "de-trending fit.",
+                        description="The expression defining "
+                        "which points from a LC can be "
+                        "part of a template or can "
+                        "participate in the de-trending "
+                        "fit.",
                     ),
                 ]
             )

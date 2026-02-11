@@ -154,7 +154,7 @@ class CreateProjectView(WalkFSView):
         for line in config["custom-config"].splitlines():
             parsed = config_rex.match(line)
             overwrites[parsed.group("key")] = [(None, parsed.group("value"))]
-        
+
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
             *self._get_steps_and_masters(config),

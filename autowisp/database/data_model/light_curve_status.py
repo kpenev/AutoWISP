@@ -28,8 +28,10 @@ class LightCurveStatus(DataModelBase):
     status = Column(
         Integer,
         nullable=False,
-        doc="The status of the processing (0 = started, >0 = successfully "
-        "saved progress, negative values indicate various reasons for failure).",
+        doc="The status of the processing (0 = started, "
+        ">0 = successfully saved progress, "
+        "negative values indicate various reasons "
+        "for failure).",
     )
 
     def __str__(self):
