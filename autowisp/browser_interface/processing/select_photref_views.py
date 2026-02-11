@@ -209,7 +209,7 @@ def select_photref_image(request,
     print('Merit info keys: ' + repr(request.session['merit_info'].keys()))
 
     merit_data = pandas.read_json(
-        request.session['merit_info'][str(target_index)]
+        StringIO(request.session['merit_info'][str(target_index)])
     )
     fits_fname = request.session[
         'need_photref'
@@ -289,7 +289,7 @@ def record_photref_selection(request, target_index, image_index):
         return None
     print('Merit info keys: ' + repr(request.session['merit_info'].keys()))
     merit_data = pandas.read_json(
-        request.session['merit_info'][str(target_index)]
+        StringIO(request.session['merit_info'][str(target_index)])
     )
     dr_fname = request.session[
         'need_photref'
