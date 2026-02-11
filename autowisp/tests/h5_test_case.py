@@ -19,6 +19,12 @@ class H5TestCase(AutoWISPTestCase):
         def assert_dset_match(dset1, dset2):
             """Assert that the two datasets contain the same data."""
 
+            self.assertEqual(
+                dset1.shape,
+                dset2.shape,
+                f"Datasets {dr_fname1!r}/{dset1.name!r} and "
+                f"{dr_fname2!r}/{dset2.name!r} have different shapes.",
+            )
             if dset1.dtype.kind == "f":
                 differ = numpy.logical_not(
                     numpy.isclose(
