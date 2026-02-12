@@ -3,6 +3,7 @@
 from os import path
 
 import numpy
+from astropy.io import fits
 
 from autowisp.fits_utilities import read_image_components
 from autowisp.tests import AutoWISPTestCase
@@ -25,8 +26,7 @@ class FITSTestCase(AutoWISPTestCase):
         ]
 
         fits_keys = [
-            set(c['header'].keys()) - set(["EXTEND"])
-            for c in fits_components
+            set(c["header"].keys()) - set(["EXTEND"]) for c in fits_components
         ]
         self.assertTrue(
             fits_keys[0] == fits_keys[1],
@@ -63,6 +63,14 @@ class FITSTestCase(AutoWISPTestCase):
             f"Original input files in {fname1} and {fname2} do not match!",
         )
 
+        if (
+            fits_components[0]["header"]["XTENSION"].strip() == "BINTABLE"
+            and fits_components[0]["header"].get("EXTNAME", "").strip()
+            != "COMPRESSED_IMAGE"
+        ):
+            self.assert_fits_tables_match(fname1, fname2)
+            return
+
         for component in ["image", "error"]:
             self.assertTrue(
                 numpy.isclose(
@@ -86,3 +94,75 @@ class FITSTestCase(AutoWISPTestCase):
             (fits_components[0]["mask"] == fits_components[1]["mask"]).all(),
             f"Pixel mask in {fname1} do not match pixel mask in {fname2}!",
         )
+
+    def assert_fits_tables_match(self, fname1, fname2):
+        """Check that all table extensions in two FITS files match."""
+
+        with fits.open(fname1, mode="readonly") as hdul1, fits.open(
+            fname2, mode="readonly"
+        ) as hdul2:
+
+            tables1 = [
+                hdu for hdu in hdul1 if isinstance(hdu, fits.BinTableHDU)
+            ]
+            tables2 = [
+                hdu for hdu in hdul2 if isinstance(hdu, fits.BinTableHDU)
+            ]
+
+            self.assertEqual(
+                len(tables1),
+                len(tables2),
+                f"Number of table extensions differs: "
+                f"{fname1} has {len(tables1)}, {fname2} has {len(tables2)}.",
+            )
+
+            for table_index, (tbl1, tbl2) in enumerate(zip(tables1, tables2)):
+                self.assertEqual(
+                    tbl1.name,
+                    tbl2.name,
+                    f"Table extension #{table_index} name differs: "
+                    f"{tbl1.name!r} in {fname1} vs {tbl2.name!r} in {fname2}.",
+                )
+
+                cols1 = set(tbl1.columns.names)
+                cols2 = set(tbl2.columns.names)
+                self.assertEqual(
+                    cols1,
+                    cols2,
+                    f"Column names differ in table {tbl1.name!r}:\n"
+                    f"    Only in {fname1}: {cols1 - cols2}\n"
+                    f"    Only in {fname2}: {cols2 - cols1}",
+                )
+
+                self.assertEqual(
+                    len(tbl1.data),
+                    len(tbl2.data),
+                    f"Row count differs in table {tbl1.name!r}: "
+                    f"{len(tbl1.data)} in {fname1} vs "
+                    f"{len(tbl2.data)} in {fname2}.",
+                )
+
+                for col_name in tbl1.columns.names:
+                    col1 = tbl1.data[col_name]
+                    col2 = tbl2.data[col_name]
+                    if numpy.issubdtype(col1.dtype, numpy.floating):
+                        max_diff_i = numpy.argmax(numpy.abs(col1 - col2))
+                        self.assertTrue(
+                            numpy.isclose(
+                                col1,
+                                col2,
+                                rtol=1e-8,
+                                atol=1e-8,
+                                equal_nan=True
+                            ).all(),
+                            f"Column {col_name!r} values differ in table "
+                            f"{tbl1.name!r} between {fname1} and {fname2}."
+                            f"Max diff values: {col1[max_diff_i]!r} vs "
+                            f"{col2[max_diff_i]!r}.",
+                        )
+                    else:
+                        self.assertTrue(
+                            (col1 == col2).all(),
+                            f"Column {col_name!r} values differ in table "
+                            f"{tbl1.name!r} between {fname1} and {fname2}.",
+                        )
