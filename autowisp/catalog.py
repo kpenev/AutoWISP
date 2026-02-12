@@ -32,6 +32,43 @@ conf.timeout = 180
 class WISPGaia(GaiaClass):
     """Extend queries with condition and sorting."""
 
+    def _get_ra_dec_condition(self, fov, corner_list):
+
+        center_coord = SkyCoord(ra=fov["ra"], dec=fov["dec"])
+        max_corner_separation = None
+        for corner in corner_list:
+            separation = center_coord.separation(
+                SkyCoord(
+                    ra=corner["RA"] * units.deg, dec=corner["Dec"] * units.deg
+                )
+            )
+            if (
+                max_corner_separation is None
+                or separation > max_corner_separation
+            ):
+                max_corner_separation = separation
+        _logger.debug(
+            "Maximum corner separation from center: %s", max_corner_separation
+        )
+
+        ra_vals = [c["RA"] for c in corner_list]
+        ra_min, ra_max = min(ra_vals), max(ra_vals)
+        center_ra_deg = center_coord.ra.to_value(units.deg)
+
+        if ra_min < center_ra_deg < ra_max:
+            ra_condition = f"RA BETWEEN {ra_min} AND {ra_max}"
+        else:
+            ra_condition = f"(RA >= {ra_max} OR RA <= {ra_min})"
+
+        dec_min = center_coord.dec.to_value(
+            units.deg
+        ) - max_corner_separation.to_value(units.deg)
+        dec_max = center_coord.dec.to_value(
+            units.deg
+        ) + max_corner_separation.to_value(units.deg)
+        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
+        return f"{ra_condition} AND {dec_condition}"
+
     def get_result(self, query, add_propagated, verbose=False):
         """Get and format the result as specified by user."""
 
@@ -176,55 +213,19 @@ class WISPGaia(GaiaClass):
                 f"radial_velocity, ref_epoch, {epoch}) AS propagated, "
             ) + columns
 
-        corners = self.estimate_fov_corners(**fov)
+        corner_list = self.estimate_fov_corners(**fov)
         table_name = self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE
 
         select = "SELECT"
         if max_objects is not None:
             select += f" TOP {max_objects}"
 
-        center_coord = SkyCoord(ra=ra, dec=dec)
-        max_corner_separation = None
-        for i, corner in enumerate(corners):
-            corner_coord = SkyCoord(
-                ra=corner['RA']*units.deg, dec=corner['Dec']*units.deg
-            )
-            separation = center_coord.separation(corner_coord)
-            if max_corner_separation is None or separation > max_corner_separation:
-                max_corner_separation = separation
-        _logger.debug(
-            "Maximum corner separation from center: %s", max_corner_separation
-        )
-
-        ra_vals = [c["RA"] for c in corners]
-        ra_min, ra_max = min(ra_vals), max(ra_vals)
-        center_ra_deg = center_coord.ra.to_value(units.deg)
-
-        if ra_min < center_ra_deg < ra_max:
-            ra_condition = f"RA BETWEEN {ra_min} AND {ra_max}"
-        else:
-            ra_condition = f"(RA >= {ra_max} OR RA <= {ra_min})"
-
-        dec_min = (
-            center_coord.dec.to_value(units.deg) -
-            max_corner_separation.to_value(units.deg)
-        )
-        dec_max = (
-            center_coord.dec.to_value(units.deg) +
-            max_corner_separation.to_value(units.deg)
-        )
-        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
-
-        new_condition = None
-
         query_str = f"""
             {select}
             {columns}
             FROM {table_name}
             WHERE
-                {ra_condition}
-                AND
-                {dec_condition}
+                {self._get_ra_dec_condition(fov, corner_list)}
                 AND
                 {condition if condition is not None else '1=1'}
                 AND
@@ -234,14 +235,14 @@ class WISPGaia(GaiaClass):
                         {self.MAIN_GAIA_TABLE_DEC}
                     ),
                     POLYGON(
-                        {corners[0]['RA']},
-                        {corners[0]['Dec']},
-                        {corners[1]['RA']},
-                        {corners[1]['Dec']},
-                        {corners[2]['RA']},
-                        {corners[2]['Dec']},
-                        {corners[3]['RA']},
-                        {corners[3]['Dec']}
+                        {corner_list[0]['RA']},
+                        {corner_list[0]['Dec']},
+                        {corner_list[1]['RA']},
+                        {corner_list[1]['Dec']},
+                        {corner_list[2]['RA']},
+                        {corner_list[2]['Dec']},
+                        {corner_list[3]['RA']},
+                        {corner_list[3]['Dec']}
                     )
                 )
         """
