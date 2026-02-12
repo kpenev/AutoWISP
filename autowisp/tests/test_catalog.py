@@ -49,6 +49,6 @@ class TestCatalog(FITSTestCase):
         )
         print(f"Test directory contents: {glob(self.test_directory + '/*')}")
         print(f"Looking for test catalogs matching {test_glob}")
-        for expected_fname in glob(test_glob):
+        for expected_fname in sorted(glob(test_glob)):
             print(f"Testing {expected_fname}")
             self._test_single_query(expected_fname)

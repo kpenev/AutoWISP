@@ -15,8 +15,13 @@ def generate_test_data(num_stars=1000):
             {"ra": 25.0, "dec": 25.0, "width": 10.0, "height": 10.0},
             {"ra": 145.0, "dec": -45.0, "width": 5.0, "height": 20.0},
             {"ra": 0.0, "dec": 25.0, "width": 20.0, "height": 10.0},
+            {"ra": 0.0, "dec": -25.0, "width": 20.0, "height": 10.0},
             {"ra": 5.5, "dec": 25.0, "width": 10.0, "height": 20.0},
+            {"ra": 5.5, "dec": -25.0, "width": 10.0, "height": 20.0},
             {"ra": 355.5, "dec": 25.0, "width": 10.0, "height": 20.0},
+            {"ra": 355.5, "dec": -25.0, "width": 10.0, "height": 20.0},
+            {"ra": 354.5, "dec": 25.0, "width": 10.0, "height": 20.0},
+            {"ra": 354.5, "dec": -25.0, "width": 10.0, "height": 20.0},
             {"ra_corner": 0.0, "dec": 0.0, "width": 10.0, "height": 20.0},
             {"ra": 100.0, "dec": 80.0, "width": 10.0, "height": 10.0},
             {"ra": 100.0, "dec": -80.0, "width": 10.0, "height": 10.0},
@@ -29,6 +34,7 @@ def generate_test_data(num_stars=1000):
             {"ra": 25.0, "dec": 0.0, "width": 10.0, "height": 10.0},
             {"ra": 0.0, "dec": 0.0, "width": 20.0, "height": 10.0},
             {"ra": 5.01, "dec": 9.0, "width": 10.0, "height": 10.0},
+            {"ra": 5.01, "dec": -9.0, "width": 10.0, "height": 10.0},
         ]
     ):
         cat_fname = f"catalog_tests/test_catalog_{test_i:02d}.fits"
