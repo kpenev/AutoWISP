@@ -24,10 +24,15 @@ class FITSTestCase(AutoWISPTestCase):
             for fits_fname in [fname1, fname2]
         ]
 
+        fits_keys = [
+            set(c['header'].keys()) - set(["EXTEND"])
+            for c in fits_components
+        ]
         self.assertTrue(
-            set(fits_components[0]["header"].keys()) - set(["EXTEND"])
-            == set(fits_components[1]["header"].keys()) - set(["EXTEND"]),
-            f"Headers of {fname1} and {fname2} do not have the same keys!",
+            fits_keys[0] == fits_keys[1],
+            f"Headers of {fname1} and {fname2} do not have the same keys!\n"
+            f"    Only in {fname1}: {fits_keys[0] - fits_keys[1]}"
+            f"    Only in {fname2}: {fits_keys[1] - fits_keys[0]}",
         )
         original_files = [set(), set()]
         for key, value in fits_components[0]["header"].items():

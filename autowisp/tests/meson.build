@@ -5,6 +5,7 @@ py_src = [
   'get_test_data.py',
   'h5_test_case.py',
   'test_calibrate.py',
+  'test_catalog.py',
   'test_create_lightcurves.py',
   'test_detrending_stat.py',
   'test_epd.py',
