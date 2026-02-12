@@ -51,14 +51,7 @@ class WISPGaia(GaiaClass):
             "Maximum corner separation from center: %s", max_corner_separation
         )
 
-        ra_vals = [c["RA"] for c in corner_list]
-        ra_min, ra_max = min(ra_vals), max(ra_vals)
         center_ra_deg = center_coord.ra.to_value(units.deg)
-
-        if ra_min < center_ra_deg < ra_max:
-            ra_condition = f"RA BETWEEN {ra_min} AND {ra_max}"
-        else:
-            ra_condition = f"(RA >= {ra_max} OR RA <= {ra_min})"
 
         dec_min = center_coord.dec.to_value(
             units.deg
@@ -66,7 +59,32 @@ class WISPGaia(GaiaClass):
         dec_max = center_coord.dec.to_value(
             units.deg
         ) + max_corner_separation.to_value(units.deg)
+        if dec_min < -90:
+            return f"Dec < {dec_max}"
+        if dec_max > 90:
+            return f"Dec > {dec_min}"
         dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
+
+        ra_vals = [c["RA"] for c in corner_list]
+        for i in range(2):
+            if ra_vals[i] > center_ra_deg:
+                ra_vals[i] -= 360.0
+        for i in range(2, 4):
+            if ra_vals[i] < center_ra_deg:
+                ra_vals[i] += 360.0
+        assert ra_vals[0] < center_ra_deg
+        assert ra_vals[1] < center_ra_deg
+        assert ra_vals[2] > center_ra_deg
+        assert ra_vals[3] > center_ra_deg
+
+        ra_min, ra_max = min(ra_vals), max(ra_vals)
+        assert ra_max - ra_min < 360.0
+
+        if ra_min > 0 and ra_max < 360:
+            ra_condition = f"RA BETWEEN {ra_min % 360} AND {ra_max % 360}"
+        else:
+            ra_condition = f"(RA >= {ra_min % 360} OR RA <= {ra_max % 360})"
+
         return f"{ra_condition} AND {dec_condition}"
 
     def get_result(self, query, add_propagated, verbose=False):
