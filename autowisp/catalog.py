@@ -12,6 +12,7 @@ import numpy
 import pandas
 from astropy import units
 from astropy.io import fits
+from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
 from autowisp.evaluator import Evaluator
@@ -182,16 +183,39 @@ class WISPGaia(GaiaClass):
         if max_objects is not None:
             select += f" TOP {max_objects}"
 
-        ra_vals = [c["RA"] for c in corners]
-        dec_vals = [c["Dec"] for c in corners]
-        ra_min, ra_max = min(ra_vals), max(ra_vals)
-        dec_min, dec_max = min(dec_vals), max(dec_vals)
+        center_coord = SkyCoord(ra=ra, dec=dec)
+        max_corner_separation = None
+        for i, corner in enumerate(corners):
+            corner_coord = SkyCoord(
+                ra=corner['RA']*units.deg, dec=corner['Dec']*units.deg
+            )
+            separation = center_coord.separation(corner_coord)
+            if max_corner_separation is None or separation > max_corner_separation:
+                max_corner_separation = separation
+        _logger.debug(
+            "Maximum corner separation from center: %s", max_corner_separation
+        )
 
-        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
-        if (ra_max - ra_min) <= (ra_min + 360.0 - ra_max):
+        ra_vals = [c["RA"] for c in corners]
+        ra_min, ra_max = min(ra_vals), max(ra_vals)
+        center_ra_deg = center_coord.ra.to_value(units.deg)
+
+        if ra_min < center_ra_deg < ra_max:
             ra_condition = f"RA BETWEEN {ra_min} AND {ra_max}"
         else:
             ra_condition = f"(RA >= {ra_max} OR RA <= {ra_min})"
+
+        dec_min = (
+            center_coord.dec.to_value(units.deg) -
+            max_corner_separation.to_value(units.deg)
+        )
+        dec_max = (
+            center_coord.dec.to_value(units.deg) +
+            max_corner_separation.to_value(units.deg)
+        )
+        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
+
+        new_condition = None
 
         query_str = f"""
             {select}
@@ -201,6 +225,8 @@ class WISPGaia(GaiaClass):
                 {ra_condition}
                 AND
                 {dec_condition}
+                AND
+                {condition if condition is not None else '1=1'}
                 AND
                 1 = CONTAINS(
                     POINT(
@@ -219,11 +245,6 @@ class WISPGaia(GaiaClass):
                     )
                 )
         """
-        if condition is not None:
-            query_str += f"""
-                AND
-                ({condition})
-            """
 
         if not count_only:
             query_str += f"""
