@@ -126,6 +126,14 @@ def parse_command_line(*args):
         "table it is automatically added.",
     )
     parser.add_argument(
+        "--target-match-tolerance",
+        type=float,
+        default=0.05,
+        help="Maximum allowed separation between image and target"
+        " as a fraction of the field of view (default: 0.05 = 5%%). "
+        "Used to verify target consistency when adding images.",
+    )
+    parser.add_argument(
         "--observing-session-label",
         "--session-label",
         "--session",
@@ -206,7 +214,7 @@ def get_or_create_target(
                     ra=db_target.ra * units.deg, dec=db_target.dec * units.deg
                 )
             )
-            < 0.01 * field_of_view
+            < configuration["target_match_tolerance"] * field_of_view
         )
 
     return db_target
