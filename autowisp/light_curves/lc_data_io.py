@@ -157,7 +157,10 @@ class LCDataIO:
                         [
                             r"skytoframe\.(sky_center|residual|unitarity)$",
                             r"^shapefit\.global_chi2$",
-                            r"magfit\.(num_input_src|num_fit_src|fit_residual)$",
+                            (
+                                r"magfit\."
+                                r"(num_input_src|num_fit_src|fit_residual)$"
+                            ),
                             r"^fitsheader\.(?!cfg\.)",
                             r"\.cfg_index$",
                             r"^catalogue\.cfg\.(epoch|fov|orientation)$",
@@ -270,7 +273,7 @@ class LCDataIO:
     # pylint: enable=too-many-statements
 
     @classmethod
-    def create(
+    def create(  # pylint: disable=too-many-arguments
         cls,
         *,
         catalog_sources,
@@ -603,7 +606,7 @@ class LCDataIO:
         return 1
 
     @classmethod
-    def _set_field_entry(
+    def _set_field_entry( # pylint: disable=too-many-arguments
         cls, quantity, value, *, frame_index, dim_values, source_index=None
     ):
         """
@@ -766,9 +769,6 @@ class LCDataIO:
             for dset_key in component_dsets:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
-                    #                    if dset_key.endswith('.magfit.cfg.single_photref'):
-                    #                        value = self._config['single_photref_dr_fname']
-                    #                    el
                     if dset_key in self.header_datasets:
                         value = frame_header[
                             self.header_datasets[dset_key].upper()
@@ -1235,7 +1235,6 @@ class LCDataIO:
         light_curve,
         source_index,
         defined_indices,
-        resolve_lc_size="confirmed",
     ):
         """
         Add all configurations to the LC and fix their config_ids in slice.
@@ -1400,7 +1399,6 @@ class LCDataIO:
                     light_curve,
                     source_index,
                     defined_indices,
-                    resolve_lc_size="confirmed",
                 )
                 self._write_slice_data(
                     light_curve,

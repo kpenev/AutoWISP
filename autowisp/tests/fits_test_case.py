@@ -35,8 +35,11 @@ class FITSTestCase(AutoWISPTestCase):
             f"    Only in {fname2}: {fits_keys[1] - fits_keys[0]}",
         )
         original_files = [set(), set()]
+        ignore_header_keys = ["CALGITID", "COMMENT", "EXTEND"] + [
+            f"M{master.upper()}SHA" for master in ["bias", "dark", "flat"]
+        ]
         for key, value in fits_components[0]["header"].items():
-            if key.strip() == "" or key in ["CALGITID", "COMMENT", "EXTEND"]:
+            if key.strip() == "" or key in ignore_header_keys:
                 continue
             if key in [f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]]:
                 self.assertEqual(
@@ -64,7 +67,8 @@ class FITSTestCase(AutoWISPTestCase):
         )
 
         if (
-            fits_components[0]["header"]["XTENSION"].strip() == "BINTABLE"
+            fits_components[0]["header"].get("XTENSION", "").strip()
+            == "BINTABLE"
             and fits_components[0]["header"].get("EXTNAME", "").strip()
             != "COMPRESSED_IMAGE"
         ):
@@ -116,47 +120,44 @@ class FITSTestCase(AutoWISPTestCase):
                 f"{fname1} has {len(tables1)}, {fname2} has {len(tables2)}.",
             )
 
-            for table_index, (tbl1, tbl2) in enumerate(zip(tables1, tables2)):
+            for table_index, tbl in enumerate(zip(tables1, tables2)):
                 self.assertEqual(
-                    tbl1.name,
-                    tbl2.name,
+                    tbl[0].name,
+                    tbl[1].name,
                     f"Table extension #{table_index} name differs: "
-                    f"{tbl1.name!r} in {fname1} vs {tbl2.name!r} in {fname2}.",
+                    f"{tbl[0].name!r} in {fname1} vs {tbl[1].name!r} in "
+                    f"{fname2}.",
                 )
 
-                cols1 = set(tbl1.columns.names)
-                cols2 = set(tbl2.columns.names)
+                cols1 = set(tbl[0].columns.names)
+                cols2 = set(tbl[1].columns.names)
                 self.assertEqual(
                     cols1,
                     cols2,
-                    f"Column names differ in table {tbl1.name!r}:\n"
+                    f"Column names differ in table {tbl[0].name!r}:\n"
                     f"    Only in {fname1}: {cols1 - cols2}\n"
                     f"    Only in {fname2}: {cols2 - cols1}",
                 )
 
                 self.assertEqual(
-                    len(tbl1.data),
-                    len(tbl2.data),
-                    f"Row count differs in table {tbl1.name!r}: "
-                    f"{len(tbl1.data)} in {fname1} vs "
-                    f"{len(tbl2.data)} in {fname2}.",
+                    len(tbl[0].data),
+                    len(tbl[1].data),
+                    f"Row count differs in table {tbl[0].name!r}: "
+                    f"{len(tbl[0].data)} in {fname1} vs "
+                    f"{len(tbl[1].data)} in {fname2}.",
                 )
 
-                for col_name in tbl1.columns.names:
-                    col1 = tbl1.data[col_name]
-                    col2 = tbl2.data[col_name]
+                for col_name in tbl[0].columns.names:
+                    col1 = tbl[0].data[col_name]
+                    col2 = tbl[1].data[col_name]
                     if numpy.issubdtype(col1.dtype, numpy.floating):
                         max_diff_i = numpy.argmax(numpy.abs(col1 - col2))
                         self.assertTrue(
                             numpy.isclose(
-                                col1,
-                                col2,
-                                rtol=1e-8,
-                                atol=1e-8,
-                                equal_nan=True
+                                col1, col2, rtol=1e-8, atol=1e-8, equal_nan=True
                             ).all(),
                             f"Column {col_name!r} values differ in table "
-                            f"{tbl1.name!r} between {fname1} and {fname2}."
+                            f"{tbl[0].name!r} between {fname1} and {fname2}."
                             f"Max diff values: {col1[max_diff_i]!r} vs "
                             f"{col2[max_diff_i]!r}.",
                         )
@@ -164,5 +165,5 @@ class FITSTestCase(AutoWISPTestCase):
                         self.assertTrue(
                             (col1 == col2).all(),
                             f"Column {col_name!r} values differ in table "
-                            f"{tbl1.name!r} between {fname1} and {fname2}.",
+                            f"{tbl[0].name!r} between {fname1} and {fname2}.",
                         )

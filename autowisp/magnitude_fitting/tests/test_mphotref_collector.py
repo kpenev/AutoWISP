@@ -565,7 +565,6 @@ class TestMphotrefCollector(FloatTestCase):
                 statistics_fname=stat_fname,
                 num_photometries=self._dimensions[test_name]["photometries"],
                 num_frames=self._dimensions[test_name]["images"],
-                temp_directory=tempdir,
                 source_name_format="{0:d}",
             )
             for img_i in range(self._dimensions[test_name]["images"]):
@@ -579,7 +578,6 @@ class TestMphotrefCollector(FloatTestCase):
                     "O1{phot_g_mean_mag}" if test_name == "big" else "O0{xi}"
                 ),
                 fit_outlier_threshold=6.0,
-                parse_source_id=None,
             )
             self._assertStat(
                 stat_fname,

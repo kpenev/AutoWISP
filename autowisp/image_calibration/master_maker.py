@@ -55,7 +55,7 @@ class MasterMaker(Processor):
     being excluded from the averaging.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         outlier_threshold=5.0,
@@ -110,8 +110,7 @@ class MasterMaker(Processor):
         return image
 
     # Re-factoring to reduce locals will make things less readable.
-    # pylint: disable=too-many-locals
-    def stack(
+    def stack( #pylint: disable=too-many-arguments,too-many-locals
         self,
         frame_list,
         *,
@@ -360,9 +359,7 @@ class MasterMaker(Processor):
             discarded_frames,
         )
 
-    # pylint: enable=too-many-locals
-
-    def __call__(
+    def __call__( # pylint: disable=too-many-arguments
         self,
         frame_list,
         output_fname,

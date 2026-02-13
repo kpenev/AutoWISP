@@ -183,7 +183,6 @@ def iterative_refit(
         *,
         magfit_stat_collector,
         old_reference,
-        source_id_parser,
         num_photometries,
         fname_substitutions,
         common_header,
@@ -217,7 +216,6 @@ def iterative_refit(
                 master_reference_fname=master_reference_fname,
                 catalog=catalog,
                 fit_terms_expression=configuration.mphotref_scatter_fit_terms,
-                parse_source_id=source_id_parser,
                 extra_header=common_header,
             )
         except RuntimeError:
@@ -316,7 +314,6 @@ def iterative_refit(
                 stat_fname,
                 num_photometries,
                 len(fit_dr_filenames),
-                mphotref_collect_tmp_dir,
                 source_name_format=configuration.source_name_format,
             )
 
@@ -333,7 +330,6 @@ def iterative_refit(
             photref, photref_fname = update_photref(
                 magfit_stat_collector=magfit_stat_collector,
                 old_reference=photref,
-                source_id_parser=photref_dr.parse_hat_source_id,
                 num_photometries=num_photometries,
                 fname_substitutions=fname_substitutions,
                 common_header=common_header,

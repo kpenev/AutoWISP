@@ -134,7 +134,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
     """Boiler plate handling of LC detrending command line arguments."""
 
     @staticmethod
-    def add_transit_parameters(
+    def add_transit_parameters(  # pylint: disable=too-many-arguments
         parser,
         *,
         timing=True,
@@ -420,7 +420,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "magnitude is done.",
         )
 
-    def __init__(
+    def __init__( # pylint: disable=too-many-arguments
         self,
         mode,
         description,

@@ -63,7 +63,6 @@ class WISPGaia(GaiaClass):
             return f"Dec < {dec_max}"
         if dec_max > 90:
             return f"Dec > {dec_min}"
-        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
 
         ra_vals = [c["RA"] for c in corner_list]
         for i in range(2):
@@ -85,7 +84,7 @@ class WISPGaia(GaiaClass):
         else:
             ra_condition = f"(RA >= {ra_min % 360} OR RA <= {ra_max % 360})"
 
-        return f"{ra_condition} AND {dec_condition}"
+        return f"{ra_condition} AND Dec BETWEEN {dec_min} AND {dec_max}"
 
     def get_result(self, query, add_propagated, verbose=False):
         """Get and format the result as specified by user."""

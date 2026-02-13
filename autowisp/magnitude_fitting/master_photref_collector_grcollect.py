@@ -186,9 +186,8 @@ class MasterPhotrefCollector:
         return result
 
     # Can't simplify further
-    # pylint: disable=too-many-locals
     @staticmethod
-    def _fit_scatter(
+    def _fit_scatter(  # pylint: disable=too-many-arguments, too-many-locals
         statistics,
         fit_terms_expression,
         *,
@@ -257,9 +256,7 @@ class MasterPhotrefCollector:
             ) - numpy.dot(coefficients, predictors)
         return residuals
 
-    # pylint: enable=too-many-locals
-
-    def _create_reference(
+    def _create_reference(  # pylint: disable=too-many-arguments
         self,
         statistics,
         residual_scatter,
@@ -384,8 +381,7 @@ class MasterPhotrefCollector:
         fits.HDUList([primary_hdu] + master_hdus).writeto(reference_fname)
 
     # Could not refactor to simply.
-    # pylint: disable=too-many-locals
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         statistics_fname,
         num_photometries,
@@ -545,7 +541,7 @@ class MasterPhotrefCollector:
             logger.debug("Finished sending fit data to grcollect")
 
     # TODO: Add support for scatter cut based on quantile of fit residuals.
-    def generate_master(
+    def generate_master(  # pylint: disable=too-many-arguments
         self,
         *,
         master_reference_fname,
@@ -634,11 +630,13 @@ class MasterPhotrefCollector:
         )
 
 
-if __name__ == "__main__":
-    from time import time
+def main():  # pylint: disable=too-many-locals
+    """Avoid polluting global namespace."""
 
-    import zarr
-    from rechunker import rechunk
+    from time import time  # pylint: disable=import-outside-toplevel
+
+    import zarr  # pylint: disable=import-outside-toplevel
+    from rechunker import rechunk  # pylint: disable=import-outside-toplevel
 
     nstars = 5000
     nframes = 500
@@ -711,3 +709,7 @@ if __name__ == "__main__":
     print(f"Median took {time() - start} sec.")
     for stat, values in results.items():
         print(f"{stat}: {values!r}\n")
+
+
+if __name__ == "__main__":
+    main()

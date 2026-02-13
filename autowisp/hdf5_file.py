@@ -1072,8 +1072,7 @@ class HDF5File(ABC, h5py.File):
 
         if (
             data.dtype.kind == "S"
-            or data.dtype == numpy.string_
-            or data.dtype == numpy.bytes_
+            or data.dtype in [numpy.string_, numpy.bytes_]
         ) and (
             (
                 expected_dtype is not None
@@ -1098,7 +1097,7 @@ class HDF5File(ABC, h5py.File):
         data_copy[numpy.logical_not(finite)] = replace_nonfinite
         return data_copy
 
-    def add_dataset(
+    def add_dataset( #pylint: disable=too-many-arguments
         self,
         dataset_key,
         data,

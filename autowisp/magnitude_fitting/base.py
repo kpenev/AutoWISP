@@ -149,7 +149,7 @@ class MagnitudeFit(ABC):
                 The magnitude fit corrected magnitudes.
         """
 
-    def _solved(
+    def _solved(  # pylint: disable=too-many-arguments
         self,
         *,
         data_reduction,

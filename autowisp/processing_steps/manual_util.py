@@ -57,7 +57,9 @@ class ManualStepArgumentParser(ArgumentParser):
             f"--{prefix}-catalog",
             f"--{prefix}-catalogue",
             "--cat",
-            default=catalog_config.get("fname", "{PROJHOME}/MASTERS/Gaia/{checksum:s}.fits"),
+            default=catalog_config.get(
+                "fname", "{PROJHOME}/MASTERS/Gaia/{checksum:s}.fits"
+            ),
             help="A file containing (approximately) all the same stars that "
             "were extracted from the frame for the area of the sky covered by "
             "the image. It is perferctly fine to include a larger area of sky "
@@ -246,7 +248,7 @@ class ManualStepArgumentParser(ArgumentParser):
             "expression involving header keywords.",
         )
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments, too-many-branches
         self,
         *,
         input_type,
@@ -384,7 +386,8 @@ class ManualStepArgumentParser(ArgumentParser):
         if not skip_io:
             self.add_argument(
                 "--std-out-err-fname",
-                default="{project_home}/LOGS/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
+                default="{project_home}/LOGS/"
+                "{processing_step:s}_{task:s}_{now:s}_pid{pid:d}"
                 ".outerr",
                 help="The filename pattern to redirect stdout and stderr during"
                 "multiprocessing. Should include substitutions to distinguish "
@@ -400,7 +403,8 @@ class ManualStepArgumentParser(ArgumentParser):
             )
             self.add_argument(
                 "--logging-fname",
-                default="{project_home}/LOGS/{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log",
+                default="{project_home}/LOGS/"
+                "{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log",
                 help="The filename pattern to use for log files. Should include"
                 " substitutions to distinguish logs from different "
                 "multiprocessing processes. May include substitutions for any "

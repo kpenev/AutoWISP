@@ -233,7 +233,7 @@ def add_channel_keywords(header, channel_name, channel_slice):
         header["CHNLYSTP"] = 1
 
 
-def create_result(
+def create_result(  # pylint: disable=too-many-arguments
     image_list,
     header,
     result_fname,

@@ -20,9 +20,8 @@ class Base(ABC, Processor):
         """Document last overscan correction by updating given FITS header."""
 
     # Intentional
-    # pylint: disable=arguments-differ
     @abstractmethod
-    def __call__(
+    def __call__(  # pylint: disable=arguments-differ, too-many-arguments
         self,
         *,
         raw_fname,
@@ -69,8 +68,6 @@ class Base(ABC, Processor):
                 * variance:    An estimate of the variance in the
                     overscan_correction entries (in ADU).
         """
-
-    # pylint: enable=arguments-differ
 
 
 class Median(Base):
@@ -205,7 +202,7 @@ class Median(Base):
             "Did the last overscan correction converge",
         )
 
-    def __call__(
+    def __call__(  # pylint: disable=too-many-arguments
         self, *, raw_image, overscans, image_area, gain, split_channels=None
     ):
         """

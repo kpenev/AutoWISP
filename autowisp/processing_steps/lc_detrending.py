@@ -162,14 +162,15 @@ def calculate_detrending_performance(
         len(lc_fnames),
     )
 
-    catalog_sources = read_catalog_file(
-        configuration["detrending_catalog"], add_gnomonic_projection=True
-    )
-
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r"
     ) as sphotref_dr:
         sphotref_header = sphotref_dr.get_frame_header()
+
+    catalog_sources = read_catalog_file(
+        configuration["detrending_catalog"].format_map(sphotref_header),
+        add_gnomonic_projection=True,
+    )
 
     output_statistics_fname = configuration[
         f"{detrending_mode}_statistics_fname"
