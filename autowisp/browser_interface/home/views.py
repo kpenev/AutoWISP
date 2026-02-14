@@ -286,21 +286,25 @@ def delete_master_files(project_home):
         masters = db_session.execute(
             select(MasterFile.filename, MasterType.name).join(MasterType)
         ).all()
-        mphotref_pattern = db_session.scalar(
-            select(Configuration.value)
-            .join(Parameter)
-            .where(Parameter.name == "master-photref-fname-format")
-        )
-        magfit_stat_pattern = db_session.scalar(
-            select(Configuration.value)
-            .join(Parameter)
-            .where(Parameter.name == "magfit-stat-fname-format")
-        )
+        extra_patterns = []
+        for param_name in (
+            "master-photref-fname-format",
+            "magfit-stat-fname-format",
+            "astrometry-catalog",
+            "photometry-catalog",
+            "magfit-catalog",
+            "lc-catalog",
+        ):
+            pattern = db_session.scalar(
+                select(Configuration.value)
+                .join(Parameter)
+                .where(Parameter.name == param_name)
+            )
+            if pattern is not None:
+                extra_patterns.append(pattern)
 
     known = {"PROJHOME": project_home, "project_home": project_home}
-    for pattern in (mphotref_pattern, magfit_stat_pattern):
-        if pattern is None:
-            continue
+    for pattern in extra_patterns:
         for fpath in iglob(_pattern_to_glob(pattern, known)):
             if os.path.isfile(fpath):
                 _safe_remove(fpath, project_home)
