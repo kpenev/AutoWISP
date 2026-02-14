@@ -9,8 +9,7 @@ import numpy
 
 from autowisp.hat.file_parsers import parse_fname_keywords
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
-from autowisp.catalog import ensure_catalog
-from autowisp.processing_steps.manual_util import get_catalog_config
+from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.light_curves.lc_data_io import LCDataIO
 

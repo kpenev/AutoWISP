@@ -1,4 +1,5 @@
 src = [
+  'confirm_delete.html',
   'create_directory.html',
   'create_project.html',
   'index.html',

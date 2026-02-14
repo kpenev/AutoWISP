@@ -23,9 +23,8 @@ from autowisp.processing_steps.manual_util import (
     add_image_options,
     read_subpixmap,
     ignore_progress,
-    get_catalog_config,
 )
-from autowisp.catalog import ensure_catalog
+from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.split_sources import SplitSources
 from autowisp.data_reduction.utils import delete_star_shape_fit
 

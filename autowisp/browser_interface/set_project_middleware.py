@@ -12,7 +12,10 @@ def set_project_middleware(get_response):
 
         project_home = request.session.get("project_home")
         if project_home is not None:
-            set_project_home(project_home)
+            try:
+                set_project_home(project_home)
+            except:
+                pass
 
         response = get_response(request)
 

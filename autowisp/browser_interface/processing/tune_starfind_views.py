@@ -14,12 +14,11 @@ from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.astrometry import estimate_transformation
 from autowisp.fits_utilities import get_primary_header
-from autowisp.catalog import ensure_catalog
+from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.processing_steps.solve_astrometry import (
     construct_transformation,
     prepare_configuration,
 )
-from autowisp.processing_steps.manual_util import get_catalog_config
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -173,8 +172,10 @@ def select_starfind_batch(request, refresh=False):
         configured = set(
             notes.split(":", 1)[1].strip()
             for notes in db_session.scalars(
-                select(Condition.notes).where(
-                    Condition.notes.like("BUI tuned source extraction for: %")
+                select(Condition.notes).where(  # pylint: disable=no-member
+                    Condition.notes.like(  # pylint: disable=no-member
+                        "BUI tuned source extraction for: %"
+                    )
                 )
             ).all()
         )
@@ -336,7 +337,9 @@ def save_starfind_config(request, imtype, batch_index):
             for param in starfind_config
         }
         condition_id = db_session.scalar(
-            select(sql.functions.max(Condition.id) + 1)
+            select(
+                sql.functions.max(Condition.id) + 1  # pylint: disable=no-member
+            )
         )
 
         for expression, value in zip(grouping_expressions, condition_values):
@@ -359,7 +362,7 @@ def save_starfind_config(request, imtype, batch_index):
                 db_session.add(db_expression)
                 db_session.flush()
             db_session.add(
-                Condition(
+                Condition(  # pylint: disable=not-callable
                     id=condition_id,
                     expression_id=db_expression.id,
                     notes=(
@@ -372,7 +375,7 @@ def save_starfind_config(request, imtype, batch_index):
             )
         for param in starfind_config:
             db_session.add(
-                Configuration(
+                Configuration(  # pylint: disable=not-callable
                     parameter_id=param_ids[param],
                     condition_id=condition_id,
                     version=0,
