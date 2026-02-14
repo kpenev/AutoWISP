@@ -600,25 +600,9 @@ def read_subpixmap(fits_fname):
 
 
 # These must be acceptable as keyword arguments
-# pylint: disable=unused-argument
-def ignore_progress(input_fname, status=1, final=True):
+def ignore_progress(  # pylint: disable=unused-argument
+    input_fname, status=1, final=True
+):
     """Dummy function to replace progress tracking of auto processing."""
 
     return
-
-
-# pylint: enable=unused-argument
-
-
-def get_catalog_config(cmdline_args, prefix):
-    """Return the configuration for querrying a catalog per command line."""
-
-    prefix = prefix + "_catalog"
-    result = {
-        "fname" if key == prefix else key[len(prefix) + 1 :]: value
-        for key, value in cmdline_args.items()
-        if key.startswith(prefix)
-    }
-    if "frame_fov_estimate" in cmdline_args:
-        result["frame_fov_estimate"] = cmdline_args["frame_fov_estimate"]
-    return result

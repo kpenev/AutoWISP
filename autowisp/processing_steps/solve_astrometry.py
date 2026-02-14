@@ -16,7 +16,6 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
-    get_catalog_config,
 )
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.astrometry import (
@@ -24,7 +23,11 @@ from autowisp.astrometry import (
     refine_transformation,
     Transformation,
 )
-from autowisp.catalog import ensure_catalog, check_catalog_coverage
+from autowisp.catalog import (
+    ensure_catalog,
+    check_catalog_coverage,
+    get_catalog_config,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
 

@@ -1326,6 +1326,20 @@ def main(config):
         show_stars(config.catalog_fname)
 
 
+def get_catalog_config(cmdline_args, prefix):
+    """Return the configuration for querrying a catalog per command line."""
+
+    prefix = prefix + "_catalog"
+    result = {
+        "fname" if key == prefix else key[len(prefix) + 1 :]: value
+        for key, value in cmdline_args.items()
+        if key.startswith(prefix)
+    }
+    if "frame_fov_estimate" in cmdline_args:
+        result["frame_fov_estimate"] = cmdline_args["frame_fov_estimate"]
+    return result
+
+
 if __name__ == "__main__":
 
     main(parse_command_line())

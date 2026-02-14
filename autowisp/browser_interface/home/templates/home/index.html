@@ -26,19 +26,33 @@ Projects
 
 {% block left_menu %}
 <a href="{% url 'home:new_project' %}">
-    <div class="lcars-element 
-                button 
+    <div class="lcars-element
+                button
                 lcars-melrose-bg
                 lcars-u-1-2">
         New Project
     </div>
 </a>
+<div class="lcars-element
+            button
+            lcars-chestnut-rose-bg
+            lcars-u-1-2"
+     onclick="deleteSelected()"
+     style="cursor: pointer;">
+    Delete Selected
+</div>
 {% endblock %}
 
 {% block main %}
+<form id="project-form" method="get"
+      action="{% url 'home:confirm_delete_projects' %}">
 <table class="lcars-table standard-header">
     <thead>
         <tr>
+            <th>
+                <input type="checkbox" id="select-all"
+                       onclick="toggleAll(this)">
+            </th>
             {% for col in columns %}
             <th>{{ col|title }}</th>
             {% endfor %}
@@ -46,13 +60,59 @@ Projects
     </thead>
     <tbody class="lcars-table select-row">
         {% for project_id, project_data in projects.items %}
-        {% url 'home:select_project' project_id=project_id as project_url %}
-        <tr onclick="window.location='{{ project_url }}'">
+        {% if project_id in missing_db_ids %}
+        <tr style="color: grey; cursor: default; opacity: 0.6;"
+            title="Project data not found on disk">
+            <td onclick="event.stopPropagation()">
+                <input type="checkbox" name="project_ids"
+                       value="{{ project_id }}">
+            </td>
             {% for value in project_data %}
             <td>{{ value }}</td>
             {% endfor %}
         </tr>
+        {% else %}
+        {% url 'home:select_project' project_id=project_id as project_url %}
+        <tr onclick="window.location='{{ project_url }}'">
+            <td onclick="event.stopPropagation()">
+                <input type="checkbox" name="project_ids"
+                       value="{{ project_id }}">
+            </td>
+            {% for value in project_data %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endif %}
         {% endfor %}
     </tbody>
 </table>
+</form>
 {% endblock main %}
+
+{% block scripts %}
+<script>
+function toggleAll(source) {
+    var checkboxes = document.querySelectorAll(
+        'input[name="project_ids"]'
+    );
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+
+function deleteSelected() {
+    var checked = document.querySelectorAll(
+        'input[name="project_ids"]:checked'
+    );
+    if (checked.length === 0) {
+        alert("No projects selected.");
+        return;
+    }
+    var count = checked.length;
+    if (!confirm("Delete " + count + " selected project(s)?")) {
+        return;
+    }
+    document.getElementById("project-form").submit();
+}
+</script>
+{% endblock scripts %}
