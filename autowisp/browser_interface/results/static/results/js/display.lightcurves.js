@@ -1,6 +1,10 @@
 var configURLs;
 var plotCurves;
 
+// Tracks which config is currently shown in the side-panel.
+// Values: "subplot" | "rcParams" | null
+var configPanelState = { activePanel: null };
+
 //Check if a given boundary should be triggered by the given event location.
 function triggerBoundary(event, box) {
     let side;
@@ -333,6 +337,60 @@ function showConfig(url, parentId, onSuccess) {
     };
 }
 
+function _getSidePanelElements() {
+    const configParent = document.getElementById("config-parent");
+    const sidePanel = configParent
+        ? configParent.parentNode
+        : document.getElementById("side-panel");
+    return { sidePanel, configParent };
+}
+
+function isSidePanelVisible() {
+    const { sidePanel } = _getSidePanelElements();
+    if (!sidePanel) return false;
+    // If display isn't explicitly set, treat it as visible.
+    return sidePanel.style.display !== "none";
+}
+
+function hideSidePanel() {
+    const { sidePanel, configParent } = _getSidePanelElements();
+    if (configParent) configParent.style.display = "none";
+    if (sidePanel) sidePanel.style.display = "none";
+    configPanelState.activePanel = null;
+}
+
+function wireSubplotConfigHandlers() {
+    const selectModel = document.getElementById("select-model");
+    if (selectModel) selectModel.onchange = changeModel;
+
+    for (const param_group of ["substitution", "lc-expression", "find-best"]) {
+        const addBtn = document.getElementById("add-" + param_group);
+        if (addBtn) addBtn.onclick = () => addNewParam(param_group);
+    }
+
+    const expressionsTable = document.getElementById("lc-expressions");
+    if (expressionsTable) expressionsTable.onchange = handleLCParamChange;
+
+    getPlottingConfig.mode = "subplot";
+}
+
+function showSubplotConfigPanel(plotId, onSuccess) {
+    showConfig(configURLs.subplot.slice(0, -1) + plotId, "config-parent", () => {
+        wireSubplotConfigHandlers();
+        configPanelState.activePanel = "subplot";
+        getPlottingConfig.plotId = plotId;
+        if (typeof onSuccess === "function") onSuccess();
+    });
+}
+
+function showRcParamsConfigPanel(onSuccess) {
+    showConfig(configURLs.rcParams, "config-parent", () => {
+        getPlottingConfig.mode = "rcParams";
+        configPanelState.activePanel = "rcParams";
+        if (typeof onSuccess === "function") onSuccess();
+    });
+}
+
 // Ensure showConfig is accessible on the global object even if script execution context changes
 // (defensive: browsers normally expose function declarations globally, but make it explicit)
 try { window.showConfig = window.showConfig || showConfig; } catch (_) {}
@@ -340,30 +398,12 @@ try { window.showConfig = window.showConfig || showConfig; } catch (_) {}
 function showEditPlot(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
     if (plotId !== null && activeBoundary === null) {
-        showConfig(
-            configURLs.subplot.slice(0, -1) + plotId,
-            "config-parent",
-            () => {
-                document.getElementById("select-model").onchange = changeModel;
-
-                for (const param_group of [
-                    "substitution",
-                    "lc-expression",
-                    "find-best",
-                ])
-                    document.getElementById("add-" + param_group).onclick =
-                        () => addNewParam(param_group);
-                document.getElementById("lc-expressions").onchange =
-                    handleLCParamChange;
-
-                const lcDataSelect = JSON.parse(
-                    document.getElementById("lc-data-select").textContent
-                );
-                plotCurves = new plotCurvesType(lcDataSelect);
-                getPlottingConfig.mode = "subplot";
-            }
-        );
-        getPlottingConfig.plotId = plotId;
+        showSubplotConfigPanel(plotId, () => {
+            const lcDataSelect = JSON.parse(
+                document.getElementById("lc-data-select").textContent
+            );
+            plotCurves = new plotCurvesType(lcDataSelect);
+        });
     }
 }
 
@@ -845,48 +885,53 @@ function initLightcurveDisplay(urls) {
 
 
     function initConfigPanel() {
-    var configParent = document.getElementById("config-parent");
-    configParent.style.display = "none";
-    if (configParent.parentNode) {
-        configParent.parentNode.style.display = "none";
-    }
+    hideSidePanel();
     plotCurves = new plotCurvesType(lcDataSelect);
     getPlottingConfig.mode = "subplot";
     getPlottingConfig.plotId = 0;
+    configPanelState.activePanel = "subplot";
 
     // --- Add Open Config button next to Apply and Figure Config ---
     var applyBtn = document.getElementById("apply");
     var figConfigBtn = document.getElementById("rcParams");
     if (applyBtn && figConfigBtn) {
-        var openConfigBtn = document.createElement("button");
-        openConfigBtn.id = "open-config";
-        openConfigBtn.textContent = "Open Config";
-        openConfigBtn.style.marginLeft = "4px";
-        openConfigBtn.style.height = figConfigBtn.style.height;
-        openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
-        openConfigBtn.className = figConfigBtn.className;
-        figConfigBtn.parentNode.insertBefore(openConfigBtn, figConfigBtn.nextSibling);
-        openConfigBtn.onclick = function() {
-            var configParent = document.getElementById("config-parent");
-            var parentContainer = configParent.parentNode;
-            if (configParent.style.display === "none" || configParent.style.display === "") {
-                configParent.style.display = "inline";
-                parentContainer.style.display = "inline-flex";
-            } else {
-                configParent.style.display = "none";
-                parentContainer.style.display = "none";
-            }
+        var openConfigBtn = document.getElementById("open-config");
+        if (!openConfigBtn) {
+            openConfigBtn = document.createElement("button");
+            openConfigBtn.id = "open-config";
+            openConfigBtn.type = "button";
+            openConfigBtn.textContent = "Open Config";
+            openConfigBtn.style.marginLeft = "4px";
+            openConfigBtn.style.height = figConfigBtn.style.height;
+            openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
+            openConfigBtn.className = figConfigBtn.className;
+            figConfigBtn.parentNode.insertBefore(
+                openConfigBtn,
+                figConfigBtn.nextSibling
+            );
+        }
+        openConfigBtn.onclick = function () {
+            const plotId =
+                typeof getPlottingConfig.plotId !== "undefined"
+                    ? getPlottingConfig.plotId
+                    : 0;
+            if (isSidePanelVisible() && configPanelState.activePanel === "subplot")
+                hideSidePanel();
+            else showSubplotConfigPanel(plotId);
         };
     }
-    document.getElementById("rcParams").onclick = () =>
-        showConfig(configURLs.rcParams, "config-parent", () => {
-            getPlottingConfig.mode = "rcParams";
-        });
+    const rcBtn = document.getElementById("rcParams");
+    if (rcBtn)
+        rcBtn.onclick = () => {
+            if (isSidePanelVisible() && configPanelState.activePanel === "rcParams")
+                hideSidePanel();
+            else showRcParamsConfigPanel();
+        };
     document.getElementById("apply").onclick = updateFigure;
     updateFigure();
 }
 
-    showConfig(configURLs.subplot.slice(0, -1) + "0", "config-parent", initConfigPanel);
+    showSubplotConfigPanel(0, initConfigPanel);
 
     
 }
@@ -1063,9 +1108,13 @@ function persistMagnitude() {
 document.addEventListener("DOMContentLoaded", () => {
     persistMinimize();
     persistMagnitude();
-}); 
+});
 
-;
+//MutationObserver used to restore persisted values when elements appear dynamically
+new MutationObserver(() => {
+    persistMinimize();
+    persistMagnitude();
+}).observe(document.body, { childList: true, subtree: true });
 
 
 // Function to get CSRF token from cookies
