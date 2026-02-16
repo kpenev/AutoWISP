@@ -4,6 +4,7 @@
 import subprocess
 import time
 import sys
+import socket
 from http.client import HTTPConnection
 import webbrowser
 import os
@@ -30,6 +31,14 @@ def wait_for_server(hostname, port):
         finally:
             if conn:
                 conn.close()
+
+
+def find_free_port(hostname="localhost"):
+    """Find an available port by binding to port 0."""
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((hostname, 0))
+        return sock.getsockname()[1]
 
 
 def start_server():
@@ -59,12 +68,15 @@ def start_server():
         sys.stdout = outf
         sys.stderr = errf
 
-        if ":" in sys.argv[1]:
-            hostname, port = sys.argv[1].split(":")
+        hostname = "localhost"
+        if len(sys.argv) > 1:
+            if ":" in sys.argv[1]:
+                hostname, port = sys.argv[1].split(":")
+            else:
+                port = sys.argv[1]
+            port = int(port)
         else:
-            port = sys.argv[1]
-            hostname = "localhost"
-        port = int(port)
+            port = find_free_port(hostname)
 
         cmd = [
             sys.executable,
