@@ -92,17 +92,16 @@ def _safe_remove(fpath, project_home):
         ValueError:  If *fpath* is not under *project_home*.
     """
 
-    real_fpath = os.path.realpath(fpath)
     real_home = os.path.realpath(project_home)
+    if not os.path.isabs(fpath):
+        fpath = os.path.join(real_home, fpath)
+    real_fpath = os.path.realpath(fpath)
     if not real_fpath.startswith(real_home + os.sep):
         raise ValueError(
             f"Refusing to delete {fpath!r}: not under project home "
             f"{project_home!r}"
         )
     os.remove(fpath)
-
-
-
 
 
 def delete_projects(request):
@@ -264,10 +263,48 @@ def delete_image_products(
         header["RAWFNAME"] = base_fname
 
         for kind, pattern in patterns.items():
-            product_fname = pattern.format_map(header)
+            try:
+                product_fname = pattern.format_map(header)
+            except KeyError:
+                logger.warning(
+                    "Raw FITS header missing keyword required to find "
+                    "calibrated image, skipping %s for %s",
+                    kind,
+                    raw_fname,
+                )
+                continue
             if os.path.exists(product_fname):
                 _safe_remove(product_fname, project_home)
                 logger.info("Deleted %s file: %s", kind, product_fname)
+
+
+def _pattern_to_glob(pattern, known_values, project_home):
+    """
+    Convert a filename pattern to glob by substituting unknown keys with ``*``.
+
+    Known keys are replaced with their values from *known_values*; all
+    remaining ``{key}`` or ``{key:spec}`` placeholders are replaced with
+    ``*``.
+
+    Args:
+        pattern(str):       A Python format string with named placeholders.
+
+        known_values(dict): Mapping of placeholder names to their values.
+
+    Returns:
+        str:  A glob pattern suitable for :func:`glob.iglob`.
+    """
+
+    def _replace(match):
+        key = match.group("key")
+        if key in known_values:
+            return str(known_values[key])
+        return "*"
+
+    pattern = re.sub(r"\{(?P<key>\w+)(?::[^}]*)?\}", _replace, pattern)
+    if os.path.isabs(pattern):
+        return pattern
+    return os.path.join(project_home, pattern)
 
 
 def delete_master_files(project_home):
@@ -305,7 +342,7 @@ def delete_master_files(project_home):
 
     known = {"PROJHOME": project_home, "project_home": project_home}
     for pattern in extra_patterns:
-        for fpath in iglob(_pattern_to_glob(pattern, known)):
+        for fpath in iglob(_pattern_to_glob(pattern, known, project_home)):
             if os.path.isfile(fpath):
                 _safe_remove(fpath, project_home)
                 logger.info("Deleted master file: %s", fpath)
@@ -314,31 +351,6 @@ def delete_master_files(project_home):
         if os.path.exists(master_fname):
             _safe_remove(master_fname, project_home)
             logger.info("Deleted %s master file: %s", master_type, master_fname)
-
-
-def _pattern_to_glob(pattern, known_values):
-    """Convert a filename pattern to a glob by substituting unknown keys with ``*``.
-
-    Known keys are replaced with their values from *known_values*; all
-    remaining ``{key}`` or ``{key:spec}`` placeholders are replaced with
-    ``*``.
-
-    Args:
-        pattern(str):       A Python format string with named placeholders.
-
-        known_values(dict): Mapping of placeholder names to their values.
-
-    Returns:
-        str:  A glob pattern suitable for :func:`glob.iglob`.
-    """
-
-    def _replace(match):
-        key = match.group("key")
-        if key in known_values:
-            return str(known_values[key])
-        return "*"
-
-    return re.sub(r"\{(?P<key>\w+)(?::[^}]*)?\}", _replace, pattern)
 
 
 def delete_logs(project_home):
@@ -375,7 +387,7 @@ def delete_logs(project_home):
     for pattern in (log_pattern, outerr_pattern):
         if pattern is None:
             continue
-        base_glob = _pattern_to_glob(pattern, known)
+        base_glob = _pattern_to_glob(pattern, known, project_home)
         glob_patterns.append(base_glob)
         for pid in parent_pids:
             glob_patterns.append(
