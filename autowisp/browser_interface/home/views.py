@@ -22,6 +22,9 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Parameter,
     PipelineRun,
 )
+from autowisp.database.data_model.provenance.camera_channel import (
+    CameraChannel,
+)
 from autowisp.fits_utilities import get_primary_header
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
 
@@ -249,6 +252,10 @@ def delete_image_products(
             select(Image.raw_fname)  # pylint: disable=no-member
         ).all()
 
+        channel_names = db_session.scalars(
+            select(CameraChannel.name).distinct()
+        ).all()
+
     for raw_fname in raw_fnames:
         if not os.path.exists(raw_fname):
             logger.warning("Raw FITS file missing, skipping: %s", raw_fname)
@@ -263,19 +270,24 @@ def delete_image_products(
         header["RAWFNAME"] = base_fname
 
         for kind, pattern in patterns.items():
-            try:
-                product_fname = pattern.format_map(header)
-            except KeyError:
-                logger.warning(
-                    "Raw FITS header missing keyword required to find "
-                    "calibrated image, skipping %s for %s",
-                    kind,
-                    raw_fname,
-                )
-                continue
-            if os.path.exists(product_fname):
-                _safe_remove(product_fname, project_home)
-                logger.info("Deleted %s file: %s", kind, product_fname)
+            for channel_name in channel_names:
+                header["CLRCHNL"] = channel_name
+                try:
+                    product_fname = pattern.format_map(header)
+                except KeyError:
+                    logger.warning(
+                        "Raw FITS header missing keyword required to "
+                        "find %s, skipping %s channel %s",
+                        kind,
+                        raw_fname,
+                        channel_name,
+                    )
+                    continue
+                if os.path.exists(product_fname):
+                    _safe_remove(product_fname, project_home)
+                    logger.info(
+                        "Deleted %s file: %s", kind, product_fname
+                    )
 
 
 def _pattern_to_glob(pattern, known_values, project_home):
