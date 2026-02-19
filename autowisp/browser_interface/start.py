@@ -8,8 +8,37 @@ import socket
 from http.client import HTTPConnection
 import webbrowser
 import os
+import logging
+
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.browser_interface.django_project import settings
+
+
+def parse_command_line():
+    """Return command line configuration."""
+
+    parser = ArgumentParser(
+        description=__doc__,
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False,
+    )
+    parser.add_argument(
+        "--hostname",
+        default=[],
+        nargs="+",
+        metavar="[<HOSTNAME>:]<PORT>",
+        help="The port to run the surver on and optionally hostname. By "
+        "default automatically finds an oppen port on localhost.",
+    )
+    parser.add_argument(
+        "--verbose",
+        default="info",
+        choices=["debug", "info", "warning", "error", "critical"],
+        help="The type of verbosity of logger.",
+    )
+    return parser.parse_args()
 
 
 def wait_for_server(hostname, port):
@@ -44,13 +73,15 @@ def find_free_port(hostname="localhost"):
 def start_server():
     """Starts the Django development server."""
 
+    filenames = {
+        ext: str(settings.BASE_DIR / f"bui.{ext}")
+        for ext in ["out", "err", "log"]
+    }
     if not os.path.exists(str(settings.BASE_DIR)):
         os.makedirs(str(settings.BASE_DIR))
 
-    with open(
-        str(settings.BASE_DIR / "bui.out"), "w", encoding="utf-8"
-    ) as outf, open(
-        str(settings.BASE_DIR / "bui.err"), "w", encoding="utf-8"
+    with open(filenames["out"], "w", encoding="utf-8") as outf, open(
+        filenames["err"], "w", encoding="utf-8"
     ) as errf:
         sys.stdout = outf
         sys.stderr = errf
@@ -59,21 +90,28 @@ def start_server():
         sys.stdout.flush()
         sys.stderr.flush()
 
+    config = parse_command_line()
+    logging_level = getattr(logging, config.verbose.upper())
+    logging.basicConfig(
+        level=logging_level,
+        filename=filenames["log"],
+        format="%(levelname)s %(asctime)s %(name)s: %(message)s | "
+        "%(pathname)s.%(funcName)s:%(lineno)d",
+        force=True,
+    )
 
-    with open(
-        str(settings.BASE_DIR / "bui.out"), "w", encoding="utf-8"
-    ) as outf, open(
-        str(settings.BASE_DIR / "bui.err"), "w", encoding="utf-8"
+    with open(filenames["out"], "w", encoding="utf-8") as outf, open(
+        filenames["err"], "w", encoding="utf-8"
     ) as errf:
         sys.stdout = outf
         sys.stderr = errf
 
         hostname = "localhost"
-        if len(sys.argv) > 1:
-            if ":" in sys.argv[1]:
-                hostname, port = sys.argv[1].split(":")
+        if len(config.hostname) > 1:
+            if ":" in config.hostname:
+                hostname, port = config.hostname.split(":")
             else:
-                port = sys.argv[1]
+                port = config.hostname
             port = int(port)
         else:
             port = find_free_port(hostname)
@@ -90,8 +128,8 @@ def start_server():
 
         cmd.extend(["runserver", f"{port}"])
         print(f"Starting server with command: {' '.join(cmd)} in environment:")
-        print('\n\t'.join([f"{k}={v}" for k, v in os.environ.items()]))
-        print('Python paths:\n\t' + '\n\t'.join(sys.path))
+        print("\n\t".join([f"{k}={v}" for k, v in os.environ.items()]))
+        print("Python paths:\n\t" + "\n\t".join(sys.path))
         sys.stdout.flush()
         sys.stderr.flush()
         with subprocess.Popen(
