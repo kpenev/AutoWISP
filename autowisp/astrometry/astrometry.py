@@ -716,9 +716,10 @@ def refine_transformation(
             min_source_safety_factor * trans_matrix.shape[1]
         ):
             raise ValueError(
-                "The number of equations is "
-                "insufficient to solve transformation "
-                "coefficients"
+                f"The number of equations ({trans_matrix.shape[0]}) is "
+                f"insufficient to solve for {trans_matrix.shape[1]} "
+                "transformation coefficients with safety factor of "
+                f"{min_source_safety_factor}."
             )
 
         trans_x = linalg.lstsq(
