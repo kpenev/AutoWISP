@@ -117,6 +117,9 @@ class Image(DataModelBase):
     processing: Mapped[List[ProcessedImages]] = relationship(
         back_populates="image"
     )
+    diagnostics: Mapped[List["ImageDiagnostics"]] = relationship(
+        back_populates="image"
+    )
 
 
 class ImageProcessingProgress(DataModelBase):
