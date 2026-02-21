@@ -514,6 +514,21 @@ def _init_diagnostic_types():
                     "extraction flux and catalog magnitude (the magnitude "
                     "corresponding to a flux of 1 ADU)",
                 ),
+                (
+                    "magfit_residual",
+                    "The RMS difference between best fit correction using the "
+                    "final master photometric reference.",
+                ),
+                (
+                    "photometry_mag_offset",
+                    "The best-fit offset between the measured magnitude and "
+                    "the catalog magnitude.",
+                ),
+                (
+                    "mag_fit_num_stars",
+                    "The number of stars used in the last magnitude fit "
+                    "iteration for this image",
+                ),
             ]
         ):
             db_session.add(DiagnosticType(name=name, description=description))

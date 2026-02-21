@@ -398,6 +398,49 @@ class MagnitudeFit(ABC):
         """
 
     @staticmethod
+    def _build_magfit_diagnostics(fit_results, fit_statistics):
+        """Build per-photometry diagnostic tuples from magnitude fitting.
+
+        Args:
+            fit_results:    The per-photometry, per-group fit results from
+                ``_fit()``.
+
+            fit_statistics:    The combined statistics from
+                ``_combine_fit_statistics()``.
+
+        Returns:
+            list or None:
+                A list of ``(name, value, photometry_id)`` tuples, or None
+                if no diagnostics could be computed.
+        """
+
+        diagnostics = []
+        for phot_ind, phot_fit_results in enumerate(fit_results):
+            residual = fit_statistics["residual"][phot_ind]
+            if numpy.isfinite(residual):
+                diagnostics.append(
+                    ("magfit_residual", float(residual), phot_ind)
+                )
+
+            num_stars = int(fit_statistics["final_src_count"][phot_ind])
+            diagnostics.append(
+                ("mag_fit_num_stars", num_stars, phot_ind)
+            )
+
+            zeropoints = [
+                gr["coefficients"][0]
+                for gr in phot_fit_results
+                if gr["coefficients"] is not None
+            ]
+            if zeropoints:
+                zeropoint = float(numpy.nanmedian(zeropoints))
+                if numpy.isfinite(zeropoint):
+                    diagnostics.append(
+                        ("photometry_mag_offset", zeropoint, phot_ind)
+                    )
+        return diagnostics or None
+
+    @staticmethod
     def _combine_fit_statistics(fit_results):
         """
         Combine the statistics summarizing how the fit went from all groups.
@@ -576,18 +619,24 @@ class MagnitudeFit(ABC):
                         phot["mag"].shape[0],
                         phot["mag"].shape[2],
                     )
+                    fit_statistics = self._combine_fit_statistics(
+                        fit_results
+                    )
+                    diagnostics = self._build_magfit_diagnostics(
+                        fit_results, fit_statistics
+                    )
                     self.logger.debug("Adding to DR file.")
                     mark_start(dr_fname)
                     data_reduction.add_magnitude_fitting(
                         fitted_magnitudes=fitted,
-                        fit_statistics=self._combine_fit_statistics(
-                            fit_results
-                        ),
+                        fit_statistics=fit_statistics,
                         magfit_configuration=self.config,
                         missing_indices=deleted_phot_indices,
                         **dr_path_substitutions,
                     )
-                    mark_end(dr_fname)
+                    mark_end(
+                        dr_fname, photometry_diagnostics=diagnostics
+                    )
                     self.logger.debug("Updating calibration status.")
                     return phot[fit_indices], fitted[fit_indices]
                 return None, None

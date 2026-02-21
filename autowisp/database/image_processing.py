@@ -26,6 +26,7 @@ from autowisp.database.data_model import (
     Step,
     Image,
     ImageDiagnostics,
+    PhotometryDiagnostics,
     DiagnosticType,
     ObservingSession,
     MasterType,
@@ -733,8 +734,76 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
 
+    def _save_photometry_diagnostics(
+        self, finished_id, photometry_diagnostics, db_session
+    ):
+        """
+        Save per-photometry diagnostic values for a single image/channel.
+
+        If a row already exists for the same image, channel, photometry,
+        and diagnostic type, its value is updated (this supports iterative
+        steps like magnitude fitting).
+
+        Args:
+            finished_id(dict):    Must contain ``image_id`` and ``channel``
+                keys identifying the processed image and channel.
+
+            photometry_diagnostics:    A list of
+                ``(name, value, photometry_id)`` tuples where *name* must
+                match a :class:`DiagnosticType` row.
+
+            db_session:    Active database session.
+
+        Raises:
+            ValueError:    If a diagnostic name is not found in the
+                ``diagnostic_type`` table.
+        """
+
+        for diag_name, diag_value, phot_id in photometry_diagnostics:
+            diag_type_id = db_session.scalar(
+                select(DiagnosticType.id).where(
+                    DiagnosticType.name == diag_name
+                )
+            )
+            if diag_type_id is None:
+                raise ValueError(
+                    f"Unknown diagnostic type {diag_name!r}"
+                )
+
+            existing_id = db_session.scalar(
+                select(PhotometryDiagnostics.id).where(
+                    PhotometryDiagnostics.image_id
+                    == finished_id["image_id"],
+                    PhotometryDiagnostics.channel
+                    == finished_id["channel"],
+                    PhotometryDiagnostics.photometry_id == phot_id,
+                    PhotometryDiagnostics.diagnostic_id == diag_type_id,
+                )
+            )
+            if existing_id is not None:
+                db_session.execute(
+                    update(PhotometryDiagnostics)
+                    .where(PhotometryDiagnostics.id == existing_id)
+                    .values(value=float(diag_value))
+                )
+            else:
+                db_session.add(
+                    PhotometryDiagnostics(
+                        image_id=finished_id["image_id"],
+                        channel=finished_id["channel"],
+                        photometry_id=phot_id,
+                        diagnostic_id=diag_type_id,
+                        value=float(diag_value),
+                    )
+                )
+
     def _end_processing(
-        self, input_fname, status=1, final=True, diagnostics=None
+        self,
+        input_fname,
+        status=1,
+        final=True,
+        diagnostics=None,
+        photometry_diagnostics=None,
     ):
         """
         Record that the current step has finished processing the given file.
@@ -752,6 +821,11 @@ class ImageProcessingManager(ProcessingManager):
                 image/channel processed from *input_fname*, or a dict
                 mapping channel names to such lists for per-channel
                 diagnostics.
+
+            photometry_diagnostics:    An optional list of
+                ``(name, value, photometry_id)`` tuples to record in the
+                ``photometry_diagnostics`` table for each image/channel
+                processed from *input_fname*.
 
         Returns:
             None
@@ -779,6 +853,10 @@ class ImageProcessingManager(ProcessingManager):
                         self._save_diagnostics(
                             finished_id, channel_diags, db_session
                         )
+                if photometry_diagnostics:
+                    self._save_photometry_diagnostics(
+                        finished_id, photometry_diagnostics, db_session
+                    )
                 db_session.execute(
                     update(ProcessedImages)
                     .where(ProcessedImages.image_id == finished_id["image_id"])
