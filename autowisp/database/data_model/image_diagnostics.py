@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship
 
 from autowisp.database.data_model.base import DataModelBase
 
-__all__ = ["DiagnosticType", "ImageDiagnostics"]
+__all__ = ["DiagnosticType", "ImageDiagnostics", "PhotometryDiagnostics"]
 
 
 class DiagnosticType(DataModelBase):
@@ -33,10 +33,10 @@ class DiagnosticType(DataModelBase):
     )
 
 
-class ImageDiagnostics(DataModelBase):
-    """Floating point diagnostics associated with a calibrated image."""
+class ImageDiagnosticBase(DataModelBase):
+    """Base class for all per-image diagnostics."""
 
-    __tablename__ = "image_diagnostics"
+    __abstract__ = True
 
     image_id = Column(
         Integer,
@@ -65,6 +65,16 @@ class ImageDiagnostics(DataModelBase):
         doc="The value of the diagnostic for this image and channel.",
     )
 
+
+class ImageDiagnostics(ImageDiagnosticBase):
+    """Floating point diagnostics associated with a calibrated image."""
+
+    __tablename__ = "image_diagnostics"
+
+    image = relationship("Image", back_populates="diagnostics")
+
+    type_ = relationship("DiagnosticType")
+
     __table_args__ = (
         Index(
             "image_channel_diagnostic",
@@ -76,5 +86,31 @@ class ImageDiagnostics(DataModelBase):
         Index("daignostic_value", "diagnostic_id", "value"),
     )
 
-    image = relationship("Image", back_populates="diagnostics")
+
+class PhotometryDiagnostics(ImageDiagnosticBase):
+    """Floating point diagnostics for each photometry in each image."""
+
+    __tablename__ = "photometry_diagnostics"
+
+    photometry_id = Column(
+        Integer,
+        nullable=False,
+        doc="The photometry these diagnostics belong to.",
+    )
+
+    image = relationship("Image", back_populates="photometry_diagnostics")
+
     type_ = relationship("DiagnosticType")
+
+
+    __table_args__ = (
+        Index(
+            "img_chnl_phot_diagnostic",
+            "image_id",
+            "channel",
+            "photometry_id",
+            "diagnostic_id",
+            unique=True,
+        ),
+        Index("diagnostic_value", "diagnostic_id", "value"),
+    )

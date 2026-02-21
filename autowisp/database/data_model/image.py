@@ -120,6 +120,9 @@ class Image(DataModelBase):
     diagnostics: Mapped[List["ImageDiagnostics"]] = relationship(
         back_populates="image"
     )
+    photometry_diagnostics: Mapped[List["PhotometryDiagnostics"]] = (
+        relationship(back_populates="image")
+    )
 
 
 class ImageProcessingProgress(DataModelBase):
