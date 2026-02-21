@@ -1,17 +1,24 @@
 """Define the image diagnostics tables for the pipeline."""
 
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, Index
+from sqlalchemy import (
+    Column,
+    Integer,
+    Float,
+    String,
+    ForeignKey,
+    Index,
+)
 from sqlalchemy.orm import relationship
 
 from autowisp.database.data_model.base import DataModelBase
 
-__all__ = ["DiagnosticTypes", "ImageDiagnostics"]
+__all__ = ["DiagnosticType", "ImageDiagnostics"]
 
 
-class DiagnosticTypes(DataModelBase):
+class DiagnosticType(DataModelBase):
     """The table listing available diagnostic quantities."""
 
-    __tablename__ = "diagnostic_names"
+    __tablename__ = "diagnostic_type"
 
     name = Column(
         String(100),
@@ -37,24 +44,37 @@ class ImageDiagnostics(DataModelBase):
         nullable=False,
         doc="The image these diagnostics belong to.",
     )
+    channel = Column(
+        String(10),
+        nullable=False,
+        doc="The color channel this diagnostic value corresponds to.",
+    )
     diagnostic_id = Column(
         Integer,
-        ForeignKey("diagnostic.id", onupdate="CASCADE", ondelete="CASCADE"),
+        ForeignKey(
+            "diagnostic_type.id",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
         nullable=False,
         doc="The diagnostic this value corresponds to.",
     )
     value = Column(
         Float,
         nullable=False,
-        doc="The value of the diagnostic for this image.",
+        doc="The value of the diagnostic for this image and channel.",
     )
 
     __table_args__ = (
-        Index("diagnostic_id"),
-        Index("diagnostic_id", "value"),
+        Index(
+            "image_channel_diagnostic",
+            "image_id",
+            "channel",
+            "diagnostic_id",
+            unique=True,
+        ),
+        Index("daignostic_value", "diagnostic_id", "value"),
     )
 
-
-
     image = relationship("Image", back_populates="diagnostics")
-    type_ = relationship("DiagnosticTypes")
+    type_ = relationship("DiagnosticType")

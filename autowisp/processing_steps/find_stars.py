@@ -107,7 +107,10 @@ def find_stars_single(
             srcextract_version=srcextract_version,
         )
         _logger.debug("Added sources from: %r", extracted_sources)
-        mark_end(image_fname)
+        mark_end(
+            image_fname,
+            diagnostics=[("num_extracted_src", len(extracted_sources))],
+        )
         _logger.debug("Marked end for: %r", extracted_sources)
 
 
