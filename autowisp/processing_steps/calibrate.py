@@ -278,6 +278,15 @@ def parse_command_line(*args):
         "`.fits.fz` extension).",
     )
 
+    parser.add_argument(
+        "--diagnostic-quantiles",
+        nargs="+",
+        type=float,
+        default=[0.1, 0.5, 0.9, 0.999],
+        help="Quantiles of calibrated pixel values to record as diagnostics "
+        "for each image and channel.",
+    )
+
     return parser.parse_args(*args)
 
 
@@ -293,8 +302,8 @@ def calibrate(
     for image_fname in image_collection:
         _logger.debug("Calibrating: %s", repr(image_fname))
         mark_start(image_fname)
-        calibrate_image(image_fname)
-        mark_end(image_fname)
+        channel_diagnostics = calibrate_image(image_fname)
+        mark_end(image_fname, diagnostics=channel_diagnostics)
 
 
 def cleanup_interrupted(interrupted, configuration):

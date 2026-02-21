@@ -32,7 +32,7 @@ from autowisp.database.data_model import (
     ProcessingSequence,
     MasterType,
     InputMasterTypes,
-    DiagnosticTypes,
+    DiagnosticType,
 )
 
 # pylint: enable=no-name-in-module
@@ -442,6 +442,83 @@ def _overwrite_default_config(new_default_config):
                 )
 
 
+def _init_diagnostic_types():
+    """Pre-populate the diagnostic_names table with known diagnostics."""
+
+    with start_db_session() as db_session:
+        for name, description in (
+            [
+                (
+                    "num_extracted_src",
+                    "The number of extracted stars in the image",
+                )
+            ]
+            + [
+                (
+                    f"{param}_center",
+                    f"The smoothed source extraction {param.upper()} parameter "
+                    "at the center of the image",
+                )
+                for param in ["s", "d", "k"]
+            ]
+            + [
+                (
+                    f"{param}_map_residual",
+                    f"RMS difference between source extraction {param.upper()} "
+                    "and smoothed {param.upper()} map",
+                )
+                for param in ["s", "d", "k"]
+            ]
+            + [
+                (
+                    "bg_center",
+                    "The smoothed background level at the center of the image",
+                ),
+                (
+                    "bg_map_residual",
+                    "RMS difference between background and smoothed background "
+                    "map",
+                ),
+            ]
+            + [
+                (
+                    f"{param}_center",
+                    f"The {descr} the center of the image according "
+                    "to the astrometric solution",
+                )
+                for param, descr in [
+                    ("ra", "right ascension of"),
+                    ("dec", "declination of"),
+                    ("z", "zenith distance of"),
+                ]
+            ]
+            + [
+                (
+                    "pointing_offset",
+                    "The angular distance between the target and the center of "
+                    "the image according to the astrometric solution",
+                ),
+                (
+                    "matched_fraction",
+                    "The fraction of extracted sources that were matched to "
+                    "the reference catalog",
+                ),
+                (
+                    "astrom_residual",
+                    "The RMS distance between matched extracted sources and "
+                    "their projected positions",
+                ),
+                (
+                    "srcextract_mag_zeropt",
+                    "The zeropoint of the transformation between source "
+                    "extraction flux and catalog magnitude (the magnitude "
+                    "corresponding to a flux of 1 ADU)",
+                ),
+            ]
+        ):
+            db_session.add(DiagnosticType(name=name, description=description))
+
+
 def initialize_database(
     cmdline_args,
     step_dependencies=None,
@@ -476,82 +553,6 @@ def initialize_database(
         }
     _overwrite_default_config(overwrite_default_config)
     _init_diagnostic_types()
-
-
-def _init_diagnostic_types():
-    """Pre-populate the diagnostic_names table with known diagnostics."""
-
-    with start_db_session() as db_session:
-        for name, description in (
-            [
-                (
-                    "num_extracted_src",
-                    "The number of extracted stars in the image",
-                )
-            ]
-            + [
-                (
-                    "{param}_center",
-                    "The smoothed source extraction {param.upper()} parameter "
-                    "at the center of the image",
-                )
-                for param in ["s", "d", "k"]
-            ]
-            + [
-                (
-                    "{param}_map_residual",
-                    "RMS difference between source extraction {param.upper()} "
-                    "and smoothed {param.upper()} map",
-                )
-                for param in ["s", "d", "k"]
-            ]
-            + [
-                (
-                    "bg_center",
-                    "The smoothed background level at the center of the image",
-                ),
-                (
-                    "bg_map_residual",
-                    "RMS difference between background and smoothed background "
-                    "map",
-                ),
-            ]
-            + [
-                (
-                    "{param}_center",
-                    "The {descr} the center of the image according "
-                    "to the astrometric solution",
-                )
-                for param, descr in [
-                    ("ra_center", "right ascension of"),
-                    ("dec_center", "declination of"),
-                    ("z_center", "zenith distance of"),
-                    (
-                        "pointing_offset",
-                        "angular distance between the target and",
-                    ),
-                ]
-            ]
-            + [
-                (
-                    "matched_fraction",
-                    "The fraction of extracted sources that were matched to "
-                    "the reference catalog",
-                ),
-                (
-                    "astrom_residual",
-                    "The RMS distance between matched extracted sources and "
-                    "their projected positions",
-                ),
-                (
-                    "srcextract_mag_zeropt",
-                    "The zeropoint of the transformation between source "
-                    "extraction flux and catalog magnitude (the magnitude "
-                    "corresponding to a flux of 1 ADU)",
-                )
-            ]
-        ):
-            db_session.add(DiagnosticTypes(name=name, description=description))
 
 
 if __name__ == "__main__":

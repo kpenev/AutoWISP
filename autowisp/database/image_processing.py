@@ -25,6 +25,8 @@ from autowisp.database.data_model import (
     ProcessedImages,
     Step,
     Image,
+    ImageDiagnostics,
+    DiagnosticType,
     ObservingSession,
     MasterType,
     InputMasterTypes,
@@ -681,13 +683,75 @@ class ImageProcessingManager(ProcessingManager):
                     )
                 )
 
-    def _end_processing(self, input_fname, status=1, final=True):
+    def _save_diagnostics(self, finished_id, diagnostics, db_session):
+        """
+        Save diagnostic values for a single image/channel.
+
+        Args:
+            finished_id(dict):    Must contain ``image_id`` and ``channel``
+                keys identifying the processed image and channel.
+
+            diagnostics:    A list of ``(name, value)`` tuples where *name*
+                must match a :class:`DiagnosticType` row.
+
+            db_session:    Active database session.
+
+        Raises:
+            ValueError:    If a diagnostic name is not found in the
+                ``diagnostic_type`` table.
+        """
+
+        for diag_name, diag_value in diagnostics:
+            diag_type_id = db_session.scalar(
+                select(DiagnosticType.id).where(
+                    DiagnosticType.name == diag_name
+                )
+            )
+            if diag_type_id is None:
+                if diag_name.startswith("pixel_q"):
+                    quantile_digits = diag_name[len("pixel_q"):]
+                    new_type = DiagnosticType(
+                        name=diag_name,
+                        description=(
+                            f"The 0.{quantile_digits} quantile of "
+                            "calibrated pixel values"
+                        ),
+                    )
+                    db_session.add(new_type)
+                    db_session.flush()
+                    diag_type_id = new_type.id
+                else:
+                    raise ValueError(
+                        f"Unknown diagnostic type {diag_name!r}"
+                    )
+            db_session.add(
+                ImageDiagnostics(
+                    image_id=finished_id["image_id"],
+                    channel=finished_id["channel"],
+                    diagnostic_id=diag_type_id,
+                    value=float(diag_value),
+                )
+            )
+
+    def _end_processing(
+        self, input_fname, status=1, final=True, diagnostics=None
+    ):
         """
         Record that the current step has finished processing the given file.
 
         Args:
             input_fname:    The filename of the input (DR or FITS) that was
                 processed.
+
+            status:    The status code to record.
+
+            final:    Whether this is the final status for this processing.
+
+            diagnostics:    An optional list of ``(name, value)`` tuples to
+                record in the ``image_diagnostics`` table for each
+                image/channel processed from *input_fname*, or a dict
+                mapping channel names to such lists for per-channel
+                diagnostics.
 
         Returns:
             None
@@ -704,6 +768,17 @@ class ImageProcessingManager(ProcessingManager):
         )
         with start_db_session() as db_session:
             for finished_id in self._processed_ids[input_fname]:
+                if diagnostics:
+                    if isinstance(diagnostics, dict):
+                        channel_diags = diagnostics.get(
+                            finished_id["channel"]
+                        )
+                    else:
+                        channel_diags = diagnostics
+                    if channel_diags:
+                        self._save_diagnostics(
+                            finished_id, channel_diags, db_session
+                        )
                 db_session.execute(
                     update(ProcessedImages)
                     .where(ProcessedImages.image_id == finished_id["image_id"])

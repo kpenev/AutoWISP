@@ -31,7 +31,7 @@ class ProcessedImages(DataModelBase):
         doc="The image that was processed.",
     )
     channel = Column(
-        String(3), doc="The channel of the image that was processed."
+        String(10), doc="The channel of the image that was processed."
     )
     progress_id = Column(
         Integer,
