@@ -15,6 +15,7 @@ from autowisp.database.data_model import (
     ObservingSession,
 )
 
+
 # pylint: enable=no-name-in-module
 def get_available_diagnostic_series(diagnostic_name, db_session):
     """
@@ -51,12 +52,16 @@ def get_available_diagnostic_series(diagnostic_name, db_session):
             ObservingSession.label,
             ObservingSession.id,
             ImageDiagnostics.channel,
-            func.count(ImageDiagnostics.id),
+            func.count(ImageDiagnostics.id),  # pylint: disable=not-callable
         )
-        .join(Image, Image.id == ImageDiagnostics.image_id)
+        .join(
+            Image,
+            Image.id == ImageDiagnostics.image_id,  # pylint: disable=no-member
+        )
         .join(
             ObservingSession,
-            ObservingSession.id == Image.observing_session_id,
+            ObservingSession.id
+            == Image.observing_session_id,  # pylint: disable=no-member
         )
         .join(
             DiagnosticType,
@@ -66,8 +71,7 @@ def get_available_diagnostic_series(diagnostic_name, db_session):
 
     if is_quantile:
         query = (
-            query
-            .add_columns(DiagnosticType.name)
+            query.add_columns(DiagnosticType.name)
             .where(DiagnosticType.name.like("pixel_q%"))
             .group_by(
                 ObservingSession.id,
@@ -82,42 +86,35 @@ def get_available_diagnostic_series(diagnostic_name, db_session):
         )
     else:
         query = (
-            query
-            .where(DiagnosticType.name == diagnostic_name)
+            query.where(DiagnosticType.name == diagnostic_name)
             .group_by(ObservingSession.id, ImageDiagnostics.channel)
             .order_by(ObservingSession.label, ImageDiagnostics.channel)
         )
 
-    rows = db_session.execute(query).all()
-
     channel_colors = {"R": "#ff0000", "G": "#00ff00", "B": "#0000ff"}
 
     diagnostics_list = []
-    for row in rows:
+    for row in db_session.execute(query).all():
         session_label, session_id, channel, count = row[:4]
+        series = {
+            "color": channel_colors.get(
+                channel[0].upper() if channel else "", "#ffffff"
+            ),
+            "marker": "o",
+            "scale": "1.0",
+        }
         if is_quantile:
             quantile_name = row[4]
-            quantile_label = "0." + quantile_name[len("pixel_q"):]
-            series_id = f"{session_id}_{channel}_{quantile_name}"
-            label = f"{session_label} {channel} {quantile_label}"
-            info = [session_label, channel, quantile_label, count]
+            quantile_label = "0." + quantile_name[len("pixel_q") :]
+            series['id'] = f"{session_id}_{channel}_{quantile_name}"
+            series['label'] = f"{session_label} {channel} {quantile_label}"
+            series['info'] = [session_label, channel, quantile_label, count]
         else:
-            series_id = f"{session_id}_{channel}"
-            label = f"{session_label} {channel}"
-            info = [session_label, channel, count]
+            series['id'] = f"{session_id}_{channel}"
+            series['label'] = f"{session_label} {channel}"
+            series['info'] = [session_label, channel, count]
 
-        diagnostics_list.append(
-            {
-                "id": series_id,
-                "color": channel_colors.get(
-                    channel[0].upper() if channel else "", "#ffffff"
-                ),
-                "marker": "o",
-                "scale": "1.0",
-                "label": label,
-                "info": info,
-            }
-        )
+        diagnostics_list.append(series)
 
     fields = ["Observing Session", "Channel"]
     if is_quantile:
@@ -134,9 +131,7 @@ def display_image_diagnostics(request, diagnostic_name):
     """View displaying the table of available series for an image diagnostic."""
 
     with start_db_session() as db_session:
-        context = get_available_diagnostic_series(
-            diagnostic_name, db_session
-        )
+        context = get_available_diagnostic_series(diagnostic_name, db_session)
     context["diagnostics_title"] = diagnostic_name
 
     return render(
