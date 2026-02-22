@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "home.apps.HomeConfig",
     "results.apps.ResultsConfig",
     "processing.apps.ProcessingConfig",
+    "diagnostics.apps.DiagnosticsConfig",
     "configuration.apps.ConfigurationConfig",
     "core.apps.CoreConfig",
     "django.contrib.admin",
