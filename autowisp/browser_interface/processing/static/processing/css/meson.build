@@ -1,5 +1,4 @@
 src = [
-  'detrending_diagnostics.css',
   'floating_params.css',
   'jquery.orgchart.css',
   'logs.css',

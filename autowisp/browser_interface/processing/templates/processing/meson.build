@@ -1,5 +1,4 @@
 src = [
-  'detrending_diagnostics.html',
   'progress.html',
   'review.html',
   'review_single.html',

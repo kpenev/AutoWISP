@@ -1,3 +1,44 @@
+#diagnostics-table-parent {
+    max-height: 30%;
+    overflow: auto;
+    z-index: 10;
+}
+
+#diagnostics-table-parent tbody tr {
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+#diagnostics-table-parent tbody tr.active {
+    opacity: 1.0;
+    background-color: #336;
+}
+
+#diagnostics-table-parent tbody tr:hover {
+    background-color: #99f;
+}
+
+#diagnostics-display {
+    flex: 1;
+    overflow: auto;
+    padding: 0.5rem;
+}
+
+#diagnostics-display .diagnostic-figure {
+    display: none;
+    width: 100%;
+    text-align: center;
+}
+
+#diagnostics-display .diagnostic-figure.visible {
+    display: block;
+}
+
+#diagnostics-display .diagnostic-figure svg {
+    max-width: 100%;
+    height: auto;
+}
+
 .dropdown {
     float: left;
     overflow: visible;

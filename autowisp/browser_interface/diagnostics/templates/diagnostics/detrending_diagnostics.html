@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'processing/css/detrending_diagnostics.css' %}">
+<link rel="stylesheet" href="{% static 'diagnostics/css/diagnostics_app.css' %}">
 <link rel="stylesheet" href="{% static 'processing/css/floating_params.css' %}"/>
 {% endblock extra_head %}
 
@@ -13,7 +13,7 @@ Detrending Performance
 {% block left_menu %}
 
 <a id="download-button" 
-   href="{% url 'processing:download_diagnostics_plot' %}">
+   href="{% url 'diagnostics:download_diagnostics_plot' %}">
     <div class="lcars-element 
                 button 
                 lcars-melrose-bg
@@ -30,7 +30,7 @@ Detrending Performance
     Update plot
 </div>
 
-<a href="{% url 'processing:refresh_diagnostics' %}">
+<a href="{% url 'diagnostics:refresh_diagnostics' %}">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -144,8 +144,9 @@ Detrending Performance
 </div>
 
 <script src="{% static 'js/autowisp.util.js' %}"></script>
-<script src="{% static 'processing/js/detrending.diagnostics.js' %}"></script>
-{% url 'processing:update_diagnostics_plot' as updateURL %}
+<script src="{% static 'diagnostics/js/diagnostics_app.js' %}"></script>
+<script src="{% static 'diagnostics/js/detrending.diagnostics.js' %}"></script>
+{% url 'diagnostics:update_diagnostics_plot' as updateURL %}
 <script type="text/javascript">
     initDiagnosticsPlotting("{{updateURL}}");
 </script> 

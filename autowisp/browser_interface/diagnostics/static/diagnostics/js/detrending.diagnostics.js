@@ -122,23 +122,3 @@ function scrollConfig(event)
         entry.style.zIndex = "1000";
     }
 }
-
-function initDiagnosticsPlotting(plotURL) 
-{
-    const plotSymbols = document.getElementsByClassName("plot-marker");
-    for ( const symbol of plotSymbols ) {
-        if ( symbol.parentElement.className == "dropdown-content" )
-            symbol.addEventListener("click", selectSymbol);
-    }
-    document.getElementById("plot-button").addEventListener("click", 
-                                                            updateFigure);
-    updateFigure.url = plotURL;
-    updateFigure.callback = showNewPlot;
-    updateFigure.getParam = getPlotConfig;
-    document.getElementById("plot-sep").addEventListener("mousedown",
-                                                         sepDragStart)
-    let plot = document.getElementById("plot-parent").children[0];
-    plot.addEventListener("dblclick", startEditPlot);
-    document.getElementById("plot-config-parent").
-        addEventListener("scroll", scrollConfig);
-}

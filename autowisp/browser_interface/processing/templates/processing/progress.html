@@ -116,9 +116,33 @@ Processing Progress
             <table>
                 <tr>
                     <td colspan=2 class="tooltip">
-                        {% if step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'epd' or step.0 == 'tfa' or step.1 == 'epd' or step.1 == 'tfa' %}
-                        <span class="tooltiptext">Review magnitude fitting performance </span>
-                        <a href="{% url 'processing:display_detrending_diagnostics' %}">
+                        <span class="tooltiptext">
+                            {% if step.0 == 'calibrate' %}
+                            Review cilabration diagnostics
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='quantiles' as diagnostic_url %}
+                            {% elif step.0 == 'find' and step.1 == 'stars' %}
+                            Review star finding diagnostics
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='num_extracted_src' as diagnostic_url %}
+
+                            {% elif step.0 == 'solve' and step.1 == 'astrometry' %}
+                            Review astrometry diagnostics
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='pointing_offset' as diagnostic_url %}
+                            {% elif step.0 == 'fit' and step.1 == 'star' and step.2 == 'shape' %}
+                            Review star shepe fit diagnostics
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='bg_center' as diagnostic_url %}
+                            {% elif step.0 == 'measure' and step.1 == 'aperture' and step.2 == 'photometry' %}
+                            Review aperture photometry diagnostics
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='bg_center' as diagnostic_url %}
+                            {% elif step.0 == 'fit' and step.1 == 'source' and step.2 == 'extracted' and step.4 == 'map' %}
+                            Review source extraction PSF diagnostics
+                            {% url 'diagnostics:display_image_diagnostics' diagnostic_name='s_center' as diagnostic_url %}
+                            {% elif step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'epd' or step.0 == 'tfa' or step.1 == 'epd' or step.1 == 'tfa' %}
+                            Review magnitude fitting performance 
+                            {% url 'diagnostics:display_detrending_diagnostics' as diagnostic_url %}
+                            {% endif %}
+                        </span>
+                        {% if diagnostic_url %}
+                        <a href="{{ diagnostic_url }}">
                         {% endif %}
 
                         <div id="progress-with-label">
@@ -135,7 +159,7 @@ Processing Progress
                                  style="width: {% widthratio failure total 100 %}%">
                             </div>
                         </div>
-                        {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                        {% if diagnostic_url %}
                         </a">
                         {% endif %}
                     </td>
