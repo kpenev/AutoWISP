@@ -146,10 +146,20 @@ STATICFILES_DIRS = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "file": {
             "class": "logging.FileHandler",
-            "filename": str(BASE_DIR / "bui.log")
+            "filename": str(BASE_DIR / "bui.log"),
             "formatter": "verbose",
         },
     },
