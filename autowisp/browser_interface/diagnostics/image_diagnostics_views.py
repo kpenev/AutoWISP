@@ -412,11 +412,40 @@ def update_image_diagnostics_plot(request, diagnostic_name):
         return JsonResponse({"plot_data": svg_stream.getvalue()})
 
 
+def get_available_diagnostics(db_session):
+    """Return the list of diagnostic names that have at least one value."""
+
+    names = [
+        row[0]
+        for row in db_session.execute(
+            select(DiagnosticType.name)
+            .join(
+                ImageDiagnostics,
+                ImageDiagnostics.diagnostic_id == DiagnosticType.id,
+            )
+            .group_by(DiagnosticType.id)
+            .order_by(DiagnosticType.id)
+        ).all()
+    ]
+
+    quantile_names = [n for n in names if n.startswith("pixel_q")]
+    other_names = [n for n in names if not n.startswith("pixel_q")]
+
+    result = other_names[:]
+    if quantile_names:
+        result.append("quantiles")
+
+    return result
+
+
 def display_image_diagnostics(request, diagnostic_name):
     """View displaying the table of available series for an image diagnostic."""
 
     with start_db_session() as db_session:
         context = get_available_diagnostic_series(diagnostic_name, db_session)
+        context["available_diagnostics"] = get_available_diagnostics(
+            db_session
+        )
     context["diagnostics_title"] = diagnostic_name
     context["update_plot_url"] = reverse(
         "diagnostics:update_image_diagnostics_plot",
