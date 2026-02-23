@@ -42,4 +42,9 @@ urlpatterns = [
         views.display_image_diagnostics,
         name="display_image_diagnostics",
     ),
+    path(
+        "image/<slug:diagnostic_name>/update_plot",
+        views.update_image_diagnostics_plot,
+        name="update_image_diagnostics_plot",
+    ),
 ]

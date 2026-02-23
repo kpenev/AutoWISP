@@ -434,6 +434,7 @@ def add_images_to_db(image_collection, configuration):
             image.observing_session = get_or_create_observing_session(
                 image_type, header_eval, configuration, db_session
             )
+            image.jd = header_eval.symtable.get("JD-OBS")
             if existing_image is None:
                 db_session.add(image)
             else:
