@@ -186,6 +186,13 @@ def get_center_background(  # pylint: disable=too-many-arguments
 
     Fit a smooth function of position to the background measurements from shape
     fitting and evaluate it at the center of the frame.
+
+    Returns:
+        float:
+            The background level at the center of the frame.
+
+        float:
+            The RMS residual of the background map fit.
     """
 
     source_positions = {
@@ -217,7 +224,7 @@ def get_center_background(  # pylint: disable=too-many-arguments
         repr(square_residual),
         repr(num_fit),
     )
-    return coef[0]
+    return coef[0], numpy.sqrt(square_residual)
 
 
 def get_frame_merit_info(
@@ -258,7 +265,7 @@ def get_frame_merit_info(
             result[psf_param.decode()] = float(
                 numpy.dot(map_coef, psf_map_predictors)
             )
-        result["bg"] = get_center_background(
+        result["bg"], _ = get_center_background(
             dr_file, header, **bg_fit_config, **dr_path_substitutions
         )
 

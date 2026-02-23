@@ -11,6 +11,9 @@ from os import getpid
 import getpass
 
 import numpy
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
+from astropy.time import Time
+from astropy import units
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.processing_steps.manual_util import (
@@ -28,8 +31,18 @@ from autowisp.catalog import (
     check_catalog_coverage,
     get_catalog_config,
 )
+from sqlalchemy import select
+
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
+from autowisp.database.interface import start_db_session
+
+# False positive due to unusual importing
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model import ObservingSession, Target
+from autowisp.database.data_model.provenance import Observatory
+
+# pylint: enable=no-name-in-module
 
 _logger = logging.getLogger(__name__)
 
@@ -468,6 +481,128 @@ def get_xy_extracted(dr_file, srcextract_version):
     return xy_extracted
 
 
+def _compute_zenith_distance(header, ra_cent, dec_cent):
+    """Return the zenith distance of the image center (None if unavailable)."""
+
+    try:
+        with start_db_session() as db_session:
+            observatory = db_session.scalar(
+                select(Observatory)
+                .join(ObservingSession)
+                .where(ObservingSession.label == header["OBSSSNID"])
+            )
+        location = EarthLocation(
+            lat=observatory.latitude * units.deg,
+            lon=observatory.longitude * units.deg,
+            height=observatory.altitude * units.m,
+        )
+        obs_time = Time(header["JD-OBS"], format="jd", location=location)
+        source_coords = SkyCoord(
+            ra=ra_cent * units.deg,
+            dec=dec_cent * units.deg,
+            frame="icrs",
+        )
+        alt = source_coords.transform_to(
+            AltAz(obstime=obs_time, location=location)
+        ).alt.to_value(units.deg)
+        return 90.0 - alt
+    except (KeyError, Exception):
+        _logger.error(
+            "Cannot compute zenith distance.", exc_info=True
+        )
+        return None
+
+
+def _compute_pointing_offset(header, ra_cent, dec_cent):
+    """Return angular distance in degrees between target and image center."""
+
+    try:
+        with start_db_session() as db_session:
+            target = db_session.scalar(
+                select(Target)
+                .join(ObservingSession)
+                .where(ObservingSession.label == header["OBSSSNID"])
+            )
+        if target.ra is None or target.dec is None:
+            return None
+        center = SkyCoord(
+            ra=ra_cent * units.deg,
+            dec=dec_cent * units.deg,
+            frame="icrs",
+        )
+        target_coords = SkyCoord(
+            ra=target.ra * units.deg,
+            dec=target.dec * units.deg,
+            frame="icrs",
+        )
+        return center.separation(target_coords).to_value(units.deg)
+    except (KeyError, Exception):
+        _logger.error(
+            "Cannot compute pointing offset.", exc_info=True
+        )
+        return None
+
+
+def _compute_mag_zeropt(catalog, cat_extracted_corr, dr_file, configuration):
+    """Return the source extraction magnitude zeropoint, or None."""
+
+    try:
+        sources = dr_file.get_sources(
+            "srcextract.sources",
+            "srcextract_column_name",
+            srcextract_version=configuration["srcextract_version"],
+        )
+        cat_mags = catalog["magnitude"].iloc[cat_extracted_corr[:, 0]].values
+        ext_flux = sources["flux"].values[cat_extracted_corr[:, 1]]
+        positive = ext_flux > 0
+        if not positive.any():
+            return None
+        return float(
+            numpy.median(
+                cat_mags[positive] + 2.5 * numpy.log10(ext_flux[positive])
+            )
+        )
+    except (KeyError, IndexError):
+        _logger.error("Cannot compute magnitude zeropoint.", exc_info=True)
+        return None
+
+
+def _collect_astrometry_diagnostics(
+    transformation_estimate, solve_diagnostics, header
+):
+    """Return a list of (name, value) diagnostic tuples."""
+
+    result = [
+        ("ra_center", transformation_estimate["ra_cent"]),
+        ("dec_center", transformation_estimate["dec_cent"]),
+        ("matched_fraction", solve_diagnostics["ratio"]),
+        ("astrom_residual", solve_diagnostics["rms"]),
+    ]
+
+    z_center = _compute_zenith_distance(
+        header,
+        transformation_estimate["ra_cent"],
+        transformation_estimate["dec_cent"],
+    )
+    if z_center is not None:
+        result.append(("z_center", z_center))
+
+    pointing_offset = _compute_pointing_offset(
+        header,
+        transformation_estimate["ra_cent"],
+        transformation_estimate["dec_cent"],
+    )
+    if pointing_offset is not None:
+        result.append(("pointing_offset", pointing_offset))
+
+    if "mag_zeropt" in solve_diagnostics:
+        result.append(
+            ("srcextract_mag_zeropt", solve_diagnostics["mag_zeropt"])
+        )
+
+    return result
+
+
 def solve_image(  # pylint: disable=too-many-locals
     dr_fname,
     transformation_estimate=None,
@@ -600,6 +735,9 @@ def solve_image(  # pylint: disable=too-many-locals
                 web_lock,
                 configuration,
             )
+            diagnostics["mag_zeropt"] = _compute_mag_zeropt(
+                catalog, cat_extracted_corr, dr_file, configuration
+            )
         # pylint: disable=bare-except
         except:
             _logger.critical(
@@ -635,7 +773,14 @@ def solve_image(  # pylint: disable=too-many-locals
                     dr_file=dr_file,
                     catalog=catalog,
                 )
-                mark_end(dr_fname)
+                mark_end(
+                    dr_fname,
+                    diagnostics=_collect_astrometry_diagnostics(
+                        transformation_estimate,
+                        diagnostics,
+                        header,
+                    ),
+                )
                 result["saved"] = True
 
                 transformation_to_raw(

@@ -13,6 +13,7 @@ py.install_sources(
 
 subdir('configuration')
 subdir('core')
+subdir('diagnostics')
 subdir('django_project')
 subdir('home')
 subdir('processing')

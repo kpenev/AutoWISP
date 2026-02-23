@@ -30,12 +30,6 @@ from .tune_starfind_views import (
     project_catalog,
     save_starfind_config,
 )
-from .detrending_diagnostics_views import (
-    display_detrending_diagnostics,
-    refresh_detrending_diagnostics,
-    update_detrending_diagnostics_plot,
-    download_detrending_diagnostics_plot,
-)
 from .display_fits_util import update_fits_display
 
 # pylint: enable=unused-import
