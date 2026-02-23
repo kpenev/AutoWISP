@@ -439,6 +439,7 @@ def select_project(request, project_id):
     request.session.flush()
     project = Project.objects.get(id=project_id)  # pylint: disable=no-member
     request.session["project_home"] = project.path
+    request.session["project_name"] = project.name
 
     return redirect("processing:progress")
 
