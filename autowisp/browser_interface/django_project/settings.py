@@ -15,11 +15,11 @@ from pathlib import Path
 import platformdirs
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-#BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
 BUI_DIR = Path(__file__).resolve().parent.parent
 
-BASE_DIR = Path(platformdirs.user_data_dir('autowisp'))
+BASE_DIR = Path(platformdirs.user_data_dir("autowisp"))
 
 
 # Quick-start development settings - unsuitable for production
@@ -79,6 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.global_variables",
             ],
         },
     },
