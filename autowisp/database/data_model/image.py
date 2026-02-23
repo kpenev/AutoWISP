@@ -5,6 +5,7 @@ from typing import List
 
 from sqlalchemy import (
     Column,
+    Float,
     Integer,
     Boolean,
     String,
@@ -99,6 +100,11 @@ class Image(DataModelBase):
         ),
         nullable=False,
         doc="The id of the observing session",
+    )
+    jd = Column(
+        Float,
+        nullable=True,
+        doc="Mid-exposure Julian date of the observation",
     )
     notes = Column(
         String(1000), nullable=True, doc="The notes provided for the image"

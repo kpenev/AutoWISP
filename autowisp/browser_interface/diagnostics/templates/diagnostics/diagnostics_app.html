@@ -7,9 +7,9 @@
 {% block diagnostics_extra_head %}{% endblock %}
 {% endblock extra_head %}
 
-{% block header_title %}{% block diagnostic_name %}
-{% block diagnostics_title %}Diagnostics{% endblock %}
-{% endblock %}{% endblock %}
+{% block header_title %}Diagnostics{% endblock %}
+
+{% block app_title %}Diagnostics{% endblock app_title %}
 
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
@@ -79,6 +79,12 @@
     </div>
 </div>
 
+<script src="{% static 'js/autowisp.util.js' %}"></script>
 <script src="{% static 'diagnostics/js/diagnostics_app.js' %}"></script>
+{% if update_plot_url %}
+<script type="text/javascript">
+    initImageDiagnostics("{{ update_plot_url }}");
+</script>
+{% endif %}
 {% block diagnostics_extra_scripts %}{% endblock %}
 {% endblock main %}

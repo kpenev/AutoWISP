@@ -8,6 +8,9 @@ from .detrending_diagnostics_views import (
     update_detrending_diagnostics_plot,
     download_detrending_diagnostics_plot,
 )
-from .image_diagnostics_views import display_image_diagnostics
+from .image_diagnostics_views import (
+    display_image_diagnostics,
+    update_image_diagnostics_plot,
+)
 
 # pylint: enable=unused-import

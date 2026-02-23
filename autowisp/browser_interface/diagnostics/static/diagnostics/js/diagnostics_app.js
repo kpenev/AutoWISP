@@ -6,6 +6,47 @@ function selectSymbol(event)
     button.replaceChild(event.currentTarget.cloneNode(true), button.children[0]);
 }
 
+function getSelectedDatasets()
+{
+    const activeRows = document.querySelectorAll(".diagnostic-row.active");
+    let datasets = {};
+    for ( const row of activeRows ) {
+        let seriesId = row.id;
+        let button = document.getElementById("marker-button:" + seriesId);
+        let marker = button.children[0].className.baseVal.split(" ")[1];
+        if ( marker != "" ) {
+            datasets[seriesId] = {
+                "color": document.getElementById(
+                    "plot-color:" + seriesId
+                ).value,
+                "marker": marker,
+                "scale": document.getElementById(
+                    "scale:" + seriesId
+                ).value,
+                "label": document.getElementById(
+                    "label:" + seriesId
+                ).value,
+            };
+        }
+    }
+    let display = document.getElementById("diagnostics-display");
+    let rect = display.getBoundingClientRect();
+    return {
+        "datasets": datasets,
+        "figure_config": {
+            "aspect_ratio": rect.width / rect.height,
+        },
+    };
+}
+
+function showDiagnosticsPlot(data)
+{
+    let display = document.getElementById("diagnostics-display");
+    display.innerHTML = "";
+    showSVG(data, "diagnostics-display");
+    setFigureSize("diagnostics-display");
+}
+
 function initDiagnosticsPlotting(plotURL)
 {
     const plotSymbols = document.getElementsByClassName("plot-marker");
@@ -33,15 +74,24 @@ function initDiagnosticsPlotting(plotURL)
     initDiagnosticsPlotting.done = true;
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    if ( !initDiagnosticsPlotting.done )
-        initDiagnosticsPlotting();
+function initImageDiagnostics(plotURL)
+{
+    initDiagnosticsPlotting();
+
+    updateFigure.url = plotURL;
+    updateFigure.callback = showDiagnosticsPlot;
+    updateFigure.getParam = getSelectedDatasets;
 
     const rows = document.querySelectorAll(".diagnostic-row");
     rows.forEach(function(row) {
         row.addEventListener("click", function() {
-            const diagId = this.dataset.diagnosticId;
             this.classList.toggle("active");
+            updateFigure();
         });
     });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    if ( !initDiagnosticsPlotting.done )
+        initDiagnosticsPlotting();
 });
