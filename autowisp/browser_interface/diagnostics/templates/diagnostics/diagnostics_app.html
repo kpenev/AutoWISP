@@ -1,0 +1,107 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet"
+      href="{% static 'diagnostics/css/diagnostics_app.css' %}">
+{% block diagnostics_extra_head %}{% endblock %}
+{% endblock extra_head %}
+
+{% block header_title %}{{ diagnostics_title|default:"Diagnostics" }}{% endblock %}
+
+{% block app_title %}{{ diagnostics_title|default:"Diagnostics" }}{% endblock app_title %}
+
+{% block header_bar_extra %}
+{% if available_diagnostics %}
+<div class="lcars-bar horizontal">
+    <select id="diagnostic-selector" 
+            class="lcars-bar horizontal button lcars-rust-bg"
+            onchange="window.location.href='{% url 'diagnostics:display_image_diagnostics' diagnostic_name='__PLACEHOLDER__' %}'.replace('__PLACEHOLDER__', this.value);">
+        {% for diag_name in available_diagnostics %}
+        <option value="{{ diag_name }}"
+                {% if diag_name == diagnostics_title %}selected{% endif %}>
+            {{ diag_name }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
+{% endif %}
+{% endblock header_bar_extra %}
+
+{% block main %}
+<div id="active-area" class="lcars-column fill-space">
+    <div id="diagnostics-table-parent">
+        <table class="lcars-table standard-header">
+            <thead>
+                <tr>
+                    <th>Color</th>
+                    <th>Style</th>
+                    <th>Scale</th>
+                    <th>Label</th>
+                    {% block diagnostics_table_header %}
+                    {% for field in diagnostics_fields %}
+                    <th>{{ field }}</th>
+                    {% endfor %}
+                    {% endblock diagnostics_table_header %}
+                </tr>
+            </thead>
+            <tbody class="lcars-table select-row">
+                {% for diagnostic in diagnostics_list %}
+                <tr class="diagnostic-row" id="{{ diagnostic.id }}">
+                    <td>
+                        <input type="color"
+                               id="plot-color:{{ diagnostic.id }}"
+                               value="{{ diagnostic.color|default:'#ffffff' }}">
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="dropbtn selected-marker"
+                                    id="marker-button:{{ diagnostic.id }}">
+                                {% include "core/plot_marker.html" with symb=diagnostic.marker size="30" svg="T" %}
+                            </button>
+                            <div class="dropdown-content"
+                                 id="marker:{{ diagnostic.id }}">
+                                {% for symb in " x+osv^<>" %}
+                                {% include "core/plot_marker.html" with symb=symb size="30" svg="T" %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="scale:{{ diagnostic.id }}"
+                               value="{{ diagnostic.scale|default:'1.0' }}">
+                    </td>
+                    <td>
+                        <input class="param"
+                               id="label:{{ diagnostic.id }}"
+                               type="text"
+                               value="{{ diagnostic.label|default:'' }}">
+                    </td>
+                    {% block diagnostics_table_row %}
+                    {% for field in diagnostic.info %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    {% endblock diagnostics_table_row %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="plot-sep" class="lcars-bracket hollow top"></div>
+    <div id="diagnostics-display" class="fill-space">
+        {% block diagnostics_display %}
+        <p class="lcars-text">Select diagnostics to display.</p>
+        {% endblock diagnostics_display %}
+    </div>
+</div>
+
+<script src="{% static 'js/autowisp.util.js' %}"></script>
+<script src="{% static 'diagnostics/js/diagnostics_app.js' %}"></script>
+{% if update_plot_url %}
+<script type="text/javascript">
+    initImageDiagnostics("{{ update_plot_url }}");
+</script>
+{% endif %}
+{% block diagnostics_extra_scripts %}{% endblock %}
+{% endblock main %}

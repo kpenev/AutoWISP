@@ -151,11 +151,12 @@ class SourceFinder:
                     image_data.flatten(), configuration["brightness_quantile"]
                 )
                 logger.info(
-                    "Computed brightness_threshold = %.2f from %.3f quantile "
-                    "with scale %.3f",
+                    "Computed brightness_threshold = %r from %r quantile "
+                    "with scale %r for %r",
                     configuration["brightness_threshold"],
                     configuration["brightness_quantile"],
                     configuration["brightness_quantile_scale"],
+                    fits_fname,
                 )
 
         start_extraction = getattr(
@@ -183,12 +184,11 @@ class SourceFinder:
                     return None
                 sources_file = source_fname
             else:
-                print("Creating extraction process.")
+                logger.debug("Creating extraction process.")
                 extraction_process = start_extraction(*extraction_args)
-                print("Extraction process started.")
+                logger.debug("Extraction process started.")
                 sources_file = extraction_process.stdout
 
-            print("Parsing source list from " + repr(unpacked_fname))
             logger.debug("Parsing source list from %s", repr(unpacked_fname))
 
             result = numpy.genfromtxt(
@@ -199,14 +199,27 @@ class SourceFinder:
                 dtype=None,
                 deletechars="",
             )
+            logger.debug("Extracted %d stars from %r", result.size, fits_fname)
             if configuration["tool"] == "hatphot":
                 result["x"] -= 0.5
                 result["y"] -= 0.5
             if configuration["filter_sources"] != "True":
                 result = result[
-                    Evaluator(result)(configuration["filter_sources"])
+                    Evaluator(
+                        result,
+                        {
+                            "brightness_threshold": configuration[
+                                "brightness_threshold"
+                            ]
+                        },
+                    )(configuration["filter_sources"])
                 ]
-            logger.debug("Sorting %r sources", unpacked_fname)
+            logger.debug(
+                "Sorting %d filtered sources from %r (%r)",
+                result.size,
+                fits_fname,
+                unpacked_fname,
+            )
 
             result.sort(order="flux")
             result = numpy.flip(result)
@@ -220,8 +233,9 @@ class SourceFinder:
                 )
                 extraction_process.communicate()
             logger.debug(
-                "Adding saturation flags for %r sources",
-                unpacked_fname,
+                "Adding saturation flags for %d sources from %r ",
+                result.size,
+                fits_fname,
             )
 
             return self._add_saturation_flags(unpacked_fname, result)

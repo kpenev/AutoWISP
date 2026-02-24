@@ -796,3 +796,28 @@ class Calibrator(Processor):
                 compress=calibration_params["compress_calibrated"],
                 allow_overwrite=calibration_params["allow_overwrite"],
             )
+
+        diagnostic_quantiles = calibration_params.get("diagnostic_quantiles")
+        if not diagnostic_quantiles:
+            return None
+
+        split_channels = calibration_params["split_channels"]
+        if not split_channels:
+            split_channels = {None: slice(None)}
+
+        diagnostics = {}
+        for channel_name, channel_slice in split_channels.items():
+            channel_pixels = calibrated_images[0][channel_slice]
+            channel_mask = calibrated_images[2][channel_slice]
+            good_pixels = channel_pixels[channel_mask == 0]
+            if good_pixels.size == 0:
+                continue
+            channel_diags = []
+            for quantile in diagnostic_quantiles:
+                diag_name = "pixel_q" + str(quantile).split(".")[1]
+                channel_diags.append(
+                    (diag_name, float(numpy.quantile(good_pixels, quantile)))
+                )
+            diagnostics[channel_name] = channel_diags
+
+        return diagnostics

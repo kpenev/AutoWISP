@@ -183,7 +183,7 @@ def refresh_detrending_diagnostics(request):
 
     if 'diagnostics' in request.session:
         del request.session['diagnostics']
-    return redirect('/processing/display_detrending_diagnostics')
+    return redirect('/diagnostics/display_detrending_diagnostics')
 
 
 def display_detrending_diagnostics(request):
@@ -222,7 +222,7 @@ def display_detrending_diagnostics(request):
 
     return render(
         request,
-        'processing/detrending_diagnostics.html',
+        'diagnostics/detrending_diagnostics.html',
         request.session['diagnostics']['detrending'],
     )
 

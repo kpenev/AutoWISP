@@ -601,7 +601,7 @@ def read_subpixmap(fits_fname):
 
 # These must be acceptable as keyword arguments
 def ignore_progress(  # pylint: disable=unused-argument
-    input_fname, status=1, final=True
+    input_fname, status=1, final=True, **kwargs
 ):
     """Dummy function to replace progress tracking of auto processing."""
 

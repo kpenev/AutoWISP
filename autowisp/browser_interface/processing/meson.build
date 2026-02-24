@@ -2,7 +2,6 @@ py_src = [
   '__init__.py',
   'admin.py',
   'apps.py',
-  'detrending_diagnostics_views.py',
   'display_fits_util.py',
   'log_views.py',
   'models.py',

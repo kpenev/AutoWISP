@@ -27,6 +27,9 @@ from autowisp.processing_steps.manual_util import (
 from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.split_sources import SplitSources
 from autowisp.data_reduction.utils import delete_star_shape_fit
+from autowisp.processing_steps.calculate_photref_merit import (
+    get_center_background,
+)
 
 input_type = "calibrated + dr"
 
@@ -57,6 +60,34 @@ def add_background_options(parser):
         "reliable photometry is desired. The second number is the width of the "
         "annulus (i.e inner radius + width is the outer radius). It should be "
         "large enough to contain many tens of pixels.",
+    )
+    parser.add_argument(
+        "--bg-map-fit-terms-expression",
+        "--bg-map-terms",
+        default="O3{x, y}",
+        help="An expression involving the x and y source coordinates for the "
+        "terms to include when fitting a smooth function to the background "
+        "measurements.",
+    )
+    parser.add_argument(
+        "--bg-map-error-avg",
+        default="median",
+        help="How to average fitting residuals for outlier rejection during "
+        "background smoothing.",
+    )
+    parser.add_argument(
+        "--bg-map-rej-level",
+        type=float,
+        default=5.0,
+        help="How far away from the fit should a point be before it is rejected"
+        " in units of error_avg.",
+    )
+    parser.add_argument(
+        "--bg-map-max-rej-iter",
+        type=int,
+        default=10,
+        help="The maximum number of outlier rejection/refit iterations allowed "
+        "when fitting for the smooth background of an image.",
     )
 
 
@@ -721,8 +752,32 @@ def fit_frame_set(
             **shape_fitter_config,
         )
         logger.debug("Done fitting")
+
+    dr_path_substitutions = get_dr_substitutions(configuration)
+    bg_fit_config = {
+        argname[len("bg_map_") :]: value
+        for argname, value in configuration.items()
+        if argname.startswith("bg_map_")
+    }
     for fname in frame_filenames:
-        mark_end(fname)
+        diagnostics = []
+        try:
+            with DataReductionFile(
+                header=get_primary_header(fname), mode="r"
+            ) as dr_file:
+                header = dr_file.get_frame_header()
+                bg_center, bg_residual = get_center_background(
+                    dr_file, header, **bg_fit_config, **dr_path_substitutions
+                )
+                diagnostics.append(("bg_center", bg_center))
+                diagnostics.append(("bg_map_residual", bg_residual))
+        except Exception:
+            logger.error(
+                "Failed to compute background diagnostics for %s",
+                fname,
+                exc_info=True,
+            )
+        mark_end(fname, diagnostics=diagnostics or None)
 
 
 def fit_star_shape(

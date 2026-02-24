@@ -100,34 +100,4 @@ urlpatterns = [
         views.save_starfind_config,
         name="save_starfind_config",
     ),
-    path(
-        "diagnostics/<slug:step>/<slug:imtype>",
-        views.display_detrending_diagnostics,
-        name="diagnostics",
-    ),
-    path(
-        "diagnostics/<slug:step>/<slug:imtype>/<slug:master_ids>",
-        views.display_detrending_diagnostics,
-        name="diagnostics",
-    ),
-    path(
-        "display_detrending_diagnostics",
-        views.display_detrending_diagnostics,
-        name="display_detrending_diagnostics",
-    ),
-    path(
-        "refresh_detrending_diagnostics",
-        views.refresh_detrending_diagnostics,
-        name="refresh_diagnostics",
-    ),
-    path(
-        "update_detrending_diagnostics_plot",
-        views.update_detrending_diagnostics_plot,
-        name="update_diagnostics_plot",
-    ),
-    path(
-        "download_detrending_diagnostics_plot",
-        views.download_detrending_diagnostics_plot,
-        name="download_diagnostics_plot",
-    ),
 ]

@@ -14,7 +14,7 @@ def set_project_middleware(get_response):
         if project_home is not None:
             try:
                 set_project_home(project_home)
-            except:
+            except: #pylint: disable=bare-except
                 pass
 
         response = get_response(request)

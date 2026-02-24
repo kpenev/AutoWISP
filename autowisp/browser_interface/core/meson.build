@@ -2,6 +2,7 @@ py_src = [
   '__init__.py',
   'admin.py',
   'apps.py',
+  'context_processors.py',
   'models.py',
   'views.py',
   'walk_fs_view.py'

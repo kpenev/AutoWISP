@@ -1,5 +1,4 @@
 src = [
-  'detrending.diagnostics.js',
   'review_output.js',
   'select.photref.js',
   'tune.starfind.js'

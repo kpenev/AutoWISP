@@ -132,6 +132,66 @@ def detect_psf_parameters(matched_sources):
     return None
 
 
+def _collect_psf_map_diagnostics(
+    matched_sources, psf_parameters, fit_results, fit_terms_expression, header
+):
+    """Return diagnostics for PSF map center values and fit residuals.
+
+    Args:
+        matched_sources(pandas.DataFrame):    The matched source data used
+            for the fit.
+
+        psf_parameters:    The PSF parameter names that were fit.
+
+        fit_results(dict):    The fitting results containing ``coefficients``
+            and ``fit_res2`` per parameter.
+
+        fit_terms_expression(str):    The fit terms expression used.
+
+        header:    The FITS header of the frame.
+
+    Returns:
+        list:
+            A list of ``(name, value)`` tuples for s/d/k center values and
+            map residuals, or an empty list if computation fails.
+    """
+
+    try:
+        center_source = (
+            matched_sources.median(numeric_only=True).to_frame().T
+        )
+        center_source["x"] = header["NAXIS1"] / 2
+        center_source["y"] = header["NAXIS2"] / 2
+        center_predictors = get_predictors_and_weights(
+            center_source, fit_terms_expression, None
+        )[0].flatten()
+
+        diagnostics = []
+        for param_name in psf_parameters:
+            param_lower = param_name.lower()
+            if param_lower not in ("s", "d", "k"):
+                continue
+            center_value = float(
+                numpy.dot(
+                    fit_results["coefficients"][param_name],
+                    center_predictors,
+                )
+            )
+            diagnostics.append((f"{param_lower}_center", center_value))
+            diagnostics.append(
+                (
+                    f"{param_lower}_map_residual",
+                    float(numpy.sqrt(fit_results["fit_res2"][param_name])),
+                )
+            )
+        return diagnostics
+    except Exception:
+        _logger.error(
+            "Failed to compute PSF map diagnostics", exc_info=True
+        )
+        return []
+
+
 def smooth_srcextract_psf(
     dr_fname, configuration, mark_start, mark_end, **path_substitutions
 ):
@@ -226,13 +286,20 @@ def smooth_srcextract_psf(
                 mark_end(dr_fname, -2)
                 return
 
+        diagnostics = _collect_psf_map_diagnostics(
+            matched_sources,
+            psf_parameters,
+            fit_results,
+            configuration.fit_terms_expression,
+            dr_file.get_frame_header(),
+        )
         mark_start(dr_fname)
         dr_file.save_source_extracted_psf_map(
             fit_results=fit_results,
             fit_configuration=configuration,
             **path_substitutions,
         )
-        mark_end(dr_fname)
+        mark_end(dr_fname, diagnostics=diagnostics or None)
 
 
 def get_dr_substitutions(configuration):

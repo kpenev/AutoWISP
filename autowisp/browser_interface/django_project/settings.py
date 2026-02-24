@@ -15,11 +15,11 @@ from pathlib import Path
 import platformdirs
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-#BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
 BUI_DIR = Path(__file__).resolve().parent.parent
 
-BASE_DIR = Path(platformdirs.user_data_dir('autowisp'))
+BASE_DIR = Path(platformdirs.user_data_dir("autowisp"))
 
 
 # Quick-start development settings - unsuitable for production
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "home.apps.HomeConfig",
     "results.apps.ResultsConfig",
     "processing.apps.ProcessingConfig",
+    "diagnostics.apps.DiagnosticsConfig",
     "configuration.apps.ConfigurationConfig",
     "core.apps.CoreConfig",
     "django.contrib.admin",
@@ -78,6 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.global_variables",
             ],
         },
     },
@@ -141,3 +143,29 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATICFILES_DIRS = [
     BUI_DIR / "static",
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": str(BASE_DIR / "bui.log"),
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["file"],
+        "level": "DEBUG",
+    },
+}

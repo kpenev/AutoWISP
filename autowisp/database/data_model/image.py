@@ -5,6 +5,7 @@ from typing import List
 
 from sqlalchemy import (
     Column,
+    Float,
     Integer,
     Boolean,
     String,
@@ -31,7 +32,7 @@ class ProcessedImages(DataModelBase):
         doc="The image that was processed.",
     )
     channel = Column(
-        String(3), doc="The channel of the image that was processed."
+        String(10), doc="The channel of the image that was processed."
     )
     progress_id = Column(
         Integer,
@@ -100,6 +101,11 @@ class Image(DataModelBase):
         nullable=False,
         doc="The id of the observing session",
     )
+    jd = Column(
+        Float,
+        nullable=True,
+        doc="Mid-exposure Julian date of the observation",
+    )
     notes = Column(
         String(1000), nullable=True, doc="The notes provided for the image"
     )
@@ -116,6 +122,12 @@ class Image(DataModelBase):
     )
     processing: Mapped[List[ProcessedImages]] = relationship(
         back_populates="image"
+    )
+    diagnostics: Mapped[List["ImageDiagnostics"]] = relationship(
+        back_populates="image"
+    )
+    photometry_diagnostics: Mapped[List["PhotometryDiagnostics"]] = (
+        relationship(back_populates="image")
     )
 
 
