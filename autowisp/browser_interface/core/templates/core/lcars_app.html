@@ -27,7 +27,7 @@
                 {% endblock %}
                 <div class="lcars-bar horizontal top-bar">
                     <div class="lcars-title right">
-                        {{ project_name }}: {% block app_title %} {% endblock %}
+                        {% if project_name %}{{ project_name }}: {% endif %}{% block app_title %}{% endblock %}
                     </div>
                 </div>
                 <!-- ROUNDED EDGE DECORATED -->
