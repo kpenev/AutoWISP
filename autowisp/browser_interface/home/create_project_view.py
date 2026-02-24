@@ -136,6 +136,13 @@ class CreateProjectView(WalkFSView):
 
         db_url = config.get("db-url", "").strip() or None
 
+        if db_url is None:
+            db_fname = os.path.join(config["project-home"], self.db_fname)
+            assert not os.path.exists(db_fname), (
+                f"Directory {config['project-home']} appears to already contain"
+                " a project."
+            )
+
         project_home = config["project-home"]
         assert not os.path.exists(
             os.path.join(project_home, self.db_fname)
