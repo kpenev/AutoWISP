@@ -131,11 +131,14 @@ class CreateProjectView(WalkFSView):
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
-        db_fname = os.path.join(config["project-home"], self.db_fname)
-        assert not os.path.exists(db_fname), (
-            f"Directory {config['project-home']} appears to already contain a "
-            "project."
-        )
+        db_url = config.get("db-url", "").strip() or None
+
+        if db_url is None:
+            db_fname = os.path.join(config["project-home"], self.db_fname)
+            assert not os.path.exists(db_fname), (
+                f"Directory {config['project-home']} appears to already contain"
+                " a project."
+            )
 
         proj = Project(
             name=config["project-name"],
@@ -143,7 +146,7 @@ class CreateProjectView(WalkFSView):
             description=config["project-description"],
         )
         proj.save()
-        set_project_home(config["project-home"])  # as we assert it to be a dir?
+        set_project_home(config["project-home"], db_url=db_url)
         overwrites = {}
 
         config_rex = re.compile(
@@ -169,6 +172,7 @@ class CreateProjectView(WalkFSView):
             "project-description",
             "project-home",
             "custom-config",
+            "db-url",
         ]:
             request.session[key] = request.POST.get(key, "")
 
@@ -272,6 +276,7 @@ class CreateProjectView(WalkFSView):
                         "project-description", ""
                     ),
                     "config": request.session.get("custom-config", ""),
+                    "db_url": request.session.get("db-url", ""),
                     "master_info": [
                         get_master_info(master_type, master_config)
                         for (
