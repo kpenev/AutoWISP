@@ -24,6 +24,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+envWisp/
 build/
 develop-eggs/
 dist/
@@ -121,3 +122,5 @@ ENV/
 
 # Ignore database file
 autowisp/database/autowisp.db
+
+envWisp/

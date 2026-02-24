@@ -1,6 +1,10 @@
 var configURLs;
 var plotCurves;
 
+// Tracks which config is currently shown in the side-panel.
+// Values: "subplot" | "rcParams" | null
+var configPanelState = { activePanel: null };
+
 //Check if a given boundary should be triggered by the given event location.
 function triggerBoundary(event, box) {
     let side;
@@ -333,33 +337,73 @@ function showConfig(url, parentId, onSuccess) {
     };
 }
 
+function _getSidePanelElements() {
+    const configParent = document.getElementById("config-parent");
+    const sidePanel = configParent
+        ? configParent.parentNode
+        : document.getElementById("side-panel");
+    return { sidePanel, configParent };
+}
+
+function isSidePanelVisible() {
+    const { sidePanel } = _getSidePanelElements();
+    if (!sidePanel) return false;
+    // If display isn't explicitly set, treat it as visible.
+    return sidePanel.style.display !== "none";
+}
+
+function hideSidePanel() {
+    const { sidePanel, configParent } = _getSidePanelElements();
+    if (configParent) configParent.style.display = "none";
+    if (sidePanel) sidePanel.style.display = "none";
+    configPanelState.activePanel = null;
+}
+
+function wireSubplotConfigHandlers() {
+    const selectModel = document.getElementById("select-model");
+    if (selectModel) selectModel.onchange = changeModel;
+
+    for (const param_group of ["substitution", "lc-expression", "find-best"]) {
+        const addBtn = document.getElementById("add-" + param_group);
+        if (addBtn) addBtn.onclick = () => addNewParam(param_group);
+    }
+
+    const expressionsTable = document.getElementById("lc-expressions");
+    if (expressionsTable) expressionsTable.onchange = handleLCParamChange;
+
+    getPlottingConfig.mode = "subplot";
+}
+
+function showSubplotConfigPanel(plotId, onSuccess) {
+    showConfig(configURLs.subplot.slice(0, -1) + plotId, "config-parent", () => {
+        wireSubplotConfigHandlers();
+        configPanelState.activePanel = "subplot";
+        getPlottingConfig.plotId = plotId;
+        if (typeof onSuccess === "function") onSuccess();
+    });
+}
+
+function showRcParamsConfigPanel(onSuccess) {
+    showConfig(configURLs.rcParams, "config-parent", () => {
+        getPlottingConfig.mode = "rcParams";
+        configPanelState.activePanel = "rcParams";
+        if (typeof onSuccess === "function") onSuccess();
+    });
+}
+
+// Ensure showConfig is accessible on the global object even if script execution context changes
+// (defensive: browsers normally expose function declarations globally, but make it explicit)
+try { window.showConfig = window.showConfig || showConfig; } catch (_) {}
+
 function showEditPlot(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
     if (plotId !== null && activeBoundary === null) {
-        showConfig(
-            configURLs.subplot.slice(0, -1) + plotId,
-            "config-parent",
-            () => {
-                document.getElementById("select-model").onchange = changeModel;
-
-                for (const param_group of [
-                    "substitution",
-                    "lc-expression",
-                    "find-best",
-                ])
-                    document.getElementById("add-" + param_group).onclick =
-                        () => addNewParam(param_group);
-                document.getElementById("lc-expressions").onchange =
-                    handleLCParamChange;
-
-                const lcDataSelect = JSON.parse(
-                    document.getElementById("lc-data-select").textContent
-                );
-                plotCurves = new plotCurvesType(lcDataSelect);
-                getPlottingConfig.mode = "subplot";
-            }
-        );
-        getPlottingConfig.plotId = plotId;
+        showSubplotConfigPanel(plotId, () => {
+            const lcDataSelect = JSON.parse(
+                document.getElementById("lc-data-select").textContent
+            );
+            plotCurves = new plotCurvesType(lcDataSelect);
+        });
     }
 }
 
@@ -793,10 +837,375 @@ function initLightcurveDisplay(urls) {
     updateFigure.getParam = getPlottingConfig;
     changeModel.stashed = {};
     getPlottingConfig.unappliedSplits = {};
-    document.getElementById("rcParams").onclick = () =>
-        showConfig(urls.rcParams, "config-parent", () => {
-            getPlottingConfig.mode = "rcParams";
-        });
+
+
+    /**
+ * Initialize the lightcurve display with config URLs.
+ * 
+ * Sets up figure updating, subplot configuration, curve editing,
+ * persistence, and control buttons. It also hides the config panel by default
+ * and adds an "Open Config" toggle button next to the Apply and Figure Config buttons.
+ *
+ * @param {Object} urls - A mapping of configuration endpoints.
+ *   Must include `update`, and may include `subplot`, `rcParams`, `editModel`, etc.
+ */
+    var lcDataScript = document.getElementById('lc-data-select');
+    var lcDataSelect = lcDataScript ? JSON.parse(lcDataScript.textContent) : [{
+        lc_substitutions: { magfit_iteration: -1 },
+        find_best: { aperture_index: "0..40" },
+        minimize: "nanmedian(abs({mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)))",
+        photometry_modes: ["apphot"],
+        selection: "",
+        model: null,
+        expressions: {
+            magnitude: "{mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)",
+            bjd: "skypos.BJD - skypos.BJD.min()",
+            rawfname: "fitsheader.rawfname"
+        },
+        plot_config: [{
+            sphotref_selector: "*",
+            x_aggregate: "nanmedian",
+            y_aggregate: "nanmedian",
+            x: "bjd",
+            y: "magnitude",
+            match_by: "rawfname",
+            curve_label: "tfa",
+            plot_kwargs: {
+                marker: "o",
+                markersize: 3,
+                markeredgecolor: "none",
+                markerfacecolor: "#1f77b4",
+                linestyle: "none",
+                linewidth: 0,
+                color: "#ffffff"
+            }
+        }]
+    }];
+
+
+
+    function initConfigPanel() {
+    hideSidePanel();
+    plotCurves = new plotCurvesType(lcDataSelect);
+    getPlottingConfig.mode = "subplot";
+    getPlottingConfig.plotId = 0;
+    configPanelState.activePanel = "subplot";
+
+    // --- Add Open Config button next to Apply and Figure Config ---
+    var applyBtn = document.getElementById("apply");
+    var figConfigBtn = document.getElementById("rcParams");
+    if (applyBtn && figConfigBtn) {
+        var openConfigBtn = document.getElementById("open-config");
+        if (!openConfigBtn) {
+            openConfigBtn = document.createElement("button");
+            openConfigBtn.id = "open-config";
+            openConfigBtn.type = "button";
+            openConfigBtn.textContent = "Open Config";
+            openConfigBtn.style.marginLeft = "4px";
+            openConfigBtn.style.height = figConfigBtn.style.height;
+            openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
+            openConfigBtn.className = figConfigBtn.className;
+            figConfigBtn.parentNode.insertBefore(
+                openConfigBtn,
+                figConfigBtn.nextSibling
+            );
+        }
+        openConfigBtn.onclick = function () {
+            const plotId =
+                typeof getPlottingConfig.plotId !== "undefined"
+                    ? getPlottingConfig.plotId
+                    : 0;
+            if (isSidePanelVisible() && configPanelState.activePanel === "subplot")
+                hideSidePanel();
+            else showSubplotConfigPanel(plotId);
+        };
+    }
+    const rcBtn = document.getElementById("rcParams");
+    if (rcBtn)
+        rcBtn.onclick = () => {
+            if (isSidePanelVisible() && configPanelState.activePanel === "rcParams")
+                hideSidePanel();
+            else showRcParamsConfigPanel();
+        };
     document.getElementById("apply").onclick = updateFigure;
     updateFigure();
 }
+
+    showSubplotConfigPanel(0, initConfigPanel);
+
+    
+}
+
+/**
+* Function to persist the "star-id" input across reloads.
+* Works both for initial page load and dynamically added DOM elements.
+*/
+    /**
+    * save the value of a given input field to localStorage and restore on load.
+    * @param {string} id - DOM element ID of the input field.
+    * @param {string} key - Key in localStorage to save.
+    */
+    function persistInput(id, key) {
+        const input = document.getElementById(id);
+        if (!input || input[`_persisted_${key}`]) return;
+        const saved = localStorage.getItem(key);
+        if (saved !== null) input.value = saved;
+        input.addEventListener("input", () => localStorage.setItem(key, input.value));
+        input[`_persisted_${key}`] = true;
+    }
+
+   /**
+    * Observe DOM for the target input element and persist once it appears.
+    */    
+    function observeInput(id, key) {
+        new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
+    }    
+
+    document.addEventListener("DOMContentLoaded", () =>
+    persistInput("star-id", "savedStarId"));
+    observeInput("star-id", "savedStarId");
+
+/**
+* Replace occurrences of `{mode}.{from}.` in a string with `{mode}.{to}.`.
+* @param {string} str - The string to modify.
+* @param {string} from - Mode to replace.
+* @param {string} to - Mode to insert.
+* @returns {string} Updated string.
+*/
+function switchModeInString(str, from, to) {
+    return str.replace(new RegExp(`\\{mode\\}\\.${from}\\.`, "g"), `{mode}.${to}.`);
+}
+
+
+
+/**
+ * Set the minimize expression mode and persist to localStorage.
+ * @param {string} mode - Mode to set ("magfit" or "tfa").
+ */
+function setMinimizeMode(mode) {
+    const input = document.getElementById("minimize");
+    if (!input) return;
+    const current = input.value;
+    if (current.includes(`{mode}.${mode}.`)) return;
+    input.value = switchModeInString(current, mode === "magfit" ? "tfa" : "magfit", mode);
+    localStorage.setItem("persistedMinimize", input.value);
+}
+
+
+
+/**
+ * Set the magnitude expression mode in the LC expressions table and persist.
+ * @param {string} mode - Mode to set ("magfit" or "tfa").
+ */
+function setMagnitudeMode(mode) {
+    const table = document.getElementById("lc-expressions");
+    if (!table) return;
+    for (const row of table.querySelectorAll("tr")) {
+        const nameInput = row.querySelector("input[id^='lc-expression-key']");
+        const valueInput = row.querySelector("input[id^='lc-expression-value']");
+        if (nameInput?.value.trim() === "magnitude" && valueInput) {
+            const current = valueInput.value;
+            if (current.includes(`{mode}.${mode}.`)) return;
+            valueInput.value = switchModeInString(current, mode === "magfit" ? "tfa" : "magfit", mode);
+            localStorage.setItem("persistedMagnitude", valueInput.value);
+        }
+    }
+}
+
+
+
+/**
+ * Restore persisted minimize and magnitude values from localStorage into the UI.
+ */
+function restorePersistedConfig() {
+    const min = localStorage.getItem("persistedMinimize");
+    const mag = localStorage.getItem("persistedMagnitude");
+    const minInput = document.getElementById("minimize");
+    if (min && minInput) minInput.value = min;
+    const table = document.getElementById("lc-expressions");
+    if (mag && table) {
+        for (const row of table.querySelectorAll("tr")) {
+            const nameInput = row.querySelector("input[id^='lc-expression-key']");
+            const valueInput = row.querySelector("input[id^='lc-expression-value']");
+            if (nameInput?.value.trim() === "magnitude" && valueInput) {
+                valueInput.value = mag;
+            }
+        }
+    }
+}
+
+
+
+
+/**
+ * Attach click handlers for magfit/tfa mode buttons and restore persisted config.
+ */
+
+function setupMagfitTfaButtons() {
+    restorePersistedConfig();
+    const buttons = {
+        "btn-magfit-minimize": () => setMinimizeMode("magfit"),
+        "btn-tfa-minimize": () => setMinimizeMode("tfa"),
+        "btn-magfit-magnitude": () => setMagnitudeMode("magfit"),
+        "btn-tfa-magnitude": () => setMagnitudeMode("tfa")
+    };
+    for (const [id, handler] of Object.entries(buttons)) {
+        const btn = document.getElementById(id);
+        if (btn) btn.onclick = handler;
+    }
+}
+// Ensure setupMagfitTfaButtons only runs once.
+if (!window.setupMagfitTfaButtonsLoaded) {
+    window.setupMagfitTfaButtonsLoaded = true;
+    document.addEventListener("DOMContentLoaded", setupMagfitTfaButtons);
+}
+
+
+/**
+ * Monkey-patch `showConfig` to call `setupMagfitTfaButtons` after loading config.
+ */
+function patchShowConfig() {
+    if (typeof window.showConfig === "function") {
+    const origShowConfig = window.showConfig;
+    window.showConfig = function (url, parentId, onSuccess) {
+        origShowConfig(url, parentId, () => {
+            // Re-bind magfit/tfa handlers whenever config HTML is (re)loaded
+             if (typeof onSuccess === "function") onSuccess();
+        });
+    };
+}};
+
+
+
+/**
+ * IIFE to persist minimize and magnitude inputs dynamically as they appear.
+ * Uses MutationObservers for dynamic updates.
+ */
+function persistMinimize() {
+        const input = document.getElementById("minimize");
+        if (!input || input._persisted_minimize) return;
+        const saved = localStorage.getItem("persistedMinimize");
+        if (saved !== null) input.value = saved;
+        input.addEventListener("input", () => localStorage.setItem("persistedMinimize", input.value));
+        input._persisted_minimize = true;
+
+}
+function persistMagnitude() {
+    const table = document.getElementById("lc-expressions");
+    if (!table) return;
+    for (const row of table.querySelectorAll("tr")) {
+        const nameInput = row.querySelector("input[id^='lc-expression-key']");
+        const valueInput = row.querySelector("input[id^='lc-expression-value']");
+        if (nameInput?.value.trim() === "magnitude" && valueInput && !valueInput._persisted_magnitude) {
+            const saved = localStorage.getItem("persistedMagnitude");
+            if (saved !== null) valueInput.value = saved;
+            valueInput.addEventListener("input", () => localStorage.setItem("persistedMagnitude", valueInput.value));
+            valueInput._persisted_magnitude = true;
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    persistMinimize();
+    persistMagnitude();
+});
+
+//MutationObserver used to restore persisted values when elements appear dynamically
+new MutationObserver(() => {
+    persistMinimize();
+    persistMagnitude();
+}).observe(document.body, { childList: true, subtree: true });
+
+
+// Function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+/**
+ * Send a POST request to update the figure based on current plotting config.
+ * Parses JSON and calls `updateFigure.callback` if available.
+ * Suppresses alerts for HTML responses (indicating a non-JSON backend response).
+ */
+function updateFigure() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", updateFigure.url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    
+    // Add CSRF token to the request
+    var csrftoken = getCookie('csrftoken');
+    if (csrftoken) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    }
+    
+    xhr.onload = function () {
+        var responseText = xhr.responseText || "";
+        var trimmed = responseText.trim();
+
+        // Check if the response is HTML (more comprehensive check)
+        var isHTML = trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || 
+                     trimmed.startsWith("<HTML") || trimmed.startsWith("<head") || 
+                     trimmed.startsWith("<HEAD") || trimmed.startsWith("<body") || 
+                     trimmed.startsWith("<BODY") || (trimmed.startsWith("<") && trimmed.length > 0);
+
+        if (isHTML) {
+            console.warn("Plot update response was HTML, not JSON. Suppressing alert.");
+            return; // Don't try to parse or alert
+        }
+
+        try {
+            var data = JSON.parse(trimmed);
+            if (typeof updateFigure.callback === "function") {
+                updateFigure.callback(data);
+            }
+        } catch (e) {
+            console.error("Failed to parse plot update JSON:", e, responseText);
+            // Only show alert if it's not an HTML response
+            if (!trimmed.startsWith("<")) {
+                alert("Updating plot failed: " + e);
+            } else {
+                console.warn("Plot update failed to parse JSON, but response was HTML. Suppressing alert.");
+            }
+        }
+    };
+    xhr.onerror = function () {
+        alert("Network error while updating plot.");
+    };
+    xhr.send(JSON.stringify(updateFigure.getParam()));
+}
+
+// Delegated click handlers so magfit/tfa buttons work even when inserted dynamically
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest && e.target.closest("button");
+    if (!btn) return;
+    switch (btn.id) {
+        case "btn-magfit-minimize":
+            if (typeof setMinimizeMode === "function") setMinimizeMode("magfit");
+            break;
+        case "btn-tfa-minimize":
+            if (typeof setMinimizeMode === "function") setMinimizeMode("tfa");
+            break;
+        case "btn-magfit-magnitude":
+            if (typeof setMagnitudeMode === "function") setMagnitudeMode("magfit");
+            break;
+        case "btn-tfa-magnitude":
+            if (typeof setMagnitudeMode === "function") setMagnitudeMode("tfa");
+            break;
+        default:
+            break;
+    }
+});
+
+
