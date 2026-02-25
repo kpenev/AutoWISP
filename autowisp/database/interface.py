@@ -26,6 +26,16 @@ _Session = None  # sessionmaker(db_engine, expire_on_commit=False)
 
 _project_home = None
 
+DB_URL_FNAME = "autowisp_db.url"
+"""
+Filename (relative to project home) where a non-SQLite connection URL is stored.
+
+When a project is initialised with a centralised database (MySQL, MariaDB,
+etc.) the connection URL is written to this file so that subsequent calls to
+:func:`set_project_home` with only the directory path can reconnect without
+requiring the caller to supply the URL again.
+"""
+
 
 def get_db_engine():
     """Return the database engine."""
@@ -61,6 +71,10 @@ def set_project_home(project_home, db_url=None):
     """
     Set the database engine and session for the given project home.
 
+    On first use with a non-SQLite ``db_url`` the URL is persisted to
+    ``<project_home>/autowisp_db.url`` so that subsequent calls with only
+    ``project_home`` reconnect to the same database automatically.
+
     Args:
         project_home:
             Directory used as the project home. For SQLite (the default), the
@@ -70,12 +84,16 @@ def set_project_home(project_home, db_url=None):
             data directory.
 
         db_url:
-            SQLAlchemy connection URL. When omitted (or ``None``) an SQLite
-            database in ``project_home`` is used:
+            SQLAlchemy connection URL. When omitted (or ``None``) the function
+            first checks for a previously saved URL in
+            ``<project_home>/autowisp_db.url``; if none is found it falls back
+            to an SQLite database in ``project_home``:
             ``sqlite:///<project_home>/autowisp.db?timeout=100&uri=true``.
             To connect to a centralised server pass the full URL, e.g.:
             ``"mysql+pymysql://user:password@host:3306/dbname"``
             ``"mariadb+pymysql://user:password@host:3306/dbname"``
+            Passing an explicit URL always takes precedence over any saved URL
+            and overwrites the saved file.
     """
 
     global _db_engine, _Session, _project_home  # pylint: disable=global-statement
@@ -94,6 +112,20 @@ def set_project_home(project_home, db_url=None):
     makedirs(project_home, exist_ok=True)
     _project_home = path.abspath(project_home)
 
+    url_file = path.join(_project_home, DB_URL_FNAME)
+
+    if db_url is not None:
+        assert not path.exists(url_file), (
+            f"Attempting to set a new db_url in {_project_home!r} which already"
+            f" contains {url_file!r}"
+        )
+        # Persist the URL so future calls without db_url reconnect correctly.
+        with open(url_file, "w", encoding="utf-8") as fobj:
+            fobj.write(db_url)
+    elif path.exists(url_file):
+        with open(url_file, encoding="utf-8") as fobj:
+            db_url = fobj.read().strip()
+
     engine_kwargs = {
         "echo": False,
         "pool_pre_ping": True,
@@ -101,8 +133,10 @@ def set_project_home(project_home, db_url=None):
     }
 
     if db_url is None:
-        db_path = path.join(project_home, "autowisp.db")
+        db_path = path.join(_project_home, "autowisp.db")
         db_url = f"sqlite:///{path.abspath(db_path)}?timeout=100&uri=true"
+        engine_kwargs["poolclass"] = NullPool
+    elif db_url.startswith("sqlite"):
         engine_kwargs["poolclass"] = NullPool
 
     _db_engine = create_engine(db_url, **engine_kwargs)
