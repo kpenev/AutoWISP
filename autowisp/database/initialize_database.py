@@ -521,8 +521,8 @@ def _init_diagnostic_types():
                 ),
                 (
                     "photometry_mag_offset",
-                    "The best-fit offset between the measured magnitude and "
-                    "the catalog magnitude.",
+                    "The best-fit offset between the image magnitude and "
+                    "the reference magnitude in magnitude fit.",
                 ),
                 (
                     "mag_fit_num_stars",
