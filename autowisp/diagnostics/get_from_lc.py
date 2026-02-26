@@ -132,13 +132,13 @@ def evaluate_expressions(expressions, lc_eval, photometry_mode):
 
     result = {}
     aperture_indices = lc_eval.lc_substitutions.get("aperture_index", None)
-    print('Aperture indices: ', aperture_indices)
+    print("Aperture indices: ", aperture_indices)
     if aperture_indices is None:
         aperture_indices = count()
     else:
         aperture_indices = [aperture_indices]
     for ap_ind in aperture_indices:
-        lc_eval.update_substitutions({'aperture_index': ap_ind})
+        lc_eval.update_substitutions({"aperture_index": ap_ind})
         try:
             for var_name, var_expr in expressions.items():
                 print(f"Evaluating {var_expr!r} for aperture {ap_ind}")
@@ -173,7 +173,6 @@ def get_sphotref_result(
         sphotref_dset_key = photometry_mode + ".magfit.cfg.single_photref"
 
         lc_eval.lc_points_selection = None
-
 
         lc_eval.update_substitutions({"aperture_index": 0})
         lc_points_selection = lc_eval(
