@@ -12,6 +12,38 @@ from autowisp.fit_expression import iterative_fit
 class LinearMagnitudeFit(MagnitudeFit):
     """Differential photometry correction using linear regression."""
 
+    def _compute_mag_offset(self, phot_fit_results, fit_base, header):
+        """Evaluate the magfit correction at the image centre for a median star.
+
+        Builds a synthetic source whose per-field values are the median of
+        ``fit_base``, then overrides ``x`` and ``y`` with the image centre
+        (``NAXIS1/2``, ``NAXIS2/2``).  The correction is evaluated by dotting
+        the fit coefficients with the resulting predictors, and the median
+        across fit groups is returned.
+        """
+
+        try:
+            center_star = numpy.empty(1, dtype=fit_base.dtype)
+            for field in fit_base.dtype.names:
+                try:
+                    center_star[field] = numpy.nanmedian(
+                        fit_base[field].astype(float)
+                    )
+                except (ValueError, TypeError):
+                    center_star[field] = fit_base[field][0]
+            center_star["x"] = header["NAXIS1"] / 2.0
+            center_star["y"] = header["NAXIS2"] / 2.0
+            center_predictors = self.fit_terms(center_star).flatten()
+
+            corrections = [
+                float(numpy.dot(gr["coefficients"], center_predictors))
+                for gr in phot_fit_results
+                if gr["coefficients"] is not None
+            ]
+            return float(numpy.nanmedian(corrections)) if corrections else None
+        except Exception:  # pylint: disable=broad-except
+            return None
+
     def _fit(self, fit_data):
 
         def get_no_fit_indices(num_photometries):
