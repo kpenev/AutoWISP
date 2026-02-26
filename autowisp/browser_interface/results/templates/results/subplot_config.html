@@ -70,10 +70,10 @@
                 </label>
             </td>
             <td>
-                <input type="checkbox" 
-                       id="include-shapefit" 
-                       name="include-shapefit" 
-                       checked 
+                <input type="checkbox"
+                       id="include-shapefit"
+                       name="include-shapefit"
+                       {% if shapefit_checked %}checked{% endif %}
                        class="param"/>
             </td>
         </tr>
