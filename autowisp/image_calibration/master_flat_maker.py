@@ -428,7 +428,7 @@ class MasterFlatMaker(MasterMaker):
             [frame_list[i] for i in colocated],
         )
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         stamp_statistics_config=None,
@@ -477,7 +477,7 @@ class MasterFlatMaker(MasterMaker):
 
         self._master_large_scale = {}
 
-    def configure_stamp_statistics(
+    def configure_stamp_statistics(  # pylint: disable=too-many-arguments
         self,
         *,
         fraction=None,
@@ -534,7 +534,7 @@ class MasterFlatMaker(MasterMaker):
             assert average in [numpy.nanmean, numpy.nanmedian]
             self.stamp_statistics_config["average"] = average
 
-    def configure_stamp_selection(
+    def configure_stamp_selection(  # pylint: disable=too-many-arguments
         self,
         *,
         max_saturated_fraction=None,
@@ -649,8 +649,7 @@ class MasterFlatMaker(MasterMaker):
 
     # TODO: implement full header documentation.
     # More configuration can be overwritten for master flats.
-    # pylint: disable=arguments-differ
-    def __call__(
+    def __call__(  # pylint: disable=arguments-differ, too-many-arguments
         self,
         frame_list,
         high_master_fname,
@@ -859,5 +858,3 @@ class MasterFlatMaker(MasterMaker):
             )
         self._logger.info(log_msg)
         return success, frames
-
-    # pylint: disable=arguments-differ

@@ -12,6 +12,7 @@ import numpy
 import pandas
 from astropy import units
 from astropy.io import fits
+from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
 from autowisp.evaluator import Evaluator
@@ -27,16 +28,70 @@ _logger = logging.getLogger(__name__)
 # Set timeout for Gaia TAP queries (includes result downloads)
 conf.timeout = 180
 
+
 class WISPGaia(GaiaClass):
     """Extend queries with condition and sorting."""
 
-    def _get_result(self, query, add_propagated, verbose=False):
+    def _get_ra_dec_condition(self, fov, corner_list):
+
+        center_coord = SkyCoord(ra=fov["ra"], dec=fov["dec"])
+        max_corner_separation = None
+        for corner in corner_list:
+            separation = center_coord.separation(
+                SkyCoord(
+                    ra=corner["RA"] * units.deg, dec=corner["Dec"] * units.deg
+                )
+            )
+            if (
+                max_corner_separation is None
+                or separation > max_corner_separation
+            ):
+                max_corner_separation = separation
+        _logger.debug(
+            "Maximum corner separation from center: %s", max_corner_separation
+        )
+
+        center_ra_deg = center_coord.ra.to_value(units.deg)
+
+        dec_min = center_coord.dec.to_value(
+            units.deg
+        ) - max_corner_separation.to_value(units.deg)
+        dec_max = center_coord.dec.to_value(
+            units.deg
+        ) + max_corner_separation.to_value(units.deg)
+        if dec_min < -90:
+            return f"Dec < {dec_max}"
+        if dec_max > 90:
+            return f"Dec > {dec_min}"
+
+        ra_vals = [c["RA"] for c in corner_list]
+        for i in range(2):
+            if ra_vals[i] > center_ra_deg:
+                ra_vals[i] -= 360.0
+        for i in range(2, 4):
+            if ra_vals[i] < center_ra_deg:
+                ra_vals[i] += 360.0
+        assert ra_vals[0] < center_ra_deg
+        assert ra_vals[1] < center_ra_deg
+        assert ra_vals[2] > center_ra_deg
+        assert ra_vals[3] > center_ra_deg
+
+        ra_min, ra_max = min(ra_vals), max(ra_vals)
+        assert ra_max - ra_min < 360.0
+
+        if ra_min > 0 and ra_max < 360:
+            ra_condition = f"RA BETWEEN {ra_min % 360} AND {ra_max % 360}"
+        else:
+            ra_condition = f"(RA >= {ra_min % 360} OR RA <= {ra_max % 360})"
+
+        return f"{ra_condition} AND Dec BETWEEN {dec_min} AND {dec_max}"
+
+    def get_result(self, query, add_propagated, verbose=False):
         """Get and format the result as specified by user."""
 
         job = self.launch_job_async(query, verbose=verbose)
         _logger.debug(
-            "Retrieving async job results with timeout=%d"
-            " seconds...",
+            "Retrieving async job results with timeout=%d seconds...",
             conf.timeout,
         )
         result = job.get_results()
@@ -67,25 +122,10 @@ class WISPGaia(GaiaClass):
 
         return result
 
-    # pylint: disable=too-many-locals
-    def query_object_filtered(
-        self,
-        *,
-        ra,
-        dec,
-        width,
-        height,
-        order_by,
-        condition=None,
-        epoch=None,
-        columns=None,
-        order_dir="ASC",
-        max_objects=None,
-        verbose=False,
-        count_only=False,
-    ):
+    @staticmethod
+    def estimate_fov_corners(ra, dec, width, height):
         """
-        Get GAIA sources within a box satisfying given condition (ADQL).
+        Estimate the corners of a rectangle given a FOV.
 
         Args:
             ra:   The RA of the center of the box to query, with units.
@@ -99,6 +139,45 @@ class WISPGaia(GaiaClass):
             height:    The height of the box (half goes on each side of
                 ``dec``), with units.
 
+
+        """
+
+        corners = numpy.empty(shape=(4,), dtype=[("RA", float), ("Dec", float)])
+        corners_xi_eta = numpy.empty(
+            shape=(4,), dtype=[("xi", float), ("eta", float)]
+        )
+        width = width.to_value(units.deg)
+        height = height.to_value(units.deg)
+        corners_xi_eta[0] = (-width / 2, -height / 2)
+        corners_xi_eta[1] = (-width / 2, height / 2)
+        corners_xi_eta[2] = (width / 2, height / 2)
+        corners_xi_eta[3] = (width / 2, -height / 2)
+
+        inverse_gnomonic_projection(
+            corners,
+            corners_xi_eta,
+            RA=ra.to_value(units.deg),
+            Dec=dec.to_value(units.deg),
+        )
+        return corners
+
+    def query_object_filtered(  # pylint: disable=too-many-arguments, too-many-locals
+        self,
+        *,
+        order_by,
+        condition=None,
+        epoch=None,
+        columns=None,
+        order_dir="ASC",
+        max_objects=None,
+        verbose=False,
+        count_only=False,
+        **fov,
+    ):
+        """
+        Get GAIA sources within a box satisfying given condition (ADQL).
+
+        Args:
             order_by(str):    How should the stars be ordered.
 
             condition(str):    Condition the returned sources must satisfy
@@ -119,6 +198,8 @@ class WISPGaia(GaiaClass):
 
             count_only(bool):    If ``True``, only the number of objects is
                 returned without actually fetching the data.
+
+            fov: Forwarded directly to `estimate_fov_corners()`_
 
         Returns:
             astropy Table:
@@ -149,49 +230,21 @@ class WISPGaia(GaiaClass):
                 f"radial_velocity, ref_epoch, {epoch}) AS propagated, "
             ) + columns
 
-        corners = numpy.empty(shape=(4,), dtype=[("RA", float), ("Dec", float)])
-        corners_xi_eta = numpy.empty(
-            shape=(4,), dtype=[("xi", float), ("eta", float)]
-        )
-        width = width.to_value(units.deg)
-        height = height.to_value(units.deg)
-        corners_xi_eta[0] = (-width / 2, -height / 2)
-        corners_xi_eta[1] = (-width / 2, height / 2)
-        corners_xi_eta[2] = (width / 2, height / 2)
-        corners_xi_eta[3] = (width / 2, -height / 2)
-
-        inverse_gnomonic_projection(
-            corners,
-            corners_xi_eta,
-            RA=ra.to_value(units.deg),
-            Dec=dec.to_value(units.deg),
-        )
-
+        corner_list = self.estimate_fov_corners(**fov)
         table_name = self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE
 
         select = "SELECT"
         if max_objects is not None:
             select += f" TOP {max_objects}"
 
-        ra_vals = [c['RA'] for c in corners]
-        dec_vals = [c['Dec'] for c in corners]
-        ra_min, ra_max = min(ra_vals), max(ra_vals)
-        dec_min, dec_max = min(dec_vals), max(dec_vals)
-
-        dec_condition = f"Dec BETWEEN {dec_min} AND {dec_max}"
-        if (ra_max - ra_min) <= (ra_min + 360.0 - ra_max):
-            ra_condition = f"RA BETWEEN {ra_min} AND {ra_max}"
-        else:
-            ra_condition = f"(RA >= {ra_max} OR RA <= {ra_min})"
-
         query_str = f"""
             {select}
             {columns}
             FROM {table_name}
             WHERE
-                {ra_condition}
+                {self._get_ra_dec_condition(fov, corner_list)}
                 AND
-                {dec_condition}
+                {condition if condition is not None else '1=1'}
                 AND
                 1 = CONTAINS(
                     POINT(
@@ -199,22 +252,17 @@ class WISPGaia(GaiaClass):
                         {self.MAIN_GAIA_TABLE_DEC}
                     ),
                     POLYGON(
-                        {corners[0]['RA']},
-                        {corners[0]['Dec']},
-                        {corners[1]['RA']},
-                        {corners[1]['Dec']},
-                        {corners[2]['RA']},
-                        {corners[2]['Dec']},
-                        {corners[3]['RA']},
-                        {corners[3]['Dec']}
+                        {corner_list[0]['RA']},
+                        {corner_list[0]['Dec']},
+                        {corner_list[1]['RA']},
+                        {corner_list[1]['Dec']},
+                        {corner_list[2]['RA']},
+                        {corner_list[2]['Dec']},
+                        {corner_list[3]['RA']},
+                        {corner_list[3]['Dec']}
                     )
                 )
         """
-        if condition is not None:
-            query_str += f"""
-                AND
-                ({condition})
-            """
 
         if not count_only:
             query_str += f"""
@@ -223,13 +271,11 @@ class WISPGaia(GaiaClass):
                     {order_dir}
             """
 
-        return self._get_result(
+        return self.get_result(
             query_str,
             epoch is not None and not count_only and add_propagated,
             verbose,
         )
-
-    # pylint: enable=too-many-locals
 
     def query_brightness_limited(
         self, *, magnitude_expression, magnitude_limit, **query_kwargs
@@ -302,23 +348,19 @@ gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 # pylint: enable=invalid-name
 
 
-def create_catalog_file(fname, overwrite=False, **query_kwargs):
+def write_query_to_file(query, fname, overwrite, **query_kwargs):
     """
-    Create a catalog FITS file from a Gaia query.
+    Create a catalog file given the results of a Gaia query.
 
     Args:
-        fname(str):    Name of the catalog file to create.
-
-        **query_kwargs:    Arguments passed directly to
-            `gaia.query_brightness_limited()`.
+        See `create_catalog_file()`_
     """
 
-    query = gaia.query_brightness_limited(**query_kwargs)
     if query_kwargs.get("count_only", False):
         print("Number of sources: ", repr(query))
         return
     for colname in [
-        "DESIGNATION",
+        "designation",
         "phot_variable_flag",
         "datalink_url",
         "epoch_photometry_url",
@@ -353,6 +395,27 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
     if path.dirname(fname) and not path.exists(path.dirname(fname)):
         makedirs(path.dirname(fname))
     query.write(fname, format="fits", overwrite=overwrite)
+
+
+def create_catalog_file(fname, overwrite=False, **query_kwargs):
+    """
+    Create a catalog FITS file from a Gaia query.
+
+    Args:
+        fname(str):    Name of the catalog file to create.
+
+        overwrite(bool):    Should overwriting an existing file be allowed?
+
+        **query_kwargs:    Arguments passed directly to
+            `gaia.query_brightness_limited()`.
+    """
+
+    write_query_to_file(
+        gaia.query_brightness_limited(**query_kwargs),
+        fname,
+        overwrite,
+        **query_kwargs,
+    )
 
 
 def read_catalog_file(
@@ -425,7 +488,10 @@ def read_catalog_file(
 def parse_command_line():
     """Return configuration of catalog to create."""
 
-    from configargparse import ArgumentParser, DefaultsFormatter
+    from configargparse import (  # pylint: disable=import-outside-toplevel
+        ArgumentParser,
+        DefaultsFormatter,
+    )
 
     parser = ArgumentParser(
         description="Create a catalog file from a Gaia query.",
@@ -713,9 +779,7 @@ def find_outliers(center_ra_dec, max_allowed_offset):
 
 
 # TODO: Maybe simplify later
-# pylint: disable=too-many-locals
-# pylint: disable=too-many-branches
-def get_max_abs_corner_xi_eta(
+def get_max_abs_corner_xi_eta(  # pylint: disable=too-many-locals, too-many-branches
     header,
     *,
     transformation=None,
@@ -845,11 +909,7 @@ def get_max_abs_corner_xi_eta(
     return result + ((center, outliers) if return_center else ())
 
 
-# pylint: enable=too-many-locals
-# pylint: enable=too-many-branches
-
-
-def get_catalog_info(
+def get_catalog_info(  # pylint: disable=too-many-branches
     *,
     dr_files=None,
     transformation=None,
@@ -992,8 +1052,7 @@ def get_catalog_info(
 
 
 # No god way to simplify
-# pylint: disable=too-many-branches
-def ensure_catalog(
+def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
     *,
     dr_files=None,
     transformation=None,
@@ -1155,9 +1214,6 @@ def ensure_catalog(
         )
 
 
-# pylint: enable=too-many-branches
-
-
 def check_catalog_coverage(
     header, transformation, catalog_header, safety_margin
 ):
@@ -1204,7 +1260,7 @@ def check_catalog_coverage(
 def show_stars(catalog_fname):
     """Show the stars in the catalog on a 3-D plot of the sky."""
 
-    from matplotlib import pyplot
+    from matplotlib import pyplot  # pylint: disable=import-outside-toplevel
 
     phi, theta = numpy.mgrid[
         0.0 : numpy.pi / 2.0 : 10j, 0.0 : 2.0 * numpy.pi : 10j
@@ -1244,7 +1300,7 @@ def show_stars(catalog_fname):
 def main(config):
     """Avoid polluting global namespace."""
 
-    import doctest
+    import doctest  # pylint: disable=import-outside-toplevel
 
     if config.run_doctests:
         doctest.testmod(verbose=config.verbose)
@@ -1268,6 +1324,20 @@ def main(config):
     create_catalog_file(config.catalog_fname, **kwargs)
     if config.show_stars and not config.count_only:
         show_stars(config.catalog_fname)
+
+
+def get_catalog_config(cmdline_args, prefix):
+    """Return the configuration for querrying a catalog per command line."""
+
+    prefix = prefix + "_catalog"
+    result = {
+        "fname" if key == prefix else key[len(prefix) + 1 :]: value
+        for key, value in cmdline_args.items()
+        if key.startswith(prefix)
+    }
+    if "frame_fov_estimate" in cmdline_args:
+        result["frame_fov_estimate"] = cmdline_args["frame_fov_estimate"]
+    return result
 
 
 if __name__ == "__main__":

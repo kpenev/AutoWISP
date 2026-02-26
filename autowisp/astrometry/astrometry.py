@@ -203,7 +203,10 @@ class TempAstrometryFiles:
 
     def __init__(self, file_types=("sources", "corr", "config")):
         """Create all required temporary files."""
-        self._temp_dir_obj = TemporaryDirectory()
+
+        self._temp_dir_obj = (
+            TemporaryDirectory()  # pylint: disable=consider-using-with
+        )
         self.temp_dir_path = self._temp_dir_obj.name
         self._file_types = file_types
 
@@ -362,7 +365,7 @@ def get_initial_corr_local(
     return "solve-field failed", 0
 
 
-def get_initial_corr_web(
+def get_initial_corr_web(  # pylint: disable=too-many-branches
     header, xy_extracted, tweak_order_range, fov_range, api_key
 ):
     """Get initial extracted-to-catalog match via web astrometry.net."""

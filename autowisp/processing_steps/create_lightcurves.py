@@ -124,7 +124,8 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         "--lightcurve-catalog-fname",
-        default="{PROJHOME}/MASTERS/lc_catalog_{FIELD}_{CLRCHNL}_{EXPTIME}.fits",
+        default="{PROJHOME}/MASTERS/"
+        "lc_catalog_{FIELD}_{CLRCHNL}_{EXPTIME}.fits",
         help="The filename of the master catalog to create, possibly with "
         "substitutions from the header of the single photometric reference.",
     )

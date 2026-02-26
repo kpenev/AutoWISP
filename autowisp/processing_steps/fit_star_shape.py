@@ -23,9 +23,8 @@ from autowisp.processing_steps.manual_util import (
     add_image_options,
     read_subpixmap,
     ignore_progress,
-    get_catalog_config,
 )
-from autowisp.catalog import ensure_catalog
+from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.split_sources import SplitSources
 from autowisp.data_reduction.utils import delete_star_shape_fit
 
@@ -397,7 +396,7 @@ class SourceListCreator:
             ),
         )
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         catalog_sources,
@@ -822,9 +821,7 @@ def main():
     """Run the step for fitting star shapes from the command line."""
 
     configuration = parse_command_line()
-    setup_process(
-        task="main", **configuration
-    )
+    setup_process(task="main", **configuration)
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     dr_path_substitutions = get_dr_substitutions(configuration)

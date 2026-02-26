@@ -253,8 +253,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
         self.max_iterations = max_iterations
 
     # The abstract method was deliberately defined wit flexible arguments
-    # pylint: disable=arguments-differ
-    def _apply_smoothing(
+    def _apply_smoothing(  # pylint: disable=arguments-differ, too-many-arguments
         self,
         image,
         *,
@@ -323,9 +322,6 @@ class SeparableLinearImageSmoother(ImageSmoother):
         )[0]
         smooth_image = matrix.dot(fit_coef).reshape(image.shape)
         return smooth_image
-
-    # pylint: enable=arguments-differ
-
 
 class PolynomialImageSmoother(SeparableLinearImageSmoother):
     """

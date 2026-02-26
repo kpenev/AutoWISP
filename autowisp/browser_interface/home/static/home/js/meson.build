@@ -1,4 +1,4 @@
-src = ['create.project.js']
+src = ['create.project.js', 'delete.project.js']
 
 py.install_sources(
     src,

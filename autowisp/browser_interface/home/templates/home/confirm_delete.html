@@ -1,0 +1,72 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}
+Confirm Deletion
+{% endblock header_title %}
+
+{% block app_title %}
+DELETE PROJECTS
+{% endblock app_title %}
+
+{% block processing_link %}
+{% endblock processing_link %}
+
+{% block configuration_link %}
+{% endblock configuration_link %}
+
+{% block edit_survey_link %}
+{% endblock edit_survey_link %}
+
+{% block review_results_link %}
+{% endblock review_results_link %}
+
+{% block home_link %}
+{% endblock home_link %}
+
+{% block left_menu %}
+<input type="submit"
+       value="Delete"
+       form="confirm-delete"
+       class="lcars-element button lcars-chestnut-rose-bg lcars-u-1-2"
+       style="cursor: pointer;"/>
+<a href="{% url 'home:home' %}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Cancel
+    </div>
+</a>
+{% endblock %}
+
+{% block main %}
+<form id="confirm-delete" method="get"
+      action="{% url 'home:delete_projects' %}">
+
+    {% for pid in project_ids %}
+    <input type="hidden" name="project_ids" value="{{ pid }}">
+    {% endfor %}
+
+    <h2>Projects to delete:</h2>
+    <ul>
+        {% for name in project_names %}
+        <li>{{ name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Also delete generated files:</h2>
+    <table class="lcars-table standard-header">
+        <tbody>
+            {% for value, label in file_type_choices %}
+            <tr>
+                <td>
+                    <input type="checkbox" name="file_types"
+                           value="{{ value }}" id="ft-{{ value }}" checked>
+                </td>
+                <td>
+                    <label for="ft-{{ value }}">{{ label }}</label>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+{% endblock main %}

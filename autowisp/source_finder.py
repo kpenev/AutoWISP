@@ -91,7 +91,7 @@ class SourceFinder:
             usemask=False,
         )
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         tool="hatphot",
@@ -145,12 +145,10 @@ class SourceFinder:
             with fits.open(fits_fname) as fits_file:
                 hdu_index = 0 if fits_file[0].header["NAXIS"] else 1
                 image_data = fits_file[hdu_index].data
-                configuration["brightness_threshold"] = (
-                    configuration["brightness_quantile_scale"]
-                    * numpy.quantile(
-                        image_data.flatten(),
-                        configuration["brightness_quantile"]
-                    )
+                configuration["brightness_threshold"] = configuration[
+                    "brightness_quantile_scale"
+                ] * numpy.quantile(
+                    image_data.flatten(), configuration["brightness_quantile"]
                 )
                 logger.info(
                     "Computed brightness_threshold = %.2f from %.3f quantile "

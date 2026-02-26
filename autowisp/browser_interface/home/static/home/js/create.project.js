@@ -59,7 +59,7 @@ function getConfig(fileText) {
         if ( split.length == 2 ) {
             key = split[0].trim();
             value = split[1].trim();
-            if ( key != 'split-channels' ) {
+            if ( key != 'split-channels' && key != 'project-home' ) {
                 configSection.push(split[0].trim() + " = " + split[1].trim());
             }
         }

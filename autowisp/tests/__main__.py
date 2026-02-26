@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from os import path, makedirs
 from shutil import copy
 from sys import argv
+from glob import glob
 
 import unittest
 
@@ -30,6 +31,7 @@ from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
 from autowisp.tests.test_detrending_stat import TestDetrendingStat
+from autowisp.tests.test_catalog import TestCatalog
 
 # pylint: enable=unused-import
 
@@ -42,6 +44,8 @@ if __name__ == "__main__":
         # )
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir, exist_ok=False)
+        print(f"Temp directory contents: {glob(temp_dir + '/*')}")
+
         copy(
             path.join(temp_dir, "test.cfg"),
             path.join(processing_dir, "test.cfg"),

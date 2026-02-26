@@ -74,10 +74,9 @@ def get_tess_lightcurve(tic, sector, provenance="SPOC"):
             for fits_fname in fits_list
         ]
     else:
-        # False positive
-        # pylint: disable=no-member
-        objects = Observations.query_object("TIC" + str(tic), radius=0.001)
-        # pylint: enable=no-member
+        objects = Observations.query_object(  # pylint: disable=no-member
+            "TIC" + str(tic), radius=0.001
+        )
 
         print(f"\tFound {len(objects)} objects:\n{objects!r}")
 

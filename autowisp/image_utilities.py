@@ -233,7 +233,7 @@ def zscale_image(image_data):
     )
 
 
-def create_snapshot(
+def create_snapshot( # pylint: disable=too-many-arguments
     fits_fname,
     snapshot_fname_pattern,
     *,

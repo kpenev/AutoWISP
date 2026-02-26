@@ -222,8 +222,7 @@ class MasterPhotrefCollector:
         return statistics[count_col] > min_counts[None, :]
 
     # Can't simplify further
-    # pylint: disable=too-many-locals
-    def _fit_scatter(
+    def _fit_scatter(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         statistics,
         fit_terms_expression,
@@ -309,9 +308,7 @@ class MasterPhotrefCollector:
             ) - numpy.dot(coefficients, predictors)
         return residuals
 
-    # pylint: enable=too-many-locals
-
-    def _create_reference(
+    def _create_reference( # pylint: disable=too-many-arguments
         self,
         statistics,
         residual_scatter,
@@ -468,7 +465,6 @@ class MasterPhotrefCollector:
         statistics_fname,
         num_photometries,
         num_frames,
-        temp_directory,
         **config,
     ):
         """
@@ -603,13 +599,12 @@ class MasterPhotrefCollector:
             self._logger.debug("Finished adding fit data.")
 
     # TODO: Add support for scatter cut based on quantile of fit residuals.
-    def generate_master(
+    def generate_master( # pylint: disable=too-many-arguments
         self,
         *,
         master_reference_fname,
         catalog,
         fit_terms_expression,
-        parse_source_id,
         min_nobs_median_fraction=0.5,
         fit_outlier_average="median",
         fit_outlier_threshold=3.0,

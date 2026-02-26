@@ -171,7 +171,7 @@ def get_center_zenith_distance(header, astrometry, config):
     return 90.0 - altitude
 
 
-def get_center_background(
+def get_center_background(  # pylint: disable=too-many-arguments
     dr_file,
     header,
     fit_terms_expression,
@@ -309,9 +309,7 @@ def calculate_photref_merit(dr_filenames, config):
 
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
     _logger.info(
         "Merit info:\n%s",
         repr(

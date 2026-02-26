@@ -16,7 +16,6 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
-    get_catalog_config,
 )
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.astrometry import (
@@ -24,7 +23,11 @@ from autowisp.astrometry import (
     refine_transformation,
     Transformation,
 )
-from autowisp.catalog import ensure_catalog, check_catalog_coverage
+from autowisp.catalog import (
+    ensure_catalog,
+    check_catalog_coverage,
+    get_catalog_config,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
 
@@ -48,11 +51,16 @@ def add_anet_cmdline_args(parser):
         "--anet-indices",
         nargs=2,
         default=(
-            rf"C:\Users\{getpass.getuser()}\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\narrow",
-            rf"C:\Users\{getpass.getuser()}\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\wide",
-        )
-        if os.name == "nt"
-        else ("/data/anet_indices/narrow", "/data/anet_indices/wide"),
+            (
+                rf"C:\Users\{getpass.getuser()}"
+                rf"\AppData\Local\cygwin_ansvr"
+                rf"\usr\share\astrometry\data\narrow",
+                rf"C:\Users\{getpass.getuser()}"
+                rf"\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\wide",
+            )
+            if os.name == "nt"
+            else ("/data/anet_indices/narrow", "/data/anet_indices/wide")
+        ),
         help="Full paths to the narrow and wide astometry.net index files. If "
         "these directories are not found, the web solver is used instead.",
     )
@@ -212,7 +220,7 @@ def print_file_contents(fname, label):
     print(80 * "-")
 
 
-def save_trans_to_dr(
+def save_trans_to_dr(  # pylint: disable=too-many-arguments
     *,
     trans_x,
     trans_y,
@@ -280,7 +288,7 @@ def save_trans_to_dr(
 
 
 # TODO: Add catalog query configuration to DR
-def save_to_dr(
+def save_to_dr(  # pylint: disable=too-many-arguments
     *,
     cat_extracted_corr,
     trans_x,
@@ -460,8 +468,7 @@ def get_xy_extracted(dr_file, srcextract_version):
     return xy_extracted
 
 
-# pylint: disable=too-many-locals
-def solve_image(
+def solve_image(  # pylint: disable=too-many-locals
     dr_fname,
     transformation_estimate=None,
     *,
@@ -659,10 +666,7 @@ def solve_image(
     return result
 
 
-# pylint: enable=too-many-locals
-
-
-def astrometry_process(
+def astrometry_process(  # pylint: disable=too-many-arguments
     task_queue,
     result_queue,
     *,
@@ -882,9 +886,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     solve_astrometry(
         list(

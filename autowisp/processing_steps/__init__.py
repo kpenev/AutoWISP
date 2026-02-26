@@ -11,7 +11,13 @@ def import_steps():
     """Import all configuration steps."""
 
     steps = filter(
-        lambda step_name: step_name not in ["__init__"],
+        lambda step_name: step_name
+        not in [
+            "__init__",
+            "manual_util",
+            "lc_detrending",
+            "lc_detrending_argument_parser",
+        ],
         (
             basename(step_path)[:-3]
             for step_path in glob(join(dirname(__file__), "*.py"))

@@ -9,6 +9,16 @@ app_name = "home"
 urlpatterns = [
     path("", views.home, name="home"),
     path(
+        "confirm_delete_projects",
+        views.confirm_delete_projects,
+        name="confirm_delete_projects",
+    ),
+    path(
+        "delete_projects",
+        views.delete_projects,
+        name="delete_projects",
+    ),
+    path(
         "new_project",
         views.CreateProjectView.as_view(),
         name="new_project",

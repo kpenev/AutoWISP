@@ -13,11 +13,10 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp import magnitude_fitting
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
-from autowisp.catalog import ensure_catalog
+from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
-    get_catalog_config,
 )
 from autowisp.database.interface import start_db_session
 
@@ -360,7 +359,7 @@ def clean_dr(dr_fname, dr_substitutions):
                 aperture_index=aperture_index,
                 **dr_substitutions,
             ):
-                print(f'No aperture photometry for aperture {aperture_index}')
+                print(f"No aperture photometry for aperture {aperture_index}")
                 break
             dr_file.delete_dataset(
                 "apphot.magfit.magnitude",
@@ -444,9 +443,7 @@ def main():
     """Run the step from command line."""
 
     configuration = parse_command_line()
-    setup_process(
-        task="main", **configuration
-    )
+    setup_process(task="main", **configuration)
 
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r+"

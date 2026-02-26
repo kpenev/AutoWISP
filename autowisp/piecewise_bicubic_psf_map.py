@@ -27,8 +27,7 @@ class PiecewiseBicubicPSFMap:
 
     # TODO: Info on PSF vs PRF should be saved to DR file
     # Breaking up seems to make things worse
-    # pylint: disable=too-many-locals
-    def fit(
+    def fit( # pylint: disable=too-many-locals, too-many-arguments
         self,
         fits_fnames,
         sources,
@@ -168,8 +167,6 @@ class PiecewiseBicubicPSFMap:
                         image_index=image_index,
                         **dr_path_substitutions,
                     )
-
-    # pylint: enable=too-many-locals
 
     def load(self, dr_fname, return_sources=False, **dr_path_substitutions):
         """Read the PSF/PRF map from the given data reduction file."""
