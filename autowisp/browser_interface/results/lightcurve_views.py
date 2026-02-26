@@ -58,7 +58,7 @@ def _init_session(request):
                     "nanmedian({mode}.tfa.magnitude)))"
                 ),
                 "photometry_modes": ["apphot"],
-                "selection": None,
+                "selection": True,
                 "model": None,
                 "expressions": {
                     "magnitude": (
@@ -471,6 +471,12 @@ def _update_plotting_info(plotting_session, updates):
     if "subplot" in updates:
         update_subplot(plotting_session, updates["subplot"])
         modified_session = True
+    print(
+        80 * "*"
+        + "\nUpdated plotting session: "
+        + repr(plotting_session)
+        + 80 * "*"
+    )
     return modified_session
 
 
