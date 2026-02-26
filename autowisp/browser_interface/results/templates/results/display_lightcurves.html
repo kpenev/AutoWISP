@@ -41,7 +41,7 @@ Preview Lightcurves
             button
             lcars-husk-bg
             horizontal
-            lcars-u-1">
+            lcars-u-2">
     Apply
 </div>
 <div class="lcars-bar horizontal spacer"></div>
@@ -50,8 +50,17 @@ Preview Lightcurves
             button
             lcars-melrose-bg
             horizontal
-            lcars-u-1">
+            lcars-u-2">
     Figure Config.
+</div>
+<div class="lcars-bar horizontal spacer"></div>
+<div id="open-config"
+     class="lcars-bar
+            button
+            lcars-melrose-bg
+            horizontal
+            lcars-u-2">
+    Open Config
 </div>
 {% endblock header_bar_extra %}
 
@@ -103,10 +112,11 @@ Preview Lightcurves
 {% url 'results:edit_rcparams' as rcParamsURL%}
 {% url 'results:edit_model' model_type='m' data_select_index=0 as editModelURL %}
 <script type="text/javascript">
-    initLightcurveDisplay({update: "{{ updateURL }}", 
+    initLightcurveDisplay({update: "{{ updateURL }}",
                            subplot: "{{ editSubPlotURL }}",
                            rcParams: "{{ rcParamsURL }}",
-                           editModel: "{{ editModelURL }}"});
+                           editModel: "{{ editModelURL }}",
+                           apertureIndex: "{{ aperture_index }}"});
 </script> 
 {% endblock main %}
 
