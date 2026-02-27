@@ -134,10 +134,10 @@ def set_project_home(project_home, db_url=None):
 
     if db_url is None:
         db_path = path.join(_project_home, "autowisp.db")
-        db_url = f"sqlite:///{path.abspath(db_path)}?timeout=100&uri=true"
+        db_url = f"sqlite:///{path.abspath(db_path)}?timeout=600&uri=true"
+    if db_url.startswith("sqlite"):
         engine_kwargs["poolclass"] = NullPool
-    elif db_url.startswith("sqlite"):
-        engine_kwargs["poolclass"] = NullPool
+        engine_kwargs["connect_args"] = {"timeout": 600}
 
     _db_engine = create_engine(db_url, **engine_kwargs)
     _Session = sessionmaker(_db_engine, expire_on_commit=False)
