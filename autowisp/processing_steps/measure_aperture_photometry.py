@@ -245,7 +245,7 @@ def main():
     cmdline_config = parse_command_line()
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
-    setup_process_map(cmdline_config,)
+    setup_process_map(cmdline_config)
 
 
     del cmdline_config["task"]

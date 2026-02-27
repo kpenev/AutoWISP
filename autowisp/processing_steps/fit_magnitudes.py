@@ -322,7 +322,7 @@ def delete_master(filename, master_type):
             )
             == 0
             # pylint: enable=not-callable
-        )
+        ), f"Master {filename} already registered in the database."
 
     if os.path.exists(filename):
         _logger.warning(
@@ -347,25 +347,31 @@ def clean_dr(dr_fname, dr_substitutions):
     """Remove a magfit iteration from the given DR file."""
 
     _logger.warning(
-        "Deleting magfit iteration %d from '%s'!",
+        "Deleting magfit iteration %d from '%s', substitutions: %s!",
         dr_substitutions["magfit_iteration"],
         dr_fname,
+        dr_substitutions,
     )
     with DataReductionFile(dr_fname, "r+") as dr_file:
         dr_file.delete_dataset("shapefit.magfit.magnitude", **dr_substitutions)
         for aperture_index in count():
-            if not dr_file.check_for_dataset(
-                "apphot.magnitude",
-                aperture_index=aperture_index,
-                **dr_substitutions,
-            ):
-                print(f"No aperture photometry for aperture {aperture_index}")
+            try:
+                dr_file.check_for_dataset(
+                    "apphot.magnitude",
+                    aperture_index=aperture_index,
+                    **dr_substitutions,
+                )
+                dr_file.delete_dataset(
+                    "apphot.magfit.magnitude",
+                    aperture_index=aperture_index,
+                    **dr_substitutions,
+                )
+            except IOError:
+                print(
+                    f"No aperture photometry for aperture {aperture_index}, "
+                    f"substitutions: {dr_substitutions}"
+                )
                 break
-            dr_file.delete_dataset(
-                "apphot.magfit.magnitude",
-                aperture_index=aperture_index,
-                **dr_substitutions,
-            )
 
 
 def cleanup_interrupted(interrupted, configuration):
