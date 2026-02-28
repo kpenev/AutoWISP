@@ -832,9 +832,14 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_path in self:
             self._add_repack_dataset(dataset_path)
-            print(f'Deleting {dataset_path} from {self.filename}')
+            print(f"Deleting {dataset_path} from {self.filename}")
             del self[dataset_path]
             return True
+
+        print(
+            f"Target dataset {dataset_path!r} not found in {self.filename} "
+            "skipping deletion."
+        )
 
         return False
 
@@ -1097,7 +1102,7 @@ class HDF5File(ABC, h5py.File):
         data_copy[numpy.logical_not(finite)] = replace_nonfinite
         return data_copy
 
-    def add_dataset( #pylint: disable=too-many-arguments
+    def add_dataset(  # pylint: disable=too-many-arguments
         self,
         dataset_key,
         data,
