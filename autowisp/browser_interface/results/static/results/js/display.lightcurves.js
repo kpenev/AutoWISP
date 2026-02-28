@@ -652,9 +652,11 @@ class plotCurvesType {
                 const valueElement = document.getElementById(
                     keyElement.id.replace("-key-", "-value-")
                 );
-                if (load)
-                    valueElement.value = target[keyElement.value];
-                else {
+                if (load) {
+                    const loadedValue = target[keyElement.value];
+                    if (loadedValue !== undefined)
+                        valueElement.value = loadedValue;
+                } else {
                     if (keyElement.value == "magfit_iteration") 
                         target[keyElement.value] = parseInt(valueElement.value);
                     else
@@ -773,13 +775,27 @@ function addNewParam(param_group) {
         .getElementsByTagName("tbody")[0];
     const lastRow = expressionsParent.lastElementChild.previousElementSibling;
     const newRow = lastRow.cloneNode(true);
-    for (input of newRow.getElementsByTagName("input")) {
+    const newInputs = [];
+    for (const input of newRow.getElementsByTagName("input")) {
         const lastDashPos = input.id.lastIndexOf("-");
         const counter = parseInt(input.id.slice(lastDashPos + 1)) + 1;
         input.id = input.id.slice(0, lastDashPos + 1) + counter;
         input.value = "";
+        newInputs.push(input);
     }
     lastRow.after(newRow);
+
+    function tryApply() {
+        if (newInputs.every(inp => inp.value.trim() !== "")) {
+            newInputs[0].dispatchEvent(new Event("change", { bubbles: true }));
+            updateFigure();
+        }
+    }
+
+    for (const inp of newInputs) {
+        inp.addEventListener("blur", tryApply);
+        inp.addEventListener("keydown", e => { if (e.key === "Enter") tryApply(); });
+    }
 }
 
 function handleLCParamChange(event) {
@@ -799,8 +815,8 @@ function handleLCParamChange(event) {
                     updateElement.lastElementChild
                 )
             );
-        } else 
-            addElement = updateElement.appendChild;
+        } else
+            addElement = (opt) => updateElement.appendChild(opt);
         if (changeInd < numExpressions ) {
             updateElement.children[changeInd].value = event.target.value;
             updateElement.children[changeInd].textContent =
