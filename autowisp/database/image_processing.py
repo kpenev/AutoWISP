@@ -857,6 +857,14 @@ class ImageProcessingManager(ProcessingManager):
                     self._save_photometry_diagnostics(
                         finished_id, photometry_diagnostics, db_session
                     )
+                if self.current_step.name == "find_stars" and status >= 0:
+                    dr_fname = self._evaluated_expressions[
+                        finished_id["image_id"]
+                    ][finished_id["channel"]]["dr"]
+                    image = db_session.get(Image, finished_id["image_id"])
+                    if image is not None and image.observing_session is not None:
+                        with DataReductionFile(dr_fname) as dr_file:
+                            dr_file.add_provenance(image.observing_session)
                 db_session.execute(
                     update(ProcessedImages)
                     .where(ProcessedImages.image_id == finished_id["image_id"])
