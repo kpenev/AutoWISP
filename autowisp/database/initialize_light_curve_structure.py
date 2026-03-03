@@ -143,90 +143,6 @@ def _get_frame_datasets():
                 "The filename of the RAW image that contributed this "
                 "datapoint in the light curve.",
             ),
-            (
-                "FOCUS",
-                "FocusSetting",
-                "numpy.float64",
-                _default_nonfinite,
-                "The focus setting of the telescope for this observation.",
-            ),
-            (
-                "WIND",
-                "WindSpeed",
-                "numpy.float64",
-                _default_nonfinite,
-                "The wind speed in m/s",
-            ),
-            (
-                "WINDDIR",
-                "WindDirection",
-                "numpy.float64",
-                _default_nonfinite,
-                "Wind direction [degrees] reported for this observation.",
-            ),
-            (
-                "AIRPRESS",
-                "AirPressure",
-                "numpy.float64",
-                _default_nonfinite,
-                "Air pressure [Pa] for this observation.",
-            ),
-            (
-                "AIRTEMP",
-                "AirTemperature",
-                "numpy.float64",
-                _default_nonfinite,
-                "Air temperature [C]",
-            ),
-            (
-                "HUMIDITY",
-                "Humidity",
-                "numpy.float64",
-                _default_nonfinite,
-                "Relative humidity [%]",
-            ),
-            (
-                "DEWPT",
-                "DewPoint",
-                "numpy.float64",
-                _default_nonfinite,
-                "Dew point [C]",
-            ),
-            (
-                "SUNDIST",
-                "SunDistance",
-                "numpy.float64",
-                _default_nonfinite,
-                "Distance from Sun [deg] (frame center)",
-            ),
-            (
-                "SUNELEV",
-                "SunElevation",
-                "numpy.float64",
-                _default_nonfinite,
-                "Elevation of Sun [deg]",
-            ),
-            (
-                "MOONDIST",
-                "MoonDistance",
-                "numpy.float64",
-                _default_nonfinite,
-                "Distance from Moon [deg] (frame center)",
-            ),
-            (
-                "MOONPH",
-                "MoonPhase",
-                "numpy.float64",
-                _default_nonfinite,
-                "Phase of Moon",
-            ),
-            (
-                "MOONELEV",
-                "MoonElevation",
-                "numpy.float64",
-                _default_nonfinite,
-                "Elevation of Moon [deg]",
-            ),
         ]:
             args = {
                 "pipeline_key": "fitsheader." + keyword.lower(),
@@ -251,11 +167,11 @@ def _get_frame_datasets():
         result = []
         for keyword, dset_name, dtype, scaleoffset, description in [
             (
-                "STID",
-                "StationID",
-                "numpy.uint",
+                "EXPTIME",
+                "ExposureTime",
+                "numpy.float64",
                 None,
-                "ID of station that took this observation.",
+                "The exposure time of the image contributing this datapoint.",
             ),
             (
                 "CLRCHNL",
@@ -265,102 +181,32 @@ def _get_frame_datasets():
                 "The color of the channel contributing this datapoint.",
             ),
             (
-                "SITEID",
-                "SiteID",
+                "CHNLXOFF",
+                "ChannelXOffset",
                 "numpy.uint",
                 None,
-                "ID of the site where this observation took place.",
+                "X pixel offset of channel in staggered image.",
             ),
             (
-                "SITELAT",
-                "SiteLatitude",
-                "numpy.float64",
-                6,
-                "Observing site latitude [deg].",
-            ),
-            (
-                "SITELONG",
-                "SiteLongitude",
-                "numpy.float64",
-                6,
-                "Observing site longitude [deg].",
-            ),
-            (
-                "SITEALT",
-                "SiteALtitude",
-                "numpy.float64",
-                3,
-                "Observing site altitude above sea level [m].",
-            ),
-            (
-                "MTID",
-                "MountID",
+                "CHNLYOFF",
+                "ChannelYOffset",
                 "numpy.uint",
                 None,
-                "ID of the mount used for this observing session.",
+                "Y pixel offset of channel in staggered image.",
             ),
             (
-                "MTVER",
-                "MountVersion",
+                "CHNLXSTP",
+                "ChannelXStep",
                 "numpy.uint",
                 None,
-                "Version of the mount used for this observing session.",
+                "X pixel stride of channel.",
             ),
             (
-                "CMID",
-                "CameraID",
+                "CHNLYSTP",
+                "ChannelYStep",
                 "numpy.uint",
                 None,
-                "ID of the camera used for this observing session.",
-            ),
-            (
-                "CMVER",
-                "CameraVersion",
-                "numpy.uint",
-                None,
-                "Version of the camera used for this observing session,",
-            ),
-            (
-                "TELID",
-                "TelescopeID",
-                "numpy.uint",
-                None,
-                "ID of the telescopes used for this observing session.",
-            ),
-            (
-                "TELVER",
-                "TelescopeVersion",
-                "numpy.uint",
-                None,
-                "Version of the telescopes used for this observing session.",
-            ),
-            (
-                "MNTSTATE",
-                "PSFBroadeningPattern",
-                "numpy.string_",
-                None,
-                "The PSF broadening pattern followed during exposure.",
-            ),
-            (
-                "PROJID",
-                "ProjectID",
-                "numpy.uint",
-                None,
-                "ID of the project this observing session is part of.",
-            ),
-            (
-                "NRACA",
-                "TargetedRA",
-                "numpy.float64",
-                3,
-                "Nominal RA of midexpo [hr] (averaged field center)",
-            ),
-            (
-                "NDECCA",
-                "TargetedDec",
-                "numpy.float64",
-                3,
-                "Nominal Dec of midexpo [hr] (averaged field center)",
+                "Y pixel stride of channel.",
             ),
         ]:
             args = {
@@ -403,6 +249,7 @@ def transform_dr_to_lc_path(pipeline_key, dr_path):
             r"/MagnitudeFitting/Iteration%\(magfit_iteration\)03d",
             "/MagnitudeFitting",
         ),
+        ("/Provenance", "/FrameInformation"),
     ]:
         result = re.sub(dr_string, lc_string, result)
 
@@ -500,6 +347,19 @@ def _get_data_reduction_attribute_datasets(db_session):
         ("catalogue.cfg.name", None, True),
         ("catalogue.cfg.fov", None, False),
         ("catalogue.cfg.epoch", None, False),
+        ("provenance.cfg.camera.serial", None, True),
+        ("provenance.cfg.camera.make", None, True),
+        ("provenance.cfg.camera.model", None, True),
+        ("provenance.cfg.mount.serial", None, True),
+        ("provenance.cfg.mount.make", None, True),
+        ("provenance.cfg.mount.model", None, True),
+        ("provenance.cfg.telescope.serial", None, True),
+        ("provenance.cfg.telescope.make", None, True),
+        ("provenance.cfg.telescope.model", None, True),
+        ("provenance.cfg.observatory.latitude", 6, True),
+        ("provenance.cfg.observatory.longitude", 6, True),
+        ("provenance.cfg.observatory.altitude", 2, True),
+        ("provenance.cfg.observer.name", None, True),
     ]:
         dr_attribute = (
             db_session.query(HDF5Attribute)
@@ -675,8 +535,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     compression_options=magfit_dset.compression_options,
                     replace_nonfinite=magfit_dset.replace_nonfinite,
                     description=(
-                        f"The {mode} corrected magnitude "
-                        "fitted magnitudes."
+                        f"The {mode} corrected magnitude " "fitted magnitudes."
                     ),
                 ),
                 HDF5DataSet(
