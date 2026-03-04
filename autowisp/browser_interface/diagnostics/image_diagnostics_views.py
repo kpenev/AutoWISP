@@ -363,8 +363,8 @@ def create_image_diagnostics_figure(
             series, diagnostic_name, db_session
         )
         jd_values = numpy.atleast_1d(jd_values)
-        min_jd = min(min_jd, numpy.nanmin(jd_values))
-        if jd_values:
+        if jd_values.size:
+            min_jd = min(min_jd, numpy.nanmin(jd_values))
             series_data.append((series, jd_values, diag_values))
 
     groups = group_series_by_jd_overlap(series_data)
