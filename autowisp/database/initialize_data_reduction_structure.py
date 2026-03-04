@@ -1341,6 +1341,27 @@ def _get_provenance_attributes():
             description="Name of the observer or organisation responsible "
             "for acquiring the image.",
         ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.target.name",
+            parent=parent,
+            name="TargetName",
+            dtype="numpy.string_",
+            description="The name of the target field being observed.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.target.ra",
+            parent=parent,
+            name="TargetRA",
+            dtype="numpy.float64",
+            description="Right ascension of the target in degrees (J2000).",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.target.dec",
+            parent=parent,
+            name="TargetDec",
+            dtype="numpy.float64",
+            description="Declination of the target in degrees (J2000).",
+        ),
     ]
 
 

@@ -401,6 +401,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             entries += [
                 ("provenance.cfg.observer.name", who.name),
             ]
+        tgt = observing_session.target
+        if tgt is not None:
+            entries += [
+                ("provenance.cfg.target.name", tgt.name),
+                ("provenance.cfg.target.ra", tgt.ra),
+                ("provenance.cfg.target.dec", tgt.dec),
+            ]
 
         for key, value in entries:
             if value is not None:

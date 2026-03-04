@@ -710,7 +710,7 @@ class ImageProcessingManager(ProcessingManager):
             )
             if diag_type_id is None:
                 if diag_name.startswith("pixel_q"):
-                    quantile_digits = diag_name[len("pixel_q"):]
+                    quantile_digits = diag_name[len("pixel_q") :]
                     new_type = DiagnosticType(
                         name=diag_name,
                         description=(
@@ -722,9 +722,7 @@ class ImageProcessingManager(ProcessingManager):
                     db_session.flush()
                     diag_type_id = new_type.id
                 else:
-                    raise ValueError(
-                        f"Unknown diagnostic type {diag_name!r}"
-                    )
+                    raise ValueError(f"Unknown diagnostic type {diag_name!r}")
             db_session.add(
                 ImageDiagnostics(
                     image_id=finished_id["image_id"],
@@ -766,16 +764,12 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
             if diag_type_id is None:
-                raise ValueError(
-                    f"Unknown diagnostic type {diag_name!r}"
-                )
+                raise ValueError(f"Unknown diagnostic type {diag_name!r}")
 
             existing_id = db_session.scalar(
                 select(PhotometryDiagnostics.id).where(
-                    PhotometryDiagnostics.image_id
-                    == finished_id["image_id"],
-                    PhotometryDiagnostics.channel
-                    == finished_id["channel"],
+                    PhotometryDiagnostics.image_id == finished_id["image_id"],
+                    PhotometryDiagnostics.channel == finished_id["channel"],
                     PhotometryDiagnostics.photometry_id == phot_id,
                     PhotometryDiagnostics.diagnostic_id == diag_type_id,
                 )
@@ -844,9 +838,7 @@ class ImageProcessingManager(ProcessingManager):
             for finished_id in self._processed_ids[input_fname]:
                 if diagnostics:
                     if isinstance(diagnostics, dict):
-                        channel_diags = diagnostics.get(
-                            finished_id["channel"]
-                        )
+                        channel_diags = diagnostics.get(finished_id["channel"])
                     else:
                         channel_diags = diagnostics
                     if channel_diags:
@@ -862,8 +854,11 @@ class ImageProcessingManager(ProcessingManager):
                         finished_id["image_id"]
                     ][finished_id["channel"]]["dr"]
                     image = db_session.get(Image, finished_id["image_id"])
-                    if image is not None and image.observing_session is not None:
-                        with DataReductionFile(dr_fname) as dr_file:
+                    if (
+                        image is not None
+                        and image.observing_session is not None
+                    ):
+                        with DataReductionFile(dr_fname, mode="r+") as dr_file:
                             dr_file.add_provenance(image.observing_session)
                 db_session.execute(
                     update(ProcessedImages)

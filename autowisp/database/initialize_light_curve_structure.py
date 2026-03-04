@@ -360,6 +360,9 @@ def _get_data_reduction_attribute_datasets(db_session):
         ("provenance.cfg.observatory.longitude", 6, True),
         ("provenance.cfg.observatory.altitude", 2, True),
         ("provenance.cfg.observer.name", None, True),
+        ("provenance.cfg.target.name", None, True),
+        ("provenance.cfg.target.ra", 6, True),
+        ("provenance.cfg.target.dec", 6, True),
     ]:
         dr_attribute = (
             db_session.query(HDF5Attribute)
