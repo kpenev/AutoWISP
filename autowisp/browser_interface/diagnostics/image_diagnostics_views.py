@@ -245,7 +245,7 @@ def group_series_by_jd_overlap(series_data):
     group_ranges = []
     for entry in series_data:
         jd_values = entry[1]
-        if not jd_values:
+        if not jd_values.size:
             continue
         jd_min = min(jd_values)
         jd_max = max(jd_values)
