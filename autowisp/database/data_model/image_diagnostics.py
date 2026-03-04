@@ -3,7 +3,7 @@
 from sqlalchemy import (
     Column,
     Integer,
-    Float,
+    Double,
     String,
     ForeignKey,
     Index,
@@ -60,7 +60,7 @@ class ImageDiagnosticBase(DataModelBase):
         doc="The diagnostic this value corresponds to.",
     )
     value = Column(
-        Float,
+        Double,
         nullable=False,
         doc="The value of the diagnostic for this image and channel.",
     )
