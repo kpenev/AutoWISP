@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
+from autowisp.database.interface import get_project_home
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.run_pipeline import main as run_pipeline
 
@@ -56,7 +57,7 @@ class SelectRawImages(WalkFSView):
         try:
             run_pipeline(
                 Namespace(
-                    project_home=request.session["project_home"],
+                    project_home=get_project_home(),
                     add_raw_images=image_list,
                     steps=[],
                 )

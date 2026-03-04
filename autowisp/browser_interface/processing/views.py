@@ -12,6 +12,7 @@ import platformdirs
 # from django.template import loader
 
 from autowisp import run_pipeline
+from autowisp.database.interface import get_project_home
 
 # This module should collect all views
 # pylint: disable=unused-import
@@ -38,7 +39,7 @@ def start_processing(request):
     cmd = [
         executable,
         run_pipeline.__file__,
-        request.session["project_home"],
+        get_project_home(),
     ]
     # We don't want processing to stop when this goes out of scope.
     # pylint: disable=consider-using-with
