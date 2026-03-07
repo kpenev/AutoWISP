@@ -120,6 +120,10 @@ master_info = {
 
 
 step_dependencies = [
+    # Each entry: (step_name, image_type, dependencies)
+    # Each dependency: (blocking_step, blocking_imtype) or
+    #                  (blocking_step, blocking_imtype, allow_pending)
+    # allow_pending defaults to False when omitted.
     ("add_images_to_db", None, []),
     ("calibrate", "zero", []),
     ("stack_to_master", "zero", [("calibrate", "zero")]),
@@ -174,7 +178,7 @@ step_dependencies = [
             ("solve_astrometry", "object"),
             ("fit_star_shape", "object"),
             ("measure_aperture_photometry", "object"),
-            ("fit_magnitudes", "object"),
+            ("fit_magnitudes", "object", True),
             ("fit_source_extracted_psf_map", "object"),
         ],
     ),
@@ -192,7 +196,7 @@ step_dependencies = [
     (
         "epd",
         "object",
-        [("create_lightcurves", "object"), ("fit_magnitudes", "object")],
+        [("create_lightcurves", "object"), ("fit_magnitudes", "object", True)],
     ),
     (
         "generate_epd_statistics",
@@ -206,7 +210,7 @@ step_dependencies = [
             ("epd", "object"),
             ("generate_epd_statistics", "object"),
             ("create_lightcurves", "object"),
-            ("fit_magnitudes", "object"),
+            ("fit_magnitudes", "object", True),
         ],
     ),
     (

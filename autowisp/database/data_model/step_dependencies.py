@@ -1,6 +1,6 @@
 """Define class to specify dependencies between steps."""
 
-from sqlalchemy import Column, Integer, ForeignKey, Index
+from sqlalchemy import Column, Integer, ForeignKey, Index, Boolean
 
 from sqlalchemy.orm import relationship
 
@@ -35,6 +35,16 @@ class StepDependencies(DataModelBase):
         ForeignKey("image_type.id"),
         doc="The image type for which the prerequisite step must be completed.",
     )
+    allow_pending = Column(
+        Boolean,
+        default=False,
+        doc="If True and blocked_image_type and blocking_image_type are the "
+        "same the blocked step can proceed for any images for which the "
+        "blocking step is complete. Otherwise the presence of any images of "
+        "the blocking type for which the blocking step is not complete prevents"
+        " the blocked step from proceeding for the blocked image type."
+    )
+
 
     __table_args__ = (
         Index(
