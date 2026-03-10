@@ -403,6 +403,7 @@ class ImageProcessingManager(ProcessingManager):
                     StepDependencies.blocked_step_id == step_id,
                     StepDependencies.blocked_image_type_id == image_type_id,
                     StepDependencies.blocking_image_type_id == image_type_id,
+                    StepDependencies.allow_pending.is_not(True),
                 )
             ):
                 if from_step_id is not None and prereq_step_id != from_step_id:
@@ -432,6 +433,69 @@ class ImageProcessingManager(ProcessingManager):
 
         return dropped
 
+    def _require_blocking_complete(self, query, step, image_type, db_session):
+        """
+        Restrict query to images where allow_pending blocking steps are done.
+
+        For same-type dependencies marked allow_pending=True, inner-join the
+        query so only images for which the blocking step has successfully
+        completed are included. Images where the blocking step is pending or
+        in-progress are silently deferred; images where it failed are handled
+        separately by the failed_prereq subquery in set_pending.
+
+        Args:
+            query:    The base SQLAlchemy select to restrict.
+
+            step(Step):    The blocked step being prepared.
+
+            image_type(ImageType):    The blocked image type.
+
+            db_session:    Active database session.
+
+        Returns:
+            The query with zero or more inner joins added.
+        """
+
+        # pylint: disable=singleton-comparison
+        for (
+            blocking_step_id,
+            blocking_image_type_id,
+        ) in db_session.execute(
+            select(
+                StepDependencies.blocking_step_id,
+                StepDependencies.blocking_image_type_id,
+            )
+            .where(StepDependencies.blocked_step_id == step.id)
+            .where(StepDependencies.blocked_image_type_id == image_type.id)
+            .where(StepDependencies.blocking_image_type_id == image_type.id)
+            .where(StepDependencies.allow_pending == True)
+        ).all():
+            blocking_complete_sq = (
+                select(
+                    ProcessedImages.image_id,
+                    ProcessedImages.channel,
+                )
+                .join(ImageProcessingProgress)
+                .where(ImageProcessingProgress.step_id == blocking_step_id)
+                .where(
+                    ImageProcessingProgress.image_type_id
+                    == blocking_image_type_id
+                )
+                .where(ProcessedImages.final == True)
+                .where(ProcessedImages.status > 0)
+                .subquery()
+            )
+            query = query.join(
+                blocking_complete_sq,
+                and_(
+                    Image.id  # pylint: disable=no-member
+                    == blocking_complete_sq.c.image_id,
+                    CameraChannel.name == blocking_complete_sq.c.channel,
+                ),
+            )
+        # pylint: enable=singleton-comparison
+        return query
+
     def _check_ready(self, step, image_type, db_session):
         """
         Check if the given type of images is ready to process with given step.
@@ -455,6 +519,12 @@ class ImageProcessingManager(ProcessingManager):
             )
             .where(StepDependencies.blocked_step_id == step.id)
             .where(StepDependencies.blocked_image_type_id == image_type.id)
+            .where(
+                or_(
+                    StepDependencies.allow_pending.is_not(True),
+                    StepDependencies.blocking_image_type_id != image_type.id,
+                )
+            )
         ).all():
             if self.pending[requirement]:
                 self._logger.debug(
@@ -710,7 +780,7 @@ class ImageProcessingManager(ProcessingManager):
             )
             if diag_type_id is None:
                 if diag_name.startswith("pixel_q"):
-                    quantile_digits = diag_name[len("pixel_q"):]
+                    quantile_digits = diag_name[len("pixel_q") :]
                     new_type = DiagnosticType(
                         name=diag_name,
                         description=(
@@ -722,9 +792,7 @@ class ImageProcessingManager(ProcessingManager):
                     db_session.flush()
                     diag_type_id = new_type.id
                 else:
-                    raise ValueError(
-                        f"Unknown diagnostic type {diag_name!r}"
-                    )
+                    raise ValueError(f"Unknown diagnostic type {diag_name!r}")
             db_session.add(
                 ImageDiagnostics(
                     image_id=finished_id["image_id"],
@@ -766,16 +834,12 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
             if diag_type_id is None:
-                raise ValueError(
-                    f"Unknown diagnostic type {diag_name!r}"
-                )
+                raise ValueError(f"Unknown diagnostic type {diag_name!r}")
 
             existing_id = db_session.scalar(
                 select(PhotometryDiagnostics.id).where(
-                    PhotometryDiagnostics.image_id
-                    == finished_id["image_id"],
-                    PhotometryDiagnostics.channel
-                    == finished_id["channel"],
+                    PhotometryDiagnostics.image_id == finished_id["image_id"],
+                    PhotometryDiagnostics.channel == finished_id["channel"],
                     PhotometryDiagnostics.photometry_id == phot_id,
                     PhotometryDiagnostics.diagnostic_id == diag_type_id,
                 )
@@ -844,9 +908,7 @@ class ImageProcessingManager(ProcessingManager):
             for finished_id in self._processed_ids[input_fname]:
                 if diagnostics:
                     if isinstance(diagnostics, dict):
-                        channel_diags = diagnostics.get(
-                            finished_id["channel"]
-                        )
+                        channel_diags = diagnostics.get(finished_id["channel"])
                     else:
                         channel_diags = diagnostics
                     if channel_diags:
@@ -857,6 +919,17 @@ class ImageProcessingManager(ProcessingManager):
                     self._save_photometry_diagnostics(
                         finished_id, photometry_diagnostics, db_session
                     )
+                if self.current_step.name == "find_stars" and status >= 0:
+                    dr_fname = self._evaluated_expressions[
+                        finished_id["image_id"]
+                    ][finished_id["channel"]]["dr"]
+                    image = db_session.get(Image, finished_id["image_id"])
+                    if (
+                        image is not None
+                        and image.observing_session is not None
+                    ):
+                        with DataReductionFile(dr_fname, mode="r+") as dr_file:
+                            dr_file.add_provenance(image.observing_session)
                 db_session.execute(
                     update(ProcessedImages)
                     .where(ProcessedImages.image_id == finished_id["image_id"])
@@ -1199,8 +1272,12 @@ class ImageProcessingManager(ProcessingManager):
             else:
                 query = query.where(processed_subquery.c.image_id == None)
 
+            pending_query = self._require_blocking_complete(
+                query, step, image_type, db_session
+            )
+
             self.pending[(step.id, image_type.id)] = db_session.execute(
-                query.where(failed_prereq_subquery.c.image_id == None)
+                pending_query.where(failed_prereq_subquery.c.image_id == None)
             ).all()
 
             self._failed_dependencies[(step.id, image_type.id)] = (

@@ -355,6 +355,64 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         return self.read_fitsheader_from_dataset("fitsheader", **substitutions)
 
+    def add_provenance(self, observing_session):
+        """Write instrument and observer provenance attributes to the DR file.
+
+        Args:
+            observing_session:    The ORM ObservingSession linked to the image
+                whose DR file this is.
+
+        Returns:
+            None
+        """
+
+        cam = observing_session.camera
+        tel = observing_session.telescope
+        mnt = observing_session.mount
+        obs = observing_session.observatory
+        who = observing_session.observer
+
+        entries = []
+        if cam is not None:
+            entries += [
+                ("provenance.cfg.camera.serial", cam.serial_number),
+                ("provenance.cfg.camera.make", cam.camera_type.make),
+                ("provenance.cfg.camera.model", cam.camera_type.model),
+            ]
+        if tel is not None:
+            entries += [
+                ("provenance.cfg.telescope.serial", tel.serial_number),
+                ("provenance.cfg.telescope.make", tel.telescope_type.make),
+                ("provenance.cfg.telescope.model", tel.telescope_type.model),
+            ]
+        if mnt is not None:
+            entries += [
+                ("provenance.cfg.mount.serial", mnt.serial_number),
+                ("provenance.cfg.mount.make", mnt.mount_type.make),
+                ("provenance.cfg.mount.model", mnt.mount_type.model),
+            ]
+        if obs is not None:
+            entries += [
+                ("provenance.cfg.observatory.latitude", obs.latitude),
+                ("provenance.cfg.observatory.longitude", obs.longitude),
+                ("provenance.cfg.observatory.altitude", obs.altitude),
+            ]
+        if who is not None:
+            entries += [
+                ("provenance.cfg.observer.name", who.name),
+            ]
+        tgt = observing_session.target
+        if tgt is not None:
+            entries += [
+                ("provenance.cfg.target.name", tgt.name),
+                ("provenance.cfg.target.ra", tgt.ra),
+                ("provenance.cfg.target.dec", tgt.dec),
+            ]
+
+        for key, value in entries:
+            if value is not None:
+                self.add_attribute(key, value)
+
     def get_num_apertures(self, **path_substitutions):
         """Return the number of apertures used for aperture photometry."""
 

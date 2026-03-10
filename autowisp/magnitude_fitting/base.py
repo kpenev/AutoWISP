@@ -102,6 +102,25 @@ class MagnitudeFit(ABC):
         """
 
     @abstractmethod
+    def _compute_mag_offset(self, phot_fit_results, fit_base, header):
+        """Return the photometry_mag_offset diagnostic value, or None.
+
+        Args:
+            phot_fit_results:    Per-group fit results for a single
+                photometry index (one element of the list returned by
+                ``_fit()``).
+
+            fit_base:    The matched sources used for the fit, as a numpy
+                structured array.
+
+            header:    The FITS header of the frame.
+
+        Returns:
+            float or None:   The diagnostic value, or ``None`` if it cannot
+                be computed.
+        """
+
+    @abstractmethod
     def _fit(self, fit_data):
         """
         Perform a fit for the magfit correction.
@@ -397,8 +416,9 @@ class MagnitudeFit(ABC):
 
         """
 
-    @staticmethod
-    def _build_magfit_diagnostics(fit_results, fit_statistics):
+    def _build_magfit_diagnostics(
+        self, fit_results, fit_statistics, fit_base, header
+    ):
         """Build per-photometry diagnostic tuples from magnitude fitting.
 
         Args:
@@ -407,6 +427,12 @@ class MagnitudeFit(ABC):
 
             fit_statistics:    The combined statistics from
                 ``_combine_fit_statistics()``.
+
+            fit_base:    The matched sources used for the fit, passed
+                through to ``_compute_mag_offset()``.
+
+            header:    The FITS header of the frame, passed through to
+                ``_compute_mag_offset()``.
 
         Returns:
             list or None:
@@ -427,17 +453,13 @@ class MagnitudeFit(ABC):
                 ("mag_fit_num_stars", num_stars, phot_ind)
             )
 
-            zeropoints = [
-                gr["coefficients"][0]
-                for gr in phot_fit_results
-                if gr["coefficients"] is not None
-            ]
-            if zeropoints:
-                zeropoint = float(numpy.nanmedian(zeropoints))
-                if numpy.isfinite(zeropoint):
-                    diagnostics.append(
-                        ("photometry_mag_offset", zeropoint, phot_ind)
-                    )
+            mag_offset = self._compute_mag_offset(
+                phot_fit_results, fit_base, header
+            )
+            if mag_offset is not None and numpy.isfinite(mag_offset):
+                diagnostics.append(
+                    ("photometry_mag_offset", mag_offset, phot_ind)
+                )
         return diagnostics or None
 
     @staticmethod
@@ -622,8 +644,11 @@ class MagnitudeFit(ABC):
                     fit_statistics = self._combine_fit_statistics(
                         fit_results
                     )
+                    header = data_reduction.get_frame_header(
+                        **dr_path_substitutions
+                    )
                     diagnostics = self._build_magfit_diagnostics(
-                        fit_results, fit_statistics
+                        fit_results, fit_statistics, fit_base, header
                     )
                     self.logger.debug("Adding to DR file.")
                     mark_start(dr_fname)

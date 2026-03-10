@@ -1232,6 +1232,139 @@ def _get_apphot_links():
     ]
 
 
+def _get_provenance_attributes():
+    """Create attributes storing instrument and observer provenance."""
+
+    parent = "/Provenance"
+    return [
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.camera.serial",
+            parent=parent,
+            name="CameraSerialNumber",
+            dtype="numpy.string_",
+            description="The serial number of the camera used to acquire "
+            "the image.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.camera.make",
+            parent=parent,
+            name="CameraMake",
+            dtype="numpy.string_",
+            description="The manufacturer of the camera used to acquire "
+            "the image.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.camera.model",
+            parent=parent,
+            name="CameraModel",
+            dtype="numpy.string_",
+            description="The model name of the camera used to acquire "
+            "the image.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.mount.serial",
+            parent=parent,
+            name="MountSerialNumber",
+            dtype="numpy.string_",
+            description="The serial number of the mount used to track "
+            "the target.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.mount.make",
+            parent=parent,
+            name="MountMake",
+            dtype="numpy.string_",
+            description="The manufacturer of the mount used to track "
+            "the target.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.mount.model",
+            parent=parent,
+            name="MountModel",
+            dtype="numpy.string_",
+            description="The model name of the mount used to track "
+            "the target.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.telescope.serial",
+            parent=parent,
+            name="TelescopeSerialNumber",
+            dtype="numpy.string_",
+            description="The serial number of the telescope through which "
+            "the image was taken.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.telescope.make",
+            parent=parent,
+            name="TelescopeMake",
+            dtype="numpy.string_",
+            description="The manufacturer of the telescope through which "
+            "the image was taken.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.telescope.model",
+            parent=parent,
+            name="TelescopeModel",
+            dtype="numpy.string_",
+            description="The model name of the telescope through which "
+            "the image was taken.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.observatory.latitude",
+            parent=parent,
+            name="ObservatoryLatitude",
+            dtype="numpy.float64",
+            description="Geodetic latitude of the observatory in degrees, "
+            "positive north.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.observatory.longitude",
+            parent=parent,
+            name="ObservatoryLongitude",
+            dtype="numpy.float64",
+            description="Geodetic longitude of the observatory in degrees, "
+            "positive east.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.observatory.altitude",
+            parent=parent,
+            name="ObservatoryAltitude",
+            dtype="numpy.float64",
+            description="Altitude of the observatory above sea level "
+            "in metres.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.observer.name",
+            parent=parent,
+            name="ObserverName",
+            dtype="numpy.string_",
+            description="Name of the observer or organisation responsible "
+            "for acquiring the image.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.target.name",
+            parent=parent,
+            name="TargetName",
+            dtype="numpy.string_",
+            description="The name of the target field being observed.",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.target.ra",
+            parent=parent,
+            name="TargetRA",
+            dtype="numpy.float64",
+            description="Right ascension of the target in degrees (J2000).",
+        ),
+        HDF5Attribute(
+            pipeline_key="provenance.cfg.target.dec",
+            parent=parent,
+            name="TargetDec",
+            dtype="numpy.float64",
+            description="Declination of the target in degrees (J2000).",
+        ),
+    ]
+
+
 def _get_attributes():
     """Create the default database attributes in data reduction HDF5 files."""
 
@@ -1254,6 +1387,7 @@ def _get_attributes():
         + _get_background_attributes()
         + _get_shapefit_attributes()
         + _get_apphot_attributes()
+        + _get_provenance_attributes()
     )
 
 

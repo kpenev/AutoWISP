@@ -2,16 +2,12 @@
 
 from sqlalchemy import text, Column, Integer, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase
-
+from sqlalchemy.ext.declarative import AbstractConcreteBase
 
 # Intended to be sub-classed
 # pylint: disable=too-few-public-methods
-class DataModelBase(DeclarativeBase):
-    """The base class for all table classes."""
-
-    id = Column(
-        Integer, primary_key=True, doc="A unique identifier for each row."
-    )
+class DataModelSubBase(DeclarativeBase):
+    """The base class for all table classes, except without 'id' column."""
 
     timestamp = Column(
         TIMESTAMP,
@@ -25,5 +21,14 @@ class DataModelBase(DeclarativeBase):
 
         return f"DB name: {self.__tablename__}: " + self.__doc__
 
+
+class DataModelBase(AbstractConcreteBase, DataModelSubBase):
+    """The base class for all table classes."""
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        doc="A unique identifier for each row.",
+    )
 
 # pylint: enable=too-few-public-methods

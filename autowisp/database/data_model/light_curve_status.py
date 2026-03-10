@@ -2,15 +2,22 @@
 
 from __future__ import annotations
 
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, BigInteger, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects import postgresql, mysql, sqlite
 
-from autowisp.database.data_model.base import DataModelBase
+from autowisp.database.data_model.base import DataModelSubBase
+
 
 __all__ = ["LightCurveStatus"]
 
+GaiaIDType = BigInteger()
+GaiaIDType = GaiaIDType.with_variant(postgresql.BIGINT(), "postgresql")
+GaiaIDType = GaiaIDType.with_variant(mysql.BIGINT(), "mysql")
+GaiaIDType = GaiaIDType.with_variant(sqlite.INTEGER(), "sqlite")
 
-class LightCurveStatus(DataModelBase):
+
+class LightCurveStatus(DataModelSubBase):
     """Table tracking the status of lightcurves for interrupted steps."""
 
     __tablename__ = "light_curve_status"
@@ -32,6 +39,12 @@ class LightCurveStatus(DataModelBase):
         ">0 = successfully saved progress, "
         "negative values indicate various reasons "
         "for failure).",
+    )
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        doc="A unique identifier for each row.",
     )
 
     def __str__(self):

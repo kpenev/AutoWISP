@@ -43,22 +43,25 @@ def _init_session(request):
     """Initialize the session for displaying lightcurve with defaults."""
 
     color_map = matplotlib.colormaps.get_cmap("tab10")
+    processing_manager = ImageProcessingManager(pipeline_run_id=None)
+    param_values = processing_manager.get_param_values(
+        {1}, ["lc-fname", "apertures"]
+    )
+    num_apertures = len(param_values["apertures"].split(","))
     request.session["lc_plotting"] = {
-        "lc_fname_template": ImageProcessingManager(
-            pipeline_run_id=None
-        ).get_param_values({1}, ["lc-fname"])["lc-fname"],
+        "lc_fname_template": param_values["lc-fname"],
         "target_fname": "",
         "color_map": [hex_color(color_map(i)) for i in range(10)],
         "data_select": [
             {
                 "lc_substitutions": {"magfit_iteration": -1},
-                "find_best": {"aperture_index": "0..40"},
+                "find_best": {"aperture_index": f"0..{num_apertures}"},
                 "minimize": (
                     "nanmedian(abs({mode}.tfa.magnitude - "
                     "nanmedian({mode}.tfa.magnitude)))"
                 ),
                 "photometry_modes": ["apphot"],
-                "selection": None,
+                "selection": True,
                 "model": None,
                 "expressions": {
                     "magnitude": (
@@ -430,13 +433,15 @@ def update_subplot(plotting_session, updates):
     if updates["star_id_type"] == "GDR3":
         gaia_id = updates["star_id"]
     elif updates["star_id_type"] == "TIC":
-        gaia_id = Catalogs.query_criteria(
+        gaia_id = Catalogs.query_criteria(  # pylint: disable=no-member
             catalog="Tic", ID=int(updates["star_id"])
         )["GAIA"]
     else:
-        gaia_id = NasaExoplanetArchive.query_object(updates["star_id"])[
-            "gaia_id"
-        ]
+        gaia_id = (
+            NasaExoplanetArchive.query_object(  # pylint: disable=no-member
+                updates["star_id"]
+            )["gaia_id"]
+        )
         gaia_id = numpy.unique(gaia_id)
         assert len(gaia_id) == 1
         gaia_id = gaia_id[0].split()[-1]
@@ -471,6 +476,12 @@ def _update_plotting_info(plotting_session, updates):
     if "subplot" in updates:
         update_subplot(plotting_session, updates["subplot"])
         modified_session = True
+    print(
+        80 * "*"
+        + "\nUpdated plotting session: "
+        + repr(plotting_session)
+        + 80 * "*"
+    )
     return modified_session
 
 
@@ -536,6 +547,14 @@ def edit_subplot(request, plot_id):
         for data_select_entry in plotting_info["data_select"]
     ]
 
+    try:
+        shape_grid = ImageProcessingManager(
+            pipeline_run_id=None
+        ).get_param_values({1}, ["shape-grid"])["shape-grid"]
+        shapefit_checked = min(len(shape_grid[0]), len(shape_grid[1])) > 2
+    except (ValueError, KeyError, TypeError):
+        shapefit_checked = False
+
     print("Sub-plot data_select: " + repr(data_select))
     return render(
         request,
@@ -544,6 +563,7 @@ def edit_subplot(request, plot_id):
             "data_select": data_select,
             "plot_decorations": plotting_info["plot_decorations"][plot_id],
             "figure_config": plotting_info["figure_config"],
+            "shapefit_checked": shapefit_checked,
         },
     )
 
@@ -599,7 +619,15 @@ def display_lightcurve(request):
                 request.session["lc_plotting"]["target_fname"],
             )
 
-    return render(request, "results/display_lightcurves.html", {"config": None})
+    aperture_index = (
+        request.session["lc_plotting"]["data_select"][0]
+        ["find_best"]["aperture_index"]
+    )
+    return render(
+        request,
+        "results/display_lightcurves.html",
+        {"config": None, "aperture_index": aperture_index},
+    )
 
 
 def edit_model(request, model_type, data_select_index):
@@ -626,6 +654,8 @@ def clear_lightcurve_buffer(request):
 
 
 def download_lightcurve_figure(request):
+    """Generate and return a PDF file of the currently setup lightcurve."""
+
     matplotlib.use("pdf")
     pyplot.style.use("default")
     plotting_info = request.session["lc_plotting"]

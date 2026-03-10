@@ -652,9 +652,11 @@ class plotCurvesType {
                 const valueElement = document.getElementById(
                     keyElement.id.replace("-key-", "-value-")
                 );
-                if (load)
-                    valueElement.value = target[keyElement.value];
-                else {
+                if (load) {
+                    const loadedValue = target[keyElement.value];
+                    if (loadedValue !== undefined)
+                        valueElement.value = loadedValue;
+                } else {
                     if (keyElement.value == "magfit_iteration") 
                         target[keyElement.value] = parseInt(valueElement.value);
                     else
@@ -773,13 +775,27 @@ function addNewParam(param_group) {
         .getElementsByTagName("tbody")[0];
     const lastRow = expressionsParent.lastElementChild.previousElementSibling;
     const newRow = lastRow.cloneNode(true);
-    for (input of newRow.getElementsByTagName("input")) {
+    const newInputs = [];
+    for (const input of newRow.getElementsByTagName("input")) {
         const lastDashPos = input.id.lastIndexOf("-");
         const counter = parseInt(input.id.slice(lastDashPos + 1)) + 1;
         input.id = input.id.slice(0, lastDashPos + 1) + counter;
         input.value = "";
+        newInputs.push(input);
     }
     lastRow.after(newRow);
+
+    function tryApply() {
+        if (newInputs.every(inp => inp.value.trim() !== "")) {
+            newInputs[0].dispatchEvent(new Event("change", { bubbles: true }));
+            updateFigure();
+        }
+    }
+
+    for (const inp of newInputs) {
+        inp.addEventListener("blur", tryApply);
+        inp.addEventListener("keydown", e => { if (e.key === "Enter") tryApply(); });
+    }
 }
 
 function handleLCParamChange(event) {
@@ -799,8 +815,8 @@ function handleLCParamChange(event) {
                     updateElement.lastElementChild
                 )
             );
-        } else 
-            addElement = updateElement.appendChild;
+        } else
+            addElement = (opt) => updateElement.appendChild(opt);
         if (changeInd < numExpressions ) {
             updateElement.children[changeInd].value = event.target.value;
             updateElement.children[changeInd].textContent =
@@ -832,6 +848,8 @@ function selectSymbol(event)
 function initLightcurveDisplay(urls) {
     updateFigure.url = urls.update;
     delete urls.update;
+    const apertureIndex = urls.apertureIndex || "0..0";
+    delete urls.apertureIndex;
     configURLs = urls;
     updateFigure.callback = showNewFigure;
     updateFigure.getParam = getPlottingConfig;
@@ -852,7 +870,7 @@ function initLightcurveDisplay(urls) {
     var lcDataScript = document.getElementById('lc-data-select');
     var lcDataSelect = lcDataScript ? JSON.parse(lcDataScript.textContent) : [{
         lc_substitutions: { magfit_iteration: -1 },
-        find_best: { aperture_index: "0..40" },
+        find_best: { aperture_index: apertureIndex },
         minimize: "nanmedian(abs({mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)))",
         photometry_modes: ["apphot"],
         selection: "",
@@ -885,31 +903,13 @@ function initLightcurveDisplay(urls) {
 
 
     function initConfigPanel() {
-    hideSidePanel();
     plotCurves = new plotCurvesType(lcDataSelect);
     getPlottingConfig.mode = "subplot";
     getPlottingConfig.plotId = 0;
     configPanelState.activePanel = "subplot";
 
-    // --- Add Open Config button next to Apply and Figure Config ---
-    var applyBtn = document.getElementById("apply");
-    var figConfigBtn = document.getElementById("rcParams");
-    if (applyBtn && figConfigBtn) {
-        var openConfigBtn = document.getElementById("open-config");
-        if (!openConfigBtn) {
-            openConfigBtn = document.createElement("button");
-            openConfigBtn.id = "open-config";
-            openConfigBtn.type = "button";
-            openConfigBtn.textContent = "Open Config";
-            openConfigBtn.style.marginLeft = "4px";
-            openConfigBtn.style.height = figConfigBtn.style.height;
-            openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
-            openConfigBtn.className = figConfigBtn.className;
-            figConfigBtn.parentNode.insertBefore(
-                openConfigBtn,
-                figConfigBtn.nextSibling
-            );
-        }
+    var openConfigBtn = document.getElementById("open-config");
+    if (openConfigBtn) {
         openConfigBtn.onclick = function () {
             const plotId =
                 typeof getPlottingConfig.plotId !== "undefined"
@@ -928,6 +928,9 @@ function initLightcurveDisplay(urls) {
             else showRcParamsConfigPanel();
         };
     document.getElementById("apply").onclick = updateFigure;
+    document.getElementById("star-id").addEventListener(
+        "keydown", e => { if (e.key === "Enter") updateFigure(); }
+    );
     updateFigure();
 }
 
@@ -956,10 +959,10 @@ function initLightcurveDisplay(urls) {
 
    /**
     * Observe DOM for the target input element and persist once it appears.
-    */    
+    */
     function observeInput(id, key) {
         new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
-    }    
+    }
 
     document.addEventListener("DOMContentLoaded", () =>
     persistInput("star-id", "savedStarId"));

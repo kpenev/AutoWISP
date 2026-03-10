@@ -9,7 +9,7 @@ import copy
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 
-from autowisp.database.interface import set_project_home
+from autowisp.database.interface import set_project_home, DB_URL_FNAME
 from autowisp.database.initialize_database import initialize_database
 from autowisp import database
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
@@ -52,7 +52,10 @@ class CreateProjectView(WalkFSView):
         context["unselectable"] = context.pop("file_list")
         context["file_list"] = []
         currentdir = context["parent_dir_list"][-1][0]
-        if os.path.exists(os.path.join(currentdir, self.db_fname)):
+        already_exists = os.path.exists(
+            os.path.join(currentdir, self.db_fname)
+        ) or os.path.exists(os.path.join(currentdir, DB_URL_FNAME))
+        if already_exists:
             context["invalid_home_message"] = (
                 f"Directory {currentdir} already appears to contain an AutoWISP"
                 " project."
@@ -131,19 +134,24 @@ class CreateProjectView(WalkFSView):
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
-        db_fname = os.path.join(config["project-home"], self.db_fname)
-        assert not os.path.exists(db_fname), (
-            f"Directory {config['project-home']} appears to already contain a "
-            "project."
+        db_url = config.get("db-url", "").strip() or None
+
+        project_home = config["project-home"]
+        assert not os.path.exists(
+            os.path.join(project_home, self.db_fname)
+        ) and not os.path.exists(
+            os.path.join(project_home, DB_URL_FNAME)
+        ), (
+            f"Directory {project_home} appears to already contain a project."
         )
 
         proj = Project(
             name=config["project-name"],
-            path=config["project-home"],
+            path=project_home,
             description=config["project-description"],
         )
         proj.save()
-        set_project_home(config["project-home"])  # as we assert it to be a dir?
+        set_project_home(project_home, db_url=db_url)
         overwrites = {}
 
         config_rex = re.compile(
@@ -169,6 +177,7 @@ class CreateProjectView(WalkFSView):
             "project-description",
             "project-home",
             "custom-config",
+            "db-url",
         ]:
             request.session[key] = request.POST.get(key, "")
 
@@ -272,6 +281,7 @@ class CreateProjectView(WalkFSView):
                         "project-description", ""
                     ),
                     "config": request.session.get("custom-config", ""),
+                    "db_url": request.session.get("db-url", ""),
                     "master_info": [
                         get_master_info(master_type, master_config)
                         for (

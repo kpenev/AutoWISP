@@ -59,19 +59,8 @@ def single_iteration(
 
     pool_magfit = partial(
         magfit,
-        mark_start=(
-            partial(
-                mark_start, status=2 * path_substitutions["magfit_iteration"]
-            )
-            if (
-                path_substitutions["magfit_iteration"] == 0
-                or magfit_stat_collector is None
-            )
-            else partial(
-                mark_end,
-                status=2 * path_substitutions["magfit_iteration"],
-                final=False,
-            )
+        mark_start=partial(
+            mark_start, status=2 * path_substitutions["magfit_iteration"]
         ),
         mark_end=partial(
             mark_end,
@@ -295,45 +284,45 @@ def iterative_refit(
 
     photref_fname = None
     common_header["IMAGETYP"] = "mphotref"
-    with TemporaryDirectory() as mphotref_collect_tmp_dir:
-        while (
-            photref
-            and path_substitutions["magfit_iteration"]
-            < configuration.max_magfit_iterations
-        ):
-            path_substitutions["magfit_iteration"] += 1
-            fname_substitutions["magfit_iteration"] += 1
+    while (
+        photref
+        and path_substitutions["magfit_iteration"]
+        < configuration.max_magfit_iterations
+    ):
+        path_substitutions["magfit_iteration"] += 1
+        fname_substitutions["magfit_iteration"] += 1
 
-            assert next(iter(photref.values()))["mag"].size == num_photometries
+        assert next(iter(photref.values()))["mag"].size == num_photometries
 
-            stat_fname = configuration.magfit_stat_fname_format.format_map(
-                fname_substitutions
-            )
+        stat_fname = configuration.magfit_stat_fname_format.format_map(
+            fname_substitutions
+        )
 
-            magfit_stat_collector = MasterPhotrefCollector(
-                stat_fname,
-                num_photometries,
-                len(fit_dr_filenames),
-                source_name_format=configuration.source_name_format,
-            )
+        magfit_stat_collector = MasterPhotrefCollector(
+            stat_fname,
+            num_photometries,
+            len(fit_dr_filenames),
+            source_name_format=configuration.source_name_format,
+        )
 
-            single_iteration(
-                fit_dr_filenames,
-                photref=photref,
-                configuration=configuration,
-                path_substitutions=path_substitutions,
-                mark_start=mark_start,
-                mark_end=mark_end,
-                magfit_stat_collector=magfit_stat_collector,
-            )
+        single_iteration(
+            fit_dr_filenames,
+            photref=photref,
+            configuration=configuration,
+            path_substitutions=path_substitutions,
+            mark_start=mark_start,
+            mark_end=mark_end,
+            magfit_stat_collector=magfit_stat_collector,
+        )
 
-            photref, photref_fname = update_photref(
-                magfit_stat_collector=magfit_stat_collector,
-                old_reference=photref,
-                num_photometries=num_photometries,
-                fname_substitutions=fname_substitutions,
-                common_header=common_header,
-            )
+        photref, photref_fname = update_photref(
+            magfit_stat_collector=magfit_stat_collector,
+            old_reference=photref,
+            num_photometries=num_photometries,
+            fname_substitutions=fname_substitutions,
+            common_header=common_header,
+        )
+        mark_start = partial(mark_end, final=False)
     for fit_dr_fname in fit_dr_filenames:
         mark_end(
             fit_dr_fname,

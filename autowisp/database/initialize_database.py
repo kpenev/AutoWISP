@@ -310,7 +310,9 @@ def init_processing(step_dependencies, master_info):
                         ),
                     )
                 )
-            for required_step, required_imtype in dependencies:
+            for dependency in dependencies:
+                required_step, required_imtype = dependency[:2]
+                allow_pending = dependency[2] if len(dependency) > 2 else False
                 db_session.add(
                     StepDependencies(
                         blocked_step_id=db_steps[step_name].id,
@@ -321,6 +323,7 @@ def init_processing(step_dependencies, master_info):
                             required_imtype
                         )
                         + 1,
+                        allow_pending=allow_pending,
                     )
                 )
         add_master_dependencies(db_session, master_info)
@@ -521,8 +524,8 @@ def _init_diagnostic_types():
                 ),
                 (
                     "photometry_mag_offset",
-                    "The best-fit offset between the measured magnitude and "
-                    "the catalog magnitude.",
+                    "The best-fit offset between the image magnitude and "
+                    "the reference magnitude in magnitude fit.",
                 ),
                 (
                     "mag_fit_num_stars",

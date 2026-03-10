@@ -8,6 +8,7 @@ import matplotlib
 from matplotlib import pyplot
 from matplotlib.figure import Figure
 from sqlalchemy import select, func
+import numpy
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -192,14 +193,14 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
     return zip(*rows)
 
 
-def plot_image_diagnostic_series(axes, jd_values, diag_values, config):
+def plot_image_diagnostic_series(axes, time_values, diag_values, config):
     """
     Plot a single image diagnostic series on the given axes.
 
     Args:
         axes:    A matplotlib Axes to plot on.
 
-        jd_values:    Sequence of Julian date x-coordinates.
+        time_values:    Sequence of Julian date x-coordinates.
 
         diag_values:    Sequence of diagnostic y-coordinates.
 
@@ -209,7 +210,7 @@ def plot_image_diagnostic_series(axes, jd_values, diag_values, config):
     """
 
     axes.plot(
-        jd_values,
+        time_values,
         diag_values,
         linestyle="none",
         marker=config["marker"],
@@ -244,7 +245,7 @@ def group_series_by_jd_overlap(series_data):
     group_ranges = []
     for entry in series_data:
         jd_values = entry[1]
-        if not jd_values:
+        if not jd_values.size:
             continue
         jd_min = min(jd_values)
         jd_max = max(jd_values)
@@ -354,13 +355,16 @@ def create_image_diagnostics_figure(
     figure_config.update(overwrite_figure_config or {})
 
     series_data = []
+    min_jd = numpy.inf
     for series in series_list:
         if not series.get("marker", "").strip():
             continue
         jd_values, diag_values = get_diagnostic_series_data(
             series, diagnostic_name, db_session
         )
-        if jd_values:
+        jd_values = numpy.atleast_1d(jd_values)
+        if jd_values.size:
+            min_jd = min(min_jd, numpy.nanmin(jd_values))
             series_data.append((series, jd_values, diag_values))
 
     groups = group_series_by_jd_overlap(series_data)
@@ -370,8 +374,10 @@ def create_image_diagnostics_figure(
 
     for axes, group in zip(all_axes.flatten(), groups):
         for series, jd_values, diag_values in group:
-            plot_image_diagnostic_series(axes, jd_values, diag_values, series)
-        axes.set_xlabel("JD")
+            plot_image_diagnostic_series(
+                axes, jd_values - min_jd, diag_values, series
+            )
+        axes.set_xlabel(f"JD - {min_jd!r}")
         axes.set_ylabel(diagnostic_name)
         axes.legend()
         axes.grid(True, linewidth=0.2)
@@ -392,8 +398,7 @@ def update_image_diagnostics_plot(request, diagnostic_name):
     datasets = post_data.get("datasets", {})
 
     series_list = [
-        {"id": series_id, **config}
-        for series_id, config in datasets.items()
+        {"id": series_id, **config} for series_id, config in datasets.items()
     ]
 
     figure_config = post_data.get("figure_config")
@@ -443,9 +448,7 @@ def display_image_diagnostics(request, diagnostic_name):
 
     with start_db_session() as db_session:
         context = get_available_diagnostic_series(diagnostic_name, db_session)
-        context["available_diagnostics"] = get_available_diagnostics(
-            db_session
-        )
+        context["available_diagnostics"] = get_available_diagnostics(db_session)
     context["diagnostics_title"] = diagnostic_name
     context["update_plot_url"] = reverse(
         "diagnostics:update_image_diagnostics_plot",

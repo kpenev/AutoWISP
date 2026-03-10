@@ -120,6 +120,22 @@ CREATE PROJECT
             </tr>
             <tr>
                 <td>
+                    <label for="db-url"
+                           class="project-param-label">
+                        Database URL (optional):
+                    </label>
+                </td>
+                <td>
+                    <input type="text"
+                           id="db-url"
+                           name="db-url"
+                           value="{{ db_url }}"
+                           placeholder="Leave blank for SQLite, or e.g. mysql+pymysql://user:pass@host:3306/dbname"
+                           class="project-text-input lcars-u-3-1"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <label for="config-file"
                            class="project-param-label lcars-u-3-5 button">
                         Custom Configuration (optional):<br>

@@ -8,7 +8,7 @@ from inspect import isclass
 
 from sqlalchemy import event, DDL
 
-from autowisp.database.data_model.base import DataModelBase
+from autowisp.database.data_model.base import DataModelBase, DataModelSubBase
 from autowisp.database.data_model.steps_and_parameters import (
     step_param_association,
 )
@@ -37,8 +37,9 @@ def import_table_definitions():
             return (
                 mod_attr[0] != "_"
                 and mod_attr != "DataModelBase"
+                and mod_attr != "DataModelSubBase"
                 and isclass(getattr(module, mod_attr))
-                and issubclass(getattr(module, mod_attr), DataModelBase)
+                and issubclass(getattr(module, mod_attr), DataModelSubBase)
             )
 
         # pylint: enable=cell-var-from-loop

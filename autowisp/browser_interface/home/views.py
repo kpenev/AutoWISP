@@ -13,7 +13,11 @@ from sqlalchemy import select
 
 from autowisp.catalog import read_catalog_file
 from autowisp.database.defaults import master_info
-from autowisp.database.interface import set_project_home, start_db_session
+from autowisp.database.interface import (
+    set_project_home,
+    start_db_session,
+    DB_URL_FNAME,
+)
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Configuration,
     Image,
@@ -140,7 +144,10 @@ def delete_projects(request):
         if "logs" in file_types:
             delete_logs(project_home)
 
-        _safe_remove(os.path.join(project.path, "autowisp.db"), project_home)
+        for db_file in ("autowisp.db", DB_URL_FNAME):
+            db_file_path = os.path.join(project.path, db_file)
+            if os.path.exists(db_file_path):
+                _safe_remove(db_file_path, project_home)
 
         if file_types:
             prune_empty_directories(project_home)
@@ -439,20 +446,21 @@ def prune_empty_directories(project_home):
 
 
 def find_missing_databases():
-    """Return projects whose ``autowisp.db`` file does not exist.
+    """Return projects whose database is not accessible.
 
-    Iterates over every :class:`Project` in the Django database and checks
-    whether the expected ``autowisp.db`` file is present under the project's
-    home directory.
+    A project's database is considered present when either its SQLite file
+    (``autowisp.db``) or its centralised-DB connection file
+    (``autowisp_db.url``) exists under the project home directory.
 
     Returns:
-        list[Project]:  Projects for which ``autowisp.db`` is missing.
+        list[Project]:  Projects for which neither database indicator exists.
     """
 
     missing = []
     for project in Project.objects.all():  # pylint: disable=no-member
-        db_path = os.path.join(project.path, "autowisp.db")
-        if not os.path.isfile(db_path):
+        sqlite_path = os.path.join(project.path, "autowisp.db")
+        url_file_path = os.path.join(project.path, DB_URL_FNAME)
+        if not os.path.isfile(sqlite_path) and not os.path.isfile(url_file_path):
             missing.append(project)
     return missing
 
