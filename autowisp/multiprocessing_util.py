@@ -173,6 +173,16 @@ def setup_process_map(config):
                 f"stdout/stderr to {std_out_err_fname!r}\n"
             )
 
+    all_loggers = [logging.root] + [
+        lgr
+        for lgr in logging.Logger.manager.loggerDict.values()
+        if isinstance(lgr, logging.Logger)
+    ]
+    for lgr in all_loggers:
+        for handler in lgr.handlers[:]:
+            lgr.removeHandler(handler)
+            handler.close()
+
     if std_out_err_fname is not None:
         sys.stdout.flush()
         sys.stderr.flush()
@@ -186,9 +196,6 @@ def setup_process_map(config):
 
     ensure_directory(logging_fname)
 
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-        handler.close()
     logging_config = {
         "filename": logging_fname,
         "level": getattr(
