@@ -11,6 +11,10 @@ from contextlib import nullcontext
 import numpy
 import pandas
 
+from autowisp.fit_expression import (
+    Interface as FitTermsInterface,
+    iterative_fit,
+)
 from autowisp.multiprocessing_util import setup_process, setup_process_map
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -27,9 +31,8 @@ from autowisp.processing_steps.manual_util import (
 from autowisp.catalog import ensure_catalog, get_catalog_config
 from autowisp.split_sources import SplitSources
 from autowisp.data_reduction.utils import delete_star_shape_fit
-from autowisp.processing_steps.calculate_photref_merit import (
-    get_center_background,
-)
+
+_logger = logging.getLogger(__name__)
 
 input_type = "calibrated + dr"
 
@@ -403,11 +406,11 @@ class SourceListCreator:
                 True iff the source center is inside the frame boundaries
         """
 
-        self._logger.debug("Projecting sources")
+        _logger.debug("Projecting sources")
         self._project_sources(header)
-        self._logger.debug("Projected sources:\n%s", repr(self._sources))
+        _logger.debug("Projected sources:\n%s", repr(self._sources))
 
-        self._logger.debug("Grouping")
+        _logger.debug("Grouping")
         if callable(self._grouping):
             return self._grouping(
                 self._sources, (header["NAXIS2"], header["NAXIS1"])
@@ -475,7 +478,6 @@ class SourceListCreator:
             None
         """
 
-        self._logger = logging.getLogger(__name__)
         self._sources = catalog_sources
         print("Source columns: " + repr(self._sources.columns))
         if "ID" not in self._sources:
@@ -491,7 +493,7 @@ class SourceListCreator:
 
         self._dr_path_substitutions = dr_path_substitutions
 
-        self._logger.debug("Sources: %s", repr(self._sources))
+        _logger.debug("Sources: %s", repr(self._sources))
 
         #        self._id_length = max(
         #            len(id_value) for id_value in self._sources.index
@@ -526,17 +528,17 @@ class SourceListCreator:
                 FitStarShape.fit(), with only one fitting group enabled.
         """
 
-        self._logger.debug("Getting sources from %s", repr(frame_fname))
+        _logger.debug("Getting sources from %s", repr(frame_fname))
         header = get_primary_header(frame_fname)
 
         grouping, in_frame = self._group_and_flag_in_frame(header)
-        self._logger.debug(
+        _logger.debug(
             "Found %d/%d sources inside the frame.",
             in_frame.sum(),
             len(in_frame),
         )
         fit_sources = self._sources[in_frame]
-        self._logger.debug(
+        _logger.debug(
             "Fit source columns: %s", repr(self._sources.columns)
         )
         grouping = grouping[in_frame]
@@ -546,7 +548,7 @@ class SourceListCreator:
         if self.remove_group_id is not None:
             number_fit_groups = sorted(range(number_fit_groups))
             for remove_group_id in self.remove_group_id:
-                self._logger.debug(
+                _logger.debug(
                     "Removing group_id: %s", repr(remove_group_id)
                 )
                 del number_fit_groups[remove_group_id]
@@ -555,7 +557,7 @@ class SourceListCreator:
                 for group_id in number_fit_groups
             ]
             for group_id in number_fit_groups:
-                self._logger.debug(
+                _logger.debug(
                     "Group %s:\n%s", group_id, repr(result[group_id])
                 )
                 # This is more readable
@@ -569,7 +571,7 @@ class SourceListCreator:
                 for group_id in range(number_fit_groups)
             ]
             for group_id in range(number_fit_groups):
-                self._logger.debug(
+                _logger.debug(
                     "Group %s:\n%s", group_id, repr(result[group_id])
                 )
 
@@ -578,7 +580,7 @@ class SourceListCreator:
                 result[group_id]["enabled"] = grouping == group_id
                 # pylint:enable=superfluous-parens
 
-        self._logger.debug("Result: %s", repr(result))
+        _logger.debug("Result: %s", repr(result))
         return result
 
 
@@ -671,6 +673,64 @@ def get_shape_fitter_config(configuration):
 
     return result
 
+def get_center_background(  # pylint: disable=too-many-arguments
+    dr_file,
+    header,
+    fit_terms_expression,
+    *,
+    error_avg,
+    rej_level,
+    max_rej_iter,
+    **dr_path_substitutions,
+):
+    """
+    Estimate the sky background at the center of the frame.
+
+    Fit a smooth function of position to the background measurements from shape
+    fitting and evaluate it at the center of the frame.
+
+    Returns:
+        float:
+            The background level at the center of the frame.
+
+        float:
+            The RMS residual of the background map fit.
+    """
+
+    source_positions = {
+        coord: dr_file.get_dataset(
+            "srcproj.columns",
+            srcproj_column_name=coord,
+            **dr_path_substitutions,
+        )
+        for coord in "xy"
+    }
+    source_positions["x"] -= header["NAXIS1"] / 2
+    source_positions["y"] -= header["NAXIS2"] / 2
+
+    print("Source positions: " + repr(source_positions))
+
+    fit_terms = FitTermsInterface(fit_terms_expression)(source_positions)
+    measured_bg = dr_file.get_dataset("bg.value", **dr_path_substitutions)
+    coef, square_residual, num_fit = iterative_fit(
+        fit_terms,
+        measured_bg,
+        error_avg=error_avg,
+        rej_level=rej_level,
+        max_rej_iter=max_rej_iter,
+        fit_identifier="background",
+    )
+    _logger.debug(
+        "Background fit:\ncoefficientsn: %s\nsquare residual: %si\nnum fit: %s",
+        repr(coef),
+        repr(square_residual),
+        repr(num_fit),
+    )
+    return coef[0], numpy.sqrt(square_residual)
+
+
+
+
 
 def fit_frame_set(
     frame_filenames,
@@ -709,32 +769,30 @@ def fit_frame_set(
             get_primary_header(frame_fname)
         )
 
-    logger = logging.getLogger(__name__)
-
-    logger.debug("Fitting frame set: %s", repr(frame_filenames))
-    logger.debug("Fitting configuration: %s", repr(configuration))
+    _logger.debug("Fitting frame set: %s", repr(frame_filenames))
+    _logger.debug("Fitting configuration: %s", repr(configuration))
 
     dr_fnames = [get_dr_fname(f) for f in frame_filenames]
     get_sources = create_source_list_creator(
         dr_fnames, configuration, catalog_lock
     )
-    logger.debug("Created source getter")
+    _logger.debug("Created source getter")
 
     shape_fitter_config = get_shape_fitter_config(configuration)
     star_shape_fitter = PiecewiseBicubicPSFMap()
-    logger.debug("Created star shape fitter.")
+    _logger.debug("Created star shape fitter.")
 
     fit_sources = [get_sources(frame) for frame in frame_filenames]
-    logger.debug("Fit sources: %s", repr(fit_sources))
+    _logger.debug("Fit sources: %s", repr(fit_sources))
 
     num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
-    logger.debug("Fitting %s group", repr(num_fit_groups))
+    _logger.debug("Fitting %s group", repr(num_fit_groups))
 
     for fname in frame_filenames:
         mark_start(fname)
     for fit_group in range(num_fit_groups):
         shape_fitter_config["dr_path_substitutions"]["fit_group"] = fit_group
-        logger.debug(
+        _logger.debug(
             "Fitting:\n"
             "\tframe_filenames: %s\n"
             "\tsources: %s\n"
@@ -751,7 +809,7 @@ def fit_frame_set(
             output_dr_fnames=dr_fnames,
             **shape_fitter_config,
         )
-        logger.debug("Done fitting")
+        _logger.debug("Done fitting")
 
     dr_path_substitutions = get_dr_substitutions(configuration)
     bg_fit_config = {
@@ -772,7 +830,7 @@ def fit_frame_set(
                 diagnostics.append(("bg_center", bg_center))
                 diagnostics.append(("bg_map_residual", bg_residual))
         except Exception:
-            logger.error(
+            _logger.error(
                 "Failed to compute background diagnostics for %s",
                 fname,
                 exc_info=True,

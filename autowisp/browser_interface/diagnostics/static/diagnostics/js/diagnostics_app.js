@@ -44,7 +44,18 @@ function showDiagnosticsPlot(data)
     let display = document.getElementById("diagnostics-display");
     display.innerHTML = "";
     showSVG(data, "diagnostics-display");
-    setFigureSize("diagnostics-display");
+    display.style.height = "";
+    display.style.minHeight = "";
+    display.style.maxHeight = "";
+    let figure = display.children[0];
+    let aspectRatio = (stripUnits(figure.getAttribute("width"))
+                       / stripUnits(figure.getAttribute("height")));
+    let style = getComputedStyle(display);
+    let contentWidth = (display.clientWidth
+                        - parseFloat(style.paddingLeft)
+                        - parseFloat(style.paddingRight));
+    figure.setAttribute("width", contentWidth);
+    figure.setAttribute("height", contentWidth / aspectRatio);
 }
 
 function initDiagnosticsPlotting(plotURL)

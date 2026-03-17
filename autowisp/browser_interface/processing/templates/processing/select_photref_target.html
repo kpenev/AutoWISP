@@ -6,17 +6,48 @@ Select Photometric Reference
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
-<a href="{% url 'processing:select_photref_recalc' %}">
-    <div class="lcars-element 
-                button 
-                lcars-melrose-bg
-                lcars-u-1-1">
-        Refresh
-    </div>
-</a>
+<button type="submit"
+        form="merit-form"
+        formaction="{% url 'processing:select_photref_recalc' %}"
+        formmethod="post"
+        class="lcars-element
+               button
+               lcars-melrose-bg
+               lcars-u-1-1">
+    Refresh
+</button>
 {% endblock left_menu %}
 
 {% block main %}
+<form id="merit-form"
+      method="post"
+      action="{% url 'processing:select_photref_target' %}">
+{% csrf_token %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th style="width: 100%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <label for="merit-function" class="project-param-label">
+                    Merit Function:
+                </label>
+            </td>
+            <td>
+                <input type="text"
+                       id="merit-function"
+                       name="merit-function"
+                       value="{{ merit_function }}"
+                       class="project-text-input lcars-u-3-1"/>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</form>
 <table class="lcars-table standard-header">
     <thead>
         <tr>
