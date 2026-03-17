@@ -5,6 +5,7 @@ py_src = [
   'detrending_diagnostics_views.py',
   'image_diagnostics_views.py',
   'models.py',
+  'preview_calibrated.py',
   'tests.py',
   'urls.py',
   'views.py',

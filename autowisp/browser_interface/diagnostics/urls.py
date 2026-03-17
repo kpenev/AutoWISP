@@ -47,4 +47,15 @@ urlpatterns = [
         views.update_image_diagnostics_plot,
         name="update_image_diagnostics_plot",
     ),
+    path(
+        "preview_calibrated/<int:image_id>/<slug:color_channel>",
+        views.preview_calibrated_image,
+        name="preview_calibrated_image",
+    ),
+    path(
+        "preview_calibrated/<int:image_id>/<slug:color_channel>"
+        "/overlay/<slug:overlay_type>",
+        views.get_image_overlay,
+        name="get_image_overlay",
+    ),
 ]

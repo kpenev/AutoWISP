@@ -6,6 +6,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    position: relative;
 }
 
 #main-image {
@@ -18,6 +19,11 @@
 
 #full-view {
     height: 100%;
+}
+
+#overlay-image {
+    position: absolute;
+    pointer-events: none;
 }
 
 #regions {
