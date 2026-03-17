@@ -196,26 +196,29 @@ step_dependencies = [
     (
         "epd",
         "object",
-        [("create_lightcurves", "object"), ("fit_magnitudes", "object", True)],
+        [
+            ("create_lightcurves", "object", True),
+            ("fit_magnitudes", "object", True),
+        ],
     ),
     (
         "generate_epd_statistics",
         "object",
-        [("create_lightcurves", "object"), ("epd", "object")],
+        [("create_lightcurves", "object", True), ("epd", "object", True)],
     ),
     (
         "tfa",
         "object",
         [
-            ("epd", "object"),
-            ("generate_epd_statistics", "object"),
-            ("create_lightcurves", "object"),
+            ("epd", "object", True),
+            ("generate_epd_statistics", "object", True),
+            ("create_lightcurves", "object", True),
             ("fit_magnitudes", "object", True),
         ],
     ),
     (
         "generate_tfa_statistics",
         "object",
-        [("create_lightcurves", "object"), ("tfa", "object")],
+        [("create_lightcurves", "object", True), ("tfa", "object", True)],
     ),
 ]

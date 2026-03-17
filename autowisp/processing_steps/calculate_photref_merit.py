@@ -15,6 +15,7 @@ from autowisp.astrometry import Transformation
 from autowisp.processing_steps.fit_source_extracted_psf_map import (
     get_predictors_and_weights,
 )
+from autowisp.processing_steps.fit_star_shape import get_center_background
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.fit_expression import (
@@ -169,62 +170,6 @@ def get_center_zenith_distance(header, astrometry, config):
         AltAz(obstime=obs_time, location=location)
     ).alt.to_value(units.deg)
     return 90.0 - altitude
-
-
-def get_center_background(  # pylint: disable=too-many-arguments
-    dr_file,
-    header,
-    fit_terms_expression,
-    *,
-    error_avg,
-    rej_level,
-    max_rej_iter,
-    **dr_path_substitutions,
-):
-    """
-    Estimate the sky background at the center of the frame.
-
-    Fit a smooth function of position to the background measurements from shape
-    fitting and evaluate it at the center of the frame.
-
-    Returns:
-        float:
-            The background level at the center of the frame.
-
-        float:
-            The RMS residual of the background map fit.
-    """
-
-    source_positions = {
-        coord: dr_file.get_dataset(
-            "srcproj.columns",
-            srcproj_column_name=coord,
-            **dr_path_substitutions,
-        )
-        for coord in "xy"
-    }
-    source_positions["x"] -= header["NAXIS1"] / 2
-    source_positions["y"] -= header["NAXIS2"] / 2
-
-    print("Source positions: " + repr(source_positions))
-
-    fit_terms = FitTermsInterface(fit_terms_expression)(source_positions)
-    measured_bg = dr_file.get_dataset("bg.value", **dr_path_substitutions)
-    coef, square_residual, num_fit = iterative_fit(
-        fit_terms,
-        measured_bg,
-        error_avg=error_avg,
-        rej_level=rej_level,
-        max_rej_iter=max_rej_iter,
-        fit_identifier="background",
-    )
-    _logger.debug(
-        "Background fit:\ncoefficientsn: %s\nsquare residual: %si\nnum fit: %s",
-        repr(coef),
-        repr(square_residual),
-        repr(num_fit),
-    )
-    return coef[0], numpy.sqrt(square_residual)
 
 
 def get_frame_merit_info(
