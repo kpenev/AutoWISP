@@ -168,7 +168,9 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
         query_diag_name = diagnostic_name
 
     rows = db_session.execute(
-        select(Image.jd, ImageDiagnostics.value)  # pylint: disable=no-member
+        select(  # pylint: disable=no-member
+            Image.jd, ImageDiagnostics.value, Image.id
+        )
         .join(
             ImageDiagnostics,
             ImageDiagnostics.image_id == Image.id,  # pylint: disable=no-member
@@ -188,12 +190,12 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
     ).all()
 
     if not rows:
-        return (), ()
+        return (), (), ()
 
     return zip(*rows)
 
 
-def plot_image_diagnostic_series(axes, time_values, diag_values, config):
+def plot_image_diagnostic_series(axes, time_values, diag_values, config, urls):
     """
     Plot a single image diagnostic series on the given axes.
 
@@ -207,20 +209,25 @@ def plot_image_diagnostic_series(axes, time_values, diag_values, config):
         config(dict):    Configuration for the plotting usually produce by
             :func:`get_available_diagnostic_series`. Should contain keys
             ``color``, ``marker``, ``scale``, and ``label``.
+
+        urls(list):    Per-point URLs to embed in the SVG as hyperlinks.
     """
 
-    axes.plot(
+    edge_only_markers = set("x+.,1234|_")
+    marker = config["marker"]
+    color = config["color"]
+    size = float(config.get("scale", 1.0))
+
+    collection = axes.scatter(
         time_values,
         diag_values,
-        linestyle="none",
-        marker=config["marker"],
-        markersize=float(config.get("scale", 1.0)),
-        markeredgecolor=(
-            config["color"] if config["marker"] in "x+.,1234|_" else "none"
-        ),
-        markerfacecolor=config["color"],
+        marker=marker,
+        s=size * 20,
+        edgecolors=color if marker in edge_only_markers else "none",
+        facecolors="none" if marker in edge_only_markers else color,
         label=config["label"],
     )
+    collection.set_urls(list(urls))
 
 
 def group_series_by_jd_overlap(series_data):
@@ -359,13 +366,13 @@ def create_image_diagnostics_figure(
     for series in series_list:
         if not series.get("marker", "").strip():
             continue
-        jd_values, diag_values = get_diagnostic_series_data(
+        jd_values, diag_values, image_ids = get_diagnostic_series_data(
             series, diagnostic_name, db_session
         )
         jd_values = numpy.atleast_1d(jd_values)
         if jd_values.size:
             min_jd = min(min_jd, numpy.nanmin(jd_values))
-            series_data.append((series, jd_values, diag_values))
+            series_data.append((series, jd_values, diag_values, image_ids))
 
     groups = group_series_by_jd_overlap(series_data)
     fig, all_axes = create_figure(len(groups), **figure_config)
@@ -373,9 +380,17 @@ def create_image_diagnostics_figure(
         return fig
 
     for axes, group in zip(all_axes.flatten(), groups):
-        for series, jd_values, diag_values in group:
+        for series, jd_values, diag_values, image_ids in group:
+            channel = series["id"].split("_")[1]
+            urls = [
+                reverse(
+                    "diagnostics:preview_calibrated_image",
+                    kwargs={"image_id": img_id, "color_channel": channel},
+                )
+                for img_id in image_ids
+            ]
             plot_image_diagnostic_series(
-                axes, jd_values - min_jd, diag_values, series
+                axes, jd_values - min_jd, diag_values, series, urls
             )
         axes.set_xlabel(f"JD - {min_jd!r}")
         axes.set_ylabel(diagnostic_name)
