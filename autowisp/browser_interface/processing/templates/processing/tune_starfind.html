@@ -23,7 +23,7 @@ Tune Source Extraction
 </a>
 
 {% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
-<div onclick="showSources('{{ starfindURL }}', true)">
+<div onclick="showImageLocations('{{ starfindURL }}', getExtractParams(), true)">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -33,8 +33,9 @@ Tune Source Extraction
 </div>
 
 {% url 'processing:project_catalog' fits_fname=fits_fname as projectCatURL %}
-<div onclick="showSources('{{ projectCatURL }}', 
-                          false, 
+<div onclick="showImageLocations('{{ projectCatURL }}',
+                          getExtractParams(),
+                          false,
                           {'shape': 'circle', 'r': 8.0, 'color': '#f00'})">
     <div class="lcars-element 
                 button 

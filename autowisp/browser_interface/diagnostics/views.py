@@ -12,5 +12,6 @@ from .image_diagnostics_views import (
     display_image_diagnostics,
     update_image_diagnostics_plot,
 )
+from .preview_calibrated import preview_calibrated_image, get_image_overlay
 
 # pylint: enable=unused-import
