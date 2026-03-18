@@ -321,8 +321,12 @@ def cleanup_interrupted(interrupted, configuration):
             calibrated_fname = configuration["calibrated_fname"].format_map(
                 header
             )
+            _logger.debug(
+                "Checking for and removing %s", repr(calibrated_fname)
+            )
             if os.path.exists(calibrated_fname):
                 os.remove(calibrated_fname)
+            assert not os.path.exists(calibrated_fname)
 
     return -1
 
@@ -331,9 +335,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     calibrate(
         find_fits_fnames(
@@ -346,6 +348,7 @@ def main():
         ignore_progress,
     )
     return 0
+
 
 if __name__ == "__main__":
     main()
