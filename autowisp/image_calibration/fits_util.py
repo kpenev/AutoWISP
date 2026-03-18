@@ -1,5 +1,7 @@
 """Define a generic function to make 3-hdu FITS images (image, error, mask)."""
 
+import errno
+from time import sleep
 from os import path, makedirs
 from logging import getLogger
 
@@ -233,7 +235,7 @@ def add_channel_keywords(header, channel_name, channel_slice):
         header["CHNLYSTP"] = 1
 
 
-def create_result(  # pylint: disable=too-many-arguments
+def create_result(  # pylint: disable=too-many-arguments, too-many-locals
     image_list,
     header,
     result_fname,
@@ -342,4 +344,20 @@ def create_result(  # pylint: disable=too-many-arguments
         output_fname = result_fname.format_map(fname_substitutions)
         if not path.exists(path.dirname(output_fname)):
             makedirs(path.dirname(output_fname))
-        hdu_list.writeto(output_fname, overwrite=allow_overwrite)
+        logger.debug("Creating %s", repr(output_fname))
+        for retry in range(10):
+            try:
+                hdu_list.writeto(output_fname, overwrite=allow_overwrite)
+                break
+            except OSError as e:
+                if e.errno == errno.EEXIST:
+                    raise
+                logger.error(
+                    "Failed to write output file %s: %s\n%s",
+                    output_fname,
+                    str(e),
+                    'Retrying...' if retry < 9 else 'Giving up.',
+                )
+                if retry == 9:
+                    raise
+                sleep(10)
