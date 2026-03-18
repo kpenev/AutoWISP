@@ -4,7 +4,6 @@ from base64 import b64encode
 from io import BytesIO
 
 import numpy
-from astropy.io import fits as astropy_fits
 from PIL import Image as PILImage
 from sqlalchemy import select
 
@@ -24,6 +23,7 @@ from autowisp.bui_util import encode_fits
 from autowisp.browser_interface.processing.display_fits_util import (
     update_fits_display,
 )
+from autowisp.fits_utilities import read_image_components
 
 
 def _get_dr_fname(image_id, color_channel):
@@ -89,13 +89,21 @@ def _generate_quantile_overlay_png(fits_fname, threshold):
     Return PNG bytes: cyan at 50% alpha below threshold, transparent above.
     """
 
-    with astropy_fits.open(fits_fname, "readonly") as frame:
-        pixel_data = frame[1].data
+    print(
+        f"Generating quantile overlay for {fits_fname!r} with "
+        f"threshold: {threshold!r}"
+    )
+    pixel_data = read_image_components(
+        fits_fname, read_error=False, read_mask=False, read_header=False
+    )[0]
     height, width = pixel_data.shape
-    rgba = numpy.zeros((height, width, 4), dtype=numpy.uint8)
-    rgba[pixel_data < threshold] = [255, 0, 0, 64]
+    overlay = numpy.zeros((height, width, 4), dtype=numpy.uint8)
+    below = pixel_data < threshold
+    overlay[below] = [255, 165, 0, 128]
+    overlay[numpy.logical_not(below)] = [0, 89, 255, 128]
+    print(f"{numpy.sum(below)}/{pixel_data.size} pixels below threshold")
     png_stream = BytesIO()
-    PILImage.fromarray(rgba, mode="RGBA").save(png_stream, "png")
+    PILImage.fromarray(overlay, mode="RGBA").save(png_stream, "png")
     return png_stream.getvalue()
 
 
@@ -154,7 +162,7 @@ def preview_calibrated_image(request, image_id, color_channel):
         if overlay == "below_background":
             overlay_diagnostic = "bg_center"
         elif overlay and overlay.startswith("below_pixel_q"):
-            overlay_diagnostic = overlay[len("below_"):]
+            overlay_diagnostic = overlay[len("below_") :]
         overlay_threshold = None
         if overlay_diagnostic is not None:
             overlay_threshold = db_session.scalar(
