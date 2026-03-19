@@ -12,10 +12,7 @@ def set_project_middleware(get_response):
 
         project_home = request.session.get("project_home")
         if project_home is not None:
-            try:
-                set_project_home(project_home)
-            except: #pylint: disable=bare-except
-                pass
+            set_project_home(project_home)
 
         response = get_response(request)
 
