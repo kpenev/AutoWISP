@@ -7,8 +7,9 @@ from os.path import exists
 from PIL import Image
 from matplotlib import colors
 import numpy
-from astropy.io import fits
 from astropy.visualization import ZScaleInterval
+
+from autowisp.fits_utilities import read_image_components
 
 
 def _log_transform(pixel_values, parameter=1000.0):
@@ -55,30 +56,32 @@ def encode_fits(fits_fname, values_range, values_transform):
             f"Requested FITS file ({fits_fname}) does not exist!"
         )
     png_stream = BytesIO()
-    with fits.open(fits_fname, "readonly") as frame:
-        if values_range == "zscale":
-            limits = ZScaleInterval().get_limits(frame[1].data)
-        elif values_range == "minmax":
-            limits = frame[1].data.min(), frame[1].data.max()
-        else:
-            limits = tuple(int(lim.strip()) for lim in values_range.split(","))
-        pixel_values = colors.Normalize(*limits, True)(frame[1].data)
-        if values_transform is not None and values_transform != "None":
-            transform_args = values_transform.split("-")
-            transform = globals()["_" + transform_args.pop(0) + "_transform"]
-            transform_args = [float(arg) for arg in transform_args]
-            pixel_values = transform(pixel_values, *transform_args)
-        scaled_pixels = (pixel_values * 255).astype("uint8")
-        image = Image.fromarray(scaled_pixels)
-        # apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))
-        # image.transform(
-        #    size=(int(image.size[0] * zoom), int(image.size[1] * zoom)),
-        #    method=apply_zoom
-        # ).save(
-        #    png_stream,
-        #    'png'
-        # )
-        image.save(png_stream, "png")
+    frame_data = read_image_components(
+        fits_fname, read_error=False, read_mask=False, read_header=False
+    )[0]
+    if values_range == "zscale":
+        limits = ZScaleInterval().get_limits(frame_data)
+    elif values_range == "minmax":
+        limits = frame_data.min(), frame_data.max()
+    else:
+        limits = tuple(int(lim.strip()) for lim in values_range.split(","))
+    pixel_values = colors.Normalize(*limits, True)(frame_data)
+    if values_transform is not None and values_transform != "None":
+        transform_args = values_transform.split("-")
+        transform = globals()["_" + transform_args.pop(0) + "_transform"]
+        transform_args = [float(arg) for arg in transform_args]
+        pixel_values = transform(pixel_values, *transform_args)
+    scaled_pixels = (pixel_values * 255).astype("uint8")
+    image = Image.fromarray(scaled_pixels)
+    # apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))
+    # image.transform(
+    #    size=(int(image.size[0] * zoom), int(image.size[1] * zoom)),
+    #    method=apply_zoom
+    # ).save(
+    #    png_stream,
+    #    'png'
+    # )
+    image.save(png_stream, "png")
 
     return {
         "image": b64encode(png_stream.getvalue()).decode("utf-8"),
