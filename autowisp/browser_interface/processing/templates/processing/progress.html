@@ -40,16 +40,18 @@ Processing Progress
         class="lcars-element 
                button 
                lcars-melrose-bg
-               lcars-u-1-1">
+               lcars-u-1-1"
+        id="tutorial-start-processing">
     Start Processing
 </button>
 {% endif %}
 
-<a href="{% url 'processing:select_raw_images' %}">
+<a href="{% url 'processing:select_raw_images' %}" id="tutorial-add-images-link">
     <div class="lcars-element 
                               button 
                               lcars-husk-bg
-                              lcars-u-1">
+                              lcars-u-1"
+         id="tutorial-add-images">
         Add New Images
     </div>
 </a>
@@ -131,6 +133,9 @@ Processing Progress
                                 button 
                                 rounded 
                                 lcars-chestnut-rose-bg"
+                         {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                         id="tutorial-object-button"
+                         {% endif %}
                          style="align-items: center; justify-content: left;">
                         {{ imtype }}
                     </div>
@@ -222,7 +227,10 @@ Processing Progress
                                lcars-element 
                                button 
                                rounded 
-                               lcars-husk-bg"
+                               lcars-husk-bg
+                               {% if forloop.first %}
+                               tutorial-first-log
+                               {% endif %}"
                  style="align-items: center;">
                 Logs
             </div>

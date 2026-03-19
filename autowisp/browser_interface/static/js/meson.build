@@ -4,6 +4,7 @@ src = [
   'jquery.min.js',
   'jquery.orgchart.js',
   'lcars.scroll.js',
+  'tutorial.js',
   'walk.fs.js'
 ]
 

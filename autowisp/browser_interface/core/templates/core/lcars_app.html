@@ -12,6 +12,7 @@
         </title>
         <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
         <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
 
         {% block extra_head %}
@@ -43,7 +44,7 @@
                 {% endblock %}
 
                 {% block processing_link %}
-                <a href="{% url 'processing:progress' %}">
+                <a href="{% url 'processing:progress' %}" id="tutorial-processing-status">
                     <div class="lcars-element 
                                 button 
                                 lcars-chestnut-rose-bg
@@ -54,7 +55,7 @@
                 {% endblock processing_link %}
 
                 {% block configuration_link %}
-                <a href="{% url 'configuration:config_tree' %}">
+                <a href="{% url 'configuration:config_tree' %}" id="tutorial-configure-processing">
                     <div class="lcars-element 
                                 button 
                                 lcars-chestnut-rose-bg
@@ -65,7 +66,7 @@
                 {% endblock configuration_link %}
 
                 {% block edit_survey_link %}
-                <a href="{% url 'configuration:survey' %}">
+                <a href="{% url 'configuration:survey' %}" id="tutorial-edit-survey">
                     <div class="lcars-element 
                                 button 
                                 lcars-chestnut-rose-bg
@@ -76,7 +77,7 @@
                 {% endblock edit_survey_link %}
 
                 {% block review_results_link %}
-                <a href="{% url 'results:results' %}">
+                <a href="{% url 'results:results' %}" id="tutorial-review-results">
                     <div class="lcars-element 
                                 button 
                                 lcars-chestnut-rose-bg
@@ -124,5 +125,6 @@
         <script src="{% static 'js/lcars.scroll.js' %}"></script>
         {% block scripts %}
         {% endblock scripts %}
+        <script src="{% static 'js/tutorial.js' %}"></script>
     </body>
 </html>

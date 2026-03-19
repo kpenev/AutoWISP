@@ -112,6 +112,7 @@ CREATE PROJECT
                 </td>
                 <td>
                     <label for="select-home"
+                           id="tutorial-project-home"
                            class="project-text-input button lcars-u--1" 
                            style="text-wrap-mode: nowrap;">
                         {{ path }}
@@ -137,6 +138,7 @@ CREATE PROJECT
             <tr>
                 <td>
                     <label for="config-file"
+                           id="tutorial-custom-config-file"
                            class="project-param-label lcars-u-3-5 button">
                         Custom Configuration (optional):<br>
                         click to load from file
@@ -180,7 +182,7 @@ CREATE PROJECT
                            style="position: sticky; top: 0;">
                         Export Current Master Configuration
                     </label>
-                    <table class="master-config">
+                    <table class="master-config" id="tutorial-master-config">
                         <colgroup>
                             <col style="width: 1px;">
                             <col span=2 style="width: 50%;">

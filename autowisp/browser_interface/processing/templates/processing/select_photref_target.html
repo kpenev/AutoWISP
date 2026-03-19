@@ -59,7 +59,8 @@ Select Photometric Reference
     <tbody class="lcars-table select-row">
     {% for target in master_values %}
     {% url 'processing:select_photref_image' target_index=forloop.counter0 as target_url %}
-    <tr onclick="window.location='{{target_url}}'">
+    <tr onclick="window.location='{{target_url}}'"
+        class="tutorial-photref-target-row">
         {% for val in target %}
         <td> {{val}} </td>
         {% endfor %}
