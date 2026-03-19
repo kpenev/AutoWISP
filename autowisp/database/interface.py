@@ -110,6 +110,11 @@ def set_project_home(project_home, db_url=None):
     makedirs(project_home, exist_ok=True)
     _project_home = path.abspath(project_home)
 
+    engine_kwargs = {
+        "echo": False,
+        "pool_pre_ping": True,
+        "pool_recycle": 3600,
+    }
     url_file = path.join(_project_home, DB_URL_FNAME)
 
     if db_url is not None:
@@ -124,11 +129,6 @@ def set_project_home(project_home, db_url=None):
         with open(url_file, encoding="utf-8") as fobj:
             db_url = fobj.read().strip()
 
-    engine_kwargs = {
-        "echo": False,
-        "pool_pre_ping": True,
-        "pool_recycle": 3600,
-    }
 
     if db_url is None:
         db_path = path.join(_project_home, "autowisp.db")
