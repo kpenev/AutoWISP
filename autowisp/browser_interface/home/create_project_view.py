@@ -144,15 +144,6 @@ class CreateProjectView(WalkFSView):
         ), (
             f"Directory {project_home} appears to already contain a project."
         )
-
-        project_home = config["project-home"]
-        assert not os.path.exists(
-            os.path.join(project_home, self.db_fname)
-        ) and not os.path.exists(
-            os.path.join(project_home, DB_URL_FNAME)
-        ), (
-            f"Directory {project_home} appears to already contain a project."
-        )
         proj = Project(
             name=config["project-name"],
             path=project_home,
