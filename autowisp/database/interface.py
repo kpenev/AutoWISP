@@ -131,19 +131,6 @@ def set_project_home(project_home, db_url=None):
     }
     url_file = path.join(_project_home, DB_URL_FNAME)
 
-    if db_url is not None:
-        assert not path.exists(url_file), (
-            f"Attempting to set a new db_url in {_project_home!r} which already"
-            f" contains {url_file!r}"
-        )
-        # Persist the URL so future calls without db_url reconnect correctly.
-        with open(url_file, "w", encoding="utf-8") as fobj:
-            fobj.write(db_url)
-    elif path.exists(url_file):
-        with open(url_file, encoding="utf-8") as fobj:
-            db_url = fobj.read().strip()
-
-
     if db_url is None:
         db_path = path.join(_project_home, "autowisp.db")
         db_url = f"sqlite:///{path.abspath(db_path)}?timeout=600&uri=true"
