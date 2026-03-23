@@ -71,7 +71,7 @@ def main(config):
 
     set_project_home(config.project_home)
 
-    # Alternative approach from a7c1a95 branch (uses undefined processing_database):
+    #old code
     # db_fname = os.path.abspath(config.processing_database)
     # set_sqlite_database(db_fname)
 
