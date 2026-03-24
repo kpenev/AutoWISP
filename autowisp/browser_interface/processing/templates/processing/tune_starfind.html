@@ -56,10 +56,10 @@ Tune Source Extraction
     <div class="param">
         <label for="threshold-mode">Threshold mode:</label>
         <select class="param" id="threshold-mode" onchange="setThresholdModeUI(this.value)">
-            <option value="brightness-threshold" {% if threshold_mode == "brightness-threshold" %}selected{% endif %}>
+            <option value="brightness-threshold" {% if threshold_mode=="brightness-threshold" %}selected{% endif %}>
                 Brightness Threshold
             </option>
-            <option value="quantile" {% if threshold_mode == "quantile" %}selected{% endif %}>
+            <option value="quantile" {% if threshold_mode=="quantile" %}selected{% endif %}>
                 Quantile
             </option>
         </select>
