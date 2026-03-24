@@ -51,6 +51,7 @@ def _init_session(request):
     request.session["lc_plotting"] = {
         "lc_fname_template": param_values["lc-fname"],
         "target_fname": "",
+        "gaia_id": None,
         "color_map": [hex_color(color_map(i)) for i in range(10)],
         "data_select": [
             {
@@ -446,9 +447,22 @@ def update_subplot(plotting_session, updates):
         assert len(gaia_id) == 1
         gaia_id = gaia_id[0].split()[-1]
 
+    gaia_id = int(gaia_id)
+    gaia_id_str = str(gaia_id)
+
+    for plot_decorations in plotting_session["plot_decorations"]:
+        title = plot_decorations.get("title")
+        if isinstance(title, str):
+            plot_decorations["title"] = (
+                title.replace("{GaiaID}", gaia_id_str)
+                .replace("{gaia_id}", gaia_id_str)
+                .replace("{gaiaid}", gaia_id_str)
+            )
+
     plotting_session["target_fname"] = plotting_session[
         "lc_fname_template"
-    ].format(int(gaia_id), PROJHOME=get_project_home())
+    ].format(gaia_id, PROJHOME=get_project_home())
+    plotting_session["gaia_id"] = gaia_id
     _add_lightcurve_to_session(
         plotting_session, plotting_session["target_fname"]
     )
@@ -688,10 +702,17 @@ def download_lightcurve_figure(request):
             edgecolor="white",
         )
         image_stream.seek(0)
+        gaia_id = plotting_info.get("gaia_id")
+        if gaia_id is None:
+            filename = "lightcurve.pdf"
+        else:
+            filename = f"lightcurve-{gaia_id}.pdf"
         return HttpResponse(
             image_stream.read(),
             content_type="application/pdf",
             headers={
-                "Content-Disposition": 'attachment; filename="lightcurve.pdf"'
+                "Content-Disposition": (
+                    f'attachment; filename="{filename}"'
+                )
             },
         )
