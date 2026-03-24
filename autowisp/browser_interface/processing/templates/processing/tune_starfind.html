@@ -3,7 +3,7 @@
 
 {% block extra_head %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'processing/css/floating_params.css' %}"/>
+<link rel="stylesheet" href="{% static 'processing/css/floating_params.css' %}" />
 {% endblock extra_head %}
 
 
@@ -12,18 +12,15 @@ Tune Source Extraction
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
-    <input type="submit"
-           form="save_config"
-           class="lcars-element 
+<input type="submit" form="save_config" class="lcars-element 
                   button 
                   lcars-melrose-bg
-                  lcars-u-1-2"
-           value="SAVE &#10; CURRENT">
-    </input>
+                  lcars-u-1-2" value="SAVE &#10; CURRENT">
+</input>
 </a>
 
 {% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
-<div onclick="showImageLocations('{{ starfindURL }}', getExtractParams(), true)">
+<div onclick="updateExtractedSources('{{ starfindURL }}')">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -33,10 +30,7 @@ Tune Source Extraction
 </div>
 
 {% url 'processing:project_catalog' fits_fname=fits_fname as projectCatURL %}
-<div onclick="showImageLocations('{{ projectCatURL }}',
-                          getExtractParams(),
-                          false,
-                          {'shape': 'circle', 'r': 8.0, 'color': '#f00'})">
+<div onclick="updateProjectedCatalog('{{ projectCatURL }}')">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -50,47 +44,54 @@ Tune Source Extraction
 {{ block.super }}
 
 {% url 'processing:save_starfind_config' imtype=imtype batch_index=batch_index as save_url %}
-<form id="save_config" 
-      action="{{ save_url }}" 
-      method="post" 
-      class="param-parent"
-      onkeydown="return event.key != 'Enter';">
+<form id="save_config" action="{{ save_url }}" method="post" class="param-parent"
+    onkeydown="return event.key != 'Enter';">
     {% csrf_token %}
 
     <div class="param">
         <label for="srcfind-tool">Tool:</label>
-        <input class="param"
-               id="srcfind-tool"
-               name="srcfind-tool"
-               type="text"
-               value="fistar">
+        <input class="param" id="srcfind-tool" name="srcfind-tool" type="text" value="{{ srcfind_tool }}">
     </div>
-    <br/>
+    <br />
     <div class="param">
-        <label for="brightness-threshold">Brightness threshold:</label>
-        <input class="param"
-               id="brightness-threshold"
-               name="brightness-threshold"
-               type="text"
-               value="1000">
+        <label for="threshold-mode">Threshold mode:</label>
+        <select class="param" id="threshold-mode" onchange="setThresholdModeUI(this.value)">
+            <option value="brightness-threshold" {% if threshold_mode == "brightness-threshold" %}selected{% endif %}>
+                Brightness Threshold
+            </option>
+            <option value="quantile" {% if threshold_mode == "quantile" %}selected{% endif %}>
+                Quantile
+            </option>
+        </select>
     </div>
-    <br/>
+    <br />
+    <div class="param" id="brightness-threshold-row">
+        <label for="brightness-threshold">Brightness threshold:</label>
+        <input class="param" id="brightness-threshold" name="brightness-threshold" type="text"
+            value="{{ brightness_threshold }}">
+    </div>
+    <br id="brightness-threshold-break" />
+    <div class="param" id="brightness-quantile-row" style="display: none;">
+        <label for="brightness-quantile">Quantile:</label>
+        <input class="param" id="brightness-quantile" name="brightness-quantile" type="text"
+            value="{{ brightness_quantile }}">
+    </div>
+    <br id="brightness-quantile-break" style="display: none;" />
+    <div class="param" id="brightness-quantile-scale-row" style="display: none;">
+        <label for="brightness-quantile-scale">Quantile scale:</label>
+        <input class="param" id="brightness-quantile-scale" name="brightness-quantile-scale" type="text"
+            value="{{ brightness_quantile_scale }}">
+    </div>
+    <br id="brightness-quantile-scale-break" style="display: none;" />
     <div class="param">
         <label for="filter-sources">Filter sources:</label>
-        <input class="param"
-               id="filter-sources"
-               name="filter-sources"
-               type="text"
-               value="True">
+        <input class="param" id="filter-sources" name="filter-sources" type="text" value="{{ filter_sources }}">
     </div>
-    <br/>
+    <br />
     <div class="param">
         <label for="max-sources">Max sources:</label>
-        <input class="param"
-               id="max-sources"
-               name="srcextract-max-sources"
-               type="text"
-               value="0">
+        <input class="param" id="max-sources" name="srcextract-max-sources" type="text"
+            value="{{ srcextract_max_sources }}">
     </div>
 </form>
 {% endblock full_view %}

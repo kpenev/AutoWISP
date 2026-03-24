@@ -221,6 +221,61 @@ def tune_starfind(request, imtype, batch_index):
     context["imtype"] = imtype
     context["batch_index"] = batch_index
 
+    defaults = {
+        "srcfind_tool": "fistar",
+        "threshold_mode": "brightness-threshold",
+        "brightness_threshold": "1000",
+        "brightness_quantile": "0.999",
+        "brightness_quantile_scale": "1.0",
+        "filter_sources": "True",
+        "srcextract_max_sources": "0",
+    }
+
+    try:
+        evaluate = Evaluator(get_primary_header(context["fits_fname"]))
+        processing = ImageProcessingManager(pipeline_run_id=None)
+        with start_db_session() as db_session:
+            config = processing.get_config(
+                matched_expressions=processing.get_matched_expressions(
+                    evaluate
+                ),
+                db_session=db_session,
+                step_name="find_stars",
+            )[0]
+
+        brightness_threshold = config.get("brightness_threshold")
+        defaults.update(
+            {
+                "srcfind_tool": str(config.get("srcfind_tool", "fistar")),
+                "threshold_mode": (
+                    "quantile"
+                    if brightness_threshold is None
+                    else "brightness-threshold"
+                ),
+                "brightness_threshold": (
+                    "" if brightness_threshold is None else str(brightness_threshold)
+                ),
+                "brightness_quantile": str(
+                    config.get("brightness_quantile", 0.999)
+                ),
+                "brightness_quantile_scale": str(
+                    config.get("brightness_quantile_scale", 1.0)
+                ),
+                "filter_sources": str(
+                    config.get("filter_sources", "True")
+                ),
+                "srcextract_max_sources": str(
+                    config.get("srcextract_max_sources", 0)
+                ),
+            }
+        )
+    except Exception:  # pragma: no cover - keep tune UI available
+        logging.exception(
+            "Failed to load find_stars defaults from current configuration"
+        )
+
+    context.update(defaults)
+
     return render(request, "processing/tune_starfind.html", context)
 
 
@@ -229,14 +284,51 @@ def find_stars(request, fits_fname):
 
     starfind_config = json.loads(request.body.decode())
 
-    stars = SourceFinder(
-        tool=starfind_config["srcfind-tool"],
-        brightness_threshold=float(starfind_config["brightness-threshold"]),
-        filter_sources=starfind_config["filter-sources"],
-        max_sources=int(starfind_config["max-sources"] or "0"),
-        allow_overwrite=True,
-        allow_dir_creation=True,
-    )(fits_fname)
+    try:
+        max_sources = int(starfind_config.get("max-sources") or "0")
+        mode = starfind_config.get(
+            "threshold-mode", "brightness-threshold"
+        )
+
+        find_stars_config = {
+            "tool": starfind_config["srcfind-tool"],
+            "filter_sources": starfind_config["filter-sources"],
+            "max_sources": max_sources,
+            "allow_overwrite": True,
+            "allow_dir_creation": True,
+        }
+
+        if mode == "quantile":
+            quantile = float(starfind_config["brightness-quantile"])
+            quantile_scale = float(
+                starfind_config["brightness-quantile-scale"]
+            )
+            if not 0.0 <= quantile <= 1.0:
+                raise ValueError("Quantile must be between 0 and 1.")
+            if quantile_scale <= 0.0:
+                raise ValueError("Quantile scale must be positive.")
+            find_stars_config.update(
+                {
+                    "brightness_threshold": None,
+                    "brightness_quantile": quantile,
+                    "brightness_quantile_scale": quantile_scale,
+                }
+            )
+        else:
+            threshold = float(starfind_config["brightness-threshold"])
+            if threshold <= 0.0:
+                raise ValueError("Brightness threshold must be positive.")
+            find_stars_config["brightness_threshold"] = threshold
+
+    except (KeyError, TypeError, ValueError) as error:
+        return JsonResponse(
+            {
+                "stars": [],
+                "message": f"Invalid source extraction inputs: {error}",
+            }
+        )
+
+    stars = SourceFinder(**find_stars_config)(fits_fname)
     request.session["extracted"] = {c: list(stars[c]) for c in "xy"}
     stars = {"stars": [{"x": s["x"], "y": s["y"]} for s in stars]}
     return JsonResponse(stars)
@@ -324,6 +416,11 @@ def save_starfind_config(request, imtype, batch_index):
             param: db_session.scalar(select(Parameter.id).filter_by(name=param))
             for param in starfind_config
         }
+        param_ids = {
+            param: param_id
+            for param, param_id in param_ids.items()
+            if param_id is not None
+        }
         condition_id = db_session.scalar(
             select(
                 sql.functions.max(Condition.id) + 1  # pylint: disable=no-member
@@ -361,7 +458,7 @@ def save_starfind_config(request, imtype, batch_index):
                     ),
                 )
             )
-        for param in starfind_config:
+        for param in param_ids:
             db_session.add(
                 Configuration(  # pylint: disable=not-callable
                     parameter_id=param_ids[param],
