@@ -674,7 +674,9 @@ class HDF5File(ABC, h5py.File):
                 or numpy.array_equal(
                     parent.attrs[attribute_name],
                     attribute_value,
-                    equal_nan=True,
+                    equal_nan=numpy.issubdtype(
+                        numpy.asarray(attribute_value).dtype, float
+                    ),
                 )
             ):
                 return parent.attrs[attribute_name]
