@@ -671,10 +671,11 @@ class HDF5File(ABC, h5py.File):
             # TODO: handle  multi-valued attributes correctly.
             if (
                 if_exists == "ignore"
-                or (
-                    parent.attrs[attribute_name]
-                    == numpy.asarray(attribute_value)
-                ).all()
+                or numpy.array_equal(
+                    parent.attrs[attribute_name],
+                    attribute_value,
+                    equal_nan=True,
+                )
             ):
                 return parent.attrs[attribute_name]
             if if_exists == "error":

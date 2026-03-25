@@ -149,7 +149,7 @@ class MasterPhotrefCollector:
                 ) = average_dev
 
             for column in ["mediandev", "medianmeddev"]:
-                statistics[column] *= numpy.sqrt(
+                statistics[column][res_slice, :] *= numpy.sqrt(
                     statistics["rejected_count"][res_slice, :] - 1
                 )
 
