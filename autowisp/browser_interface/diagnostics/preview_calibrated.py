@@ -99,8 +99,8 @@ def _generate_quantile_overlay_png(fits_fname, threshold):
     height, width = pixel_data.shape
     overlay = numpy.zeros((height, width, 4), dtype=numpy.uint8)
     below = pixel_data < threshold
-    overlay[below] = [255, 165, 0, 128]
-    overlay[numpy.logical_not(below)] = [0, 89, 255, 128]
+    overlay[below] = [252, 141, 89, 128]
+    overlay[numpy.logical_not(below)] = [145, 191, 219, 128]
     print(f"{numpy.sum(below)}/{pixel_data.size} pixels below threshold")
     png_stream = BytesIO()
     PILImage.fromarray(overlay, mode="RGBA").save(png_stream, "png")

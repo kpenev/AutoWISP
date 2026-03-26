@@ -360,7 +360,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if "+" in input_type and input_type.split("+")[1].strip() == "dr":
             self.add_argument(
                 "--data-reduction-fname",
-                default="{PROJHOME}/DR/{RAWFNAME}.h5",
+                default="{PROJHOME}/DR/{RAWFNAME}_{CLRCHNL}.h5",
                 help="Format string to generate the filename(s) of the data "
                 "reduction files where extracted sources are saved. Replacement"
                 " fields can be anything from the header of the calibrated "

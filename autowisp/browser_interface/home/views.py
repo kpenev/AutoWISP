@@ -44,7 +44,6 @@ logger = logging.getLogger(__name__)
 def home(request):
     """Display the home page."""
 
-    request.session.flush()
     display_columns = [
         field.name
         for field in Project._meta.get_fields()  # pylint: disable=no-member, protected-access
