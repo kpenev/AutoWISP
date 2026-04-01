@@ -246,6 +246,8 @@ def select_photref_image(request, *, target_index, recalculate=False):
     """Display the interface for reviewing canditate reference frames."""
 
     assert request.method == "GET"
+    if "need_photref" not in request.session:
+        return redirect("processing:select_photref_target")
     print("Image view with request: " + repr(request))
     update_fits_display(request)
     image_index = request.session["fits_display"]["image_index"]
