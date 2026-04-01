@@ -48,6 +48,16 @@ urlpatterns = [
         name="update_image_diagnostics_plot",
     ),
     path(
+        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>",
+        views.display_diag_vs_diag,
+        name="display_diag_vs_diag",
+    ),
+    path(
+        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/update_plot",
+        views.update_diag_vs_diag_plot,
+        name="update_diag_vs_diag_plot",
+    ),
+    path(
         "preview_calibrated/<int:image_id>/<slug:color_channel>",
         views.preview_calibrated_image,
         name="preview_calibrated_image",
