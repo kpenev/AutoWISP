@@ -1,13 +1,16 @@
 """Views for displaying per-image diagnostics."""
 
+from io import BytesIO
 import json
 import math
 
+import matplotlib
 from matplotlib import pyplot
 from matplotlib.figure import Figure
 from sqlalchemy import select, func
 import numpy
 
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -400,7 +403,7 @@ def create_image_diagnostics_figure(
     return fig
 
 
-def update_plot_view(request, figure_factory, **url_kwargs):
+def update_plot_view(request, figure_factory, session_key=None, **url_kwargs):
     """Common handler for diagnostics AJAX plot-update views.
 
     Parses the JSON POST body, calls ``figure_factory`` to produce the figure,
@@ -413,11 +416,16 @@ def update_plot_view(request, figure_factory, **url_kwargs):
         figure_factory: Callable accepting ``series_list``, ``db_session``,
                         ``figure_config``, plus any URL kwargs as keyword
                         arguments.
+        session_key:    If given, the raw POST data is stored in the session
+                        under this key so a download view can retrieve it.
 
     Returns:
         JsonResponse with ``plot_data`` containing the SVG string.
     """
     post_data = json.loads(request.body.decode())
+    if session_key:
+        request.session[session_key] = post_data
+        request.session.modified = True
     series_list = [
         {"id": series_id, **config}
         for series_id, config in post_data.get("datasets", {}).items()
@@ -435,6 +443,52 @@ def update_plot_view(request, figure_factory, **url_kwargs):
         )
 
     return figure_to_svg_response(fig)
+
+
+def download_plot_view(request, figure_factory, session_key, **url_kwargs):
+    """Return the last-plotted figure as a PDF download.
+
+    Reads the plot configuration stored in the session by a previous call to
+    :func:`update_plot_view` and regenerates the figure in PDF format.
+
+    Args:
+        request:        Django HTTP request.
+        figure_factory: Same factory used by the corresponding update view.
+        session_key:    Session key where :func:`update_plot_view` stored the
+                        last POST data.
+
+    Returns:
+        HttpResponse with PDF content.
+    """
+    post_data = request.session.get(session_key, {})
+    series_list = [
+        {"id": series_id, **config}
+        for series_id, config in post_data.get("datasets", {}).items()
+    ]
+    figure_config = post_data.get("figure_config", {}).copy()
+    figure_config.pop("show_legend", None)
+
+    matplotlib.use("pdf")
+    pyplot.style.use("default")
+
+    with start_db_session() as db_session:
+        fig = figure_factory(
+            series_list,
+            db_session=db_session,
+            figure_config=figure_config,
+            **url_kwargs,
+        )
+
+    with BytesIO() as pdf_stream:
+        fig.savefig(pdf_stream, bbox_inches="tight", format="pdf")
+        pyplot.close(fig)
+        return HttpResponse(
+            pdf_stream.getvalue(),
+            headers={
+                "Content-Type": "application/pdf",
+                "Content-Disposition": 'attachment; filename="diagnostics.pdf"',
+            },
+        )
 
 
 def get_available_diagnostics(db_session):
@@ -472,6 +526,10 @@ def display_image_diagnostics(request, diagnostic_name):
     context["diagnostics_title"] = diagnostic_name
     context["update_plot_url"] = reverse(
         "diagnostics:update_image_diagnostics_plot",
+        kwargs={"diagnostic_name": diagnostic_name},
+    )
+    context["download_pdf_url"] = reverse(
+        "diagnostics:download_image_diagnostics_plot",
         kwargs={"diagnostic_name": diagnostic_name},
     )
 

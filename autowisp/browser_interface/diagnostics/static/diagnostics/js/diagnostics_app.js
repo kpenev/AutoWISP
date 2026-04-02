@@ -44,6 +44,9 @@ function getSelectedDatasets()
 
 function showDiagnosticsPlot(data)
 {
+    let downloadBtn = document.getElementById("download-button");
+    if (downloadBtn)
+        downloadBtn.style.display = "inline";
     let display = document.getElementById("diagnostics-display");
     display.innerHTML = "";
     showSVG(data, "diagnostics-display");

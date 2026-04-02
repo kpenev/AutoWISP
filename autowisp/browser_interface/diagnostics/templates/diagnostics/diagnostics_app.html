@@ -28,6 +28,17 @@
 {% endif %}
 {% endblock header_bar_extra %}
 
+{% block left_menu %}
+{% if download_pdf_url %}
+<a id="download-button" href="{{ download_pdf_url }}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Download Figure
+    </div>
+</a>
+{% endif %}
+{{ block.super }}
+{% endblock left_menu %}
+
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
     <div id="diagnostics-table-parent">

@@ -257,5 +257,12 @@ def display_diag_vs_diag(request, x_diagnostic, y_diagnostic):
             "y_diagnostic": y_diagnostic,
         },
     )
+    context["download_pdf_url"] = reverse(
+        "diagnostics:download_diag_vs_diag_plot",
+        kwargs={
+            "x_diagnostic": x_diagnostic,
+            "y_diagnostic": y_diagnostic,
+        },
+    )
 
     return render(request, "diagnostics/diag_vs_diag.html", context)
