@@ -3,6 +3,7 @@ py_src = [
   'admin.py',
   'apps.py',
   'context_processors.py',
+  'plot_utils.py',
   'models.py',
   'views.py',
   'walk_fs_view.py'

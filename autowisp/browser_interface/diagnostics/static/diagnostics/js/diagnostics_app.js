@@ -16,6 +16,7 @@ function getSelectedDatasets()
         let marker = button.children[0].className.baseVal.split(" ")[1];
         if ( marker != "" ) {
             datasets[seriesId] = {
+                "channel": row.getAttribute("channel"),
                 "color": document.getElementById(
                     "plot-color:" + seriesId
                 ).value,
@@ -31,10 +32,12 @@ function getSelectedDatasets()
     }
     let display = document.getElementById("diagnostics-display");
     let rect = display.getBoundingClientRect();
+    let legendToggle = document.getElementById("legend-toggle");
     return {
         "datasets": datasets,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
+            "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
         },
     };
 }

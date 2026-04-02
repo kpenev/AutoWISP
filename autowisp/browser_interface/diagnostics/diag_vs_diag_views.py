@@ -1,17 +1,13 @@
 """Views for diagnostic-vs-diagnostic scatter plots."""
 
-import json
-from io import StringIO
-
-import matplotlib
 from matplotlib import pyplot
 from sqlalchemy import select, func
 from sqlalchemy.orm import aliased
 
-from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
+from autowisp.browser_interface.core.plot_utils import channel_colors
 from autowisp.database.interface import start_db_session
 
 # False positive due to unusual importing
@@ -25,7 +21,10 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 
-from .image_diagnostics_views import get_available_diagnostics
+from .image_diagnostics_views import (
+    get_available_diagnostics,
+    plot_image_diagnostic_series,
+)
 
 
 def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
@@ -64,7 +63,8 @@ def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
         .join(x_diag, x_diag.image_id == Image.id)  # pylint: disable=no-member
         .join(
             ObservingSession,
-            ObservingSession.id == Image.observing_session_id,  # pylint: disable=no-member
+            ObservingSession.id
+            == Image.observing_session_id,  # pylint: disable=no-member
         )
         .join(x_type, x_type.id == x_diag.diagnostic_id)
         .join(
@@ -78,7 +78,6 @@ def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
         .order_by(ObservingSession.label, x_diag.channel)
     )
 
-    channel_colors = {"R": "#ff0000", "G": "#00ff00", "B": "#0000ff"}
     diagnostics_list = []
     for session_label, session_id, channel, count in db_session.execute(
         query
@@ -86,6 +85,7 @@ def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
         diagnostics_list.append(
             {
                 "id": f"{session_id}_{channel}",
+                "channel": channel,
                 "color": channel_colors.get(
                     channel[0].upper() if channel else "", "#ffffff"
                 ),
@@ -121,9 +121,8 @@ def get_xy_series_data(series, x_diagnostic, y_diagnostic, db_session):
             Empty tuples if no paired data is found.
     """
 
-    parts = series["id"].split("_")
-    session_id = int(parts[0])
-    channel = parts[1]
+    session_id = int(series["id"].split("_")[0])
+    channel = series["channel"]
 
     x_diag = aliased(ImageDiagnostics)
     y_diag = aliased(ImageDiagnostics)
@@ -131,7 +130,9 @@ def get_xy_series_data(series, x_diagnostic, y_diagnostic, db_session):
     y_type = aliased(DiagnosticType)
 
     rows = db_session.execute(
-        select(x_diag.value, y_diag.value, Image.id)  # pylint: disable=no-member
+        select(
+            x_diag.value, y_diag.value, Image.id  # pylint: disable=no-member
+        )  # pylint: disable=no-member
         .select_from(Image)
         .join(x_diag, x_diag.image_id == Image.id)  # pylint: disable=no-member
         .join(x_type, x_type.id == x_diag.diagnostic_id)
@@ -142,7 +143,8 @@ def get_xy_series_data(series, x_diagnostic, y_diagnostic, db_session):
         )
         .join(y_type, y_type.id == y_diag.diagnostic_id)
         .where(
-            Image.observing_session_id == session_id,  # pylint: disable=no-member
+            Image.observing_session_id  # pylint: disable=no-member
+            == session_id,  # pylint: disable=no-member
             x_diag.channel == channel,
             x_type.name == x_diagnostic,
             y_type.name == y_diagnostic,
@@ -156,7 +158,12 @@ def get_xy_series_data(series, x_diagnostic, y_diagnostic, db_session):
 
 
 def create_diag_vs_diag_figure(
-    series_list, x_diagnostic, y_diagnostic, db_session, figure_config=None
+    series_list,
+    *,
+    x_diagnostic,
+    y_diagnostic,
+    db_session,
+    figure_config=None,
 ):
     """
     Create a scatter plot of *x_diagnostic* versus *y_diagnostic*.
@@ -181,20 +188,20 @@ def create_diag_vs_diag_figure(
         matplotlib.figure.Figure:  The completed figure.
     """
 
-    config = {"aspect_ratio": 1.0}
-    config.update(figure_config or {})
+    figure_config = figure_config or {}
+    show_legend = figure_config.pop("show_legend", True)
+    aspect_ratio = figure_config.get("aspect_ratio", 1.0)
 
     fig_width = 10.0
     fig, axes = pyplot.subplots(
-        1, 1, figsize=(fig_width, fig_width / config["aspect_ratio"])
+        1, 1, figsize=(fig_width, fig_width / aspect_ratio)
     )
 
-    edge_only_markers = set("x+.,1234|_")
     has_data = False
     for series in series_list:
         if not series.get("marker", "").strip():
             continue
-        x_values, y_values, _ = get_xy_series_data(
+        x_values, y_values, image_ids = get_xy_series_data(
             series, x_diagnostic, y_diagnostic, db_session
         )
         x_values = list(x_values)
@@ -203,18 +210,12 @@ def create_diag_vs_diag_figure(
             continue
 
         has_data = True
-        marker = series["marker"]
-        color = series["color"]
-        size = float(series.get("scale", 1.0))
-
-        axes.scatter(
+        plot_image_diagnostic_series(
+            axes,
             x_values,
             y_values,
-            marker=marker,
-            s=size * 20,
-            edgecolors=color if marker in edge_only_markers else "none",
-            facecolors="none" if marker in edge_only_markers else color,
-            label=series["label"],
+            image_ids,
+            series,
         )
 
     if not has_data:
@@ -229,40 +230,12 @@ def create_diag_vs_diag_figure(
     else:
         axes.set_xlabel(x_diagnostic)
         axes.set_ylabel(y_diagnostic)
-        axes.legend()
+        if show_legend:
+            axes.legend()
         axes.grid(True, linewidth=0.2)
 
     fig.tight_layout()
     return fig
-
-
-def update_diag_vs_diag_plot(request, x_diagnostic, y_diagnostic):
-    """Generate the diag-vs-diag plot for the active series (AJAX endpoint).
-
-    Expects a JSON POST body with a ``datasets`` dict keyed by series id,
-    each value containing ``color``, ``marker``, ``scale``, and ``label``.
-    An optional ``figure_config`` dict may supply an ``aspect_ratio``.
-    """
-
-    post_data = json.loads(request.body.decode())
-    datasets = post_data.get("datasets", {})
-    series_list = [
-        {"id": series_id, **config} for series_id, config in datasets.items()
-    ]
-    figure_config = post_data.get("figure_config")
-
-    matplotlib.use("svg")
-    pyplot.style.use("dark_background")
-
-    with start_db_session() as db_session:
-        fig = create_diag_vs_diag_figure(
-            series_list, x_diagnostic, y_diagnostic, db_session, figure_config
-        )
-
-    with StringIO() as svg_stream:
-        fig.savefig(svg_stream, bbox_inches="tight", format="svg")
-        pyplot.close(fig)
-        return JsonResponse({"plot_data": svg_stream.getvalue()})
 
 
 def display_diag_vs_diag(request, x_diagnostic, y_diagnostic):

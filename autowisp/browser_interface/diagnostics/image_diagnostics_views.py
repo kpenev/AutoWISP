@@ -2,18 +2,21 @@
 
 import json
 import math
-from io import StringIO
 
-import matplotlib
 from matplotlib import pyplot
 from matplotlib.figure import Figure
 from sqlalchemy import select, func
 import numpy
 
-from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
+from autowisp.browser_interface.core.plot_utils import (
+    channel_colors,
+    edge_only_markers,
+    setup_svg_matplotlib,
+    figure_to_svg_response,
+)
 from autowisp.database.interface import start_db_session
 
 # False positive due to unusual importing
@@ -24,9 +27,6 @@ from autowisp.database.data_model import (
     Image,
     ObservingSession,
 )
-
-# pylint: enable=no-name-in-module
-
 
 # pylint: enable=no-name-in-module
 def get_available_diagnostic_series(diagnostic_name, db_session):
@@ -103,12 +103,11 @@ def get_available_diagnostic_series(diagnostic_name, db_session):
             .order_by(ObservingSession.label, ImageDiagnostics.channel)
         )
 
-    channel_colors = {"R": "#ff0000", "G": "#00ff00", "B": "#0000ff"}
-
     diagnostics_list = []
     for row in db_session.execute(query).all():
         session_label, session_id, channel, count = row[:4]
         series = {
+            "channel": channel,
             "color": channel_colors.get(
                 channel[0].upper() if channel else "", "#ffffff"
             ),
@@ -154,13 +153,13 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
         db_session:    An active SQLAlchemy database session.
 
     Returns:
-        tuple:    ``(jd_values, diag_values)`` as tuples of floats,
-            ordered by JD.  Empty tuples if no data is found.
+        tuple:    ``(jd_values, diag_values, image_ids)`` as tuples of
+            floats/ints, ordered by JD.  Empty tuples if no data is found.
     """
 
     parts = series["id"].split("_")
     session_id = int(parts[0])
-    channel = parts[1]
+    channel = series["channel"]
 
     if diagnostic_name == "quantiles":
         query_diag_name = "_".join(parts[2:])
@@ -169,7 +168,9 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
 
     rows = db_session.execute(
         select(  # pylint: disable=no-member
-            Image.jd, ImageDiagnostics.value, Image.id
+            Image.jd,  # pylint: disable=no-member
+            ImageDiagnostics.value,
+            Image.id,  # pylint: disable=no-member
         )
         .join(
             ImageDiagnostics,
@@ -195,7 +196,9 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
     return zip(*rows)
 
 
-def plot_image_diagnostic_series(axes, time_values, diag_values, config, urls):
+def plot_image_diagnostic_series(
+    axes, time_values, diag_values, image_ids, config
+):
     """
     Plot a single image diagnostic series on the given axes.
 
@@ -208,12 +211,9 @@ def plot_image_diagnostic_series(axes, time_values, diag_values, config, urls):
 
         config(dict):    Configuration for the plotting usually produce by
             :func:`get_available_diagnostic_series`. Should contain keys
-            ``color``, ``marker``, ``scale``, and ``label``.
-
-        urls(list):    Per-point URLs to embed in the SVG as hyperlinks.
+            ``channel``, ``color``, ``marker``, ``scale``, and ``label``.
     """
 
-    edge_only_markers = set("x+.,1234|_")
     marker = config["marker"]
     color = config["color"]
     size = float(config.get("scale", 1.0))
@@ -227,7 +227,13 @@ def plot_image_diagnostic_series(axes, time_values, diag_values, config, urls):
         facecolors="none" if marker in edge_only_markers else color,
         label=config["label"],
     )
-    collection.set_urls(list(urls))
+    collection.set_urls([
+        reverse(
+            "diagnostics:preview_calibrated_image",
+            kwargs={"image_id": img_id, "color_channel": config["channel"]},
+        )
+        for img_id in image_ids
+    ])
 
 
 def group_series_by_jd_overlap(series_data):
@@ -239,7 +245,7 @@ def group_series_by_jd_overlap(series_data):
     ranges end up in separate groups.
 
     Args:
-        series_data(list):    A list of ``(series, jd_values, diag_values)``
+        series_data(list):    A list of ``(series, jd_values, diag_values, image_ids)``
             tuples, where *jd_values* are ordered sequences of Julian dates.
 
     Returns:
@@ -320,9 +326,10 @@ def create_figure(num_plots, plot_height_frac, aspect_ratio, num_columns):
 
 def create_image_diagnostics_figure(
     series_list,
+    *,
     diagnostic_name,
     db_session,
-    overwrite_figure_config=None,
+    figure_config=None,
 ):
     """
     Create a multi-panel figure for the selected image diagnostic series.
@@ -354,12 +361,11 @@ def create_image_diagnostics_figure(
         matplotlib.figure.Figure:    The completed figure.
     """
 
-    figure_config = {
-        "plot_height_frac": 1.0 / 3.0,
-        "num_columns": 1,
-        "aspect_ratio": 3.0,
-    }
-    figure_config.update(overwrite_figure_config or {})
+    figure_config = figure_config or {}
+    show_legend = figure_config.pop("show_legend", True)
+    figure_config.setdefault("plot_height_frac", 1.0 / 3.0)
+    figure_config.setdefault("num_columns", 1)
+    figure_config.setdefault("aspect_ratio", 3.0)
 
     series_data = []
     min_jd = numpy.inf
@@ -381,55 +387,54 @@ def create_image_diagnostics_figure(
 
     for axes, group in zip(all_axes.flatten(), groups):
         for series, jd_values, diag_values, image_ids in group:
-            channel = series["id"].split("_")[1]
-            urls = [
-                reverse(
-                    "diagnostics:preview_calibrated_image",
-                    kwargs={"image_id": img_id, "color_channel": channel},
-                )
-                for img_id in image_ids
-            ]
             plot_image_diagnostic_series(
-                axes, jd_values - min_jd, diag_values, series, urls
+                axes, jd_values - min_jd, diag_values, image_ids, series
             )
         axes.set_xlabel(f"JD - {min_jd!r}")
         axes.set_ylabel(diagnostic_name)
-        axes.legend()
+        if show_legend:
+            axes.legend()
         axes.grid(True, linewidth=0.2)
 
     fig.tight_layout()
     return fig
 
 
-def update_image_diagnostics_plot(request, diagnostic_name):
-    """Generate the image diagnostics plot for the series selected by the user.
+def update_plot_view(request, figure_factory, **url_kwargs):
+    """Common handler for diagnostics AJAX plot-update views.
 
-    Expects a JSON POST body with a ``datasets`` dict keyed by series id,
-    each value containing ``color``, ``marker``, ``scale``, and ``label``.
-    An optional ``figure_config`` dict may override the default layout.
+    Parses the JSON POST body, calls ``figure_factory`` to produce the figure,
+    and returns an SVG ``JsonResponse``.
+
+    Args:
+        request:        Django HTTP request whose body is a JSON object with a
+                        ``datasets`` dict (keyed by series id) and an optional
+                        ``figure_config`` dict.
+        figure_factory: Callable accepting ``series_list``, ``db_session``,
+                        ``figure_config``, plus any URL kwargs as keyword
+                        arguments.
+
+    Returns:
+        JsonResponse with ``plot_data`` containing the SVG string.
     """
-
     post_data = json.loads(request.body.decode())
-    datasets = post_data.get("datasets", {})
-
     series_list = [
-        {"id": series_id, **config} for series_id, config in datasets.items()
+        {"id": series_id, **config}
+        for series_id, config in post_data.get("datasets", {}).items()
     ]
-
     figure_config = post_data.get("figure_config")
 
-    matplotlib.use("svg")
-    pyplot.style.use("dark_background")
+    setup_svg_matplotlib()
 
     with start_db_session() as db_session:
-        fig = create_image_diagnostics_figure(
-            series_list, diagnostic_name, db_session, figure_config
+        fig = figure_factory(
+            series_list,
+            db_session=db_session,
+            figure_config=figure_config,
+            **url_kwargs,
         )
 
-    with StringIO() as svg_stream:
-        fig.savefig(svg_stream, bbox_inches="tight", format="svg")
-        pyplot.close(fig)
-        return JsonResponse({"plot_data": svg_stream.getvalue()})
+    return figure_to_svg_response(fig)
 
 
 def get_available_diagnostics(db_session):

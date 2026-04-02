@@ -1,8 +1,10 @@
 {% extends 'diagnostics/diagnostics_app.html' %}
+{% load static %}
 
 {% block header_bar_extra %}
 {% if available_diagnostics %}
-<div id="diag-vs-diag-selector" class="lcars-bar horizontal">
+<div id="diag-vs-diag-selector" class="lcars-bar horizontal"
+     data-url-template="{% url 'diagnostics:display_diag_vs_diag' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
     <span class="axis-label">X:</span>
     <select id="x-diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
@@ -30,16 +32,5 @@
 {% endblock header_bar_extra %}
 
 {% block diagnostics_extra_scripts %}
-<script type="text/javascript">
-    var diagVsDiagUrlTemplate = (
-        "{% url 'diagnostics:display_diag_vs_diag' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}"
-    );
-    function navigateToDiagPair() {
-        var x = document.getElementById('x-diagnostic-selector').value;
-        var y = document.getElementById('y-diagnostic-selector').value;
-        window.location.href = diagVsDiagUrlTemplate
-            .replace('XPLACEHOLDER', x)
-            .replace('YPLACEHOLDER', y);
-    }
-</script>
+<script src="{% static 'diagnostics/js/diag_vs_diag.js' %}"></script>
 {% endblock diagnostics_extra_scripts %}

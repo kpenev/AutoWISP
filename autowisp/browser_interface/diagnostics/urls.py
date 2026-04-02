@@ -1,5 +1,7 @@
 """Define the URL paths used by the diagnostics BUI app."""
 
+import functools
+
 from django.urls import path
 
 from . import views
@@ -44,7 +46,10 @@ urlpatterns = [
     ),
     path(
         "image/<slug:diagnostic_name>/update_plot",
-        views.update_image_diagnostics_plot,
+        functools.partial(
+            views.update_plot_view,
+            figure_factory=views.create_image_diagnostics_figure,
+        ),
         name="update_image_diagnostics_plot",
     ),
     path(
@@ -54,7 +59,10 @@ urlpatterns = [
     ),
     path(
         "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/update_plot",
-        views.update_diag_vs_diag_plot,
+        functools.partial(
+            views.update_plot_view,
+            figure_factory=views.create_diag_vs_diag_figure,
+        ),
         name="update_diag_vs_diag_plot",
     ),
     path(

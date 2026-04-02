@@ -47,7 +47,7 @@
             </thead>
             <tbody class="lcars-table select-row">
                 {% for diagnostic in diagnostics_list %}
-                <tr class="diagnostic-row" id="{{ diagnostic.id }}">
+                <tr class="diagnostic-row" id="{{ diagnostic.id }}" channel="{{ diagnostic.channel }}">
                     <td>
                         <input type="color"
                                id="plot-color:{{ diagnostic.id }}"
@@ -105,3 +105,13 @@
 {% endif %}
 {% block diagnostics_extra_scripts %}{% endblock %}
 {% endblock main %}
+
+{% block footer_bar_extra %}
+<div class="lcars-bar horizontal bottom">
+    <button id="legend-toggle"
+            class="lcars-bar bottom button lcars-rust-bg"
+            onclick="this.classList.toggle('inactive'); this.textContent = this.classList.contains('inactive') ? 'Show Legend' : 'Hide Legend'; updateFigure();">
+        Hide Legend
+    </button>
+</div>
+{% endblock footer_bar_extra %}
