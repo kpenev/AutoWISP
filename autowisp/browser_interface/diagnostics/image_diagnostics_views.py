@@ -248,7 +248,8 @@ def group_series_by_jd_overlap(series_data):
     ranges end up in separate groups.
 
     Args:
-        series_data(list):    A list of ``(series, jd_values, diag_values, image_ids)``
+        series_data(list):    A list of
+            ``(series, jd_values, diag_values, image_ids)``
             tuples, where *jd_values* are ordered sequences of Julian dates.
 
     Returns:
@@ -365,10 +366,6 @@ def create_image_diagnostics_figure(
     """
 
     figure_config = figure_config or {}
-    show_legend = figure_config.pop("show_legend", True)
-    figure_config.setdefault("plot_height_frac", 1.0 / 3.0)
-    figure_config.setdefault("num_columns", 1)
-    figure_config.setdefault("aspect_ratio", 3.0)
 
     series_data = []
     min_jd = numpy.inf
@@ -384,7 +381,12 @@ def create_image_diagnostics_figure(
             series_data.append((series, jd_values, diag_values, image_ids))
 
     groups = group_series_by_jd_overlap(series_data)
-    fig, all_axes = create_figure(len(groups), **figure_config)
+    fig, all_axes = create_figure(
+        len(groups),
+        plot_height_frac=figure_config.get("plot_height_frac", 1.0 / 3.0),
+        aspect_ratio=figure_config.get("aspect_ratio", 3.0),
+        num_columns=figure_config.get("num_columns", 1),
+    )
     if all_axes is None:
         return fig
 
@@ -395,7 +397,7 @@ def create_image_diagnostics_figure(
             )
         axes.set_xlabel(f"JD - {min_jd!r}")
         axes.set_ylabel(diagnostic_name)
-        if show_legend:
+        if figure_config.get("show_legend", True):
             axes.legend()
         axes.grid(True, linewidth=0.2)
 
@@ -465,8 +467,7 @@ def download_plot_view(request, figure_factory, session_key, **url_kwargs):
         {"id": series_id, **config}
         for series_id, config in post_data.get("datasets", {}).items()
     ]
-    figure_config = post_data.get("figure_config", {}).copy()
-    figure_config.pop("show_legend", None)
+    figure_config = post_data.get("figure_config")
 
     matplotlib.use("pdf")
     pyplot.style.use("default")

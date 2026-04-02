@@ -189,7 +189,7 @@ def create_diag_vs_diag_figure(
     """
 
     figure_config = figure_config or {}
-    show_legend = figure_config.pop("show_legend", True)
+    show_legend = figure_config.get("show_legend", True)
     aspect_ratio = figure_config.get("aspect_ratio", 1.0)
 
     fig_width = 10.0
