@@ -126,7 +126,7 @@ def read_dr_file(dr_path, cmdline_args):
             header=None,
             web_lock=web_lock,
         )
-        print(f'field_corr from astrometry.net:\n: {field_corr}')
+        print(f'field_corr shape from astrometry.net:\n: {field_corr.shape}')
 
     return field_corr, dr_df
 
@@ -171,7 +171,7 @@ def match_sources(field_corr, dr_df):
 
     print(
         f"\nOut of {n_extracted} extracted sources, "
-        f"corr_matched is found as: \n {corr_matched} "
+        f"corr_matched is found with {len(corr_matched)} matches."
     )
 
     return corr_matched, n_extracted
@@ -293,6 +293,7 @@ def main():
             .median()
         )
         y0 = corr_matched_sorted["cum_median"].iloc[3]  # top 3 faintest sources
+        print(f'y0 for {dr_path} is: {y0}')
         mags.append(-2.5 * np.log10(flux_threshold) + y0 + 0.2)
 
     print(f"Suggested minimum max_mag_astrometry based on "
