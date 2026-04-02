@@ -146,58 +146,6 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
     return {"RA": source["RA"][0], "Dec": source["Dec"][0]}
 
 
-def estimate_transformation_from_corr(
-    initial_corr, ra_cent, dec_cent, tweak_order, astrometry_order
-):
-    """
-    Estimate the transformation from astrometry.net correspondence file.
-
-    Args:
-        initial_corr(structured numpy array):    The correspondence file
-            containing field_x, field_y, index_ra, and index_dec
-
-        ra_cent(float):    Estimate of the RA of the center of the frame
-
-        dec_cent(float):    Estimate of the Dec of the center of the frame
-
-        tweak_order(int):    The order of the astrometry.net transformation
-
-        astrometry_order(int):    The order of the transformation that will be
-            fit. Fills terms of higher order than `tweak_order` with zeros.
-
-    Returns:
-        matrix:
-            Estimate of the transformation x(xi, eta)
-
-        matrix:
-            Estimate of the transformation y(xi, eta)
-    """
-
-    projected = numpy.empty(
-        initial_corr.shape[0], dtype=[("xi", float), ("eta", float)]
-    )
-
-    radec_center = {"RA": ra_cent, "Dec": dec_cent}
-
-    gnomonic_projection(initial_corr, projected, **radec_center)
-
-    xi = projected["xi"][numpy.newaxis].T
-
-    eta = projected["eta"][numpy.newaxis].T
-
-    trans_matrix = transformation_matrix(tweak_order, xi, eta)
-    num_trans_terms = ((astrometry_order + 1) * (astrometry_order + 2)) // 2
-    num_tweak_terms = ((tweak_order + 1) * (tweak_order + 2)) // 2
-
-    trans_x = numpy.zeros(num_trans_terms)
-    trans_y = numpy.zeros(num_trans_terms)
-
-    trans_x[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr["x"])[0]
-    trans_y[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr["y"])[0]
-
-    return trans_x[numpy.newaxis].T, trans_y[numpy.newaxis].T
-
-
 class TempAstrometryFiles:
     """Context manager for the temporary files needed for astrometry."""
 
@@ -226,19 +174,20 @@ class TempAstrometryFiles:
         self._temp_dir_obj.cleanup()
 
 
-def create_sources_file(xy_extracted, sources_fname):
+def create_sources_file(xyf_extracted, sources_fname):
     """Create a FITS BinTable file with the given name containing
     the extracted sources.
 
     Returns: an array containing x-y extracted sources
     """
 
-    x_extracted = fits.Column(name="x", format="D", array=xy_extracted["x"])
-    y_extracted = fits.Column(name="y", format="D", array=xy_extracted["y"])
-    xyls = fits.BinTableHDU.from_columns([x_extracted, y_extracted])
+    x_extracted = fits.Column(name="x", format="D", array=xyf_extracted["x"])
+    y_extracted = fits.Column(name="y", format="D", array=xyf_extracted["y"])
+    flux_extracted = fits.Column(name="flux", format="D", array=xyf_extracted["flux"])
+    xyls = fits.BinTableHDU.from_columns([x_extracted, y_extracted, flux_extracted])
     xyls.writeto(sources_fname)
 
-    return xy_extracted
+    return xyf_extracted
 
 
 def create_config_file(config_fname, fov_range, anet_indices):
@@ -257,14 +206,14 @@ def create_config_file(config_fname, fov_range, anet_indices):
 
 
 def get_initial_corr_local(
-    header, xy_extracted, tweak_order_range, fov_range, anet_indices
+    header, xyf_extracted, tweak_order_range, fov_range, anet_indices
 ):
     """Get inital extracted to catalog source match using ``solve-field``."""
 
     _logger.debug(
         "Attempting to match catalog to a list of %d extracted sources: %s",
-        len(xy_extracted),
-        repr(xy_extracted),
+        len(xyf_extracted),
+        repr(xyf_extracted),
     )
 
     with TempAstrometryFiles() as (
@@ -272,7 +221,7 @@ def get_initial_corr_local(
         corr_fname,
         config_fname,
     ):
-        xy_extracted = create_sources_file(xy_extracted, sources_fname)
+        xyf_extracted = create_sources_file(xyf_extracted, sources_fname)
         use_ansvr = False
         bash_exe = None
         if os.name == "nt":
@@ -366,7 +315,7 @@ def get_initial_corr_local(
 
 
 def get_initial_corr_web(  # pylint: disable=too-many-branches
-    header, xy_extracted, tweak_order_range, fov_range, api_key
+    header, xyf_extracted, tweak_order_range, fov_range, api_key
 ):
     """Get initial extracted-to-catalog match via web astrometry.net."""
 
@@ -385,8 +334,8 @@ def get_initial_corr_web(  # pylint: disable=too-many-branches
         #        'radius',
         #        'downsample_factor',
         #        'positional_error',
-        "x": xy_extracted["x"],
-        "y": xy_extracted["y"],
+        "x": xyf_extracted["x"],
+        "y": xyf_extracted["y"],
     }
     client = AstrometryNetClient()
     while True:
@@ -464,7 +413,7 @@ def get_initial_corr_web(  # pylint: disable=too-many-branches
 
 
 def get_initial_corr(
-    *, dr_file, xy_extracted, config, header=None, web_lock=None
+    *, dr_file, xyf_extracted, config, header=None, web_lock=None
 ):
     """Attempt to estimate the sky-to-frame transformation for given DR file."""
 
@@ -472,7 +421,7 @@ def get_initial_corr(
         header = dr_file.get_frame_header()
     initial_corr_arg = (
         header,
-        xy_extracted,
+        xyf_extracted,
         config["tweak_order_range"],
         config["fov_range"],
     )
@@ -485,6 +434,58 @@ def get_initial_corr(
 
     with web_lock:
         return get_initial_corr_web(*initial_corr_arg, config["anet_api_key"])
+
+
+def estimate_transformation_from_corr(
+    initial_corr, ra_cent, dec_cent, tweak_order, astrometry_order
+):
+    """
+    Estimate the transformation from astrometry.net correspondence file.
+
+    Args:
+        initial_corr(structured numpy array):    The correspondence file
+            containing field_x, field_y, index_ra, and index_dec
+
+        ra_cent(float):    Estimate of the RA of the center of the frame
+
+        dec_cent(float):    Estimate of the Dec of the center of the frame
+
+        tweak_order(int):    The order of the astrometry.net transformation
+
+        astrometry_order(int):    The order of the transformation that will be
+            fit. Fills terms of higher order than `tweak_order` with zeros.
+
+    Returns:
+        matrix:
+            Estimate of the transformation x(xi, eta)
+
+        matrix:
+            Estimate of the transformation y(xi, eta)
+    """
+
+    projected = numpy.empty(
+        initial_corr.shape[0], dtype=[("xi", float), ("eta", float)]
+    )
+
+    radec_center = {"RA": ra_cent, "Dec": dec_cent}
+
+    gnomonic_projection(initial_corr, projected, **radec_center)
+
+    xi = projected["xi"][numpy.newaxis].T
+
+    eta = projected["eta"][numpy.newaxis].T
+
+    trans_matrix = transformation_matrix(tweak_order, xi, eta)
+    num_trans_terms = ((astrometry_order + 1) * (astrometry_order + 2)) // 2
+    num_tweak_terms = ((tweak_order + 1) * (tweak_order + 2)) // 2
+
+    trans_x = numpy.zeros(num_trans_terms)
+    trans_y = numpy.zeros(num_trans_terms)
+
+    trans_x[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr["x"])[0]
+    trans_y[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr["y"])[0]
+
+    return trans_x[numpy.newaxis].T, trans_y[numpy.newaxis].T
 
 
 def estimate_transformation(*, config, **initial_corr_kwarg):
@@ -528,7 +529,7 @@ def refine_transformation(
     dec_cent,
     x_frame,
     y_frame,
-    xy_extracted,
+    xyf_extracted,
     catalog,
     min_source_safety_factor=5.0,
 ):
@@ -561,7 +562,7 @@ def refine_transformation(
 
         y_frame(float):    width of the frame in pixels
 
-        xy_extracted(structured numpy array):    x and y of the extracted
+        xyf_extracted(structured numpy array):    x, y, and flux of the extracted
             sources of the frame
 
         catalog(pandas.DataFrame):    The catalog of sources to match to
@@ -587,14 +588,13 @@ def refine_transformation(
 
     x_cent = x_frame / 2.0
     y_cent = y_frame / 2.0
-    xy_extracted = structured_to_unstructured(xy_extracted)[:, 0:2]
-    # xy_extracted = xy_extracted[:, 0:2]
+    xyf_extracted = structured_to_unstructured(xyf_extracted)[:, 0:3]
     counter = 0
     x_transformed = numpy.inf
     y_transformed = numpy.inf
     logger = logging.getLogger(__name__)
 
-    kdtree = spatial.KDTree(xy_extracted)
+    kdtree = spatial.KDTree(xyf_extracted[:, 0:2])
 
     while True:
 
@@ -632,7 +632,7 @@ def refine_transformation(
             + (old_y_transformed - y_transformed) ** 2
         ).flatten()[in_frame]
 
-        logger.debug("diff: %s", repr(diff.max()))
+        logger.debug("Max position change among stars: %s", repr(diff.max()))
 
         if not (diff > trans_threshold).any() or counter > max_iterations:
             # pylint:disable=used-before-assignment
@@ -666,8 +666,7 @@ def refine_transformation(
             ix[bad_match] = result[-1]
 
         matched = numpy.isfinite(d)
-        n_matched = matched.sum()
-        n_extracted = len(xy_extracted)
+        n_matched, n_extracted = matched.sum(), len(xyf_extracted)
         # TODO: add weights to residual and to the fit eventually
         res_rms = numpy.sqrt(numpy.square(d[matched]).mean())
         ratio = n_matched / n_extracted
@@ -678,16 +677,14 @@ def refine_transformation(
             dtype=[("RA", float), ("Dec", float), ("x", float), ("y", float)],
         )
 
-        j = 0
-        k = -1
-
+        j, k = 0, -1
         for i in range(ix.size):
             k += 1
             if not numpy.isinf(d[i]):
                 matched_sources["RA"][j] = catalog["RA"].iloc[k]
                 matched_sources["Dec"][j] = catalog["Dec"].iloc[k]
-                matched_sources["x"][j] = xy_extracted[ix[i], 0]
-                matched_sources["y"][j] = xy_extracted[ix[i], 1]
+                matched_sources["x"][j] = xyf_extracted[ix[i], 0]
+                matched_sources["y"][j] = xyf_extracted[ix[i], 1]
                 j += 1
 
         cent_new = find_ra_dec(
