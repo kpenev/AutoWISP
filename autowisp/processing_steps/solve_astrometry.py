@@ -403,7 +403,7 @@ def construct_transformation(transformation_info):
 
 
 def find_final_transformation(
-    header, transformation_estimate, xy_extracted, web_lock, configuration
+    header, transformation_estimate, xyf_extracted, web_lock, configuration
 ):
     """Find the final transformation for a given image."""
 
@@ -432,7 +432,7 @@ def find_final_transformation(
             transformation_estimate["dec_cent"],
             success,
         ) = refine_transformation(
-            xy_extracted=xy_extracted,
+            xyf_extracted=xyf_extracted,
             catalog=catalog,
             x_frame=header["NAXIS1"],
             y_frame=header["NAXIS2"],
@@ -465,20 +465,22 @@ def find_final_transformation(
     )
 
 
-def get_xy_extracted(dr_file, srcextract_version):
-    """Return array of extracted source positions."""
-
+def get_xyf_extracted(dr_file, srcextract_version):
+    """Return array of extracted source positions AND flux."""
     sources = dr_file.get_sources(
         "srcextract.sources",
         "srcextract_column_name",
         srcextract_version=srcextract_version,
     )
-    xy_extracted = numpy.zeros(
-        (len(sources["x"].values)), dtype=[("x", ">f8"), ("y", ">f8")]
+    xyf_extracted = numpy.zeros(
+        (len(sources["x"].values)),
+        dtype=[("x", ">f8"), ("y", ">f8"), ("flux", ">f8")]
     )
-    xy_extracted["x"] = sources["x"].values
-    xy_extracted["y"] = sources["y"].values
-    return xy_extracted
+    xyf_extracted["x"] = sources["x"].values
+    xyf_extracted["y"] = sources["y"].values
+    xyf_extracted["flux"] = sources["flux"].values
+    
+    return xyf_extracted
 
 
 def _compute_zenith_distance(header, ra_cent, dec_cent):
@@ -673,7 +675,7 @@ def solve_image(  # pylint: disable=too-many-locals
 
         fov_estimate = max(*configuration["frame_fov_estimate"]).to_value("deg")
 
-        xy_extracted = get_xy_extracted(
+        xyf_extracted = get_xyf_extracted(
             dr_file, configuration["srcextract_version"]
         )
         if transformation_estimate is None:
@@ -690,7 +692,7 @@ def solve_image(  # pylint: disable=too-many-locals
                 status,
             ) = estimate_transformation(
                 dr_file=dr_file,
-                xy_extracted=xy_extracted,
+                xyf_extracted=xyf_extracted,
                 config={
                     "astrometry_order": configuration["astrometry_order"],
                     "tweak_order_range": configuration["tweak_order"],
@@ -731,7 +733,7 @@ def solve_image(  # pylint: disable=too-many-locals
             ) = find_final_transformation(
                 header,
                 transformation_estimate,
-                xy_extracted,
+                xyf_extracted,
                 web_lock,
                 configuration,
             )
