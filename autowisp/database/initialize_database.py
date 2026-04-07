@@ -497,6 +497,12 @@ def _init_diagnostic_types():
             ]
             + [
                 (
+                    "diagonal_fov",
+                    "The mean angular distance from the image center to its "
+                    "four corners on the sky, used as a scale-independent "
+                    "measure of the field of view",
+                ),
+                (
                     "pointing_offset",
                     "The angular distance between the target and the center of "
                     "the image according to the astrometric solution",

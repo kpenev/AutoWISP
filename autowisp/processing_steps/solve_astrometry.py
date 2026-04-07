@@ -26,6 +26,7 @@ from autowisp.astrometry import (
     refine_transformation,
     Transformation,
 )
+from autowisp.astrometry.transformation import compute_diagonal_fov
 from autowisp.catalog import (
     ensure_catalog,
     check_catalog_coverage,
@@ -507,9 +508,7 @@ def _compute_zenith_distance(header, ra_cent, dec_cent):
         ).alt.to_value(units.deg)
         return 90.0 - alt
     except (KeyError, Exception):
-        _logger.error(
-            "Cannot compute zenith distance.", exc_info=True
-        )
+        _logger.error("Cannot compute zenith distance.", exc_info=True)
         return None
 
 
@@ -537,9 +536,7 @@ def _compute_pointing_offset(header, ra_cent, dec_cent):
         )
         return center.separation(target_coords).to_value(units.deg)
     except (KeyError, Exception):
-        _logger.error(
-            "Cannot compute pointing offset.", exc_info=True
-        )
+        _logger.error("Cannot compute pointing offset.", exc_info=True)
         return None
 
 
@@ -577,6 +574,12 @@ def _collect_astrometry_diagnostics(
         ("dec_center", transformation_estimate["dec_cent"]),
         ("matched_fraction", solve_diagnostics["ratio"]),
         ("astrom_residual", solve_diagnostics["rms"]),
+        (
+            "diagonal_fov",
+            compute_diagonal_fov(
+                construct_transformation(transformation_estimate), header
+            ),
+        ),
     ]
 
     z_center = _compute_zenith_distance(
