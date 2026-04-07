@@ -9,6 +9,8 @@ from astropy.io import fits
 
 from configargparse import ArgumentParser, DefaultsFormatter
 
+from autowisp.catalog import WISPGaia
+
 
 class ManualStepArgumentParser(ArgumentParser):
     """Incorporate boiler plate handling of command line arguments."""
@@ -53,6 +55,18 @@ class ManualStepArgumentParser(ArgumentParser):
         """Add arguments to specify a catalog query."""
 
         prefix = catalog_config["prefix"]
+        self.add_argument(
+            "--gaia-user",
+            default=None,
+            help="The username to use for Gaia archive queries. If not "
+            "specified, queries are submitted without logging in.",
+        )
+        self.add_argument(
+            "--gaia-password",
+            default=None,
+            help="The password to use for Gaia archive queries. If not "
+            "specified, queries are submitted without logging in.",
+        )
         self.add_argument(
             f"--{prefix}-catalog",
             f"--{prefix}-catalogue",
@@ -553,6 +567,11 @@ class ManualStepArgumentParser(ArgumentParser):
             result["argument_descriptions"] = self.argument_descriptions
             result["argument_defaults"] = self.argument_defaults
             result["alternate_argument_names"] = self.alternate_names
+
+        if result.get("gaia_user") and result.get("gaia_password"):
+            WISPGaia.set_credentials(
+                user=result["gaia_user"], password=result["gaia_password"]
+            )
 
         return result
 
