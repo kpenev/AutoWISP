@@ -136,6 +136,8 @@ if __name__ == "__main__":
             import platform
 
             if platform.system() == "Darwin":
+                # Double-fork is unsafe on macOS after Python runtime init.
+                # Zombie reaping is handled by views.py (daemon thread).
                 main(parse_command_line())
                 sys.exit(0)
 

@@ -626,8 +626,8 @@ def solve_image(  # pylint: disable=too-many-locals
             ``solve_field`` from astrometry.net is used to find iniitial
             estimates.
 
-        web_lock(multiprocessing.Lock):    A lock that is held hile a
-            catalog file is checked and/or created.
+        web_lock(multiprocessing.Lock):    A lock held while submitting a
+            plate-solve request to the astrometry.net web API.
 
         mark_start(callable):    Called before anything is written to the DR
             file if successful transformation is found.
@@ -975,14 +975,23 @@ def solve_astrometry(
         process.start()
     _logger.debug("Starting astrometry on %d pending frame sets", len(pending))
 
-    manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end)
-
-    _logger.debug("Stopping astrometry solving processes.")
-    for process in workers:
-        task_queue.put("STOP")
-
-    for process in workers:
-        process.join()
+    try:
+        manage_astrometry(
+            pending, task_queue, result_queue, mark_start, mark_end
+        )
+    finally:
+        _logger.debug("Stopping astrometry solving processes.")
+        for _ in workers:
+            task_queue.put("STOP")
+        # Drain unread results while waiting for workers to exit so the pipe
+        # buffer does not fill up and prevent workers from stopping cleanly.
+        for process in workers:
+            while process.is_alive():
+                try:
+                    result_queue.get(timeout=0.05)
+                except Exception:  # queue.Empty
+                    pass
+            process.join()
 
 
 def cleanup_interrupted(interrupted, configuration):
