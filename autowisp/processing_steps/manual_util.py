@@ -459,6 +459,18 @@ class ManualStepArgumentParser(ArgumentParser):
                 "photometric reference to use or used to start the magnitude "
                 "fitting iterations.",
             )
+            self.add_argument(
+                "--max-photref-separation",
+                type=float,
+                default=0.2,
+                help="The maximum angular separation between the center of an "
+                "image and the center of the photometric reference, expressed "
+                "in units of the image's diagonal field of view (mean angular "
+                "distance from the image center to its four corners on the "
+                "sky, stored as the ``diagonal_fov`` astrometry diagnostic). "
+                "Images whose centers lie farther than this multiple of their "
+                "diagonal FOV from the photref center are excluded.",
+            )
 
     def add_argument(self, *args, **kwargs):
         """Store each argument's description in self.argument_descriptions."""
