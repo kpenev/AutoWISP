@@ -6,6 +6,7 @@ from os import path
 
 # from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
+import numpy
 import matplotlib
 from matplotlib import pyplot
 from sqlalchemy import select
@@ -226,10 +227,21 @@ def _get_merit_data(request, target_index):
     request.session.modified = True
 
 
-def _create_pointing_plots(
+def create_svg(fig):
+    """Save *fig* to an SVG string, close the figure, and return the string."""
+
+    with StringIO() as buf:
+        fig.savefig(buf, format="svg")
+        svg = buf.getvalue()
+    pyplot.close(fig)
+    return svg
+
+
+def _create_pointing_plots(  # pylint: disable=too-many-locals
     merit_data,
     image_index,
     max_photref_separation=0.2,
+    zoom_threshold=3,
     **plot_cfg,
 ):
     """
@@ -241,9 +253,15 @@ def _create_pointing_plots(
     astronomical convention.  The separation histogram includes a vertical line
     at the threshold.
 
+    If the maximum separation among all images exceeds
+    zoom_threshold * threshold_deg, an additional zoomed scatter plot is
+    appended that restricts the view to images within that radius so the
+    in-range clustering remains visible despite the wider spread.  Images in
+    the zoomed plot are still coloured by the original threshold_deg.
+
     Returns:
-        List of SVG strings [scatter, separation_hist], or empty list if the
-        required diagnostics (ra_center, dec_center, diagonal_fov) are absent.
+        List of SVG strings, or empty list if the required diagnostics
+        (ra_center, dec_center, diagonal_fov) are absent.
     """
 
     if not all(
@@ -256,84 +274,71 @@ def _create_pointing_plots(
     plot_cfg.setdefault("out_of_range_cfg", {"c": "red", "s": 20, "zorder": 2})
     plot_cfg.setdefault("this_img_cfg", {"c": "white", "s": 100, "zorder": 4})
 
-    ra_vals = merit_data["ra_center"].tolist()
-    dec_vals = merit_data["dec_center"].tolist()
+    ra_vals = merit_data["ra_center"].values
+    dec_vals = merit_data["dec_center"].values
 
-    plot_data = {
-        "this_img": {"ra": ra_vals[image_index], "dec": dec_vals[image_index]},
-    }
     threshold_deg = (
         max_photref_separation * merit_data["diagonal_fov"].iloc[image_index]
     )
     separations = (
         SkyCoord(
-            ra=plot_data["this_img"]["ra"] * astropy_units.deg,
-            dec=plot_data["this_img"]["dec"] * astropy_units.deg,
+            ra=ra_vals[image_index] * astropy_units.deg,
+            dec=dec_vals[image_index] * astropy_units.deg,
             frame="icrs",
         )
         .separation(
             SkyCoord(
-                ra=merit_data["ra_center"].values * astropy_units.deg,
-                dec=merit_data["dec_center"].values * astropy_units.deg,
+                ra=ra_vals * astropy_units.deg,
+                dec=dec_vals * astropy_units.deg,
                 frame="icrs",
             )
         )
         .to_value(astropy_units.deg)
     )
 
-    result = []
+    masks = {"this_img": numpy.arange(len(ra_vals)) == image_index}
+    masks["in_range"] = (separations <= threshold_deg) & ~masks["this_img"]
+    masks["out_of_range"] = ~masks["in_range"] & ~masks["this_img"]
 
-    plot_data["in_range"] = {
-        "ra": [
-            ra_vals[i]
-            for i in range(len(ra_vals))
-            if i != image_index and separations[i] <= threshold_deg
-        ],
-        "dec": [
-            dec_vals[i]
-            for i in range(len(dec_vals))
-            if i != image_index and separations[i] <= threshold_deg
-        ],
-    }
-    plot_data["out_of_range"] = {
-        "ra": [
-            ra_vals[i]
-            for i in range(len(ra_vals))
-            if i != image_index and separations[i] > threshold_deg
-        ],
-        "dec": [
-            dec_vals[i]
-            for i in range(len(dec_vals))
-            if i != image_index and separations[i] > threshold_deg
-        ],
-    }
-
-    with StringIO() as image_stream:
-        fig, ax = pyplot.subplots()
-        for mode in ["in_range", "out_of_range", "this_img"]:
-            if mode == "this_img" or plot_data[mode]["ra"]:
+    def plot_scatter_pointing(ax, extra_mask=None):
+        for cfg_key in ["out_of_range", "in_range", "this_img"]:
+            plot_mask = (
+                masks[cfg_key] & extra_mask
+                if extra_mask is not None
+                else masks[cfg_key]
+            )
+            if plot_mask.any():
                 ax.scatter(
-                    plot_data[mode]["ra"],
-                    plot_data[mode]["dec"],
-                    **plot_cfg[mode + "_cfg"],
+                    ra_vals[plot_mask],
+                    dec_vals[plot_mask],
+                    **plot_cfg[cfg_key + "_cfg"],
                 )
-        ax.invert_xaxis()
         ax.set_xlabel("RA (deg)")
         ax.set_ylabel("Dec (deg)")
-        pyplot.suptitle("Pointing (RA vs Dec)", fontsize=32)
-        pyplot.savefig(image_stream, format="svg")
-        result.append(image_stream.getvalue())
-        pyplot.close(fig)
 
-    with StringIO() as image_stream:
+    result = []
+
+    zoom_radius = zoom_threshold * threshold_deg
+    for extra_mask in [None] + (
+        [separations <= zoom_radius] if separations.max() > zoom_radius else []
+    ):
         fig, ax = pyplot.subplots()
-        ax.hist(separations, bins="auto", linewidth=0, color="white")
+        plot_scatter_pointing(ax, extra_mask)
+        fig.suptitle(
+            "Pointing (RA vs Dec)"
+            + (" (zoomed)" if extra_mask is not None else ""),
+            fontsize=32,
+        )
+        result.append(create_svg(fig))
+
+    fig, ax = pyplot.subplots()
+    ax.hist(separations, bins="auto", linewidth=0, color="white")
+    xmin, xmax = ax.get_xlim()
+    if xmin <= threshold_deg <= xmax:
         ax.axvline(x=threshold_deg, linewidth=2, color="lime", linestyle="--")
-        ax.set_xlabel("Separation (deg)")
-        pyplot.suptitle("Separation from current image", fontsize=32)
-        pyplot.savefig(image_stream, format="svg")
-        result.append(image_stream.getvalue())
-        pyplot.close(fig)
+    ax.set_xlabel("Separation (deg)")
+    fig.suptitle("Separation from current image", fontsize=32)
+    result.append(create_svg(fig))
 
     return result
 
@@ -354,23 +359,17 @@ def _create_merit_histograms(
     for column in merit_data.columns:
         if column.startswith("qnt_"):
             continue
-        with StringIO() as image_stream:
-            pyplot.hist(
-                merit_data[column], bins="auto", linewidth=0, color="white"
-            )
-            pyplot.axvline(
-                x=merit_data[column].iloc[image_index], linewidth=5, color="red"
-            )
-            if column == "merit":
-                pyplot.suptitle("merit", fontsize=32)
-            else:
-                quantile = merit_data["qnt_" + column].iloc[image_index]
-                pyplot.suptitle(
-                    column + f" ({quantile:.3f} quantile)", fontsize=32
-                )
-            pyplot.savefig(image_stream, format="svg")
-            result.append(image_stream.getvalue())
-            pyplot.clf()
+        fig, ax = pyplot.subplots()
+        ax.hist(merit_data[column], bins="auto", linewidth=0, color="white")
+        ax.axvline(
+            x=merit_data[column].iloc[image_index], linewidth=5, color="red"
+        )
+        if column == "merit":
+            fig.suptitle("merit", fontsize=32)
+        else:
+            quantile = merit_data["qnt_" + column].iloc[image_index]
+            fig.suptitle(column + f" ({quantile:.3f} quantile)", fontsize=32)
+        result.append(create_svg(fig))
     return result
 
 
