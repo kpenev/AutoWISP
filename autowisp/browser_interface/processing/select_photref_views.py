@@ -2,6 +2,7 @@
 
 from io import StringIO
 from functools import reduce
+from os import path
 
 # from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
@@ -427,6 +428,7 @@ def select_photref_image(request, *, target_index, recalculate=False):
         "histograms": _create_merit_histograms(
             merit_data, image_index, max_photref_separation
         ),
+        "fits_fname": path.basename(fits_fname),
         "view_config": request.session.get("view_config", "undefined"),
     }
     context.update(request.session["fits_display"])

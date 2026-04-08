@@ -30,6 +30,12 @@ Select Photometric Reference
 </div>
 {% endblock left_menu %}
 
+{% block footer_fill_bar %}
+<div class="lcars-bar horizontal fill bottom">
+    <div class="lcars-title" style="white-space: nowrap;">{{ fits_fname }}</div>
+</div>
+{% endblock footer_fill_bar %}
+
 {% block full_view %}
 {{ block.super }}
 <div id="side-bar" class="lcars-row lcars-u-2" style="overflow: hidden;">
