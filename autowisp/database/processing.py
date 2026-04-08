@@ -26,6 +26,7 @@ from autowisp.database.data_model import (
     Condition,
     ConditionExpression,
     Configuration,
+    ImageMasterSelection,
     ImageType,
     ImageProcessingProgress,
     InputMasterTypes,
@@ -306,7 +307,8 @@ class ProcessingManager:
         return self._get_best_master(candidates, image_eval)
 
     def _get_evaluated_entry(
-        self, evaluate, image_type_id, calib_config, db_session
+        self, evaluate, image_type_id, calib_config, db_session,
+        image_id=None, channel=None,
     ):
         """Return entry to add to self._evaluated_expressions."""
 
@@ -343,8 +345,26 @@ class ProcessingManager:
             .distinct()
         ):
             if master_type.name not in ["epd_stat", "tfa_stat"]:
+                pinned = None
+                if image_id is not None and channel is not None:
+                    pinned = db_session.scalar(
+                        select(MasterFile.filename)
+                        .join(
+                            ImageMasterSelection,
+                            MasterFile.id
+                            == ImageMasterSelection.master_file_id,
+                        )
+                        .where(
+                            ImageMasterSelection.image_id == image_id,
+                            ImageMasterSelection.channel == channel,
+                            ImageMasterSelection.master_type_id
+                            == master_type.id,
+                        )
+                    )
                 evaluated_expressions["masters"][master_type.name] = (
-                    self._get_master(
+                    pinned
+                    if pinned is not None
+                    else self._get_master(
                         master_type,
                         evaluated_expressions["values"],
                         evaluate,
@@ -449,7 +469,8 @@ class ProcessingManager:
             add_required_keywords(evaluate.symtable, calib_config, True)
 
             evaluated_expressions = self._get_evaluated_entry(
-                evaluate, image.image_type_id, calib_config, db_session
+                evaluate, image.image_type_id, calib_config, db_session,
+                image_id=image.id, channel=channel_name,
             )
 
             if all_channel["matched"] is None:
