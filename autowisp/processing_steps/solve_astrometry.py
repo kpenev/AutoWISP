@@ -818,8 +818,8 @@ def astrometry_process(  # pylint: disable=too-many-arguments
     setup_process(task="solve", **configuration)
     _logger.info("Starting astrometry solving process.")
     for dr_fname, transformation_estimate in iter(task_queue.get, "STOP"):
-        result_queue.put(
-            solve_image(
+        try:
+            result = solve_image(
                 dr_fname,
                 transformation_estimate,
                 web_lock=web_lock,
@@ -827,7 +827,17 @@ def astrometry_process(  # pylint: disable=too-many-arguments
                 mark_end=mark_end,
                 **configuration,
             )
-        )
+        except Exception:  # pylint: disable=broad-except
+            _logger.error(
+                "Unexpected exception solving astrometry for %s:\n%s",
+                dr_fname,
+                format_exc(),
+            )
+            result_queue.put(
+                {"error": RuntimeError(format_exc()), "dr_fname": dr_fname}
+            )
+            return
+        result_queue.put(result)
     _logger.debug("Astrometry solving process finished.")
 
 
@@ -853,7 +863,9 @@ def prepare_configuration(configuration, dr_header):
 
 # Could not think of good way to split
 # pylint: disable=too-many-branches
-def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
+def manage_astrometry(
+    pending, task_queue, result_queue, mark_start, mark_end, workers=()
+):
     """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
@@ -866,8 +878,20 @@ def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
     while pending or num_queued:
         _logger.debug("Pending: %s", repr(pending))
         _logger.debug("Number scheduled: %d", num_queued)
-        result = result_queue.get()
+        while True:
+            try:
+                result = result_queue.get(timeout=1.0)
+                break
+            except Exception:  # queue.Empty
+                if workers and not any(p.is_alive() for p in workers):
+                    raise RuntimeError(
+                        "All astrometry worker processes died unexpectedly "
+                        f"with {num_queued} task(s) still in flight."
+                    )
         num_queued -= 1
+
+        if "error" in result:
+            raise result["error"]
 
         if "raw_transformation" in result:
             if not result["saved"]:
@@ -970,7 +994,7 @@ def solve_astrometry(
 
     try:
         manage_astrometry(
-            pending, task_queue, result_queue, mark_start, mark_end
+            pending, task_queue, result_queue, mark_start, mark_end, workers
         )
     finally:
         _logger.debug("Stopping astrometry solving processes.")

@@ -553,7 +553,7 @@ def estimate_transformation(*, config, **initial_corr_kwarg):
         astrometry_order=config["astrometry_order"],
         x_cent=config["x_cent"],
         y_cent=config["y_cent"],
-    ) + ("success",)
+    ), "success"
 
 
 def refine_transformation(
