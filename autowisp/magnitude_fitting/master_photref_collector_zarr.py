@@ -662,6 +662,7 @@ class MasterPhotrefCollector:
         )
 
         self._calculate_statistics(statistics)
+        self._magfit_data.store.clear()
         self._add_catalog_info(catalog, statistics, catalog_columns)
         self._save_statistics(statistics)
 
