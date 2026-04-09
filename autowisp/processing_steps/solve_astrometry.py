@@ -86,16 +86,6 @@ def add_anet_cmdline_args(parser):
         "service and selecting ``Profile``.",
     )
     parser.add_argument(
-        "--frame-center-estimate",
-        nargs=2,
-        type=str,
-        default=("RA * units.deg", "DEC * units.deg"),
-        help="The approximate right ascention and declination of the center of "
-        "the frame in degrees. Can be an expression involving header keywords. "
-        "If not specified, the center of the catalog is used (assuming the "
-        "catalog is not being generated on-the-fly).",
-    )
-    parser.add_argument(
         "--frame-fov-estimate",
         nargs=2,
         type=str,

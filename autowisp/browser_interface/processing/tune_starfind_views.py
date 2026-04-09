@@ -261,40 +261,27 @@ def project_catalog(request, fits_fname):
                 header,
             )
         fov_estimate = max(config["frame_fov_estimate"]).to_value("deg")
-        config["frame_center_estimate"] = [
-            evaluate(val).to_value("deg")
-            for val in config["frame_center_estimate"]
-        ]
-
-        approx_trans = {
-            coord + "_cent": value
-            for coord, value in zip(
-                ["ra", "dec"], config["frame_center_estimate"]
-            )
-        }
 
         logging.info("Extracted: %r", request.session["extracted"])
 
-        (approx_trans["trans_x"], approx_trans["trans_y"], status) = (
-            estimate_transformation(
-                dr_file=None,
-                xy_extracted=request.session["extracted"],
-                config={
-                    "astrometry_order": config["tweak_order"][1],
-                    "tweak_order_range": (
-                        config["tweak_order"][0],
-                        config["tweak_order"][1] + 1,
-                    ),
-                    "fov_range": (
-                        fov_estimate / config["image_scale_factor"],
-                        fov_estimate * config["image_scale_factor"],
-                    ),
-                    "ra_cent": config["frame_center_estimate"][0],
-                    "dec_cent": config["frame_center_estimate"][1],
-                    "anet_indices": config["anet_indices"],
-                },
-                header=header,
-            )
+        approx_trans, status = estimate_transformation(
+            dr_file=None,
+            xy_extracted=request.session["extracted"],
+            config={
+                "astrometry_order": config["tweak_order"][1],
+                "tweak_order_range": (
+                    config["tweak_order"][0],
+                    config["tweak_order"][1] + 1,
+                ),
+                "fov_range": (
+                    fov_estimate / config["image_scale_factor"],
+                    fov_estimate * config["image_scale_factor"],
+                ),
+                "anet_indices": config["anet_indices"],
+                "x_cent": header["NAXIS1"] / 2,
+                "y_cent": header["NAXIS2"] / 2,
+            },
+            header=header,
         )
         if status != "success":
             return JsonResponse(
