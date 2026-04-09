@@ -87,6 +87,7 @@ class MasterPhotrefCollector:
 
         self._logger.debug("Planning the rechunking.")
         rechunked_store = zarr.TempStore(dir=self._config["tempstore_dir"])
+        temp_store = zarr.TempStore(dir=self._config["tempstore_dir"])
         chunk_stars = self._config["max_memory"] // (
             self._dimensions["images"]
             * self._dimensions["columns"]
@@ -102,7 +103,7 @@ class MasterPhotrefCollector:
             ),
             self._config["max_memory"],
             rechunked_store,
-            temp_store=zarr.TempStore(dir=self._config["tempstore_dir"]),
+            temp_store=temp_store,
         )
         self._logger.debug("Rechunking")
         rechunked_data = rechunk_plan.execute()
@@ -153,6 +154,8 @@ class MasterPhotrefCollector:
                 statistics[column][res_slice, :] *= numpy.sqrt(
                     statistics["rejected_count"][res_slice, :] - 1
                 )
+        rechunked_store.clear()
+        temp_store.clear()
 
     def _save_statistics(self, statistics):
         """Save the given statistics as a master statistics file."""
