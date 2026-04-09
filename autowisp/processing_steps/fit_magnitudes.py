@@ -14,7 +14,10 @@ from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp import magnitude_fitting
-from autowisp.astrometry.transformation import Transformation, compute_diagonal_fov
+from autowisp.astrometry.transformation import (
+    Transformation,
+    compute_diagonal_fov,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.catalog import ensure_catalog, get_catalog_config
@@ -178,6 +181,12 @@ def parse_command_line(*args):
         default=5,
         help="The maximum number of iterations of deriving a master photometric"
         " referene and re-fitting to allow.",
+    )
+    parser.add_argument(
+        "--tempstore-dir",
+        default=None,
+        help="Directory under which to create temporary storage used when "
+        "creating master photometric references.",
     )
     return parser.parse_args(*args)
 
@@ -449,7 +458,9 @@ def has_apphot(dr_fname, substitutions):
             return False
 
 
-def _get_photref_pointing(photref_dr_fname, skytoframe_version, max_photref_separation):
+def _get_photref_pointing(
+    photref_dr_fname, skytoframe_version, max_photref_separation
+):
     """Return (SkyCoord, threshold_deg) for the photref, or None if disabled.
 
     Returns None when max_photref_separation is not finite so callers can skip
@@ -489,7 +500,9 @@ def _get_photref_pointing(photref_dr_fname, skytoframe_version, max_photref_sepa
     return center, threshold_deg
 
 
-def _within_photref_range(dr_fname, photref_center, threshold_deg, skytoframe_version):
+def _within_photref_range(
+    dr_fname, photref_center, threshold_deg, skytoframe_version
+):
     """Return True if the DR file's pointing is within threshold_deg of photref_center.
 
     If the sky-center attribute is absent (astrometry not yet run), the image
@@ -514,7 +527,8 @@ def _within_photref_range(dr_fname, photref_center, threshold_deg, skytoframe_ve
         )
     if sky_center is None:
         _logger.warning(
-            "Sky center not found in %s; including without range check.", dr_fname
+            "Sky center not found in %s; including without range check.",
+            dr_fname,
         )
         return True
     sep = photref_center.separation(

@@ -303,6 +303,7 @@ def iterative_refit(
             num_photometries,
             len(fit_dr_filenames),
             source_name_format=configuration.source_name_format,
+            tempstore_dir=configuration.tempstore_dir,
         )
 
         single_iteration(
