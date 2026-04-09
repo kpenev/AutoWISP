@@ -2,11 +2,16 @@
 
 from itertools import product
 from copy import deepcopy
-from io import StringIO, BytesIO
+from io import BytesIO
 import json
 
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
+
+from autowisp.browser_interface.core.plot_utils import (
+    setup_svg_matplotlib,
+    figure_to_svg_response,
+)
 import numpy
 from astroquery.mast import Catalogs
 from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
@@ -497,8 +502,7 @@ def update_lightcurve_figure(request):
         request.session["lc_plotting"], updates
     )
 
-    matplotlib.use("svg")
-    pyplot.style.use("dark_background")
+    setup_svg_matplotlib()
 
     figure = pyplot.figure(**request.session["lc_plotting"]["figure_config"])
     plotting_info = request.session["lc_plotting"]
@@ -518,21 +522,14 @@ def update_lightcurve_figure(request):
             figure,
         )
 
-    with StringIO() as image_stream:
-        pyplot.savefig(image_stream, bbox_inches="tight", format="svg")
-        subplot_boundaries = {}
-        _get_subplot_boundaries(
-            *request.session["lc_plotting"]["plot_layout"],
-            0,
-            0,
-            subplot_boundaries,
-        )
-        return JsonResponse(
-            {
-                "plot_data": image_stream.getvalue(),
-                "boundaries": subplot_boundaries,
-            }
-        )
+    subplot_boundaries = {}
+    _get_subplot_boundaries(
+        *request.session["lc_plotting"]["plot_layout"],
+        0,
+        0,
+        subplot_boundaries,
+    )
+    return figure_to_svg_response(figure, boundaries=subplot_boundaries)
 
 
 def edit_subplot(request, plot_id):

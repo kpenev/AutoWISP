@@ -18,22 +18,18 @@ function placeImage()
         Math.round((boundingRect.height - image.height) / 2)
     ) + "px";
 
+    let overlayImage = document.getElementById("overlay-image");
+    if ( overlayImage != null ) {
+        overlayImage.width = image.width;
+        overlayImage.height = image.height;
+        overlayImage.style.left = image.style.left;
+        overlayImage.style.top = image.style.top;
+    }
+
     let regionsElement = document.getElementById("regions");
     if ( regionsElement != null ) {
-        regionsElement.style.left = (
-            boundingRect.left 
-            +
-            image.posX
-            +
-            Math.round((boundingRect.width - image.width) / 2)
-        ) + "px";
-        regionsElement.style.top = (
-            boundingRect.top 
-            + 
-            image.posY
-            +
-            Math.round((boundingRect.height - image.height) / 2)
-        ) + "px";
+        regionsElement.style.left = image.style.left;
+        regionsElement.style.top = image.style.top;
     }
 }
 
@@ -304,3 +300,53 @@ async function updateView(change)
 }
 
 var image = document.getElementById("main-image")
+
+//Ask the server for a list of locations and display them as markers.
+async function showImageLocations(getLocationsURL, params, replace, marker)
+{
+    let csrftoken = getCookie('csrftoken');
+    let headers = new Headers();
+    headers.append('X-CSRFToken', csrftoken);
+    headers.append("Content-type", "application/json; charset=UTF-8")
+    const response = await fetch(getLocationsURL, {
+        method: "POST",
+        body: JSON.stringify(params),
+        headers: headers,
+        credentials: 'include'
+    })
+        .then((response) => {
+            console.log(response);
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data);
+            if ( data.stars.length == 0 )
+                alert(data.message);
+            markImageLocations(data.stars, replace, marker);
+        })
+        .catch(function(error) {
+            alert("Adding sources failed:" + error);
+        })
+}
+
+//Display the given locations as markers on top of the FITS image.
+function markImageLocations(sources, replace, marker)
+{
+    if ( marker === undefined ) {
+        marker = {
+            "shape": "circle",
+            "r": 5.0
+        }
+    }
+    const regions = [];
+    for ( let i = 0; i < sources.length; i++ ) {
+        new_reg = {
+            "x": sources[i].x,
+            "y": sources[i].y
+        };
+        for ( let property in marker )
+            new_reg[property] = marker[property];
+        regions.push(new_reg);
+    }
+    addRegions(regions, "px", replace);
+}

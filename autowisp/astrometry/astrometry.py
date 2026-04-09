@@ -303,7 +303,7 @@ def get_initial_corr_local(
 
     _logger.debug(
         "Attempting to match catalog to a list of %d extracted sources: %s",
-        xy_extracted.size,
+        len(xy_extracted),
         repr(xy_extracted),
     )
 

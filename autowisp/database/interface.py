@@ -26,7 +26,7 @@ _Session = None  # sessionmaker(db_engine, expire_on_commit=False)
 
 _project_home = None
 
-DB_URL_FNAME = "autowisp_db.url"
+DB_URL_FNAME = "autowisp_db.url" # pylint: disable=invalid-name
 """
 Filename (relative to project home) where a non-SQLite connection URL is stored.
 
@@ -35,7 +35,6 @@ etc.) the connection URL is written to this file so that subsequent calls to
 :func:`set_project_home` with only the directory path can reconnect without
 requiring the caller to supply the URL again.
 """
-
 
 def get_db_engine():
     """Return the database engine."""
@@ -92,8 +91,7 @@ def set_project_home(project_home, db_url=None):
             To connect to a centralised server pass the full URL, e.g.:
             ``"mysql+pymysql://user:password@host:3306/dbname"``
             ``"mariadb+pymysql://user:password@host:3306/dbname"``
-            Passing an explicit URL always takes precedence over any saved URL
-            and overwrites the saved file.
+            Passing an explicit URL raises an error if a saved URL is found.
     """
 
     global _db_engine, _Session, _project_home  # pylint: disable=global-statement
@@ -131,6 +129,7 @@ def set_project_home(project_home, db_url=None):
         "pool_pre_ping": True,
         "pool_recycle": 3600,
     }
+    url_file = path.join(_project_home, DB_URL_FNAME)
 
     if db_url is None:
         db_path = path.join(_project_home, "autowisp.db")

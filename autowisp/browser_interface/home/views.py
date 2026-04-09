@@ -16,8 +16,10 @@ from autowisp.database.defaults import master_info
 from autowisp.database.interface import (
     set_project_home,
     start_db_session,
+    get_db_engine,
     DB_URL_FNAME,
 )
+from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Configuration,
     Image,
@@ -44,7 +46,6 @@ logger = logging.getLogger(__name__)
 def home(request):
     """Display the home page."""
 
-    request.session.flush()
     display_columns = [
         field.name
         for field in Project._meta.get_fields()  # pylint: disable=no-member, protected-access
@@ -143,6 +144,9 @@ def delete_projects(request):
             delete_master_files(project_home)
         if "logs" in file_types:
             delete_logs(project_home)
+
+        set_project_home(project_home)
+        DataModelBase.metadata.drop_all(get_db_engine())
 
         for db_file in ("autowisp.db", DB_URL_FNAME):
             db_file_path = os.path.join(project.path, db_file)

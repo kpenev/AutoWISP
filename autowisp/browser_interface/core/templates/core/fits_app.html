@@ -43,6 +43,7 @@
 <div class="lcars-bar horizontal spacer"></div>
 {% endif %}
 
+{% block image_navigation %}
 {% with image_index1=image_index|add:"1" %}
 <div class="lcars-bar
             {% if image_index1 > 1 %}
@@ -60,7 +61,7 @@
     </div>
 </div>
 
-<input type="text" 
+<input type="text"
        class="lcars-text-input
               decorated
               lcars-melrose-color
@@ -89,13 +90,11 @@
     </div>
 </div>
 {% endwith %}
+{% endblock image_navigation %}
 {% endblock header_bar_extra %}
 
 {% block footer_bar_extra %}
-<div class="lcars-bar
-            bottom
-            horizontal
-            lcars-u-3">
+<div class="lcars-bar bottom horizontal" style="white-space: nowrap; width: fit-content;">
     Transform intensity:
 </div>
 
@@ -137,8 +136,9 @@
 {% block main %}
 <div id="full-view" class="lcars-row">
     {% block full_view %}
-    <div id="img-parent"> 
+    <div id="img-parent">
         <img id="main-image" src="data:image/png;base64,{{image}}"></img>
+        {% block img_overlays %}{% endblock img_overlays %}
     </div>
     {% endblock full_view %}
 </div>

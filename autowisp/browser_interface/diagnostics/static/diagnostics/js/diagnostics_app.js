@@ -16,6 +16,7 @@ function getSelectedDatasets()
         let marker = button.children[0].className.baseVal.split(" ")[1];
         if ( marker != "" ) {
             datasets[seriesId] = {
+                "channel": row.getAttribute("channel"),
                 "color": document.getElementById(
                     "plot-color:" + seriesId
                 ).value,
@@ -31,20 +32,36 @@ function getSelectedDatasets()
     }
     let display = document.getElementById("diagnostics-display");
     let rect = display.getBoundingClientRect();
+    let legendToggle = document.getElementById("legend-toggle");
     return {
         "datasets": datasets,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
+            "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
         },
     };
 }
 
 function showDiagnosticsPlot(data)
 {
+    let downloadBtn = document.getElementById("download-button");
+    if (downloadBtn)
+        downloadBtn.style.display = "inline";
     let display = document.getElementById("diagnostics-display");
     display.innerHTML = "";
     showSVG(data, "diagnostics-display");
-    setFigureSize("diagnostics-display");
+    display.style.height = "";
+    display.style.minHeight = "";
+    display.style.maxHeight = "";
+    let figure = display.children[0];
+    let aspectRatio = (stripUnits(figure.getAttribute("width"))
+                       / stripUnits(figure.getAttribute("height")));
+    let style = getComputedStyle(display);
+    let contentWidth = (display.clientWidth
+                        - parseFloat(style.paddingLeft)
+                        - parseFloat(style.paddingRight));
+    figure.setAttribute("width", contentWidth);
+    figure.setAttribute("height", contentWidth / aspectRatio);
 }
 
 function initDiagnosticsPlotting(plotURL)

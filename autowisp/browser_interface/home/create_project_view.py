@@ -144,7 +144,6 @@ class CreateProjectView(WalkFSView):
         ), (
             f"Directory {project_home} appears to already contain a project."
         )
-
         proj = Project(
             name=config["project-name"],
             path=project_home,

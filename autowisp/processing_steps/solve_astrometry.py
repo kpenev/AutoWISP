@@ -26,6 +26,7 @@ from autowisp.astrometry import (
     refine_transformation,
     Transformation,
 )
+from autowisp.astrometry.transformation import compute_diagonal_fov
 from autowisp.catalog import (
     ensure_catalog,
     check_catalog_coverage,
@@ -507,9 +508,7 @@ def _compute_zenith_distance(header, ra_cent, dec_cent):
         ).alt.to_value(units.deg)
         return 90.0 - alt
     except (KeyError, Exception):
-        _logger.error(
-            "Cannot compute zenith distance.", exc_info=True
-        )
+        _logger.error("Cannot compute zenith distance.", exc_info=True)
         return None
 
 
@@ -537,9 +536,7 @@ def _compute_pointing_offset(header, ra_cent, dec_cent):
         )
         return center.separation(target_coords).to_value(units.deg)
     except (KeyError, Exception):
-        _logger.error(
-            "Cannot compute pointing offset.", exc_info=True
-        )
+        _logger.error("Cannot compute pointing offset.", exc_info=True)
         return None
 
 
@@ -577,6 +574,12 @@ def _collect_astrometry_diagnostics(
         ("dec_center", transformation_estimate["dec_cent"]),
         ("matched_fraction", solve_diagnostics["ratio"]),
         ("astrom_residual", solve_diagnostics["rms"]),
+        (
+            "diagonal_fov",
+            compute_diagonal_fov(
+                construct_transformation(transformation_estimate), header
+            ),
+        ),
     ]
 
     z_center = _compute_zenith_distance(
@@ -626,8 +629,8 @@ def solve_image(  # pylint: disable=too-many-locals
             ``solve_field`` from astrometry.net is used to find iniitial
             estimates.
 
-        web_lock(multiprocessing.Lock):    A lock that is held hile a
-            catalog file is checked and/or created.
+        web_lock(multiprocessing.Lock):    A lock held while submitting a
+            plate-solve request to the astrometry.net web API.
 
         mark_start(callable):    Called before anything is written to the DR
             file if successful transformation is found.
@@ -965,14 +968,23 @@ def solve_astrometry(
         process.start()
     _logger.debug("Starting astrometry on %d pending frame sets", len(pending))
 
-    manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end)
-
-    _logger.debug("Stopping astrometry solving processes.")
-    for process in workers:
-        task_queue.put("STOP")
-
-    for process in workers:
-        process.join()
+    try:
+        manage_astrometry(
+            pending, task_queue, result_queue, mark_start, mark_end
+        )
+    finally:
+        _logger.debug("Stopping astrometry solving processes.")
+        for _ in workers:
+            task_queue.put("STOP")
+        # Drain unread results while waiting for workers to exit so the pipe
+        # buffer does not fill up and prevent workers from stopping cleanly.
+        for process in workers:
+            while process.is_alive():
+                try:
+                    result_queue.get(timeout=0.05)
+                except Exception:  # queue.Empty
+                    pass
+            process.join()
 
 
 def cleanup_interrupted(interrupted, configuration):

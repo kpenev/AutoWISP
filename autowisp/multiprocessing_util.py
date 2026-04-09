@@ -13,6 +13,7 @@ import platformdirs
 
 from autowisp.database.interface import set_project_home
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.catalog import WISPGaia
 
 try:
     import git
@@ -173,6 +174,16 @@ def setup_process_map(config):
                 f"stdout/stderr to {std_out_err_fname!r}\n"
             )
 
+    all_loggers = [logging.root] + [
+        lgr
+        for lgr in logging.Logger.manager.loggerDict.values()
+        if isinstance(lgr, logging.Logger)
+    ]
+    for lgr in all_loggers:
+        for handler in lgr.handlers[:]:
+            lgr.removeHandler(handler)
+            handler.close()
+
     if std_out_err_fname is not None:
         sys.stdout.flush()
         sys.stderr.flush()
@@ -185,10 +196,6 @@ def setup_process_map(config):
         sys.stderr = sys.stdout
 
     ensure_directory(logging_fname)
-
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-        handler.close()
     logging_config = {
         "filename": logging_fname,
         "level": getattr(
@@ -208,6 +215,10 @@ def setup_process_map(config):
     set_project_home(config["project_home"])
     if "data_reduction_fname" in config:
         DataReductionFile.fname_template = config["data_reduction_fname"]
+    if config.get("gaia_user") and config.get("gaia_password"):
+        WISPGaia.set_credentials(
+            user=config["gaia_user"], password=config["gaia_password"]
+        )
 
 
 def setup_process(**config):

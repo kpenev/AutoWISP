@@ -1,59 +1,3 @@
-//Change the displayed histogrames up by one.
-function histScrollUp(event)
-{
-    if ( histParent.firstVisible == histParent.children.length - 1 ) {
-        document.getElementById(
-            "hist-scroll-down"
-        ).addEventListener(
-            "click",
-            histScrollDown
-        );
-    }
-    histParent.firstVisible = histParent.firstVisible - 1;
-    histParent.shift = (
-        histParent.shift 
-        + 
-        histParent.children[histParent.firstVisible].getBoundingClientRect().height
-    );
-    histParent.style.top = histParent.shift + "px";
-    if ( histParent.firstVisible == 0 ) {
-        document.getElementById(
-            "hist-scroll-up"
-        ).removeEventListener(
-            "click",
-            histScrollUp
-        );
-    }
-}
-
-//Change the displayed histogrames down by one.
-function histScrollDown(event)
-{
-    if ( histParent.firstVisible == 0 ) {
-        document.getElementById(
-            "hist-scroll-up"
-        ).addEventListener(
-            "click",
-            histScrollUp
-        );
-    }
-    histParent.shift = (
-        histParent.shift
-        - 
-        histParent.children[histParent.firstVisible].getBoundingClientRect().height
-    );
-    histParent.style.top = histParent.shift + "px";
-    histParent.firstVisible = histParent.firstVisible + 1;
-    if ( histParent.firstVisible == histParent.children.length - 1 ) {
-        document.getElementById(
-            "hist-scroll-down"
-        ).removeEventListener(
-            "click",
-            histScrollDown
-        );
-    }
-}
-
 //Prepare to respond to user dragging a histogram.
 function histDragStart(event)
 {
@@ -70,9 +14,9 @@ function histDragEnd(event)
 {
     event.preventDefault();
     let i = 0;
-    while ( histParent.children[i].getBoundingClientRect().top 
-            < 
-            event.clientY 
+    while ( histParent.children[i].getBoundingClientRect().top
+            <
+            event.clientY
             &&
             i < histParent.children.length) {
         i+= 1;
@@ -100,8 +44,8 @@ function resizeHist(event)
     let sideBar = document.getElementById("side-bar")
     sideBar.style.width = Math.max(
         document.getElementById("vert-hist-sep").getBoundingClientRect().width,
-        (fullRect.right 
-         - 
+        (fullRect.right
+         -
          Math.max(fullRect.left + 100, event.clientX))
     ) + "px";
     sideBar.style.minWidth = sideBar.style.width
@@ -125,7 +69,7 @@ function initView(viewConfig)
         viewConfig = {
             "image": getFITSConfig(),
             "histograms": {
-                "firstVisible": 0,
+                "scrollTop": 0,
                 "width": document.getElementById("side-bar").style.width,
                 "order": [...Array(histParent.children.length).keys()]
             }
@@ -146,27 +90,13 @@ function initView(viewConfig)
                                     histParent.children[i]);
         }
     }
-    histParent.firstVisible = viewConfig.histograms.firstVisible;
-
-    histParent.shift = 0;
-    for( let i = 0; i < histParent.firstVisible; ++i ) {
-        histParent.shift = (
-            histParent.shift 
-            + 
-            histParent.children[i].getBoundingClientRect().height
-        );
-    }
-
     let sideBar = document.getElementById("side-bar")
     sideBar.style.width = viewConfig.histograms.width;
-    sideBar.style.minWidth = sideBar.style.width
+    sideBar.style.minWidth = sideBar.style.width;
 
-    document.getElementById(
-        "hist-scroll-down"
-    ).addEventListener(
-        "click",
-        histScrollDown
-    );
+    let savedScrollTop = viewConfig.histograms.scrollTop || 0;
+    requestAnimationFrame(() => { histParent.scrollTop = savedScrollTop; });
+
     document.getElementById("resize-hist").addEventListener("mousedown",
                                                             resizeHistStart);
 }
@@ -178,7 +108,7 @@ async function updateView(change)
         "change": change,
         "image": getFITSConfig(),
         "histograms": {
-            "firstVisible": histParent.firstVisible,
+            "scrollTop": histParent.scrollTop,
             "width": document.getElementById("side-bar").style.width,
             "order": []
         }

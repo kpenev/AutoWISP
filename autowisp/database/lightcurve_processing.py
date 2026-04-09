@@ -281,10 +281,11 @@ class LightCurveProcessingManager(ProcessingManager):
                 satisfied.
         """
 
-        for required_step_name, required_imtype_id in db_session.execute(
+        for required_step_name, required_imtype_id, allow_pending in db_session.execute(
             select(
                 Step.name,
                 StepDependencies.blocking_image_type_id,
+                StepDependencies.allow_pending,
             )
             .select_from(StepDependencies)
             .join(
@@ -295,20 +296,23 @@ class LightCurveProcessingManager(ProcessingManager):
             .where(StepDependencies.blocked_image_type_id == image_type.id)
         ).all():
             assert required_imtype_id == image_type.id
-            if (
-                required_step_name in self.pending
-                and image_type.name in self.pending[required_step_name]
-                and (
-                    single_photref_fname
-                    in self.pending[required_step_name][image_type.name]
-                )
-            ):
+            if required_step_name not in self.pending:
+                continue
+            if image_type.name not in self.pending[required_step_name]:
+                continue
+            pending_phot_refs = self.pending[required_step_name][image_type.name]
+            if allow_pending:
+                blocked = single_photref_fname in pending_phot_refs
+            else:
+                blocked = bool(pending_phot_refs)
+            if blocked:
                 self._logger.debug(
                     "Not ready for %s of lightcurve points corresponding to "
-                    "single photometric reference %s because %s is pending.",
+                    "single photometric reference %s because %s is pending%s.",
                     step.name,
                     repr(single_photref_fname),
                     required_step_name,
+                    " for this photref" if allow_pending else " for some photref",
                 )
                 return False
         return True

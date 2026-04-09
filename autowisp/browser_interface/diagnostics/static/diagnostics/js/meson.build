@@ -1,5 +1,6 @@
 src = [
   'detrending.diagnostics.js',
+  'diag_vs_diag.js',
   'diagnostics_app.js',
 ]
 

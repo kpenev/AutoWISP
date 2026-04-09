@@ -1,0 +1,42 @@
+{% extends 'core/fits_app.html' %}
+{% load static %}
+
+{% block header_title %}{% block app_title %}
+Image {{ image_id }}, Channel: {{ color_channel }}
+{% endblock %}{% endblock %}
+
+{% block img_overlays %}
+{% if overlay_image %}
+<img id="overlay-image"
+     src="data:image/png;base64,{{ overlay_image }}">
+</img>
+{% endif %}
+{% endblock img_overlays %}
+
+{% block add_js %}
+{% if overlay_url %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    showImageLocations("{{ overlay_url }}", {}, true);
+});
+</script>
+{% endif %}
+{% endblock add_js %}
+
+{% block image_navigation %}
+<div class="lcars-bar horizontal spacer"></div>
+<div class="lcars-bar horizontal lcars-u-2">
+    Overlay:
+</div>
+<div class="lcars-bar horizontal spacer"></div>
+<select class="lcars-bar horizontal button lcars-melrose-bg"
+        onchange="updateView({'overlay': this.value})">
+    <option value="" {% if not overlay %}selected{% endif %}>None</option>
+    {% for value, label in overlay_choices %}
+    <option value="{{ value }}"
+            {% if overlay == value %}selected{% endif %}>
+        {{ label }}
+    </option>
+    {% endfor %}
+</select>
+{% endblock image_navigation %}

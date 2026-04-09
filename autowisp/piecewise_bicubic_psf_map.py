@@ -27,7 +27,7 @@ class PiecewiseBicubicPSFMap:
 
     # TODO: Info on PSF vs PRF should be saved to DR file
     # Breaking up seems to make things worse
-    def fit( # pylint: disable=too-many-locals, too-many-arguments
+    def fit(  # pylint: disable=too-many-locals, too-many-arguments
         self,
         fits_fnames,
         sources,
@@ -101,72 +101,81 @@ class PiecewiseBicubicPSFMap:
         )
 
         opened_frames = [fits.open(fname, "readonly") for fname in fits_fnames]
-        value_index = 1 if opened_frames[0][0].header["NAXIS"] == 0 else 0
-        error_index, mask_index = value_index + 1, value_index + 2
-        for frame in opened_frames:
-            assert frame[error_index].header["IMAGETYP"] == "error"
-            assert frame[mask_index].header["IMAGETYP"] == "mask"
+        try:
+            value_index = 1 if opened_frames[0][0].header["NAXIS"] == 0 else 0
+            error_index, mask_index = value_index + 1, value_index + 2
+            for frame in opened_frames:
+                assert frame[error_index].header["IMAGETYP"] == "error"
+                assert frame[mask_index].header["IMAGETYP"] == "mask"
 
-        measure_backgrounds = [
-            astrowisp.BackgroundExtractor(
-                frame[value_index].data.astype(numpy.float64, copy=False),
-                self.configuration["background_annulus"][0],
-                sum(self.configuration["background_annulus"]),
-            )
-            for frame in opened_frames
-        ]
-
-        for get_bg, frame_sources in zip(measure_backgrounds, sources):
-            get_bg(
-                numpy.copy(frame_sources["x"]), numpy.copy(frame_sources["y"])
-            )
-
-        shape_fit_result_tree = star_shape_fitter.fit(
-            [
-                (
+            measure_backgrounds = [
+                astrowisp.BackgroundExtractor(
                     frame[value_index].data.astype(numpy.float64, copy=False),
-                    frame[error_index].data.astype(numpy.float64, copy=False),
-                    frame[mask_index].data.astype(numpy.uint8, copy=False),
-                    frame_sources,
-                    self._eval_shape_terms(frame_sources).T,
+                    self.configuration["background_annulus"][0],
+                    sum(self.configuration["background_annulus"]),
                 )
-                for frame, frame_sources in zip(opened_frames, sources)
-            ],
-            measure_backgrounds,
-            require_convergence=False,
-        )
+                for frame in opened_frames
+            ]
 
-        self._astrowisp_map = astrowisp.PiecewiseBicubicPSFMap(
-            shape_fit_result_tree
-        )
+            for get_bg, frame_sources in zip(measure_backgrounds, sources):
+                get_bg(
+                    numpy.copy(frame_sources["x"]),
+                    numpy.copy(frame_sources["y"]),
+                )
 
-        if output_dr_fnames:
-            for image_index, dr_fname in enumerate(output_dr_fnames):
-                dtype_names = list(sources[image_index].dtype.names)
-                if "source_id" in dtype_names:
-                    dtype_names.remove("ID")
-                    image_sources = sources[image_index][dtype_names]
-                else:
-                    image_sources = sources[image_index]
-                with DataReductionFile(dr_fname, "a") as dr_file:
-                    dr_file.add_sources(
-                        image_sources,
-                        "srcproj.columns",
-                        "srcproj_column_name",
-                        parse_ids=True,
-                        ascii_columns=["ID", "phqual", "magsrcflag"],
-                        **dr_path_substitutions,
+            shape_fit_result_tree = star_shape_fitter.fit(
+                [
+                    (
+                        frame[value_index].data.astype(
+                            numpy.float64, copy=False
+                        ),
+                        frame[error_index].data.astype(
+                            numpy.float64, copy=False
+                        ),
+                        frame[mask_index].data.astype(numpy.uint8, copy=False),
+                        frame_sources,
+                        self._eval_shape_terms(frame_sources).T,
                     )
-                    add_star_shape_fit(
-                        dr_file,
-                        fit_terms_expression=self.configuration[
-                            "shape_terms_expression"
-                        ],
-                        shape_fit_result_tree=shape_fit_result_tree,
-                        num_sources=sources[image_index].size,
-                        image_index=image_index,
-                        **dr_path_substitutions,
-                    )
+                    for frame, frame_sources in zip(opened_frames, sources)
+                ],
+                measure_backgrounds,
+                require_convergence=False,
+            )
+
+            self._astrowisp_map = astrowisp.PiecewiseBicubicPSFMap(
+                shape_fit_result_tree
+            )
+
+            if output_dr_fnames:
+                for image_index, dr_fname in enumerate(output_dr_fnames):
+                    dtype_names = list(sources[image_index].dtype.names)
+                    if "source_id" in dtype_names:
+                        dtype_names.remove("ID")
+                        image_sources = sources[image_index][dtype_names]
+                    else:
+                        image_sources = sources[image_index]
+                    with DataReductionFile(dr_fname, "a") as dr_file:
+                        dr_file.add_sources(
+                            image_sources,
+                            "srcproj.columns",
+                            "srcproj_column_name",
+                            parse_ids=True,
+                            ascii_columns=["ID", "phqual", "magsrcflag"],
+                            **dr_path_substitutions,
+                        )
+                        add_star_shape_fit(
+                            dr_file,
+                            fit_terms_expression=self.configuration[
+                                "shape_terms_expression"
+                            ],
+                            shape_fit_result_tree=shape_fit_result_tree,
+                            num_sources=sources[image_index].size,
+                            image_index=image_index,
+                            **dr_path_substitutions,
+                        )
+        finally:
+            for frame in opened_frames:
+                frame.close()
 
     def load(self, dr_fname, return_sources=False, **dr_path_substitutions):
         """Read the PSF/PRF map from the given data reduction file."""
