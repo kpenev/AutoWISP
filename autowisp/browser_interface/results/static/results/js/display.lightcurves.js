@@ -297,12 +297,12 @@ function getPlottingConfig() {
         subplotConfig["data_select"] = plotCurves.configuredCurves;
 
         for (const decoration of [
-            "x-label", 
-            "y-label", 
-            "title", 
-            "xmin", 
+            "x-label",
+            "y-label",
+            "title",
+            "xmin",
             "xmax",
-            "ymin", 
+            "ymin",
             "ymax"
         ])
             subplotConfig[decoration.replaceAll("-", "_")] = document
@@ -393,7 +393,7 @@ function showRcParamsConfigPanel(onSuccess) {
 
 // Ensure showConfig is accessible on the global object even if script execution context changes
 // (defensive: browsers normally expose function declarations globally, but make it explicit)
-try { window.showConfig = window.showConfig || showConfig; } catch (_) {}
+try { window.showConfig = window.showConfig || showConfig; } catch (_) { }
 
 function showEditPlot(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
@@ -453,8 +453,8 @@ function changeModel() {
     for (const updateId of ["x", "y", "match_by"]) {
         updateElement = document.getElementById(updateId);
         if (
-            modelSelect.value == "" 
-            && 
+            modelSelect.value == ""
+            &&
             updateElement.lastElementChild.value == 'best_model'
         )
             updateElement.removeChild(updateElement.lastElementChild);
@@ -499,8 +499,8 @@ class plotCurvesType {
         this.elements.nextCurve.onclick = () => this.switchCurve(1);
         this.fixVisual();
         const plotSymbols = document.getElementsByClassName("plot-marker");
-        for ( const symbol of plotSymbols ) {
-            if ( symbol.parentElement.id == "marker-option" )
+        for (const symbol of plotSymbols) {
+            if (symbol.parentElement.id == "marker-option")
                 symbol.addEventListener("click", selectSymbol);
         }
 
@@ -619,7 +619,7 @@ class plotCurvesType {
             if (element.id == "marker") {
                 let marker = element.children[0];
                 if (load)
-                    marker.className.baseVal = "plot-marker " +  config.marker;
+                    marker.className.baseVal = "plot-marker " + config.marker;
                 else
                     config.marker = marker.className.baseVal.split(" ")[1];
             } else if (load) {
@@ -643,11 +643,11 @@ class plotCurvesType {
             const target = thisSelection[paramGroupTargets[groupName]];
             const selectorStr = "[id^='" + groupName + "-key-']";
             for (
-                const keyElement 
-                of 
+                const keyElement
+                of
                 document
-                .getElementById(groupName + "s")
-                .querySelectorAll(selectorStr)
+                    .getElementById(groupName + "s")
+                    .querySelectorAll(selectorStr)
             ) {
                 const valueElement = document.getElementById(
                     keyElement.id.replace("-key-", "-value-")
@@ -657,7 +657,7 @@ class plotCurvesType {
                     if (loadedValue !== undefined)
                         valueElement.value = loadedValue;
                 } else {
-                    if (keyElement.value == "magfit_iteration") 
+                    if (keyElement.value == "magfit_iteration")
                         target[keyElement.value] = parseInt(valueElement.value);
                     else
                         target[keyElement.value] = valueElement.value;
@@ -666,11 +666,11 @@ class plotCurvesType {
         }
         if (load) {
             document.getElementById("minimize").value = thisSelection["minimize"];
-            document.getElementById("include-apphot").checked = 
+            document.getElementById("include-apphot").checked =
                 thisSelection["photometry_modes"].includes("apphot");
             document.getElementById("include-shapefit").checked =
                 thisSelection["photometry_modes"].includes("shapefit");
-            document.getElementById("points-selection").value = 
+            document.getElementById("points-selection").value =
                 thisSelection["selection"];
             const model = thisSelection['model'];
             if (model) {
@@ -701,7 +701,7 @@ class plotCurvesType {
                 thisSelection["photometry_modes"].push("apphot");
             if (document.getElementById("include-shapefit").checked)
                 thisSelection["photometry_modes"].push("shapefit");
-            thisSelection["selection"] = 
+            thisSelection["selection"] =
                 document.getElementById("points-selection").value;
 
             const modelType = document.getElementById("select-model").value;
@@ -712,12 +712,12 @@ class plotCurvesType {
                     "shift_to": document.getElementById("model-shift").checked,
                     "kwargs": {}
                 };
-                for( 
-                    const element 
-                    of 
+                for (
+                    const element
+                    of
                     document
-                    .getElementById("model-params")
-                    .getElementsByTagName("input")
+                        .getElementById("model-params")
+                        .getElementsByTagName("input")
                 ) {
                     model["kwargs"][element.id.substring(6)] = element.value;
                 }
@@ -764,7 +764,7 @@ class plotCurvesType {
                 this.configuredCurves.push(this.createNewSelection());
             if (step) this.curveInd = 0;
             this.switchCurve(0);
-        } else 
+        } else
             this.fixVisual();
     }
 }
@@ -817,7 +817,7 @@ function handleLCParamChange(event) {
             );
         } else
             addElement = (opt) => updateElement.appendChild(opt);
-        if (changeInd < numExpressions ) {
+        if (changeInd < numExpressions) {
             updateElement.children[changeInd].value = event.target.value;
             updateElement.children[changeInd].textContent =
                 event.target.value;
@@ -838,11 +838,10 @@ function handleLCParamChange(event) {
     }
 }
 
-function selectSymbol(event)
-{
+function selectSymbol(event) {
     let markerButton = document.getElementById("marker");
-    markerButton.replaceChild(event.currentTarget.cloneNode(true), 
-                              markerButton.children[0]);
+    markerButton.replaceChild(event.currentTarget.cloneNode(true),
+        markerButton.children[0]);
 }
 
 function initLightcurveDisplay(urls) {
@@ -855,6 +854,15 @@ function initLightcurveDisplay(urls) {
     updateFigure.getParam = getPlottingConfig;
     changeModel.stashed = {};
     getPlottingConfig.unappliedSplits = {};
+
+    const clearBufferBtn = document.getElementById("clear-lc-buffer-button");
+    if (clearBufferBtn) {
+        clearBufferBtn.addEventListener("click", () => {
+            localStorage.removeItem("savedStarId");
+            localStorage.removeItem("persistedMinimize");
+            localStorage.removeItem("persistedMagnitude");
+        });
+    }
 
 
     /**
@@ -903,70 +911,70 @@ function initLightcurveDisplay(urls) {
 
 
     function initConfigPanel() {
-    plotCurves = new plotCurvesType(lcDataSelect);
-    getPlottingConfig.mode = "subplot";
-    getPlottingConfig.plotId = 0;
-    configPanelState.activePanel = "subplot";
+        plotCurves = new plotCurvesType(lcDataSelect);
+        getPlottingConfig.mode = "subplot";
+        getPlottingConfig.plotId = 0;
+        configPanelState.activePanel = "subplot";
 
-    var openConfigBtn = document.getElementById("open-config");
-    if (openConfigBtn) {
-        openConfigBtn.onclick = function () {
-            const plotId =
-                typeof getPlottingConfig.plotId !== "undefined"
-                    ? getPlottingConfig.plotId
-                    : 0;
-            if (isSidePanelVisible() && configPanelState.activePanel === "subplot")
-                hideSidePanel();
-            else showSubplotConfigPanel(plotId);
-        };
+        var openConfigBtn = document.getElementById("open-config");
+        if (openConfigBtn) {
+            openConfigBtn.onclick = function () {
+                const plotId =
+                    typeof getPlottingConfig.plotId !== "undefined"
+                        ? getPlottingConfig.plotId
+                        : 0;
+                if (isSidePanelVisible() && configPanelState.activePanel === "subplot")
+                    hideSidePanel();
+                else showSubplotConfigPanel(plotId);
+            };
+        }
+        const rcBtn = document.getElementById("rcParams");
+        if (rcBtn)
+            rcBtn.onclick = () => {
+                if (isSidePanelVisible() && configPanelState.activePanel === "rcParams")
+                    hideSidePanel();
+                else showRcParamsConfigPanel();
+            };
+        document.getElementById("apply").onclick = updateFigure;
+        document.getElementById("star-id").addEventListener(
+            "keydown", e => { if (e.key === "Enter") updateFigure(); }
+        );
+        updateFigure();
     }
-    const rcBtn = document.getElementById("rcParams");
-    if (rcBtn)
-        rcBtn.onclick = () => {
-            if (isSidePanelVisible() && configPanelState.activePanel === "rcParams")
-                hideSidePanel();
-            else showRcParamsConfigPanel();
-        };
-    document.getElementById("apply").onclick = updateFigure;
-    document.getElementById("star-id").addEventListener(
-        "keydown", e => { if (e.key === "Enter") updateFigure(); }
-    );
-    updateFigure();
-}
 
     showSubplotConfigPanel(0, initConfigPanel);
 
-    
+
 }
 
 /**
 * Function to persist the "star-id" input across reloads.
 * Works both for initial page load and dynamically added DOM elements.
 */
-    /**
-    * save the value of a given input field to localStorage and restore on load.
-    * @param {string} id - DOM element ID of the input field.
-    * @param {string} key - Key in localStorage to save.
-    */
-    function persistInput(id, key) {
-        const input = document.getElementById(id);
-        if (!input || input[`_persisted_${key}`]) return;
-        const saved = localStorage.getItem(key);
-        if (saved !== null) input.value = saved;
-        input.addEventListener("input", () => localStorage.setItem(key, input.value));
-        input[`_persisted_${key}`] = true;
-    }
+/**
+* save the value of a given input field to localStorage and restore on load.
+* @param {string} id - DOM element ID of the input field.
+* @param {string} key - Key in localStorage to save.
+*/
+function persistInput(id, key) {
+    const input = document.getElementById(id);
+    if (!input || input[`_persisted_${key}`]) return;
+    const saved = localStorage.getItem(key);
+    if (saved !== null) input.value = saved;
+    input.addEventListener("input", () => localStorage.setItem(key, input.value));
+    input[`_persisted_${key}`] = true;
+}
 
-   /**
-    * Observe DOM for the target input element and persist once it appears.
-    */
-    function observeInput(id, key) {
-        new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
-    }
+/**
+ * Observe DOM for the target input element and persist once it appears.
+ */
+function observeInput(id, key) {
+    new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
+}
 
-    document.addEventListener("DOMContentLoaded", () =>
+document.addEventListener("DOMContentLoaded", () =>
     persistInput("star-id", "savedStarId"));
-    observeInput("star-id", "savedStarId");
+observeInput("star-id", "savedStarId");
 
 /**
 * Replace occurrences of `{mode}.{from}.` in a string with `{mode}.{to}.`.
@@ -1069,14 +1077,15 @@ if (!window.setupMagfitTfaButtonsLoaded) {
  */
 function patchShowConfig() {
     if (typeof window.showConfig === "function") {
-    const origShowConfig = window.showConfig;
-    window.showConfig = function (url, parentId, onSuccess) {
-        origShowConfig(url, parentId, () => {
-            // Re-bind magfit/tfa handlers whenever config HTML is (re)loaded
-             if (typeof onSuccess === "function") onSuccess();
-        });
-    };
-}};
+        const origShowConfig = window.showConfig;
+        window.showConfig = function (url, parentId, onSuccess) {
+            origShowConfig(url, parentId, () => {
+                // Re-bind magfit/tfa handlers whenever config HTML is (re)loaded
+                if (typeof onSuccess === "function") onSuccess();
+            });
+        };
+    }
+};
 
 
 
@@ -1085,12 +1094,12 @@ function patchShowConfig() {
  * Uses MutationObservers for dynamic updates.
  */
 function persistMinimize() {
-        const input = document.getElementById("minimize");
-        if (!input || input._persisted_minimize) return;
-        const saved = localStorage.getItem("persistedMinimize");
-        if (saved !== null) input.value = saved;
-        input.addEventListener("input", () => localStorage.setItem("persistedMinimize", input.value));
-        input._persisted_minimize = true;
+    const input = document.getElementById("minimize");
+    if (!input || input._persisted_minimize) return;
+    const saved = localStorage.getItem("persistedMinimize");
+    if (saved !== null) input.value = saved;
+    input.addEventListener("input", () => localStorage.setItem("persistedMinimize", input.value));
+    input._persisted_minimize = true;
 
 }
 function persistMagnitude() {
@@ -1146,22 +1155,22 @@ function updateFigure() {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", updateFigure.url);
     xhr.setRequestHeader("Content-Type", "application/json");
-    
+
     // Add CSRF token to the request
     var csrftoken = getCookie('csrftoken');
     if (csrftoken) {
         xhr.setRequestHeader("X-CSRFToken", csrftoken);
     }
-    
+
     xhr.onload = function () {
         var responseText = xhr.responseText || "";
         var trimmed = responseText.trim();
 
         // Check if the response is HTML (more comprehensive check)
-        var isHTML = trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || 
-                     trimmed.startsWith("<HTML") || trimmed.startsWith("<head") || 
-                     trimmed.startsWith("<HEAD") || trimmed.startsWith("<body") || 
-                     trimmed.startsWith("<BODY") || (trimmed.startsWith("<") && trimmed.length > 0);
+        var isHTML = trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") ||
+            trimmed.startsWith("<HTML") || trimmed.startsWith("<head") ||
+            trimmed.startsWith("<HEAD") || trimmed.startsWith("<body") ||
+            trimmed.startsWith("<BODY") || (trimmed.startsWith("<") && trimmed.length > 0);
 
         if (isHTML) {
             console.warn("Plot update response was HTML, not JSON. Suppressing alert.");
