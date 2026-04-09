@@ -83,17 +83,25 @@ def transformation_matrix(astrometry_order, xi, eta):
     return trans_matrix
 
 
-def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
+def find_ra_dec(  # pylint: disable=too-many-positional-arguments
+    xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y
+):
     """
-    Find the (xi, eta) that map to given coordinates in the frame.
+    Find the RA and Dec corresponding to given pixel coordinates in the frame.
+
+    Solves for the gnomonic-projection coordinates (xi, eta) that map to the
+    given frame pixel position via the polynomial astrometric transformation,
+    then converts (xi, eta) to sky coordinates via inverse gnomonic projection.
 
     Args:
-        xieta_guess(numpy array):    Starting point for the solver trying find
-            (xi, eta) that map to the given coordinates.
+        xieta_guess(numpy array):    Starting point for the solver trying to
+            find (xi, eta) that map to the given coordinates.
 
-        trans_x(numpy array):    transformation matrix for x
+        trans_x(numpy array):    Polynomial transformation coefficients for x,
+            shape (n_terms, 1).
 
-        trans_y(numpy array):    transformation matrix for y
+        trans_y(numpy array):    Polynomial transformation coefficients for y,
+            shape (n_terms, 1).
 
         radec_cent(dict):    The RA and Dec of the center of the gnomonic
             projection defining (xi, eta).
@@ -103,8 +111,9 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
         frame_y(float):    y coordinate for which to find RA, Dec.
 
     Returns:
-        new_xieta_cent(numpy array): the new center function for (xi, eta)
-
+        dict:    A dictionary with keys ``'RA'`` and ``'Dec'`` (both float),
+            giving the sky coordinates corresponding to the given frame
+            position.
     """
 
     assert trans_x.size == trans_y.size
@@ -128,12 +137,8 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
         k = 1
         for i in range(1, astrometry_order + 1):
             for j in range(i + 1):
-                new_xieta_cent[0] = (
-                    new_xieta_cent[0] + trans_x[k, 0] * xi ** (i - j) * eta**j
-                )
-                new_xieta_cent[1] = (
-                    new_xieta_cent[1] + trans_y[k, 0] * xi ** (i - j) * eta**j
-                )
+                new_xieta_cent[0] += trans_x[k, 0] * xi ** (i - j) * eta**j
+                new_xieta_cent[1] += trans_y[k, 0] * xi ** (i - j) * eta**j
                 k = k + 1
         return new_xieta_cent
 
@@ -147,7 +152,11 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
 
 
 def estimate_transformation_from_corr(
-    initial_corr, ra_cent, dec_cent, tweak_order, astrometry_order
+    initial_corr,
+    tweak_order,
+    astrometry_order,
+    x_cent,
+    y_cent,
 ):
     """
     Estimate the transformation from astrometry.net correspondence file.
@@ -156,46 +165,77 @@ def estimate_transformation_from_corr(
         initial_corr(structured numpy array):    The correspondence file
             containing field_x, field_y, index_ra, and index_dec
 
-        ra_cent(float):    Estimate of the RA of the center of the frame
-
-        dec_cent(float):    Estimate of the Dec of the center of the frame
-
         tweak_order(int):    The order of the astrometry.net transformation
 
         astrometry_order(int):    The order of the transformation that will be
             fit. Fills terms of higher order than `tweak_order` with zeros.
 
-    Returns:
-        matrix:
-            Estimate of the transformation x(xi, eta)
+        x_cent(float):    The x pixel coordinate of the frame center (used as
+            the reference point for the gnomonic projection).
 
-        matrix:
-            Estimate of the transformation y(xi, eta)
+        y_cent(float):    The y pixel coordinate of the frame center (used as
+            the reference point for the gnomonic projection).
+
+    Returns:
+        dict:
+            ra_cent: The RA corresponding to (x_cent, y_cent) coordinate in the
+                image.
+
+            dec_cent: The Dec corresponding to (x_cent, y_cent) coordinate in
+                the image.
+
+            trans_x:
+                Estimate of the transformation coefficients for x(xi, eta)
+
+            trans_y:
+                Estimate of the transformation coefficients for y(xi, eta)
     """
 
     projected = numpy.empty(
         initial_corr.shape[0], dtype=[("xi", float), ("eta", float)]
     )
 
-    radec_center = {"RA": ra_cent, "Dec": dec_cent}
+    radec_center = {
+        "RA": numpy.median(initial_corr["RA"]),
+        "Dec": numpy.median(initial_corr["Dec"]),
+    }
 
-    gnomonic_projection(initial_corr, projected, **radec_center)
-
-    xi = projected["xi"][numpy.newaxis].T
-
-    eta = projected["eta"][numpy.newaxis].T
-
-    trans_matrix = transformation_matrix(tweak_order, xi, eta)
-    num_trans_terms = ((astrometry_order + 1) * (astrometry_order + 2)) // 2
     num_tweak_terms = ((tweak_order + 1) * (tweak_order + 2)) // 2
+    num_trans_terms = ((astrometry_order + 1) * (astrometry_order + 2)) // 2
 
     trans_x = numpy.zeros(num_trans_terms)
     trans_y = numpy.zeros(num_trans_terms)
 
-    trans_x[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr["x"])[0]
-    trans_y[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr["y"])[0]
+    while (trans_x[0] - x_cent) ** 2 + (trans_y[0] - y_cent) ** 2 > 1e-16:
+        gnomonic_projection(initial_corr, projected, **radec_center)
 
-    return trans_x[numpy.newaxis].T, trans_y[numpy.newaxis].T
+        xi = projected["xi"][numpy.newaxis].T
+
+        eta = projected["eta"][numpy.newaxis].T
+
+        trans_matrix = transformation_matrix(tweak_order, xi, eta)
+
+        trans_x[:num_tweak_terms] = linalg.lstsq(
+            trans_matrix, initial_corr["x"]
+        )[0]
+        trans_y[:num_tweak_terms] = linalg.lstsq(
+            trans_matrix, initial_corr["y"]
+        )[0]
+        radec_center = find_ra_dec(
+            (0.0, 0.0),
+            trans_x[:num_tweak_terms, numpy.newaxis],
+            trans_y[:num_tweak_terms, numpy.newaxis],
+            radec_center,
+            x_cent,
+            y_cent,
+        )
+
+    return {
+        "ra_cent": radec_center["RA"],
+        "dec_cent": radec_center["Dec"],
+        "trans_x": trans_x[numpy.newaxis].T,
+        "trans_y": trans_y[numpy.newaxis].T,
+    }
 
 
 class TempAstrometryFiles:
@@ -511,8 +551,8 @@ def estimate_transformation(*, config, **initial_corr_kwarg):
         initial_corr=initial_corr,
         tweak_order=tweak_order,
         astrometry_order=config["astrometry_order"],
-        ra_cent=config["ra_cent"],
-        dec_cent=config["dec_cent"],
+        x_cent=config["x_cent"],
+        y_cent=config["y_cent"],
     ) + ("success",)
 
 

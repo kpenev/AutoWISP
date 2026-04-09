@@ -677,18 +677,7 @@ def solve_image(  # pylint: disable=too-many-locals
             dr_file, configuration["srcextract_version"]
         )
         if transformation_estimate is None:
-            transformation_estimate = {
-                key: dr_eval(expression).to_value("deg")
-                for key, expression in zip(
-                    ["ra_cent", "dec_cent"],
-                    configuration["frame_center_estimate"],
-                )
-            }
-            (
-                transformation_estimate["trans_x"],
-                transformation_estimate["trans_y"],
-                status,
-            ) = estimate_transformation(
+            transformation_estimate, status = estimate_transformation(
                 dr_file=dr_file,
                 xy_extracted=xy_extracted,
                 config={
@@ -700,7 +689,8 @@ def solve_image(  # pylint: disable=too-many-locals
                     ),
                     "anet_indices": configuration["anet_indices"],
                     "anet_api_key": configuration["anet_api_key"],
-                    **transformation_estimate,
+                    "x_cent": header['NAXIS1'] / 2,
+                    "y_cent": header['NAXIS2'] / 2,
                 },
                 header=header,
                 web_lock=web_lock,
