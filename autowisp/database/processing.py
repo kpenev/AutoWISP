@@ -246,8 +246,20 @@ class ProcessingManager:
         assert best_master_fname
         return best_master_fname
 
-    def _get_master(self, master_type, image_values, image_eval, db_session):
-        """Return the master that should be used for the given image."""
+    def _get_master(
+        self, master_type, image_values, image_eval, db_session,
+        *, ambiguous_ok=False,
+    ):
+        """Return the master that should be used for the given image.
+
+        Args:
+            ambiguous_ok(bool):    If True and multiple candidates exist but
+                none has ``use_smallest`` set, return ``None`` instead of
+                asserting.  Only pass True for master types (e.g.
+                ``single_photref``) whose selection is done externally via
+                ``ImageMasterSelection`` rather than by evaluating a header
+                expression.
+        """
 
         expressions = db_session.execute(
             select(ConditionExpression.id, ConditionExpression.expression)
@@ -304,6 +316,8 @@ class ProcessingManager:
         self._logger.debug("Candidate Masters: %s", repr(candidates))
         if len(candidates) == 1:
             return candidates[0].filename
+        if ambiguous_ok and (not candidates or candidates[0].use_smallest is None):
+            return None
         return self._get_best_master(candidates, image_eval)
 
     def _get_evaluated_entry(
@@ -369,6 +383,9 @@ class ProcessingManager:
                         evaluated_expressions["values"],
                         evaluate,
                         db_session,
+                        ambiguous_ok=(
+                            master_type.name == "single_photref"
+                        ),
                     )
                 )
 
