@@ -16,7 +16,6 @@ from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
     channel_colors,
-    edge_only_markers,
     setup_svg_matplotlib,
     figure_to_svg_response,
 )
@@ -226,8 +225,7 @@ def plot_image_diagnostic_series(
         diag_values,
         marker=marker,
         s=size * 20,
-        edgecolors=color if marker in edge_only_markers else "none",
-        facecolors="none" if marker in edge_only_markers else color,
+        c=color,
         label=config["label"],
     )
     collection.set_urls([

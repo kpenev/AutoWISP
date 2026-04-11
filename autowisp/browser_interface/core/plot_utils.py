@@ -13,8 +13,6 @@ from autowisp.database.interface import start_db_session
 
 channel_colors = {"R": "#ff0000", "G": "#00ff00", "B": "#0000ff"}
 
-edge_only_markers = set("x+.,1234|_")
-
 
 def setup_svg_matplotlib():
     """Configure matplotlib to render SVG with dark background."""

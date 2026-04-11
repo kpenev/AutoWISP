@@ -63,16 +63,16 @@ def _init_session(request):
                 "lc_substitutions": {"magfit_iteration": -1},
                 "find_best": {"aperture_index": f"0..{num_apertures}"},
                 "minimize": (
-                    "nanmedian(abs({mode}.tfa.magnitude - "
-                    "nanmedian({mode}.tfa.magnitude)))"
+                    "nanmedian(abs({mode}.magfit.magnitude - "
+                    "nanmedian({mode}.magfit.magnitude)))"
                 ),
                 "photometry_modes": ["apphot"],
                 "selection": "True",
                 "model": None,
                 "expressions": {
                     "magnitude": (
-                        "{mode}.tfa.magnitude - "
-                        "nanmedian({mode}.tfa.magnitude)"
+                        "{mode}.magfit.magnitude - "
+                        "nanmedian({mode}.magfit.magnitude)"
                     ),
                     "bjd": "skypos.BJD - skypos.BJD.min()",
                     "rawfname": "fitsheader.rawfname",
@@ -86,7 +86,7 @@ def _init_session(request):
                             "x": "bjd",
                             "y": "magnitude",
                             "match_by": "rawfname",
-                            "curve_label": "tfa",
+                            "curve_label": "magfit",
                             "plot_kwargs": {
                                 "marker": "o",
                                 "markersize": 3,

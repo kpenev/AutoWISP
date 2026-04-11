@@ -14,7 +14,6 @@ from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
     channel_colors,
-    edge_only_markers,
     setup_svg_matplotlib,
     figure_to_svg_response,
 )
@@ -258,8 +257,7 @@ def create_plot(session_detrending):
             data["best_scatter"],
             marker=marker,
             s=size * 20,
-            edgecolors=color if marker in edge_only_markers else "none",
-            facecolors="none" if marker in edge_only_markers else color,
+            c=color,
             label=photref_info["label"],
         )
         gaia_ids = data.index if hasattr(data, "index") else data["ID"]
