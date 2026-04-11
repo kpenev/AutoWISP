@@ -879,12 +879,12 @@ function initLightcurveDisplay(urls) {
     var lcDataSelect = lcDataScript ? JSON.parse(lcDataScript.textContent) : [{
         lc_substitutions: { magfit_iteration: -1 },
         find_best: { aperture_index: apertureIndex },
-        minimize: "nanmedian(abs({mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)))",
+        minimize: "nanmedian(abs({mode}.magfit.magnitude - nanmedian({mode}.magfit.magnitude)))",
         photometry_modes: ["apphot"],
         selection: "",
         model: null,
         expressions: {
-            magnitude: "{mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)",
+            magnitude: "{mode}.magfit.magnitude - nanmedian({mode}.magfit.magnitude)",
             bjd: "skypos.BJD - skypos.BJD.min()",
             rawfname: "fitsheader.rawfname"
         },
@@ -895,7 +895,7 @@ function initLightcurveDisplay(urls) {
             x: "bjd",
             y: "magnitude",
             match_by: "rawfname",
-            curve_label: "tfa",
+            curve_label: "magfit",
             plot_kwargs: {
                 marker: "o",
                 markersize: 3,
@@ -960,7 +960,10 @@ function persistInput(id, key) {
     const input = document.getElementById(id);
     if (!input || input[`_persisted_${key}`]) return;
     const saved = localStorage.getItem(key);
-    if (saved !== null) input.value = saved;
+    if (input.value)
+        localStorage.setItem(key, input.value);
+    else if (saved !== null)
+        input.value = saved;
     input.addEventListener("input", () => localStorage.setItem(key, input.value));
     input[`_persisted_${key}`] = true;
 }

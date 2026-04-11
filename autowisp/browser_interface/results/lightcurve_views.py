@@ -667,7 +667,14 @@ def display_lightcurve_for_star(request, gaia_id):
         plotting_session, plotting_session["target_fname"]
     )
     request.session.modified = True
-    return redirect(reverse("results:results"))
+    aperture_index = plotting_session["data_select"][0]["find_best"][
+        "aperture_index"
+    ]
+    return render(
+        request,
+        "results/display_lightcurves.html",
+        {"config": None, "aperture_index": aperture_index, "gaia_id": gaia_id},
+    )
 
 
 def edit_model(request, model_type, data_select_index):

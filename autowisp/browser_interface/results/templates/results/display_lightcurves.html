@@ -75,7 +75,7 @@ Preview Lightcurves
                     NASA Exoplanet Archive
                 </option>
             </select>
-            <input type="text" id="star-id" class="param lcars-u-5" value="">
+            <input type="text" id="star-id" class="param lcars-u-5" value="{{ gaia_id|default:'' }}">
         </div>
         <div id="figure-parent" class="fill-space lcars-row">
             <div id="plot-split" class="lcars-bracket hollow"></div>
