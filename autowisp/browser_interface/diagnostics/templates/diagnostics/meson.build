@@ -1,6 +1,5 @@
 src = [
   'detrending_diagnostics.html',
-  'diag_vs_diag.html',
   'diagnostics_app.html',
   'preview_calibrated_image.html',
 ]

@@ -27,25 +27,11 @@ from .image_diagnostics_views import (
 )
 
 
-def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
-    """
-    Return the (observing session, channel) pairs that have both diagnostics.
+def _get_series_query(x_diagnostic, y_diagnostic):
+    """Return DB query needed to find available series for plotting."""
 
-    Queries for distinct (observing_session, channel) pairs for which at least
-    one image has a measured value for *both* ``x_diagnostic`` and
-    ``y_diagnostic``.
-
-    Args:
-        x_diagnostic(str):  Name of the diagnostic to use as the X axis.
-
-        y_diagnostic(str):  Name of the diagnostic to use as the Y axis.
-
-        db_session:  An active SQLAlchemy database session.
-
-    Returns:
-        dict with keys ``diagnostics_fields`` and ``diagnostics_list``,
-        in the same format expected by ``diagnostics_app.html``.
-    """
+    x_quantile = x_diagnostic == "quantiles"
+    y_quantile = y_diagnostic == "quantiles"
 
     x_diag = aliased(ImageDiagnostics)
     y_diag = aliased(ImageDiagnostics)
@@ -73,31 +59,95 @@ def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
             & (y_diag.channel == x_diag.channel),
         )
         .join(y_type, y_type.id == y_diag.diagnostic_id)
-        .where(x_type.name == x_diagnostic, y_type.name == y_diagnostic)
-        .group_by(ObservingSession.id, x_diag.channel)
-        .order_by(ObservingSession.label, x_diag.channel)
+        .where(
+            (
+                x_type.name.like("pixel_q%")
+                if x_quantile
+                else x_type.name == x_diagnostic
+            ),
+            (
+                y_type.name.like("pixel_q%")
+                if y_quantile
+                else y_type.name == y_diagnostic
+            ),
+        )
     )
 
-    diagnostics_list = []
-    for session_label, session_id, channel, count in db_session.execute(
-        query
-    ).all():
-        diagnostics_list.append(
-            {
-                "id": f"{session_id}_{channel}",
-                "channel": channel,
-                "color": channel_colors.get(
-                    channel[0].upper() if channel else "", "#ffffff"
-                ),
-                "marker": "o",
-                "scale": "1.0",
-                "label": f"{session_label} {channel}",
-                "info": [session_label, channel, count],
-            }
+    if x_quantile:
+        query = (
+            query.add_columns(x_type.name)
+            .group_by(ObservingSession.id, x_diag.channel, x_type.id)
+            .order_by(ObservingSession.label, x_diag.channel, x_type.name)
         )
+    elif y_quantile:
+        query = (
+            query.add_columns(y_type.name)
+            .group_by(ObservingSession.id, x_diag.channel, y_type.id)
+            .order_by(ObservingSession.label, x_diag.channel, y_type.name)
+        )
+    else:
+        query = query.group_by(ObservingSession.id, x_diag.channel).order_by(
+            ObservingSession.label, x_diag.channel
+        )
+    return query
+
+
+def get_available_series_for_pair(x_diagnostic, y_diagnostic, db_session):
+    """
+    Return the (observing session, channel) pairs that have both diagnostics.
+
+    Queries for distinct (observing_session, channel) pairs for which at least
+    one image has a measured value for *both* ``x_diagnostic`` and
+    ``y_diagnostic``.
+
+    Args:
+        x_diagnostic(str):  Name of the diagnostic to use as the X axis.
+
+        y_diagnostic(str):  Name of the diagnostic to use as the Y axis.
+
+        db_session:  An active SQLAlchemy database session.
+
+    Returns:
+        dict with keys ``diagnostics_fields`` and ``diagnostics_list``,
+        in the same format expected by ``diagnostics_app.html``.
+    """
+
+    selected_quantile = (
+        x_diagnostic == "quantiles" or y_diagnostic == "quantiles"
+    )
+
+    query = _get_series_query(x_diagnostic, y_diagnostic)
+
+    diagnostics_list = []
+    for row in db_session.execute(query).all():
+        session_label, session_id, channel, count = row[:4]
+        series = {
+            "channel": channel,
+            "color": channel_colors.get(
+                channel[0].upper() if channel else "", "#ffffff"
+            ),
+            "marker": "o",
+            "scale": "1.0",
+        }
+        if selected_quantile:
+            quantile_name = row[4]
+            quantile_label = "0." + quantile_name[len("pixel_q") :]
+            series["id"] = f"{session_id}_{channel}_{quantile_name}"
+            series["label"] = f"{session_label} {channel} {quantile_label}"
+            series["info"] = [session_label, channel, quantile_label, count]
+        else:
+            series["id"] = f"{session_id}_{channel}"
+            series["label"] = f"{session_label} {channel}"
+            series["info"] = [session_label, channel, count]
+        diagnostics_list.append(series)
+
+    fields = ["Observing Session", "Channel"]
+    if selected_quantile:
+        fields.append("Quantile")
+    fields.append("Count")
 
     return {
-        "diagnostics_fields": ["Observing Session", "Channel", "Count"],
+        "diagnostics_fields": fields,
         "diagnostics_list": diagnostics_list,
     }
 
@@ -121,8 +171,17 @@ def get_xy_series_data(series, x_diagnostic, y_diagnostic, db_session):
             Empty tuples if no paired data is found.
     """
 
-    session_id = int(series["id"].split("_")[0])
+    parts = series["id"].split("_")
+    session_id = int(parts[0])
     channel = series["channel"]
+
+    quantile_name = (
+        "_".join(parts[2:])
+        if x_diagnostic == "quantiles" or y_diagnostic == "quantiles"
+        else None
+    )
+    x_diag_name = quantile_name if x_diagnostic == "quantiles" else x_diagnostic
+    y_diag_name = quantile_name if y_diagnostic == "quantiles" else y_diagnostic
 
     x_diag = aliased(ImageDiagnostics)
     y_diag = aliased(ImageDiagnostics)
@@ -146,8 +205,8 @@ def get_xy_series_data(series, x_diagnostic, y_diagnostic, db_session):
             Image.observing_session_id  # pylint: disable=no-member
             == session_id,  # pylint: disable=no-member
             x_diag.channel == channel,
-            x_type.name == x_diagnostic,
-            y_type.name == y_diagnostic,
+            x_type.name == x_diag_name,
+            y_type.name == y_diag_name,
         )
     ).all()
 
@@ -265,4 +324,4 @@ def display_diag_vs_diag(request, x_diagnostic, y_diagnostic):
         },
     )
 
-    return render(request, "diagnostics/diag_vs_diag.html", context)
+    return render(request, "diagnostics/diagnostics_app.html", context)

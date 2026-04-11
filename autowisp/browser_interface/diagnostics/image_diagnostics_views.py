@@ -525,6 +525,7 @@ def display_image_diagnostics(request, diagnostic_name):
         context = get_available_diagnostic_series(diagnostic_name, db_session)
         context["available_diagnostics"] = get_available_diagnostics(db_session)
     context["diagnostics_title"] = diagnostic_name
+    context["y_diagnostic"] = diagnostic_name
     context["update_plot_url"] = reverse(
         "diagnostics:update_image_diagnostics_plot",
         kwargs={"diagnostic_name": diagnostic_name},

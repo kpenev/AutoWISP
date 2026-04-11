@@ -1,3 +1,17 @@
+function navigateDiagnostics()
+{
+    const bar = document.getElementById('diag-selector-bar');
+    const yDiag = document.getElementById('diagnostic-selector').value;
+    const xDiag = document.getElementById('x-diagnostic-selector').value;
+    if (xDiag === 'time') {
+        window.location.href = bar.dataset.imageUrl.replace('YPLACEHOLDER', yDiag);
+    } else {
+        window.location.href = bar.dataset.diagVsDiagUrl
+            .replace('XPLACEHOLDER', xDiag)
+            .replace('YPLACEHOLDER', yDiag);
+    }
+}
+
 function selectSymbol(event)
 {
     let marker = event.currentTarget.className.baseVal.split(" ")[1];

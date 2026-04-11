@@ -10,9 +10,11 @@ from sqlalchemy import select
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.urls import reverse
 
 from autowisp.browser_interface.core.plot_utils import (
     channel_colors,
+    edge_only_markers,
     setup_svg_matplotlib,
     figure_to_svg_response,
 )
@@ -234,6 +236,7 @@ def create_plot(session_detrending):
 
     pyplot.clf()
     pyplot.cla()
+    axes = pyplot.gca()
 
     plot_config = session_detrending["plot_config"]
     for photref_info in session_detrending["photref"]:
@@ -247,37 +250,43 @@ def create_plot(session_detrending):
             magnitude_expression=plot_config["mag_expression"][0],
             skip_first_stat=False,
         )
-        pyplot.semilogy(
+        marker = photref_info["marker"]
+        size = float(plot_config["marker_size"]) * float(photref_info["scale"])
+        color = photref_info["color"]
+        collection = axes.scatter(
             data["magnitudes"],
             data["best_scatter"],
-            linestyle="none",
-            marker=photref_info["marker"],
-            markersize=(
-                float(plot_config["marker_size"]) * float(photref_info["scale"])
-            ),
-            markeredgecolor=(
-                photref_info["color"]
-                if photref_info["marker"] in "x+.,1234|_"
-                else "none"
-            ),
-            markerfacecolor=photref_info["color"],
+            marker=marker,
+            s=size * 20,
+            edgecolors=color if marker in edge_only_markers else "none",
+            facecolors="none" if marker in edge_only_markers else color,
             label=photref_info["label"],
         )
+        gaia_ids = data.index if hasattr(data, "index") else data["ID"]
+        collection.set_urls([
+            reverse(
+                "results:display_lightcurve_for_star",
+                kwargs={"gaia_id": int(gid)},
+            )
+            for gid in gaia_ids
+        ])
+
+    axes.set_yscale("log")
 
     try:
-        pyplot.xlim(*(float(v) for v in plot_config["x_range"]))
+        axes.set_xlim(*(float(v) for v in plot_config["x_range"]))
     except ValueError:
         pass
 
     try:
-        pyplot.ylim(*(float(v) for v in plot_config["y_range"]))
+        axes.set_ylim(*(float(v) for v in plot_config["y_range"]))
     except ValueError:
         pass
 
-    pyplot.xlabel(plot_config["mag_expression"][1])
-    pyplot.ylabel("MAD")
-    pyplot.grid(True, which="both", linewidth=0.2)
-    pyplot.legend()
+    axes.set_xlabel(plot_config["mag_expression"][1])
+    axes.set_ylabel("MAD")
+    axes.grid(True, which="both", linewidth=0.2)
+    axes.legend()
 
 
 def update_detrending_diagnostics_plot(request):

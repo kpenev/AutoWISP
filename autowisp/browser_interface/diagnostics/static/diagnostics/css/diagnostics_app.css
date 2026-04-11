@@ -1,3 +1,10 @@
+#diag-selector-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+}
+
 #diag-vs-diag-selector {
     /* 9.5rem: lcars-elbow, 12rem: title bar estimate, 2rem: right-end, 1rem: row gaps */
     display: grid;
