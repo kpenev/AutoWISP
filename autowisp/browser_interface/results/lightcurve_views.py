@@ -7,18 +7,18 @@ import json
 
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
-
-from autowisp.browser_interface.core.plot_utils import (
-    setup_svg_matplotlib,
-    figure_to_svg_response,
-)
 import numpy
 from astroquery.mast import Catalogs
 from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
 
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
+from django.urls import reverse
 
+from autowisp.browser_interface.core.plot_utils import (
+    setup_svg_matplotlib,
+    figure_to_svg_response,
+)
 from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
@@ -67,7 +67,7 @@ def _init_session(request):
                     "nanmedian({mode}.tfa.magnitude)))"
                 ),
                 "photometry_modes": ["apphot"],
-                "selection": True,
+                "selection": "True",
                 "model": None,
                 "expressions": {
                     "magnitude": (
@@ -158,10 +158,10 @@ def _unjsonify_plot_data(json_data):
     return result
 
 
-def _convert_plot_data_json(plot_data, reverse):
+def _convert_plot_data_json(plot_data, inverse):
     """Re-format plot data for storing in JSON format or reverse conversion."""
 
-    transform = _unjsonify_plot_data if reverse else _jsonify_plot_data
+    transform = _unjsonify_plot_data if inverse else _jsonify_plot_data
     return {fname: transform(data) for fname, data in plot_data.items()}
 
 
@@ -390,7 +390,9 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
             _subdivide_figure(plot_config, new_splits, *child)
 
 
-def update_subplot(plotting_session, updates):
+def update_subplot(  # pylint: disable=too-many-branches
+    plotting_session, updates
+):
     """Change a given sub-plot (and/or add plot quantities)."""
 
     print(f'Updating plot {updates["plot_id"]} with: {updates!r}')
@@ -630,15 +632,42 @@ def display_lightcurve(request):
                 request.session["lc_plotting"]["target_fname"],
             )
 
-    aperture_index = (
-        request.session["lc_plotting"]["data_select"][0]
-        ["find_best"]["aperture_index"]
-    )
+    aperture_index = request.session["lc_plotting"]["data_select"][0][
+        "find_best"
+    ]["aperture_index"]
     return render(
         request,
         "results/display_lightcurves.html",
         {"config": None, "aperture_index": aperture_index},
     )
+
+
+def display_lightcurve_for_star(request, gaia_id):
+    """Navigate to lightcurve display pre-loaded for the given Gaia ID."""
+
+    if "lc_plotting" not in request.session:
+        _init_session(request)
+    plotting_session = request.session["lc_plotting"]
+    gaia_id_str = str(gaia_id)
+
+    for plot_decorations in plotting_session["plot_decorations"]:
+        title = plot_decorations.get("title")
+        if isinstance(title, str):
+            plot_decorations["title"] = (
+                title.replace("{GaiaID}", gaia_id_str)
+                .replace("{gaia_id}", gaia_id_str)
+                .replace("{gaiaid}", gaia_id_str)
+            )
+
+    plotting_session["target_fname"] = plotting_session[
+        "lc_fname_template"
+    ].format(gaia_id, PROJHOME=get_project_home())
+    plotting_session["gaia_id"] = gaia_id
+    _add_lightcurve_to_session(
+        plotting_session, plotting_session["target_fname"]
+    )
+    request.session.modified = True
+    return redirect(reverse("results:results"))
 
 
 def edit_model(request, model_type, data_select_index):
@@ -708,8 +737,6 @@ def download_lightcurve_figure(request):
             image_stream.read(),
             content_type="application/pdf",
             headers={
-                "Content-Disposition": (
-                    f'attachment; filename="{filename}"'
-                )
+                "Content-Disposition": (f'attachment; filename="{filename}"')
             },
         )

@@ -4,6 +4,7 @@
 #pylint: disable=unused-import
 from .lightcurve_views import\
     display_lightcurve,\
+    display_lightcurve_for_star,\
     update_lightcurve_figure,\
     download_lightcurve_figure,\
     edit_subplot,\
