@@ -304,6 +304,7 @@ def iterative_refit(
             len(fit_dr_filenames),
             source_name_format=configuration.source_name_format,
             tempstore_dir=configuration.tempstore_dir,
+            outlier_threshold=configuration.stat_rej_level,
         )
 
         single_iteration(

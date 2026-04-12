@@ -188,6 +188,15 @@ def parse_command_line(*args):
         help="Directory under which to create temporary storage used when "
         "creating master photometric references.",
     )
+    parser.add_argument(
+        "--stat-rej-level",
+        type=float,
+        default=5.0,
+        help="Outlier rejection threshold for the cross-frame statistics "
+        "collection (used to build the master photometric reference). Points "
+        "deviating by more than this many times the median absolute deviation "
+        "from the median across frames are rejected. Default: %(default)s",
+    )
     return parser.parse_args(*args)
 
 

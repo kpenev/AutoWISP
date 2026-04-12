@@ -137,6 +137,7 @@ class MasterPhotrefCollector:
                     if self._config["rejection_units"] == "meddev"
                     else (numpy.nanmedian, numpy.nanmean)
                 ),
+                max_iter=self._config["max_rejection_iterations"],
             )
             if self._config["rejection_units"] == "meddev":
                 (
