@@ -88,8 +88,9 @@ def parse_command_line(*args):
     parser.add_argument(
         "--magfit-stat-fname-format",
         default=(
-            "{PROJHOME}/MASTERS/mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_iter"
-            "{magfit_iteration:03d}.txt"
+            "{PROJHOME}/MASTERS/"
+            "mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
+            "iter{magfit_iteration:03d}.txt"
         ),
         help="Similar to ``master_photref_fname_format``, but defines the name"
         " to use for saving the statistics of a magnitude fitting iteration.",
@@ -365,6 +366,29 @@ def check_no_master(filename, master_type):
         )
 
 
+def _delete_magfit(dr_file, phot_method, substitutions):
+    dr_file.delete_dataset(phot_method + ".magfit.magnitude", **substitutions)
+    for stat_attr in ["num_input_src", "num_fit_src", "fit_residual"]:
+        dr_file.delete_attribute(
+            phot_method + ".magfit." + stat_attr, **substitutions
+        )
+    if substitutions["magfit_iteration"] == 0:
+        for cfg_attr in [
+            "cfg.correction_type",
+            "cfg.correction",
+            "cfg.require",
+            "cfg.single_photref",
+            "cfg.noise_offset",
+            "cfg.max_mag_err",
+            "cfg.rej_level",
+            "cfg.max_rej_iter",
+            "cfg.error_avg",
+        ]:
+            dr_file.delete_attribute(
+                phot_method + ".magfit." + cfg_attr, **substitutions
+            )
+
+
 def clean_dr(dr_fname, dr_substitutions):
     """Remove a magfit iteration from the given DR file."""
 
@@ -374,8 +398,9 @@ def clean_dr(dr_fname, dr_substitutions):
         dr_fname,
         dr_substitutions,
     )
+
     with DataReductionFile(dr_fname, "r+") as dr_file:
-        dr_file.delete_dataset("shapefit.magfit.magnitude", **dr_substitutions)
+        _delete_magfit(dr_file, "shapefit", dr_substitutions)
         for aperture_index in count():
             try:
                 dr_file.check_for_dataset(
@@ -383,10 +408,10 @@ def clean_dr(dr_fname, dr_substitutions):
                     aperture_index=aperture_index,
                     **dr_substitutions,
                 )
-                dr_file.delete_dataset(
-                    "apphot.magfit.magnitude",
-                    aperture_index=aperture_index,
-                    **dr_substitutions,
+                _delete_magfit(
+                    dr_file,
+                    "apphot",
+                    {**dr_substitutions, "aperture_index": aperture_index},
                 )
             except IOError:
                 print(
@@ -512,7 +537,7 @@ def _get_photref_pointing(
 def _within_photref_range(
     dr_fname, photref_center, threshold_deg, skytoframe_version
 ):
-    """Return True if the DR file's pointing is within threshold_deg of photref_center.
+    """True if DR file's pointing is within threshold_deg of photref_center.
 
     If the sky-center attribute is absent (astrometry not yet run), the image
     is included with a warning rather than silently dropped.

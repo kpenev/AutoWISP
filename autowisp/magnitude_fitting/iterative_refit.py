@@ -1,6 +1,5 @@
 """Interface for performing iterative magnitude fitting."""
 
-from tempfile import TemporaryDirectory
 from multiprocessing import Pool
 import logging
 from functools import partial
