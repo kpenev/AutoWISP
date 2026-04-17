@@ -553,10 +553,12 @@ class MasterPhotrefCollector:
 
             phot = phot[finite]
             formal_errors = formal_errors[finite]
+            fitted = fitted[finite]
 
             source_sorter = numpy.argsort(phot["source_id"])
             phot = phot[source_sorter]
             fitted = fitted[source_sorter]
+            formal_errors = formal_errors[source_sorter]
 
             if self._magfit_data is None:
                 assert self._sources is None
