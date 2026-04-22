@@ -1025,7 +1025,7 @@ def get_catalog_info(  # pylint: disable=too-many-branches
         "From transformation estimate half FOV is: %s", repr(trans_fov)
     )
     frame_fov_estimate = tuple(
-        numpy.round(
+        numpy.ceil(
             (
                 max(
                     2.0 * trans_fov[i] * units.deg,
