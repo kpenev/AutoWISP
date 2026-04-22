@@ -4315,7 +4315,7 @@ table {
 table td,
 th {
   text-align: left;
-  vertical-align: center;
+  vertical-align: middle;
 }
 table th {
   font-weight: bolder;
