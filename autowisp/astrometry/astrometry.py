@@ -535,7 +535,7 @@ def estimate_transformation(*, config, **initial_corr_kwarg):
     )
 
     if tweak_order == 0:
-        return None, None, field_corr
+        return None, 'solve-field failed'
 
     initial_corr = numpy.zeros(
         (field_corr["field_x"].shape),
