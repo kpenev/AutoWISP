@@ -26,8 +26,7 @@ def parse_command_line():
     )
     parser.add_argument(
         "--hostname",
-        default=[],
-        nargs="+",
+        default='',
         metavar="[<HOSTNAME>:]<PORT>",
         help="The port to run the surver on and optionally hostname. By "
         "default automatically finds an oppen port on localhost.",
