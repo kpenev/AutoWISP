@@ -125,7 +125,7 @@ def start_server():
         sys.stdout.flush()
         sys.stderr.flush()
 
-        cmd.extend(["runserver", f"{port}"])
+        cmd.extend(["runserver", f"{hostname}:{port}"])
         print(f"Starting server with command: {' '.join(cmd)} in environment:")
         print("\n\t".join([f"{k}={v}" for k, v in os.environ.items()]))
         print("Python paths:\n\t" + "\n\t".join(sys.path))
