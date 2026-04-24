@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11-slim
 RUN apt-get -y update && \
     apt-get -y --no-install-recommends install astrometry.net
 RUN pip3 install autowisp
