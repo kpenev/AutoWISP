@@ -1,9 +1,9 @@
 services:
   wisp:
-    image: test
+    image: kpenev/wisp:1.0.19
     ports:
       - "8089:8089"
     volumes:
       - type: bind
-        source: /mnt/md2/DSLR_DATA/
+        source: /Users/kpenev/tmp
         target: /storage
