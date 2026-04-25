@@ -1,0 +1,9 @@
+services:
+  wisp:
+    image: test
+    ports:
+      - "8089:8089"
+    volumes:
+      - type: bind
+        source: /mnt/md2/DSLR_DATA/
+        target: /storage
