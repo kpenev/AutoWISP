@@ -22,7 +22,16 @@ class configTree {
         this.createDiagram(false);
         this.canEdit = canEdit
 
-        this.treeDiagram.$chartContainer.on('click', 
+        var chartContainer = document.getElementById('chart-container');
+        var savedScroll = sessionStorage.getItem('config_tree_scroll');
+        if (savedScroll !== null) {
+            sessionStorage.removeItem('config_tree_scroll');
+            var pos = JSON.parse(savedScroll);
+            chartContainer.scrollLeft = pos.left;
+            chartContainer.scrollTop = pos.top;
+        }
+
+        this.treeDiagram.$chartContainer.on('click',
                                             '.node',
                                             startEditNodeText);
 
@@ -321,10 +330,21 @@ function initUnsavedChangesWarning()
     trackFormChanges();
     registerSaveButtonHandler();
 
-    document.querySelectorAll('a').forEach((link) => 
+    document.querySelectorAll('a').forEach((link) =>
     {
         link.addEventListener('click', handleLinkNavigation);
     });
+
+    var lockLink = document.getElementById('lock-icon-link');
+    if (lockLink) {
+        lockLink.addEventListener('click', function () {
+            var chartContainer = document.getElementById('chart-container');
+            sessionStorage.setItem('config_tree_scroll', JSON.stringify({
+                left: chartContainer.scrollLeft,
+                top: chartContainer.scrollTop
+            }));
+        });
+    }
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 }

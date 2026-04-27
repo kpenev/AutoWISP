@@ -3,6 +3,7 @@ src = [
   'display.fits.js',
   'jquery.min.js',
   'jquery.orgchart.js',
+  'lcars.scroll.js',
   'walk.fs.js'
 ]
 
