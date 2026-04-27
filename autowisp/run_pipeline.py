@@ -100,8 +100,8 @@ def main(config):
         db_session.commit()
         pipeline_run = pipeline_run.id
 
-    #set environment variable for image-type filtering
-    if hasattr(config, 'step_imtypes') and config.step_imtypes:
+    step_imtype_filter = None
+    if hasattr(config, "step_imtypes") and config.step_imtypes:
         per_step = {}
         for pair in config.step_imtypes:
             if ":" not in pair:
@@ -113,9 +113,8 @@ def main(config):
                 continue
             per_step.setdefault(step, set()).add(imt)
         if per_step:
-            filt = ";".join(f"{k}={','.join(sorted(v))}" for k, v in per_step.items())
-            os.environ["AUTOWISP_STEP_IMTYPE_FILTER"] = filt
-            logging.info("Applied step-image-type filter: %s", filt)
+            step_imtype_filter = per_step
+            logging.info("Applied step-image-type filter: %s", step_imtype_filter)
 
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
 
@@ -131,7 +130,10 @@ def main(config):
         sys.stdout.flush()
         sys.stderr.flush()
 
-        processing(limit_to_steps=config.steps)
+        processing(
+            limit_to_steps=config.steps,
+            step_imtype_filter=step_imtype_filter,
+        )
         logging.info("Processing completed.")
         sys.stdout.flush()
         sys.stderr.flush()

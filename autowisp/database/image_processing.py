@@ -4,7 +4,6 @@
 """Handle data processing DB interactions."""
 
 import logging
-import os
 
 from sqlalchemy import sql, select, update, and_, or_
 
@@ -1423,7 +1422,7 @@ class ImageProcessingManager(ProcessingManager):
             ),
         )
 
-    def __call__(self, limit_to_steps=None):
+    def __call__(self, limit_to_steps=None, step_imtype_filter=None):
         """Perform all the processing for the given steps (all if None)."""
 
         with start_db_session() as db_session:
@@ -1431,30 +1430,25 @@ class ImageProcessingManager(ProcessingManager):
 
         DataReductionFile.get_file_structure()
 
-        #go through step-image-type filter from environment if its there
-        step_imtype_filter = {}
-        filter_env = os.environ.get("AUTOWISP_STEP_IMTYPE_FILTER", "")
-        if filter_env:
-            for entry in filter_env.split(";"):
-                if "=" not in entry:
-                    continue
-                step_name, imtypes = entry.split("=", 1)
-                step_imtype_filter[step_name.strip()] = set(
-                    t.strip() for t in imtypes.split(",")
-                )
-            self._logger.info("Applying step-image-type filter: %s", step_imtype_filter)
+        if step_imtype_filter:
+            self._logger.info(
+                "Applying step-image-type filter: %s",
+                step_imtype_filter,
+            )
 
         for step, image_type in processing_sequence:
-            #if(step, image_type) combo is filtered out
-            if step.name in step_imtype_filter:
-                if image_type.name not in step_imtype_filter[step.name]:
-                    self._logger.info(
-                        "User skipped %s for %s - stopping processing",
-                        step.name,
-                        image_type.name,
-                    )
-                    #stop processing immediately
-                    break
+            # If (step, image_type) combo is filtered out, skip it.
+            if (
+                step_imtype_filter
+                and step.name in step_imtype_filter
+                and image_type.name not in step_imtype_filter[step.name]
+            ):
+                self._logger.info(
+                    "User skipped %s for %s - skipping step",
+                    step.name,
+                    image_type.name,
+                )
+                continue
 
             (step_name, image_type_name, processing_batches) = (
                 self._prepare_processing(step, image_type, limit_to_steps)
