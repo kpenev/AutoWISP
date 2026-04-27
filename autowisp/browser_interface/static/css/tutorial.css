@@ -122,15 +122,17 @@
 
 .aw-tutorial-fab {
   position: fixed;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 1rem;
+  top: 6.8rem;
+  transform: none;
   border: 0;
-  border-radius: 999px;
-  padding: 0.52rem 1rem;
-  background: #f6b44b;
-  color: #1b1510;
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  min-width: 9rem;
+  background: #8a5472;
+  color: #f8f8ff;
   font-weight: 700;
+  text-transform: uppercase;
   letter-spacing: 0.04em;
   cursor: pointer;
   z-index: 2147482985;
@@ -150,7 +152,8 @@
 
 @media (max-width: 800px) {
   .aw-tutorial-fab {
-    top: auto;
+    left: 1rem;
+    right: auto;
     bottom: 1rem;
     transform: none;
   }

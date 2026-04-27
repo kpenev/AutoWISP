@@ -1,12 +1,15 @@
 (function () {
     "use strict";
 
-    const TUTORIAL_VERSION = 2;
+    const TUTORIAL_VERSION = 10;
     const STORAGE_STATE_KEY = "autowisp_bui_tutorial_state";
     const STORAGE_PROMPTED_KEY = "autowisp_bui_tutorial_prompted";
     const STORAGE_CARD_POSITION_KEY = "autowisp_bui_tutorial_card_position";
+    const TEST_DATA_RECORD_URL = "https://zenodo.org/records/18627111";
+    const ASTROMETRY_API_HELP_URL = "https://nova.astrometry.net/api_help";
 
     const TRANSIENT_PATHS = [
+        /^\/create_directory(?:\/.*)?$/,
         /^\/change_master_config\/[^/]+\/?$/,
         /^\/configuration\/(?:update_survey_component|update_survey_component_type|delete_from_survey|change_access)\/.*$/,
     ];
@@ -47,14 +50,21 @@
             goTo: "/new_project",
             selectors: ["#tutorial-custom-config-file", "#custom-config"],
             title: "Sony: Load Custom Config",
-            body: "For Sony, load or paste your custom configuration in this optional section before creating the project.",
+            body: "For Sony, this is required. Upload exactly test.cfg from the Zenodo record before creating the project.",
+            showLatestVersionNote: true,
+            links: [
+                {
+                    label: "Zenodo test-data record",
+                    href: TEST_DATA_RECORD_URL,
+                },
+            ],
         },
         create_project_calibration: {
             path: /^\/new_project\/?$/,
             goTo: "/new_project",
             selector: "#tutorial-master-config",
             title: "Calibration Availability",
-            body: "Enable or disable bias, dark, and flat based on what calibration frames you have.",
+            body: "Enable or disable bias, dark, and flat based on available calibration frames. For Sony, selecting these here is optional.",
         },
         create_project_submit: {
             path: /^\/new_project\/?$/,
@@ -83,7 +93,14 @@
             path: /^\/configuration\/survey(?:\/.*)?$/,
             selector: "#tutorial-survey-panel",
             title: "Survey Setup",
-            body: "Fill or import survey info, then return to Processing Status.",
+            body: "Fill or import survey info, then return to Processing Status. If importing, use exactly survey_instruments.json from the Zenodo record.",
+            showLatestVersionNote: true,
+            links: [
+                {
+                    label: "Zenodo test-data record",
+                    href: TEST_DATA_RECORD_URL,
+                },
+            ],
         },
         survey_back_processing: {
             path: /^\/configuration\/survey(?:\/.*)?$/,
@@ -96,40 +113,48 @@
             path: /^\/processing(?:\/\d+)?\/?$/,
             selector: "#tutorial-configure-processing",
             actionSelector: "#tutorial-configure-processing",
-            title: "PANOPTES: Open Configuration",
-            body: "For PANOPTES, go to Configure Processing before adding images.",
-        },
-        config_import: {
-            path: /^\/configuration\/(?!survey)(?:.*)?$/,
-            selector: "#tutorial-config-import",
-            title: "PANOPTES: Import Config",
-            body: "Import your PANOPTES configuration file.",
+            title: "Configure Processing",
+            body: "Open Configure Processing before running so required settings are set.",
         },
         config_api_key: {
-            path: /^\/configuration\/(?!survey)(?:.*)?$/,
+            path: /^\/configuration(?:\/(?!survey(?:\/|$)).*)?$/,
             selector: "#chart-container",
-            title: "PANOPTES: Set API Key",
-            body: "Update the astrometry API key in configuration before processing.",
+            title: "Set Your API Key",
+            body: "In Configure Processing press Ctrl+F, find api key, then paste your own key from the Astrometry website.",
+            links: [
+                {
+                    label: "Astrometry API help",
+                    href: ASTROMETRY_API_HELP_URL,
+                },
+            ],
         },
         config_back_processing: {
-            path: /^\/configuration\/(?!survey)(?:.*)?$/,
+            path: /^\/configuration(?:\/(?!survey(?:\/|$)).*)?$/,
             selector: "#tutorial-config-processing-status",
             actionSelector: "#tutorial-config-processing-status",
             title: "Back To Processing",
-            body: "Return to Processing Status after import and API key updates.",
+            body: "Return to Processing Status after saving API-key changes.",
         },
         processing_add_images: {
             path: /^\/processing(?:\/\d+)?\/?$/,
             selector: "#tutorial-add-images",
             actionSelector: "#tutorial-add-images",
             title: "Add Raw Images",
-            body: "Now add raw images. Do this only after the required setup steps.",
+            body: "Now add raw images. If you have not finished Edit Survey and added survey instruments, go back and complete that first. For the test dataset, go to your Downloads (most likely), then test_data/RAW and select the four groups: dark, flat, object, and zero.",
+            showLatestVersionNote: true,
         },
         raw_select_files: {
             path: /^\/processing\/select_raw_images(?:\/.*)?$/,
             selector: "#tutorial-file-selector",
             title: "Select Files",
-            body: "Select raw FITS files or folders.",
+            body: "Select raw FITS files or folders. If survey setup is not done yet, go back and complete Edit Survey plus survey instruments first. For test data, this is usually in Downloads/test_data/RAW; select dark, flat, object, and zero.",
+            showLatestVersionNote: true,
+            links: [
+                {
+                    label: "Zenodo test-data record",
+                    href: TEST_DATA_RECORD_URL,
+                },
+            ],
         },
         raw_add_selected: {
             path: /^\/processing\/select_raw_images(?:\/.*)?$/,
@@ -150,7 +175,7 @@
             selector: ".tutorial-first-log",
             waitForTarget: true,
             title: "Monitor Logs",
-            body: "Use logs to monitor status and diagnose issues.",
+            body: "Use logs to monitor status and diagnose issues. You can hover progress-step items for quick step descriptions.",
         },
         processing_object: {
             path: /^\/processing(?:\/\d+)?\/?$/,
@@ -158,7 +183,7 @@
             actionSelector: "#tutorial-object-button",
             waitForTarget: true,
             title: "Select Photometric Reference",
-            body: "When OBJECT appears, open it to pick reference images.",
+            body: "When OBJECT appears, open it to choose the photometric reference frame. For Sony this is required.",
         },
         photref_target: {
             path: /^\/processing\/select_photref_target\/?$/,
@@ -172,7 +197,7 @@
             selector: "#tutorial-set-photref-image",
             actionSelector: "#tutorial-set-photref-image",
             title: "Set Reference Image",
-            body: "Set this image as reference and return to Processing Status.",
+            body: "Set this image as the reference frame and return to Processing Status.",
         },
         processing_resume: {
             path: /^\/processing(?:\/\d+)?\/?$/,
@@ -186,20 +211,34 @@
             selector: "#tutorial-review-results",
             actionSelector: "#tutorial-review-results",
             title: "Open Results",
-            body: "Open Review Results to plot your first light curve.",
+            body: "Open Review Results after the processing chain reaches 10/10.",
         },
         results_enter_id: {
             path: /^\/results\/?$/,
             selectors: ["#star-id-type", "#star-id"],
             title: "Select A Target",
-            body: "Choose ID type and enter a target identifier.",
+            body: "Set ID type to Gaia DR3. From LC files like GDR3_808862192901442816.h5, keep only numbers after the underscore and enter that value.",
+        },
+        results_open_config: {
+            path: /^\/results\/?$/,
+            selector: "#open-config",
+            actionSelector: "#open-config",
+            title: "Open Config",
+            body: "Click Open Config to show plotting and fitting controls.",
+        },
+        results_magfit_buttons: {
+            path: /^\/results\/?$/,
+            selectors: ["#btn-magfit-minimize", "#btn-magfit-magnitude"],
+            waitForTarget: true,
+            title: "Use Magfit Buttons",
+            body: "Use both magfit buttons: one updates fit objective controls and one switches plot quantities to magfit outputs.",
         },
         results_apply: {
             path: /^\/results\/?$/,
             selector: "#apply",
             actionSelector: "#apply",
             title: "Plot First Light Curve",
-            body: "Click Apply to render the first light curve.",
+            body: "Press Apply to render the light curve.",
         },
         complete: {
             path: /.*/,
@@ -215,7 +254,33 @@
     let actionCleanup = [];
     let manualCardPosition = null;
 
-    function getFlow(track) {
+    function getFullscreenElement() {
+        return (
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement ||
+            null
+        );
+    }
+
+    function getTutorialHostElement() {
+        return getFullscreenElement() || document.body;
+    }
+
+    function ensureTutorialHost() {
+        if (!ui) {
+            return;
+        }
+        const host = getTutorialHostElement();
+        [ui.overlay, ui.card, ui.prompt, ui.fab].forEach((element) => {
+            if (element.parentElement !== host) {
+                host.appendChild(element);
+            }
+        });
+    }
+
+    function getFlow() {
         const flow = [
             "home_new_project",
             "create_project_details",
@@ -223,9 +288,7 @@
             "select_project_home",
         ];
 
-        if (track === "sony") {
-            flow.push("sony_custom_config");
-        }
+        flow.push("sony_custom_config");
 
         flow.push(
             "create_project_calibration",
@@ -233,17 +296,11 @@
             "home_open_project",
             "processing_edit_survey",
             "survey_overview",
-            "survey_back_processing"
+            "survey_back_processing",
+            "processing_configure",
+            "config_api_key",
+            "config_back_processing"
         );
-
-        if (track === "panoptes") {
-            flow.push(
-                "processing_configure",
-                "config_import",
-                "config_api_key",
-                "config_back_processing"
-            );
-        }
 
         flow.push(
             "processing_add_images",
@@ -257,6 +314,8 @@
             "processing_resume",
             "processing_review_results",
             "results_enter_id",
+            "results_open_config",
+            "results_magfit_buttons",
             "results_apply",
             "complete"
         );
@@ -270,7 +329,34 @@
             active: false,
             track: null,
             stepId: null,
+            completedStepIds: [],
         };
+    }
+
+    function addCompletedStep(state, stepId) {
+        if (!stepId) {
+            return state;
+        }
+        const completed = Array.isArray(state.completedStepIds)
+            ? state.completedStepIds.slice()
+            : [];
+        if (!completed.includes(stepId)) {
+            completed.push(stepId);
+        }
+        return Object.assign({}, state, { completedStepIds: completed });
+    }
+
+    function needsSurveySetupWarning(stepId, state) {
+        if (!stepId || !["processing_add_images", "raw_select_files"].includes(stepId)) {
+            return false;
+        }
+        const completed = Array.isArray(state.completedStepIds)
+            ? state.completedStepIds
+            : [];
+        return !(
+            completed.includes("survey_overview") &&
+            completed.includes("survey_back_processing")
+        );
     }
 
     function getState() {
@@ -419,6 +505,7 @@
 
     function createUI() {
         if (ui) {
+            ensureTutorialHost();
             return ui;
         }
 
@@ -443,10 +530,24 @@
         fab.style.display = "none";
         fab.addEventListener("click", openWorkflowPromptFromButton);
 
-        document.body.appendChild(overlay);
-        document.body.appendChild(card);
-        document.body.appendChild(prompt);
-        document.body.appendChild(fab);
+        const host = getTutorialHostElement();
+        host.appendChild(overlay);
+        host.appendChild(card);
+        host.appendChild(prompt);
+        host.appendChild(fab);
+
+        [
+            "fullscreenchange",
+            "webkitfullscreenchange",
+            "mozfullscreenchange",
+            "MSFullscreenChange",
+        ].forEach((eventName) => {
+            document.addEventListener(eventName, () => {
+                manualCardPosition = null;
+                ensureTutorialHost();
+                renderTutorial();
+            });
+        });
 
         window.addEventListener("resize", () => {
             if (manualCardPosition && card.style.display !== "none") {
@@ -494,21 +595,15 @@
         clearActionListeners();
     }
 
-    function isHomePage() {
-        return window.location.pathname === "/";
-    }
-
     function showFab() {
         const { fab } = createUI();
-        const state = getState();
-        if (state.track === "sony") {
-            fab.textContent = "Tutorial: Sony";
-        } else if (state.track === "panoptes") {
-            fab.textContent = "Tutorial: PANOPTES";
-        } else {
-            fab.textContent = "Tutorial";
+        fab.style.display = "none";
+
+        const stackButton = document.querySelector("#tutorial-stack-button");
+        if (stackButton && !stackButton.dataset.tutorialBound) {
+            stackButton.addEventListener("click", openWorkflowPromptFromButton);
+            stackButton.dataset.tutorialBound = "1";
         }
-        fab.style.display = isHomePage() ? "inline-flex" : "none";
     }
 
     function resolveNewestProjectRow() {
@@ -597,67 +692,11 @@
             return;
         }
 
-        const margin = 12;
-        const gap = 14;
-        const cardWidth = card.offsetWidth || 360;
-        const cardHeight = card.offsetHeight || 250;
-
-        function score(candidate, targetRect) {
-            const x1 = candidate.x;
-            const y1 = candidate.y;
-            const x2 = candidate.x + cardWidth;
-            const y2 = candidate.y + cardHeight;
-
-            const overlapW = Math.max(
-                0,
-                Math.min(x2, targetRect.right) - Math.max(x1, targetRect.left)
-            );
-            const overlapH = Math.max(
-                0,
-                Math.min(y2, targetRect.bottom) - Math.max(y1, targetRect.top)
-            );
-            const overlapArea = overlapW * overlapH;
-
-            const centerDx =
-                candidate.x + cardWidth / 2 - (targetRect.left + targetRect.right) / 2;
-            const centerDy =
-                candidate.y + cardHeight / 2 - (targetRect.top + targetRect.bottom) / 2;
-            const distance = Math.sqrt(centerDx * centerDx + centerDy * centerDy);
-            return overlapArea * 10000 + distance;
-        }
-
-        const fallback = {
-            x: window.innerWidth - cardWidth - margin,
-            y: margin + 48,
-        };
-
-        if (!target) {
-            applyCardPosition(card, fallback.x, fallback.y);
-            return;
-        }
-
-        const targetRect = target.getBoundingClientRect();
-        const candidates = [
-            { x: targetRect.right + gap, y: targetRect.top },
-            { x: targetRect.left - cardWidth - gap, y: targetRect.top },
-            { x: targetRect.left, y: targetRect.bottom + gap },
-            { x: targetRect.left, y: targetRect.top - cardHeight - gap },
-            fallback,
-            { x: window.innerWidth - cardWidth - margin, y: window.innerHeight - cardHeight - margin },
-        ].map((candidate) => clampCardPosition(card, candidate.x, candidate.y));
-
-        let best = candidates[0];
-        let bestScore = score(best, targetRect);
-        for (let index = 1; index < candidates.length; index += 1) {
-            const candidate = candidates[index];
-            const candidateScore = score(candidate, targetRect);
-            if (candidateScore < bestScore) {
-                best = candidate;
-                bestScore = candidateScore;
-            }
-        }
-
-        applyCardPosition(card, best.x, best.y);
+        const cardWidth = card.offsetWidth || 560;
+        const cardHeight = card.offsetHeight || 260;
+        const centerX = (window.innerWidth - cardWidth) / 2;
+        const centerY = (window.innerHeight - cardHeight) / 2;
+        applyCardPosition(card, centerX, centerY);
     }
 
     function isTransientPath(pathname) {
@@ -689,6 +728,9 @@
         for (let index = currentIndex + 1; index < flow.length; index += 1) {
             const candidateId = flow[index];
             const candidate = STEPS[candidateId];
+            if (!candidate || candidate.isTerminal) {
+                continue;
+            }
             if (candidate.path.test(currentPath)) {
                 state.stepId = candidateId;
                 return state;
@@ -705,21 +747,26 @@
             active: false,
             track: current.track || null,
             stepId: null,
+            completedStepIds: current.completedStepIds || [],
         });
         hideTutorialUI();
         showFab();
     }
 
     function setStep(stepId) {
-        const state = getState();
+        let state = getState();
         if (!state.active || !state.track) {
             return;
+        }
+        if (state.stepId && state.stepId !== stepId) {
+            state = addCompletedStep(state, state.stepId);
         }
         saveState({
             version: TUTORIAL_VERSION,
             active: true,
             track: state.track,
             stepId: stepId,
+            completedStepIds: state.completedStepIds || [],
         });
         renderTutorial();
     }
@@ -745,11 +792,13 @@
                 if (!state.active || !state.track) {
                     return;
                 }
+                const updated = addCompletedStep(state, currentStepId);
                 saveState({
                     version: TUTORIAL_VERSION,
                     active: true,
-                    track: state.track,
+                    track: updated.track,
                     stepId: nextId,
+                    completedStepIds: updated.completedStepIds || [],
                 });
             };
             target.addEventListener("click", handler, true);
@@ -764,17 +813,36 @@
         saveState({
             version: TUTORIAL_VERSION,
             active: true,
-            track: track,
+            track: "sony",
             stepId: "home_new_project",
+            completedStepIds: [],
         });
 
         const { prompt } = createUI();
         prompt.style.display = "none";
 
-        if (!isHomePage()) {
+        if (window.location.pathname !== "/") {
             window.location.assign("/");
             return;
         }
+
+        renderTutorial();
+    }
+
+    function continueTutorial() {
+        const state = getState();
+        setPrompted();
+
+        saveState({
+            version: TUTORIAL_VERSION,
+            active: true,
+            track: state.track || "sony",
+            stepId: state.stepId || "home_new_project",
+            completedStepIds: state.completedStepIds || [],
+        });
+
+        const { prompt } = createUI();
+        prompt.style.display = "none";
 
         renderTutorial();
     }
@@ -802,12 +870,7 @@
         startButton.textContent = "Start Tutorial";
         startButton.addEventListener("click", () => {
             setPrompted();
-            const state = getState();
-            if (state.track) {
-                startTutorial(state.track);
-            } else {
-                openWorkflowPrompt();
-            }
+            startTutorial("sony");
         });
 
         const skipButton = document.createElement("button");
@@ -835,29 +898,45 @@
 
         prompt.innerHTML = "";
 
+        const state = getState();
+        const hasSavedProgress = Boolean(state.track && state.stepId);
+
         const title = document.createElement("h2");
-        title.textContent = "Choose Tutorial Workflow";
+        title.textContent = "Sony Tutorial";
 
         const text = document.createElement("p");
-        text.textContent =
-            "Sony and PANOPTES use different setup order. Select one to continue.";
+        text.textContent = hasSavedProgress
+            ? "Ready to start Sony tutorial. Continue where you left off or restart from the beginning."
+            : "Ready to start Sony tutorial.";
 
         const actions = document.createElement("div");
         actions.className = "aw-tutorial-actions";
 
-        const sonyButton = document.createElement("button");
-        sonyButton.type = "button";
-        sonyButton.className = "aw-tutorial-primary";
-        sonyButton.textContent = "Sony";
-        sonyButton.addEventListener("click", () => startTutorial("sony"));
+        if (hasSavedProgress) {
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = "aw-tutorial-primary";
+            continueButton.textContent = "Continue Tutorial";
+            continueButton.addEventListener("click", continueTutorial);
 
-        const panoptesButton = document.createElement("button");
-        panoptesButton.type = "button";
-        panoptesButton.className = "aw-tutorial-primary";
-        panoptesButton.textContent = "PANOPTES";
-        panoptesButton.addEventListener("click", () =>
-            startTutorial("panoptes")
-        );
+            const restartButton = document.createElement("button");
+            restartButton.type = "button";
+            restartButton.className = "aw-tutorial-secondary";
+            restartButton.textContent = "Restart From Start";
+            restartButton.addEventListener("click", () =>
+                startTutorial("sony")
+            );
+
+            actions.appendChild(continueButton);
+            actions.appendChild(restartButton);
+        } else {
+            const startButton = document.createElement("button");
+            startButton.type = "button";
+            startButton.className = "aw-tutorial-primary";
+            startButton.textContent = "Start Sony Tutorial";
+            startButton.addEventListener("click", () => startTutorial("sony"));
+            actions.appendChild(startButton);
+        }
 
         const cancelButton = document.createElement("button");
         cancelButton.type = "button";
@@ -871,8 +950,6 @@
             }
         });
 
-        actions.appendChild(sonyButton);
-        actions.appendChild(panoptesButton);
         actions.appendChild(cancelButton);
 
         prompt.appendChild(title);
@@ -882,20 +959,18 @@
     }
 
     function openWorkflowPromptFromButton() {
-        const state = getState();
-        if (state.track) {
-            startTutorial(state.track);
-        } else {
-            openWorkflowPrompt();
-        }
+        openWorkflowPrompt();
     }
 
-    function buildCard(step, flow, currentStepId, pathMismatch, targetMissing) {
+    function buildCard(step, flow, currentStepId, pathMismatch, targetMissing, warnSurveySetup) {
         const { card, prompt, overlay } = createUI();
 
         prompt.style.display = "none";
         overlay.style.display = "none";
         card.style.display = "block";
+        card.style.width = "min(560px, calc(100vw - 2rem))";
+        card.style.maxHeight = "min(80vh, calc(100vh - 2rem))";
+        card.style.overflowY = "auto";
         card.innerHTML = "";
 
         const currentIndex = stepIndex(flow, currentStepId);
@@ -946,17 +1021,46 @@
         title.textContent = step.title;
 
         const text = document.createElement("p");
-        if (pathMismatch && step.goTo) {
+        if (warnSurveySetup) {
+            text.textContent =
+                "You need to finish Edit Survey and add survey instruments before adding images. Please go back to Edit Survey now, then return here.";
+        } else if (pathMismatch && step.goTo) {
             text.textContent =
                 "You are on a different page. Jump to the expected page to continue this step.";
-        } else if (targetMissing && step.waitForTarget) {
-            text.textContent =
-                "Waiting for this control to appear. Continue processing and the tutorial will continue automatically.";
         } else if (targetMissing) {
-            text.textContent =
-                "This control is not visible yet. You can continue with Next or go to the expected page.";
+            text.textContent = step.body;
         } else {
             text.textContent = step.body;
+        }
+
+        let linksList = null;
+        if (
+            !pathMismatch &&
+            !targetMissing &&
+            Array.isArray(step.links) &&
+            step.links.length
+        ) {
+            linksList = document.createElement("ul");
+            linksList.className = "aw-tutorial-links";
+
+            for (const linkData of step.links) {
+                if (!linkData || !linkData.href || !linkData.label) {
+                    continue;
+                }
+
+                const listItem = document.createElement("li");
+                const anchor = document.createElement("a");
+                anchor.href = linkData.href;
+                anchor.target = "_blank";
+                anchor.rel = "noopener noreferrer";
+                anchor.textContent = linkData.label;
+                listItem.appendChild(anchor);
+                linksList.appendChild(listItem);
+            }
+
+            if (!linksList.childElementCount) {
+                linksList = null;
+            }
         }
 
         const actions = document.createElement("div");
@@ -982,7 +1086,9 @@
                 window.location.assign(step.goTo);
             });
             actions.appendChild(goButton);
-        } else if (step.isTerminal) {
+        }
+
+        if (step.isTerminal) {
             const doneButton = document.createElement("button");
             doneButton.type = "button";
             doneButton.className = "aw-tutorial-primary";
@@ -1001,17 +1107,28 @@
         }
 
         if (currentIndex === 0) {
-            const switchWorkflowButton = document.createElement("button");
-            switchWorkflowButton.type = "button";
-            switchWorkflowButton.className = "aw-tutorial-secondary";
-            switchWorkflowButton.textContent = "Switch Workflow";
-            switchWorkflowButton.addEventListener("click", openWorkflowPrompt);
-            actions.appendChild(switchWorkflowButton);
+            const restartButton = document.createElement("button");
+            restartButton.type = "button";
+            restartButton.className = "aw-tutorial-secondary";
+            restartButton.textContent = "Restart";
+            restartButton.addEventListener("click", () => startTutorial("sony"));
+            actions.appendChild(restartButton);
         }
 
         card.appendChild(header);
         card.appendChild(title);
         card.appendChild(text);
+        if (linksList) {
+            card.appendChild(linksList);
+        }
+        if (step.showLatestVersionNote) {
+            const latestNote = document.createElement("p");
+            latestNote.style.marginTop = "0.65rem";
+            latestNote.style.fontSize = "0.82rem";
+            latestNote.style.opacity = "0.9";
+            latestNote.textContent = "Note: make sure to use the latest version.";
+            card.appendChild(latestNote);
+        }
         card.appendChild(actions);
         makeCardDraggable(card, header);
     }
@@ -1025,11 +1142,7 @@
         if (!state.active) {
             hideTutorialUI();
             showFab();
-            if (!getPrompted() && isHomePage()) {
-                openFirstVisitPrompt();
-            } else {
-                prompt.style.display = "none";
-            }
+            prompt.style.display = "none";
             return;
         }
 
@@ -1038,7 +1151,7 @@
             return;
         }
 
-        const flow = getFlow(state.track);
+        const flow = getFlow();
 
         if (!state.stepId || stepIndex(flow, state.stepId) < 0) {
             state.stepId = flow[0];
@@ -1079,8 +1192,17 @@
         const targetMissing =
             pathMatches && Boolean(expectsTarget) && targets.length === 0;
         const pathMismatch = !pathMatches;
+        const warnSurveySetup = needsSurveySetupWarning(state.stepId, state);
 
-        buildCard(step, flow, state.stepId, pathMismatch, targetMissing);
+        buildCard(
+            step,
+            flow,
+            state.stepId,
+            pathMismatch,
+            targetMissing,
+            warnSurveySetup
+        );
+        ensureTutorialHost();
         placeCard(createUI().card, getAnchorTarget(targets));
 
         if (targetMissing && step.waitForTarget) {
