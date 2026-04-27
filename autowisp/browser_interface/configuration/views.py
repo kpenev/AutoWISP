@@ -189,20 +189,14 @@ def add_survey_items_to_context(context, selected, db_session):
             context[component_class + "s"].append(
                 tuple_type(
                     *(
-                        getattr(
-                            equipment,
-                            attr,
-                            getattr(
-                                equipment_type,
+                        (
+                            equipment_type.make + " " + equipment_type.model
+                            if attr == "type"
+                            else getattr(
+                                equipment,
                                 attr,
-                                (
-                                    equipment_type.make
-                                    + " "
-                                    + equipment_type.model
-                                    if attr == "type"
-                                    else None
-                                ),
-                            ),
+                                getattr(equipment_type, attr, None),
+                            )
                         )
                         for attr in attributes
                     ),
