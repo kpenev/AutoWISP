@@ -141,7 +141,6 @@
             actionSelector: "#tutorial-add-images",
             title: "Add Raw Images",
             body: "Now add raw images. If you have not finished Edit Survey and added survey instruments, go back and complete that first. For the test dataset, go to your Downloads (most likely), then test_data/RAW and select the four groups: dark, flat, object, and zero.",
-            showLatestVersionNote: true,
         },
         raw_select_files: {
             path: /^\/processing\/select_raw_images(?:\/.*)?$/,
