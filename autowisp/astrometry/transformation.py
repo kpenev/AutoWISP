@@ -8,6 +8,8 @@ import numpy
 from numpy.lib.recfunctions import unstructured_to_structured
 from scipy.optimize import root
 from configargparse import ArgumentParser, DefaultsFormatter
+from astropy.coordinates import SkyCoord
+from astropy import units as astropy_units
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import map_projections
@@ -213,6 +215,43 @@ class Transformation:
             return equatorial
 
         return pre_projected, equatorial
+
+
+def compute_diagonal_fov(transformation, header):
+    """Return mean angular separation from image center to its four corners.
+
+    Args:
+        transformation(Transformation):    Astrometric transformation for the
+            image.  Must already be initialised (e.g. via
+            ``Transformation(dr_fname, ...)`` or ``set_transformation``).
+
+        header:    FITS header of the image; must contain ``NAXIS1`` and
+            ``NAXIS2``.
+
+    Returns:
+        float: Mean angular separation in degrees from the image center to
+            each of the four pixel corners, projected to sky coordinates via
+            the inverse astrometric transformation.
+    """
+
+    ra, dec = transformation.pre_projection_center
+    center = SkyCoord(
+        ra=ra * astropy_units.deg, dec=dec * astropy_units.deg, frame="icrs"
+    )
+    corner_seps = []
+    for x in [0.0, float(header["NAXIS1"])]:
+        for y in [0.0, float(header["NAXIS2"])]:
+            corner_sky = transformation.inverse(x, y, result="equatorial")
+            corner_seps.append(
+                center.separation(
+                    SkyCoord(
+                        ra=corner_sky["RA"][0] * astropy_units.deg,
+                        dec=corner_sky["Dec"][0] * astropy_units.deg,
+                        frame="icrs",
+                    )
+                ).to_value(astropy_units.deg)
+            )
+    return float(numpy.mean(corner_seps))
 
 
 def parse_command_line():

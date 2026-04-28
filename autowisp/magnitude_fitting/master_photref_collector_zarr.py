@@ -46,6 +46,7 @@ class MasterPhotrefCollector:
         "rejection_units": "medmeddev",
         "max_memory": "2g",
         "source_name_format": "{0:d}",
+        "tempstore_dir": None,
     }
     _stat_quantities = [
         "full_count",
@@ -85,7 +86,8 @@ class MasterPhotrefCollector:
         """Calculate and fill in the statics from all input collected so far."""
 
         self._logger.debug("Planning the rechunking.")
-        rechunked_store = zarr.TempStore()
+        rechunked_store = zarr.TempStore(dir=self._config["tempstore_dir"])
+        temp_store = zarr.TempStore(dir=self._config["tempstore_dir"])
         chunk_stars = self._config["max_memory"] // (
             self._dimensions["images"]
             * self._dimensions["columns"]
@@ -101,7 +103,7 @@ class MasterPhotrefCollector:
             ),
             self._config["max_memory"],
             rechunked_store,
-            temp_store=zarr.TempStore(),
+            temp_store=temp_store,
         )
         self._logger.debug("Rechunking")
         rechunked_data = rechunk_plan.execute()
@@ -135,6 +137,7 @@ class MasterPhotrefCollector:
                     if self._config["rejection_units"] == "meddev"
                     else (numpy.nanmedian, numpy.nanmean)
                 ),
+                max_iter=self._config["max_rejection_iterations"],
             )
             if self._config["rejection_units"] == "meddev":
                 (
@@ -149,9 +152,11 @@ class MasterPhotrefCollector:
                 ) = average_dev
 
             for column in ["mediandev", "medianmeddev"]:
-                statistics[column] *= numpy.sqrt(
+                statistics[column][res_slice, :] *= numpy.sqrt(
                     statistics["rejected_count"][res_slice, :] - 1
                 )
+        rechunked_store.clear()
+        temp_store.clear()
 
     def _save_statistics(self, statistics):
         """Save the given statistics as a master statistics file."""
@@ -308,7 +313,7 @@ class MasterPhotrefCollector:
             ) - numpy.dot(coefficients, predictors)
         return residuals
 
-    def _create_reference( # pylint: disable=too-many-arguments
+    def _create_reference(  # pylint: disable=too-many-arguments
         self,
         statistics,
         residual_scatter,
@@ -452,7 +457,7 @@ class MasterPhotrefCollector:
             ),
             chunks=(None, image_chunk, None),
             dtype=dtype,
-            store=zarr.TempStore(),
+            store=zarr.TempStore(dir=self._config["tempstore_dir"]),
             fill_value=numpy.nan,
         )
         self._logger.debug(
@@ -486,8 +491,8 @@ class MasterPhotrefCollector:
                 between rejecting outliers and re-deriving the statistics to
                 allow.
 
-            temp_directory(str):    A location in the file system to use for
-                storing temporary files during statistics colletion.
+            tempstore_dir(str):    A location in the file system to use for
+                storing temporary files during statistics collection.
 
             rejection_center(str):    Outliers are define around some central
                 value, either ``'mean'``, or ``'median'``.
@@ -548,10 +553,12 @@ class MasterPhotrefCollector:
 
             phot = phot[finite]
             formal_errors = formal_errors[finite]
+            fitted = fitted[finite]
 
             source_sorter = numpy.argsort(phot["source_id"])
             phot = phot[source_sorter]
             fitted = fitted[source_sorter]
+            formal_errors = formal_errors[source_sorter]
 
             if self._magfit_data is None:
                 assert self._sources is None
@@ -599,7 +606,7 @@ class MasterPhotrefCollector:
             self._logger.debug("Finished adding fit data.")
 
     # TODO: Add support for scatter cut based on quantile of fit residuals.
-    def generate_master( # pylint: disable=too-many-arguments
+    def generate_master(  # pylint: disable=too-many-arguments
         self,
         *,
         master_reference_fname,
@@ -658,6 +665,7 @@ class MasterPhotrefCollector:
         )
 
         self._calculate_statistics(statistics)
+        self._magfit_data.store.clear()
         self._add_catalog_info(catalog, statistics, catalog_columns)
         self._save_statistics(statistics)
 

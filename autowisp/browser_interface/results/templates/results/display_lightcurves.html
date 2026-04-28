@@ -2,8 +2,7 @@
 {% load static %}
 
 {% block extra_head %}
-<link rel="stylesheet" 
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{% static 'results/css/display_lightcurves.css' %}">
 
 {% endblock extra_head %}
@@ -14,8 +13,7 @@ Preview Lightcurves
 
 {% block left_menu %}
 
-<a id="download-button" 
-   href="{% url 'results:download_lightcurve_figure' %}">
+<a id="download-button" href="{% url 'results:download_lightcurve_figure' %}">
     <div class="lcars-element 
                 button 
                 lcars-melrose-bg
@@ -24,7 +22,7 @@ Preview Lightcurves
     </div>
 </a>
 
-<a href="{% url 'results:clear_lightcurve_buffer' %}">
+<a id="clear-lc-buffer-button" href="{% url 'results:clear_lightcurve_buffer' %}">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -36,8 +34,7 @@ Preview Lightcurves
 
 {% block header_bar_extra %}
 <div class="lcars-bar horizontal spacer"></div>
-<div id="apply"
-     class="lcars-bar
+<div id="apply" class="lcars-bar
             button
             lcars-husk-bg
             horizontal
@@ -45,8 +42,7 @@ Preview Lightcurves
     Apply
 </div>
 <div class="lcars-bar horizontal spacer"></div>
-<div id="rcParams"
-     class="lcars-bar
+<div id="rcParams" class="lcars-bar
             button
             lcars-melrose-bg
             horizontal
@@ -54,8 +50,7 @@ Preview Lightcurves
     Figure Config.
 </div>
 <div class="lcars-bar horizontal spacer"></div>
-<div id="open-config"
-     class="lcars-bar
+<div id="open-config" class="lcars-bar
             button
             lcars-melrose-bg
             horizontal
@@ -68,9 +63,8 @@ Preview Lightcurves
 <div id="active-area" class="lcars-row fill-space">
     <div class="fill-space lcars-column centered">
         <div class="lcars-row centered">
-            <select name="star-id-type" 
-                    id="star-id-type"
-                    class="lcars-text-box lcars-gray-bg lcars-husk-color param lcars-u-2">
+            <select name="star-id-type" id="star-id-type"
+                class="lcars-text-box lcars-gray-bg lcars-husk-color param lcars-u-2">
                 <option value="GDR3" selected>
                     Gaia DR3
                 </option>
@@ -81,18 +75,14 @@ Preview Lightcurves
                     NASA Exoplanet Archive
                 </option>
             </select>
-            <input type="text" id="star-id" class="param lcars-u-5" value="">
+            <input type="text" id="star-id" class="param lcars-u-5" value="{{ gaia_id|default:'' }}">
         </div>
         <div id="figure-parent" class="fill-space lcars-row">
             <div id="plot-split" class="lcars-bracket hollow"></div>
             <div id="plot-highlight"></div>
         </div>
     </div>
-    <div id="side-panel" 
-         class="lcars-row lcars-u-5"
-         {% if not config %}
-         style="display:none"
-         {% endif %}>
+    <div id="side-panel" class="lcars-row lcars-u-5" {% if not config %} style="display:none" {% endif %}>
 
         <div id="resize-config" class="lcars-bracket left">
         </div>
@@ -112,14 +102,12 @@ Preview Lightcurves
 {% url 'results:edit_rcparams' as rcParamsURL%}
 {% url 'results:edit_model' model_type='m' data_select_index=0 as editModelURL %}
 <script type="text/javascript">
-    initLightcurveDisplay({update: "{{ updateURL }}",
-                           subplot: "{{ editSubPlotURL }}",
-                           rcParams: "{{ rcParamsURL }}",
-                           editModel: "{{ editModelURL }}",
-                           apertureIndex: "{{ aperture_index }}"});
-</script> 
+    initLightcurveDisplay({
+        update: "{{ updateURL }}",
+        subplot: "{{ editSubPlotURL }}",
+        rcParams: "{{ rcParamsURL }}",
+        editModel: "{{ editModelURL }}",
+        apertureIndex: "{{ aperture_index }}"
+    });
+</script>
 {% endblock main %}
-
-
-
-

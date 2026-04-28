@@ -26,6 +26,7 @@ from autowisp.astrometry import (
     refine_transformation,
     Transformation,
 )
+from autowisp.astrometry.transformation import compute_diagonal_fov
 from autowisp.catalog import (
     ensure_catalog,
     check_catalog_coverage,
@@ -83,16 +84,6 @@ def add_anet_cmdline_args(parser):
         help="The astrometry.net API key to use if web solver is used to find "
         "initial match to catalog. You can get it by signing in to the web "
         "service and selecting ``Profile``.",
-    )
-    parser.add_argument(
-        "--frame-center-estimate",
-        nargs=2,
-        type=str,
-        default=("RA * units.deg", "DEC * units.deg"),
-        help="The approximate right ascention and declination of the center of "
-        "the frame in degrees. Can be an expression involving header keywords. "
-        "If not specified, the center of the catalog is used (assuming the "
-        "catalog is not being generated on-the-fly).",
     )
     parser.add_argument(
         "--frame-fov-estimate",
@@ -507,9 +498,7 @@ def _compute_zenith_distance(header, ra_cent, dec_cent):
         ).alt.to_value(units.deg)
         return 90.0 - alt
     except (KeyError, Exception):
-        _logger.error(
-            "Cannot compute zenith distance.", exc_info=True
-        )
+        _logger.error("Cannot compute zenith distance.", exc_info=True)
         return None
 
 
@@ -537,9 +526,7 @@ def _compute_pointing_offset(header, ra_cent, dec_cent):
         )
         return center.separation(target_coords).to_value(units.deg)
     except (KeyError, Exception):
-        _logger.error(
-            "Cannot compute pointing offset.", exc_info=True
-        )
+        _logger.error("Cannot compute pointing offset.", exc_info=True)
         return None
 
 
@@ -577,6 +564,12 @@ def _collect_astrometry_diagnostics(
         ("dec_center", transformation_estimate["dec_cent"]),
         ("matched_fraction", solve_diagnostics["ratio"]),
         ("astrom_residual", solve_diagnostics["rms"]),
+        (
+            "diagonal_fov",
+            compute_diagonal_fov(
+                construct_transformation(transformation_estimate), header
+            ),
+        ),
     ]
 
     z_center = _compute_zenith_distance(
@@ -626,8 +619,8 @@ def solve_image(  # pylint: disable=too-many-locals
             ``solve_field`` from astrometry.net is used to find iniitial
             estimates.
 
-        web_lock(multiprocessing.Lock):    A lock that is held hile a
-            catalog file is checked and/or created.
+        web_lock(multiprocessing.Lock):    A lock held while submitting a
+            plate-solve request to the astrometry.net web API.
 
         mark_start(callable):    Called before anything is written to the DR
             file if successful transformation is found.
@@ -677,18 +670,7 @@ def solve_image(  # pylint: disable=too-many-locals
             dr_file, configuration["srcextract_version"]
         )
         if transformation_estimate is None:
-            transformation_estimate = {
-                key: dr_eval(expression).to_value("deg")
-                for key, expression in zip(
-                    ["ra_cent", "dec_cent"],
-                    configuration["frame_center_estimate"],
-                )
-            }
-            (
-                transformation_estimate["trans_x"],
-                transformation_estimate["trans_y"],
-                status,
-            ) = estimate_transformation(
+            transformation_estimate, status = estimate_transformation(
                 dr_file=dr_file,
                 xy_extracted=xy_extracted,
                 config={
@@ -700,7 +682,8 @@ def solve_image(  # pylint: disable=too-many-locals
                     ),
                     "anet_indices": configuration["anet_indices"],
                     "anet_api_key": configuration["anet_api_key"],
-                    **transformation_estimate,
+                    "x_cent": header['NAXIS1'] / 2,
+                    "y_cent": header['NAXIS2'] / 2,
                 },
                 header=header,
                 web_lock=web_lock,
@@ -825,8 +808,8 @@ def astrometry_process(  # pylint: disable=too-many-arguments
     setup_process(task="solve", **configuration)
     _logger.info("Starting astrometry solving process.")
     for dr_fname, transformation_estimate in iter(task_queue.get, "STOP"):
-        result_queue.put(
-            solve_image(
+        try:
+            result = solve_image(
                 dr_fname,
                 transformation_estimate,
                 web_lock=web_lock,
@@ -834,7 +817,17 @@ def astrometry_process(  # pylint: disable=too-many-arguments
                 mark_end=mark_end,
                 **configuration,
             )
-        )
+        except Exception:  # pylint: disable=broad-except
+            _logger.error(
+                "Unexpected exception solving astrometry for %s:\n%s",
+                dr_fname,
+                format_exc(),
+            )
+            result_queue.put(
+                {"error": RuntimeError(format_exc()), "dr_fname": dr_fname}
+            )
+            return
+        result_queue.put(result)
     _logger.debug("Astrometry solving process finished.")
 
 
@@ -860,7 +853,9 @@ def prepare_configuration(configuration, dr_header):
 
 # Could not think of good way to split
 # pylint: disable=too-many-branches
-def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
+def manage_astrometry(
+    pending, task_queue, result_queue, mark_start, mark_end, workers=()
+):
     """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
@@ -873,8 +868,20 @@ def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
     while pending or num_queued:
         _logger.debug("Pending: %s", repr(pending))
         _logger.debug("Number scheduled: %d", num_queued)
-        result = result_queue.get()
+        while True:
+            try:
+                result = result_queue.get(timeout=1.0)
+                break
+            except Exception:  # queue.Empty
+                if workers and not any(p.is_alive() for p in workers):
+                    raise RuntimeError(
+                        "All astrometry worker processes died unexpectedly "
+                        f"with {num_queued} task(s) still in flight."
+                    )
         num_queued -= 1
+
+        if "error" in result:
+            raise result["error"]
 
         if "raw_transformation" in result:
             if not result["saved"]:
@@ -975,14 +982,23 @@ def solve_astrometry(
         process.start()
     _logger.debug("Starting astrometry on %d pending frame sets", len(pending))
 
-    manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end)
-
-    _logger.debug("Stopping astrometry solving processes.")
-    for process in workers:
-        task_queue.put("STOP")
-
-    for process in workers:
-        process.join()
+    try:
+        manage_astrometry(
+            pending, task_queue, result_queue, mark_start, mark_end, workers
+        )
+    finally:
+        _logger.debug("Stopping astrometry solving processes.")
+        for _ in workers:
+            task_queue.put("STOP")
+        # Drain unread results while waiting for workers to exit so the pipe
+        # buffer does not fill up and prevent workers from stopping cleanly.
+        for process in workers:
+            while process.is_alive():
+                try:
+                    result_queue.get(timeout=0.05)
+                except Exception:  # queue.Empty
+                    pass
+            process.join()
 
 
 def cleanup_interrupted(interrupted, configuration):

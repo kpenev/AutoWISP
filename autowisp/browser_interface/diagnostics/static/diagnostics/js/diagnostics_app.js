@@ -1,3 +1,17 @@
+function navigateDiagnostics()
+{
+    const bar = document.getElementById('diag-selector-bar');
+    const yDiag = document.getElementById('diagnostic-selector').value;
+    const xDiag = document.getElementById('x-diagnostic-selector').value;
+    if (xDiag === 'time') {
+        window.location.href = bar.dataset.imageUrl.replace('YPLACEHOLDER', yDiag);
+    } else {
+        window.location.href = bar.dataset.diagVsDiagUrl
+            .replace('XPLACEHOLDER', xDiag)
+            .replace('YPLACEHOLDER', yDiag);
+    }
+}
+
 function selectSymbol(event)
 {
     let marker = event.currentTarget.className.baseVal.split(" ")[1];
@@ -16,6 +30,7 @@ function getSelectedDatasets()
         let marker = button.children[0].className.baseVal.split(" ")[1];
         if ( marker != "" ) {
             datasets[seriesId] = {
+                "channel": row.getAttribute("channel"),
                 "color": document.getElementById(
                     "plot-color:" + seriesId
                 ).value,
@@ -31,16 +46,21 @@ function getSelectedDatasets()
     }
     let display = document.getElementById("diagnostics-display");
     let rect = display.getBoundingClientRect();
+    let legendToggle = document.getElementById("legend-toggle");
     return {
         "datasets": datasets,
         "figure_config": {
             "aspect_ratio": rect.width / rect.height,
+            "show_legend": !legendToggle || !legendToggle.classList.contains("inactive"),
         },
     };
 }
 
 function showDiagnosticsPlot(data)
 {
+    let downloadBtn = document.getElementById("download-button");
+    if (downloadBtn)
+        downloadBtn.style.display = "inline";
     let display = document.getElementById("diagnostics-display");
     display.innerHTML = "";
     showSVG(data, "diagnostics-display");

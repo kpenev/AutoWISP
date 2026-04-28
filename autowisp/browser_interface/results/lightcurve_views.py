@@ -2,7 +2,7 @@
 
 from itertools import product
 from copy import deepcopy
-from io import StringIO, BytesIO
+from io import BytesIO
 import json
 
 import matplotlib
@@ -12,8 +12,13 @@ from astroquery.mast import Catalogs
 from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
 
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
+from django.urls import reverse
 
+from autowisp.browser_interface.core.plot_utils import (
+    setup_svg_matplotlib,
+    figure_to_svg_response,
+)
 from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
@@ -51,22 +56,23 @@ def _init_session(request):
     request.session["lc_plotting"] = {
         "lc_fname_template": param_values["lc-fname"],
         "target_fname": "",
+        "gaia_id": None,
         "color_map": [hex_color(color_map(i)) for i in range(10)],
         "data_select": [
             {
                 "lc_substitutions": {"magfit_iteration": -1},
                 "find_best": {"aperture_index": f"0..{num_apertures}"},
                 "minimize": (
-                    "nanmedian(abs({mode}.tfa.magnitude - "
-                    "nanmedian({mode}.tfa.magnitude)))"
+                    "nanmedian(abs({mode}.magfit.magnitude - "
+                    "nanmedian({mode}.magfit.magnitude)))"
                 ),
                 "photometry_modes": ["apphot"],
-                "selection": True,
+                "selection": "True",
                 "model": None,
                 "expressions": {
                     "magnitude": (
-                        "{mode}.tfa.magnitude - "
-                        "nanmedian({mode}.tfa.magnitude)"
+                        "{mode}.magfit.magnitude - "
+                        "nanmedian({mode}.magfit.magnitude)"
                     ),
                     "bjd": "skypos.BJD - skypos.BJD.min()",
                     "rawfname": "fitsheader.rawfname",
@@ -80,7 +86,7 @@ def _init_session(request):
                             "x": "bjd",
                             "y": "magnitude",
                             "match_by": "rawfname",
-                            "curve_label": "tfa",
+                            "curve_label": "magfit",
                             "plot_kwargs": {
                                 "marker": "o",
                                 "markersize": 3,
@@ -152,10 +158,10 @@ def _unjsonify_plot_data(json_data):
     return result
 
 
-def _convert_plot_data_json(plot_data, reverse):
+def _convert_plot_data_json(plot_data, inverse):
     """Re-format plot data for storing in JSON format or reverse conversion."""
 
-    transform = _unjsonify_plot_data if reverse else _jsonify_plot_data
+    transform = _unjsonify_plot_data if inverse else _jsonify_plot_data
     return {fname: transform(data) for fname, data in plot_data.items()}
 
 
@@ -384,7 +390,9 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
             _subdivide_figure(plot_config, new_splits, *child)
 
 
-def update_subplot(plotting_session, updates):
+def update_subplot(  # pylint: disable=too-many-branches
+    plotting_session, updates
+):
     """Change a given sub-plot (and/or add plot quantities)."""
 
     print(f'Updating plot {updates["plot_id"]} with: {updates!r}')
@@ -446,9 +454,22 @@ def update_subplot(plotting_session, updates):
         assert len(gaia_id) == 1
         gaia_id = gaia_id[0].split()[-1]
 
+    gaia_id = int(gaia_id)
+    gaia_id_str = str(gaia_id)
+
+    for plot_decorations in plotting_session["plot_decorations"]:
+        title = plot_decorations.get("title")
+        if isinstance(title, str):
+            plot_decorations["title"] = (
+                title.replace("{GaiaID}", gaia_id_str)
+                .replace("{gaia_id}", gaia_id_str)
+                .replace("{gaiaid}", gaia_id_str)
+            )
+
     plotting_session["target_fname"] = plotting_session[
         "lc_fname_template"
-    ].format(int(gaia_id), PROJHOME=get_project_home())
+    ].format(gaia_id, PROJHOME=get_project_home())
+    plotting_session["gaia_id"] = gaia_id
     _add_lightcurve_to_session(
         plotting_session, plotting_session["target_fname"]
     )
@@ -497,8 +518,7 @@ def update_lightcurve_figure(request):
         request.session["lc_plotting"], updates
     )
 
-    matplotlib.use("svg")
-    pyplot.style.use("dark_background")
+    setup_svg_matplotlib()
 
     figure = pyplot.figure(**request.session["lc_plotting"]["figure_config"])
     plotting_info = request.session["lc_plotting"]
@@ -518,21 +538,14 @@ def update_lightcurve_figure(request):
             figure,
         )
 
-    with StringIO() as image_stream:
-        pyplot.savefig(image_stream, bbox_inches="tight", format="svg")
-        subplot_boundaries = {}
-        _get_subplot_boundaries(
-            *request.session["lc_plotting"]["plot_layout"],
-            0,
-            0,
-            subplot_boundaries,
-        )
-        return JsonResponse(
-            {
-                "plot_data": image_stream.getvalue(),
-                "boundaries": subplot_boundaries,
-            }
-        )
+    subplot_boundaries = {}
+    _get_subplot_boundaries(
+        *request.session["lc_plotting"]["plot_layout"],
+        0,
+        0,
+        subplot_boundaries,
+    )
+    return figure_to_svg_response(figure, boundaries=subplot_boundaries)
 
 
 def edit_subplot(request, plot_id):
@@ -619,14 +632,48 @@ def display_lightcurve(request):
                 request.session["lc_plotting"]["target_fname"],
             )
 
-    aperture_index = (
-        request.session["lc_plotting"]["data_select"][0]
-        ["find_best"]["aperture_index"]
-    )
+    aperture_index = request.session["lc_plotting"]["data_select"][0][
+        "find_best"
+    ]["aperture_index"]
     return render(
         request,
         "results/display_lightcurves.html",
         {"config": None, "aperture_index": aperture_index},
+    )
+
+
+def display_lightcurve_for_star(request, gaia_id):
+    """Navigate to lightcurve display pre-loaded for the given Gaia ID."""
+
+    if "lc_plotting" not in request.session:
+        _init_session(request)
+    plotting_session = request.session["lc_plotting"]
+    gaia_id_str = str(gaia_id)
+
+    for plot_decorations in plotting_session["plot_decorations"]:
+        title = plot_decorations.get("title")
+        if isinstance(title, str):
+            plot_decorations["title"] = (
+                title.replace("{GaiaID}", gaia_id_str)
+                .replace("{gaia_id}", gaia_id_str)
+                .replace("{gaiaid}", gaia_id_str)
+            )
+
+    plotting_session["target_fname"] = plotting_session[
+        "lc_fname_template"
+    ].format(gaia_id, PROJHOME=get_project_home())
+    plotting_session["gaia_id"] = gaia_id
+    _add_lightcurve_to_session(
+        plotting_session, plotting_session["target_fname"]
+    )
+    request.session.modified = True
+    aperture_index = plotting_session["data_select"][0]["find_best"][
+        "aperture_index"
+    ]
+    return render(
+        request,
+        "results/display_lightcurves.html",
+        {"config": None, "aperture_index": aperture_index, "gaia_id": gaia_id},
     )
 
 
@@ -688,10 +735,15 @@ def download_lightcurve_figure(request):
             edgecolor="white",
         )
         image_stream.seek(0)
+        gaia_id = plotting_info.get("gaia_id")
+        if gaia_id is None:
+            filename = "lightcurve.pdf"
+        else:
+            filename = f"lightcurve-{gaia_id}.pdf"
         return HttpResponse(
             image_stream.read(),
             content_type="application/pdf",
             headers={
-                "Content-Disposition": 'attachment; filename="lightcurve.pdf"'
+                "Content-Disposition": (f'attachment; filename="{filename}"')
             },
         )

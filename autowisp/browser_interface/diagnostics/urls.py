@@ -1,5 +1,7 @@
 """Define the URL paths used by the diagnostics BUI app."""
 
+import functools
+
 from django.urls import path
 
 from . import views
@@ -44,8 +46,44 @@ urlpatterns = [
     ),
     path(
         "image/<slug:diagnostic_name>/update_plot",
-        views.update_image_diagnostics_plot,
+        functools.partial(
+            views.update_plot_view,
+            figure_factory=views.create_image_diagnostics_figure,
+            session_key="image_diagnostics_last",
+        ),
         name="update_image_diagnostics_plot",
+    ),
+    path(
+        "image/<slug:diagnostic_name>/download_plot",
+        functools.partial(
+            views.download_plot_view,
+            figure_factory=views.create_image_diagnostics_figure,
+            session_key="image_diagnostics_last",
+        ),
+        name="download_image_diagnostics_plot",
+    ),
+    path(
+        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>",
+        views.display_diag_vs_diag,
+        name="display_diag_vs_diag",
+    ),
+    path(
+        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/update_plot",
+        functools.partial(
+            views.update_plot_view,
+            figure_factory=views.create_diag_vs_diag_figure,
+            session_key="diag_vs_diag_last",
+        ),
+        name="update_diag_vs_diag_plot",
+    ),
+    path(
+        "image/<slug:x_diagnostic>/vs/<slug:y_diagnostic>/download_plot",
+        functools.partial(
+            views.download_plot_view,
+            figure_factory=views.create_diag_vs_diag_figure,
+            session_key="diag_vs_diag_last",
+        ),
+        name="download_diag_vs_diag_plot",
     ),
     path(
         "preview_calibrated/<int:image_id>/<slug:color_channel>",

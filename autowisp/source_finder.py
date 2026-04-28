@@ -198,7 +198,14 @@ class SourceFinder:
                 ),
                 dtype=None,
                 deletechars="",
+                missing_values="-",
             )
+            finite = numpy.ones(result.size, dtype=bool)
+            for colname in result.dtype.names:
+                finite = numpy.logical_and(
+                    finite, numpy.isfinite(result[colname])
+                )
+            result = result[finite]
             logger.debug("Extracted %d stars from %r", result.size, fits_fname)
             if configuration["tool"] == "hatphot":
                 result["x"] -= 0.5

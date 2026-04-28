@@ -65,10 +65,17 @@ label.project-text-input {
 }
 
 #create-project table {
-    table-layout: auto; 
+    table-layout: auto;
     border-collapse: collapse;
     width: 100%;
-    height: 100%;
+}
+
+#create-project table td {
+    vertical-align: top;
+}
+
+#create-project td.lcars-column > div:first-child {
+    display: contents;
 }
 
 .alert-box {
@@ -86,16 +93,15 @@ label.project-text-input {
     100% { background-color: #000; color: #e10; }
 }
 
-tr.masters {
-    height: 1px;
-}
-
 tr.masters > td:first-child {
-    height: 100%;
+    position: relative;
 }
 
 tr.masters > td:first-child > label {
-    height: 100%;
+    position: absolute;
+    inset: 0;
+    height: auto;
+    width: auto;
 }
 
 .master-row {
@@ -103,7 +109,8 @@ tr.masters > td:first-child > label {
 }
 
 .master-row > td:first-child {
-    height: 100%;
+    position: relative;
+    min-width: 15.25rem;
 }
 
 .master-label, a.master-label, a.master-label:visited {
@@ -115,7 +122,10 @@ tr.masters > td:first-child > label {
     white-space: nowrap;
     border-top-left-radius: 1.5rem;
     border-bottom-left-radius: 1.5rem;
-    height: 100%;
+    position: absolute;
+    inset: 0;
+    height: auto;
+    width: auto;
     align-items: flex-end;
     justify-content: right;
     padding-right: 1em;
@@ -150,6 +160,3 @@ tr.masters > td:first-child > label {
     align-items: center;
 }
 
-.master-config {
-    height: 100%;
-}

@@ -9,6 +9,8 @@ from astropy.io import fits
 
 from configargparse import ArgumentParser, DefaultsFormatter
 
+from autowisp.catalog import WISPGaia
+
 
 class ManualStepArgumentParser(ArgumentParser):
     """Incorporate boiler plate handling of command line arguments."""
@@ -53,6 +55,18 @@ class ManualStepArgumentParser(ArgumentParser):
         """Add arguments to specify a catalog query."""
 
         prefix = catalog_config["prefix"]
+        self.add_argument(
+            "--gaia-user",
+            default=None,
+            help="The username to use for Gaia archive queries. If not "
+            "specified, queries are submitted without logging in.",
+        )
+        self.add_argument(
+            "--gaia-password",
+            default=None,
+            help="The password to use for Gaia archive queries. If not "
+            "specified, queries are submitted without logging in.",
+        )
         self.add_argument(
             f"--{prefix}-catalog",
             f"--{prefix}-catalogue",
@@ -360,7 +374,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if "+" in input_type and input_type.split("+")[1].strip() == "dr":
             self.add_argument(
                 "--data-reduction-fname",
-                default="{PROJHOME}/DR/{RAWFNAME}.h5",
+                default="{PROJHOME}/DR/{RAWFNAME}_{CLRCHNL}.h5",
                 help="Format string to generate the filename(s) of the data "
                 "reduction files where extracted sources are saved. Replacement"
                 " fields can be anything from the header of the calibrated "
@@ -444,6 +458,18 @@ class ManualStepArgumentParser(ArgumentParser):
                 help="The name of the data reduction file of the single "
                 "photometric reference to use or used to start the magnitude "
                 "fitting iterations.",
+            )
+            self.add_argument(
+                "--max-photref-separation",
+                type=float,
+                default=0.2,
+                help="The maximum angular separation between the center of an "
+                "image and the center of the photometric reference, expressed "
+                "in units of the image's diagonal field of view (mean angular "
+                "distance from the image center to its four corners on the "
+                "sky, stored as the ``diagonal_fov`` astrometry diagnostic). "
+                "Images whose centers lie farther than this multiple of their "
+                "diagonal FOV from the photref center are excluded.",
             )
 
     def add_argument(self, *args, **kwargs):
@@ -553,6 +579,11 @@ class ManualStepArgumentParser(ArgumentParser):
             result["argument_descriptions"] = self.argument_descriptions
             result["argument_defaults"] = self.argument_defaults
             result["alternate_argument_names"] = self.alternate_names
+
+        if result.get("gaia_user") and result.get("gaia_password"):
+            WISPGaia.set_credentials(
+                user=result["gaia_user"], password=result["gaia_password"]
+            )
 
         return result
 

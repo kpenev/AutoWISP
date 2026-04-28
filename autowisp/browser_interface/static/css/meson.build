@@ -2,6 +2,7 @@ src = [
   'fits_app.css',
   'lcars.css',
   'navbar.css',
+  'reset.css',
   'style.css',
   'walk_fs.css'
 ]

@@ -1,6 +1,5 @@
 """Interface for performing iterative magnitude fitting."""
 
-from tempfile import TemporaryDirectory
 from multiprocessing import Pool
 import logging
 from functools import partial
@@ -303,6 +302,8 @@ def iterative_refit(
             num_photometries,
             len(fit_dr_filenames),
             source_name_format=configuration.source_name_format,
+            tempstore_dir=configuration.tempstore_dir,
+            outlier_threshold=configuration.stat_rej_level,
         )
 
         single_iteration(

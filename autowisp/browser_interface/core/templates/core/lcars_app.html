@@ -107,7 +107,9 @@
                 {% block footer_bar_extra %}
                 {% endblock footer_bar_extra %}
                 <!-- BAR -->
+                {% block footer_fill_bar %}
                 <div class="lcars-bar horizontal both-divider bottom"></div>
+                {% endblock footer_fill_bar %}
                 <!-- ROUNDED EDGE -->
                 <div class="lcars-bar horizontal right-end left-divider bottom">
                 </div>
@@ -119,6 +121,7 @@
             </div>
 
         </div>
+        <script src="{% static 'js/lcars.scroll.js' %}"></script>
         {% block scripts %}
         {% endblock scripts %}
     </body>

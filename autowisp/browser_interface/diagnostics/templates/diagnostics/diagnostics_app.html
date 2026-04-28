@@ -13,13 +13,27 @@
 
 {% block header_bar_extra %}
 {% if available_diagnostics %}
-<div class="lcars-bar horizontal">
-    <select id="diagnostic-selector" 
+<div class="lcars-bar horizontal"
+     id="diag-selector-bar"
+     data-image-url="{% url 'diagnostics:display_image_diagnostics' diagnostic_name='YPLACEHOLDER' %}"
+     data-diag-vs-diag-url="{% url 'diagnostics:display_diag_vs_diag' x_diagnostic='XPLACEHOLDER' y_diagnostic='YPLACEHOLDER' %}">
+    <select id="diagnostic-selector"
             class="lcars-bar horizontal button lcars-rust-bg"
-            onchange="window.location.href='{% url 'diagnostics:display_image_diagnostics' diagnostic_name='__PLACEHOLDER__' %}'.replace('__PLACEHOLDER__', this.value);">
+            onchange="navigateDiagnostics()">
         {% for diag_name in available_diagnostics %}
         <option value="{{ diag_name }}"
-                {% if diag_name == diagnostics_title %}selected{% endif %}>
+                {% if diag_name == y_diagnostic %}selected{% endif %}>
+            {{ diag_name }}
+        </option>
+        {% endfor %}
+    </select>
+    <select id="x-diagnostic-selector"
+            class="lcars-bar horizontal button lcars-rust-bg"
+            onchange="navigateDiagnostics()">
+        <option value="time" {% if not x_diagnostic %}selected{% endif %}>time</option>
+        {% for diag_name in available_diagnostics %}
+        <option value="{{ diag_name }}"
+                {% if diag_name == x_diagnostic %}selected{% endif %}>
             {{ diag_name }}
         </option>
         {% endfor %}
@@ -27,6 +41,17 @@
 </div>
 {% endif %}
 {% endblock header_bar_extra %}
+
+{% block left_menu %}
+{% if download_pdf_url %}
+<a id="download-button" href="{{ download_pdf_url }}">
+    <div class="lcars-element button lcars-melrose-bg lcars-u-1-2">
+        Download Figure
+    </div>
+</a>
+{% endif %}
+{{ block.super }}
+{% endblock left_menu %}
 
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">
@@ -47,7 +72,7 @@
             </thead>
             <tbody class="lcars-table select-row">
                 {% for diagnostic in diagnostics_list %}
-                <tr class="diagnostic-row" id="{{ diagnostic.id }}">
+                <tr class="diagnostic-row" id="{{ diagnostic.id }}" channel="{{ diagnostic.channel }}">
                     <td>
                         <input type="color"
                                id="plot-color:{{ diagnostic.id }}"
@@ -105,3 +130,13 @@
 {% endif %}
 {% block diagnostics_extra_scripts %}{% endblock %}
 {% endblock main %}
+
+{% block footer_bar_extra %}
+<div class="lcars-bar horizontal bottom">
+    <button id="legend-toggle"
+            class="lcars-bar bottom button lcars-rust-bg"
+            onclick="this.classList.toggle('inactive'); this.textContent = this.classList.contains('inactive') ? 'Show Legend' : 'Hide Legend'; updateFigure();">
+        Hide Legend
+    </button>
+</div>
+{% endblock footer_bar_extra %}

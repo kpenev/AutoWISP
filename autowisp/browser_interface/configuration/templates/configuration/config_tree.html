@@ -112,7 +112,7 @@
 
             <div class="dropdown dropdown-right" >
                 {% if locked %}
-                <a class="dropbtn" href="{% url 'configuration:config_tree' step=selected_step version=selected_version force_unlock=1%}">
+                <a id="lock-icon-link" class="dropbtn" href="{% url 'configuration:config_tree' step=selected_step version=selected_version force_unlock=1%}">
                     <img height="20"
                          src="{% static 'img/closed_lock_icon.jpg' %}"
                          alt="locked"

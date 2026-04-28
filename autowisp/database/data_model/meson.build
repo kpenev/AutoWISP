@@ -11,6 +11,7 @@ py_src = [
   'hdf5_structure_versions.py',
   'image.py',
   'image_diagnostics.py',
+  'image_master_selection.py',
   'image_type.py',
   'input_master_types.py',
   'light_curve_processing_progress.py',

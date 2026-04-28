@@ -4,13 +4,20 @@
 
 from types import SimpleNamespace
 from itertools import count
+import math
 import os
 import logging
 
+from astropy.coordinates import SkyCoord
+from astropy import units as astropy_units
 from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp import magnitude_fitting
+from autowisp.astrometry.transformation import (
+    Transformation,
+    compute_diagonal_fov,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.catalog import ensure_catalog, get_catalog_config
@@ -70,7 +77,7 @@ def parse_command_line(*args):
         "--master-photref-fname-format",
         default=(
             "{PROJHOME}/MASTERS/mphotref_"
-            "{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter{magfit_iteration:03d}.fits"
+            "{TARGETID}_{CLRCHNL}_{EXPTIME}sec_iter{magfit_iteration:03d}.fits"
         ),
         help="A format string involving a {magfit_iteration} substitution along"
         " with any variables from the header of the single photometric "
@@ -81,8 +88,9 @@ def parse_command_line(*args):
     parser.add_argument(
         "--magfit-stat-fname-format",
         default=(
-            "{PROJHOME}/MASTERS/mfit_stat_{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter"
-            "{magfit_iteration:03d}.txt"
+            "{PROJHOME}/MASTERS/"
+            "mfit_stat_{TARGETID}_{CLRCHNL}_{EXPTIME}sec_"
+            "iter{magfit_iteration:03d}.txt"
         ),
         help="Similar to ``master_photref_fname_format``, but defines the name"
         " to use for saving the statistics of a magnitude fitting iteration.",
@@ -174,6 +182,21 @@ def parse_command_line(*args):
         default=5,
         help="The maximum number of iterations of deriving a master photometric"
         " referene and re-fitting to allow.",
+    )
+    parser.add_argument(
+        "--tempstore-dir",
+        default=None,
+        help="Directory under which to create temporary storage used when "
+        "creating master photometric references.",
+    )
+    parser.add_argument(
+        "--stat-rej-level",
+        type=float,
+        default=5.0,
+        help="Outlier rejection threshold for the cross-frame statistics "
+        "collection (used to build the master photometric reference). Points "
+        "deviating by more than this many times the median absolute deviation "
+        "from the median across frames are rejected. Default: %(default)s",
     )
     return parser.parse_args(*args)
 
@@ -343,6 +366,29 @@ def check_no_master(filename, master_type):
         )
 
 
+def _delete_magfit(dr_file, phot_method, substitutions):
+    dr_file.delete_dataset(phot_method + ".magfit.magnitude", **substitutions)
+    for stat_attr in ["num_input_src", "num_fit_src", "fit_residual"]:
+        dr_file.delete_attribute(
+            phot_method + ".magfit." + stat_attr, **substitutions
+        )
+    if substitutions["magfit_iteration"] == 0:
+        for cfg_attr in [
+            "cfg.correction_type",
+            "cfg.correction",
+            "cfg.require",
+            "cfg.single_photref",
+            "cfg.noise_offset",
+            "cfg.max_mag_err",
+            "cfg.rej_level",
+            "cfg.max_rej_iter",
+            "cfg.error_avg",
+        ]:
+            dr_file.delete_attribute(
+                phot_method + ".magfit." + cfg_attr, **substitutions
+            )
+
+
 def clean_dr(dr_fname, dr_substitutions):
     """Remove a magfit iteration from the given DR file."""
 
@@ -352,8 +398,9 @@ def clean_dr(dr_fname, dr_substitutions):
         dr_fname,
         dr_substitutions,
     )
+
     with DataReductionFile(dr_fname, "r+") as dr_file:
-        dr_file.delete_dataset("shapefit.magfit.magnitude", **dr_substitutions)
+        _delete_magfit(dr_file, "shapefit", dr_substitutions)
         for aperture_index in count():
             try:
                 dr_file.check_for_dataset(
@@ -361,10 +408,10 @@ def clean_dr(dr_fname, dr_substitutions):
                     aperture_index=aperture_index,
                     **dr_substitutions,
                 )
-                dr_file.delete_dataset(
-                    "apphot.magfit.magnitude",
-                    aperture_index=aperture_index,
-                    **dr_substitutions,
+                _delete_magfit(
+                    dr_file,
+                    "apphot",
+                    {**dr_substitutions, "aperture_index": aperture_index},
                 )
             except IOError:
                 print(
@@ -445,6 +492,98 @@ def has_apphot(dr_fname, substitutions):
             return False
 
 
+def _get_photref_pointing(
+    photref_dr_fname, skytoframe_version, max_photref_separation
+):
+    """Return (SkyCoord, threshold_deg) for the photref, or None if disabled.
+
+    Returns None when max_photref_separation is not finite so callers can skip
+    the per-image range check entirely (used by the ImageProcessingManager path
+    which already filtered during batch preparation).
+
+    Args:
+        photref_dr_fname(str):    Path to the single photref DR file.
+
+        skytoframe_version(str):    Version string for the ``skytoframe``
+            group in the DR file.
+
+        max_photref_separation(float):    Maximum allowed separation in units
+            of the photref's diagonal FOV.  Pass ``float("inf")`` to disable.
+
+    Returns:
+        None, or tuple(SkyCoord, float) — photref center and threshold in
+        degrees.
+    """
+
+    if not math.isfinite(max_photref_separation):
+        return None
+
+    transformation = Transformation(
+        photref_dr_fname, skytoframe_version=skytoframe_version
+    )
+    ra, dec = transformation.pre_projection_center
+    with DataReductionFile(photref_dr_fname, "r") as photref_dr:
+        header = photref_dr.get_frame_header()
+
+    center = SkyCoord(
+        ra=ra * astropy_units.deg, dec=dec * astropy_units.deg, frame="icrs"
+    )
+    threshold_deg = max_photref_separation * compute_diagonal_fov(
+        transformation, header
+    )
+    return center, threshold_deg
+
+
+def _within_photref_range(
+    dr_fname, photref_center, threshold_deg, skytoframe_version
+):
+    """True if DR file's pointing is within threshold_deg of photref_center.
+
+    If the sky-center attribute is absent (astrometry not yet run), the image
+    is included with a warning rather than silently dropped.
+
+    Args:
+        dr_fname(str):    Path to the image DR file to check.
+
+        photref_center(SkyCoord):    Sky coordinate of the photref center.
+
+        threshold_deg(float):    Maximum allowed separation in degrees.
+
+        skytoframe_version(str):    Version string for the ``skytoframe`` group.
+
+    Returns:
+        bool
+    """
+
+    with DataReductionFile(dr_fname, "r") as dr_file:
+        sky_center = dr_file.get_attribute(
+            "skytoframe.sky_center", skytoframe_version=skytoframe_version
+        )
+    if sky_center is None:
+        _logger.warning(
+            "Sky center not found in %s; including without range check.",
+            dr_fname,
+        )
+        return True
+    sep = photref_center.separation(
+        SkyCoord(
+            ra=sky_center[0] * astropy_units.deg,
+            dec=sky_center[1] * astropy_units.deg,
+            frame="icrs",
+        )
+    ).to_value(astropy_units.deg)
+    if sep > threshold_deg:
+        _logger.warning(
+            "Excluding %s: separation from photref center %.4f deg "
+            "exceeds threshold %.4f deg.",
+            dr_fname,
+            sep,
+            threshold_deg,
+        )
+        return False
+    return True
+
+
 def main():
     """Run the step from command line."""
 
@@ -461,6 +600,12 @@ def main():
             single_photref_dr.get_num_apertures(**dr_substitutions) - 1
         )
 
+    photref_pointing = _get_photref_pointing(
+        configuration["single_photref_dr_fname"],
+        configuration["skytoframe_version"],
+        configuration["max_photref_separation"],
+    )
+
     fit_magnitudes(
         [
             dr_fname
@@ -469,6 +614,14 @@ def main():
                 configuration.pop("magfit_only_if"),
             )
             if has_apphot(dr_fname, dr_substitutions)
+            and (
+                photref_pointing is None
+                or _within_photref_range(
+                    dr_fname,
+                    *photref_pointing,
+                    configuration["skytoframe_version"],
+                )
+            )
         ],
         None,
         configuration,

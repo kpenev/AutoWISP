@@ -22,5 +22,8 @@ urlpatterns = [
          name='download_lightcurve_figure'),
     path('clear_lightcurve_buffer',
          views.clear_lightcurve_buffer,
-         name='clear_lightcurve_buffer')
+         name='clear_lightcurve_buffer'),
+    path('lightcurve/<int:gaia_id>',
+         views.display_lightcurve_for_star,
+         name='display_lightcurve_for_star'),
 ]

@@ -7,6 +7,7 @@ from os import path, makedirs
 import logging
 from hashlib import md5
 from contextlib import nullcontext
+import time
 
 import numpy
 import pandas
@@ -31,6 +32,8 @@ conf.timeout = 180
 
 class WISPGaia(GaiaClass):
     """Extend queries with condition and sorting."""
+
+    _credentials = None
 
     def _get_ra_dec_condition(self, fov, corner_list):
 
@@ -86,15 +89,48 @@ class WISPGaia(GaiaClass):
 
         return f"{ra_condition} AND Dec BETWEEN {dec_min} AND {dec_max}"
 
+    @classmethod
+    def set_credentials(cls, **credentials):
+        """Set the credentials to use for Gaia queries."""
+
+        cls._credentials = credentials
+
     def get_result(self, query, add_propagated, verbose=False):
         """Get and format the result as specified by user."""
 
-        job = self.launch_job_async(query, verbose=verbose)
-        _logger.debug(
-            "Retrieving async job results with timeout=%d seconds...",
-            conf.timeout,
-        )
-        result = job.get_results()
+        max_retries = 10
+        retry_wait = 60
+        for attempt in range(max_retries):
+            try:
+                if self._credentials is not None:
+                    _logger.debug(
+                        "Logging into Gaia with credentials: %s",
+                        repr(self._credentials),
+                    )
+                    self.login(**self._credentials, verbose=True)
+                else:
+                    _logger.debug(
+                        "Gaia credentials undefined. Using anonymous access."
+                    )
+                job = self.launch_job_async(query, verbose=verbose)
+                _logger.debug(
+                    "Retrieving async job results with timeout=%d seconds...",
+                    conf.timeout,
+                )
+                result = job.get_results()
+                break
+            except Exception as error:  # pylint: disable=broad-except
+                if attempt + 1 == max_retries:
+                    raise
+                _logger.warning(
+                    "Gaia query attempt %d/%d failed: %s. "
+                    "Retrying in %d seconds.",
+                    attempt + 1,
+                    max_retries,
+                    error,
+                    retry_wait,
+                )
+                time.sleep(retry_wait)
         _logger.debug("Gaia query result: %s", repr(result))
         _logger.debug("Gaia query result columns: %s", repr(result.colnames))
         if result.colnames == ["num_obj"]:
@@ -989,7 +1025,7 @@ def get_catalog_info(  # pylint: disable=too-many-branches
         "From transformation estimate half FOV is: %s", repr(trans_fov)
     )
     frame_fov_estimate = tuple(
-        numpy.round(
+        numpy.ceil(
             (
                 max(
                     2.0 * trans_fov[i] * units.deg,
@@ -1073,7 +1109,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
         configuration=configuration,
         **dr_path_substitutions,
     )
-    with lock:
+    with lock if lock is not None else nullcontext():
         if path.exists(catalog_info["fname"]):
             with fits.open(catalog_info["fname"]) as cat_fits:
                 catalog_header = cat_fits[1].header

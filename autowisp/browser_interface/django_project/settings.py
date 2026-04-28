@@ -33,7 +33,7 @@ SECRET_KEY = (
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "kartof", "kartof.utdallas.edu"]
+ALLOWED_HOSTS = ["*"]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 

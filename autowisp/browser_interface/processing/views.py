@@ -1,6 +1,7 @@
 """The views showing the status of the processing."""
 
 import subprocess
+import threading
 from sys import executable
 import os
 import sys
@@ -85,11 +86,18 @@ def start_processing(request):
         encoding="utf-8",
         buffering=1,
     ) as outf:
-        subprocess.Popen(
+        proc = subprocess.Popen(
             cmd,
             start_new_session=(os.name == "posix"),
             stdout=outf,
             stderr=outf,
         )
+    if os.name == "posix":
+        # Reap the child when it exits so it does not become a zombie.
+        # On Linux the double-fork in run_pipeline.py orphans the
+        # grandchild to init (which reaps it), but the intermediate
+        # child still needs to be waited on here.  On macOS there is
+        # no double-fork so this thread is the only reaper.
+        threading.Thread(target=proc.wait, daemon=True).start()
     print('Started')
     return redirect("processing:progress", await_start=0)

@@ -26,6 +26,7 @@ from autowisp.database.data_model import (
     Condition,
     ConditionExpression,
     Configuration,
+    ImageMasterSelection,
     ImageType,
     ImageProcessingProgress,
     InputMasterTypes,
@@ -245,8 +246,20 @@ class ProcessingManager:
         assert best_master_fname
         return best_master_fname
 
-    def _get_master(self, master_type, image_values, image_eval, db_session):
-        """Return the master that should be used for the given image."""
+    def _get_master(
+        self, master_type, image_values, image_eval, db_session,
+        *, ambiguous_ok=False,
+    ):
+        """Return the master that should be used for the given image.
+
+        Args:
+            ambiguous_ok(bool):    If True and multiple candidates exist but
+                none has ``use_smallest`` set, return ``None`` instead of
+                asserting.  Only pass True for master types (e.g.
+                ``single_photref``) whose selection is done externally via
+                ``ImageMasterSelection`` rather than by evaluating a header
+                expression.
+        """
 
         expressions = db_session.execute(
             select(ConditionExpression.id, ConditionExpression.expression)
@@ -303,10 +316,13 @@ class ProcessingManager:
         self._logger.debug("Candidate Masters: %s", repr(candidates))
         if len(candidates) == 1:
             return candidates[0].filename
+        if ambiguous_ok and (not candidates or candidates[0].use_smallest is None):
+            return None
         return self._get_best_master(candidates, image_eval)
 
     def _get_evaluated_entry(
-        self, evaluate, image_type_id, calib_config, db_session
+        self, evaluate, image_type_id, calib_config, db_session,
+        image_id=None, channel=None,
     ):
         """Return entry to add to self._evaluated_expressions."""
 
@@ -343,12 +359,33 @@ class ProcessingManager:
             .distinct()
         ):
             if master_type.name not in ["epd_stat", "tfa_stat"]:
+                pinned = None
+                if image_id is not None and channel is not None:
+                    pinned = db_session.scalar(
+                        select(MasterFile.filename)
+                        .join(
+                            ImageMasterSelection,
+                            MasterFile.id
+                            == ImageMasterSelection.master_file_id,
+                        )
+                        .where(
+                            ImageMasterSelection.image_id == image_id,
+                            ImageMasterSelection.channel == channel,
+                            ImageMasterSelection.master_type_id
+                            == master_type.id,
+                        )
+                    )
                 evaluated_expressions["masters"][master_type.name] = (
-                    self._get_master(
+                    pinned
+                    if pinned is not None
+                    else self._get_master(
                         master_type,
                         evaluated_expressions["values"],
                         evaluate,
                         db_session,
+                        ambiguous_ok=(
+                            master_type.name == "single_photref"
+                        ),
                     )
                 )
 
@@ -449,7 +486,8 @@ class ProcessingManager:
             add_required_keywords(evaluate.symtable, calib_config, True)
 
             evaluated_expressions = self._get_evaluated_entry(
-                evaluate, image.image_type_id, calib_config, db_session
+                evaluate, image.image_type_id, calib_config, db_session,
+                image_id=image.id, channel=channel_name,
             )
 
             if all_channel["matched"] is None:

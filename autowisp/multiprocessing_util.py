@@ -13,6 +13,7 @@ import platformdirs
 
 from autowisp.database.interface import set_project_home
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.catalog import WISPGaia
 
 try:
     import git
@@ -214,6 +215,10 @@ def setup_process_map(config):
     set_project_home(config["project_home"])
     if "data_reduction_fname" in config:
         DataReductionFile.fname_template = config["data_reduction_fname"]
+    if config.get("gaia_user") and config.get("gaia_password"):
+        WISPGaia.set_credentials(
+            user=config["gaia_user"], password=config["gaia_password"]
+        )
 
 
 def setup_process(**config):

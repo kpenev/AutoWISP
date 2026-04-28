@@ -1,54 +1,64 @@
 """Views for displaying diagnostics for the calibration steps."""
 
-from io import StringIO, BytesIO
+from io import BytesIO
 import json
 
 import matplotlib
 from matplotlib import pyplot
+
 from sqlalchemy import select
 
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
+from django.urls import reverse
 
+from autowisp.browser_interface.core.plot_utils import (
+    channel_colors,
+    setup_svg_matplotlib,
+    figure_to_svg_response,
+)
 from autowisp.evaluator import Evaluator
 from autowisp.bui_util import hex_color
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.database.interface import start_db_session
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
-from autowisp.diagnostics.detrending import \
-    find_magfit_stat_catalog,\
-    get_detrending_performance_data
-#False positive
-#pylint: disable=no-name-in-module
-from autowisp.database.data_model import\
-    Condition,\
-    ConditionExpression,\
-    Image,\
-    MasterType,\
-    MasterFile\
-#pylint: enable=no-name-in-module
+from autowisp.diagnostics.detrending import (
+    find_magfit_stat_catalog,
+    get_detrending_performance_data,
+)
+
+# False positive
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model import (
+    Condition,
+    ConditionExpression,
+    Image,
+    MasterType,
+    MasterFile,
+)  # pylint: enable=no-name-in-module
 
 
 def _guess_labels(photref_entries):
     """Guess what would make good labels for plotting."""
 
-    num_expr = len(photref_entries[0]['expressions'])
+    num_expr = len(photref_entries[0]["expressions"])
     print(
-        'Expression sets: '
-        +
-        repr([
-            set(entry['expressions'][i] for entry in photref_entries)
-            for i in range(num_expr)
-        ])
+        "Expression sets: "
+        + repr(
+            [
+                set(entry["expressions"][i] for entry in photref_entries)
+                for i in range(num_expr)
+            ]
+        )
     )
     use_expr = [
-        len(set(entry['expressions'][i] for entry in photref_entries)) > 1
+        len(set(entry["expressions"][i] for entry in photref_entries)) > 1
         for i in range(num_expr)
     ]
-    print(f'Use expr flags: {use_expr!r}')
+    print(f"Use expr flags: {use_expr!r}")
     for entry in photref_entries:
-        entry['label'] = ':'.join(
-            expr for expr, use in zip(entry['expressions'], use_expr) if use
+        entry["label"] = ":".join(
+            expr for expr, use in zip(entry["expressions"], use_expr) if use
         )
 
 
@@ -57,50 +67,43 @@ def _init_detrending_session(request):
 
     with start_db_session() as db_session:
         master_photref_fnames = db_session.execute(
-            select(
-                MasterFile.id,
-                MasterFile.filename
-            ).join(
-                MasterType
-            ).where(
-                MasterType.name == 'master_photref'
-            ).order_by(
-                MasterFile.progress_id
-            )
+            select(MasterFile.id, MasterFile.filename)
+            .join(MasterType)
+            .where(MasterType.name == "master_photref")
+            .order_by(MasterFile.progress_id)
         ).all()
         match_expressions = db_session.scalars(
-            select(
-                ConditionExpression.expression
-            ).join_from(
+            select(ConditionExpression.expression)
+            .join_from(
                 MasterType,
                 Condition,
-                MasterType.condition_id == Condition.id
-            ).join(
-                ConditionExpression
-            ).where(
-                MasterType.name == 'master_photref'
+                MasterType.condition_id
+                == Condition.id,  # pylint: disable=no-member
             )
+            .join(ConditionExpression)
+            .where(MasterType.name == "master_photref")
         ).all()
-    request.session['diagnostics'] = {
-        'detrending': {
-            'match_expressions': ['step'] + match_expressions,
-            'photref': [
+    request.session["diagnostics"] = {
+        "detrending": {
+            "match_expressions": ["step"] + match_expressions,
+            "photref": [
                 {
-                    'id': f'mfit_{mphotref_id!s}',
-                    'filenames': find_magfit_stat_catalog(mphotref_id),
-                    'expressions': ('MFIT',) + tuple(
+                    "id": f"mfit_{mphotref_id!s}",
+                    "filenames": find_magfit_stat_catalog(mphotref_id),
+                    "expressions": ("MFIT",)
+                    + tuple(
                         str(Evaluator(mphotref_fname)(expr))
                         for expr in match_expressions
-                    )
+                    ),
                 }
                 for mphotref_id, mphotref_fname in master_photref_fnames
             ],
-            'plot_config': {
-                'x_range': ['', ''],
-                'y_range': ['', ''],
-                'mag_expression': ['phot_g_mean_mag', 'Gaia G mag'],
-                'marker_size': '5'
-            }
+            "plot_config": {
+                "x_range": ["", ""],
+                "y_range": ["", ""],
+                "mag_expression": ["phot_g_mean_mag", "Gaia G mag"],
+                "marker_size": "5",
+            },
         }
     }
 
@@ -109,121 +112,121 @@ def _init_lc_detrending_session(request):
     """Add to browser session which EPD and TFA runs can be diagnosed."""
 
     lc_processing = LightCurveProcessingManager(pipeline_run_id=True)
-    photref_entries = request.session['diagnostics']['detrending']['photref']
-    match_expressions = request.session[
-        'diagnostics'
-    ][
-        'detrending'
-    ][
-        'match_expressions'
+    photref_entries = request.session["diagnostics"]["detrending"]["photref"]
+    match_expressions = request.session["diagnostics"]["detrending"][
+        "match_expressions"
     ][1:]
-    print('Adding LC detrending info to request')
+    print("Adding LC detrending info to request")
     with start_db_session() as db_session:
         for (
             db_step,
-            db_sphotref
-        ) in LightCurveProcessingManager.select_step_sphotref(db_session,
-                                                              False,
-                                                              True):
-            if (
-                    not db_step.name.startswith('generate_')
-                or
-                    not db_step.name.endswith('_statistics')
-            ):
+            db_sphotref,
+        ) in LightCurveProcessingManager.select_step_sphotref(
+            db_session, False, True
+        ):
+            if not db_step.name.startswith(
+                "generate_"
+            ) or not db_step.name.endswith("_statistics"):
                 continue
 
-            print(f'Adding info for {db_step!r} step, '
-                  f'{db_sphotref.filename!r} sphotref')
-            with DataReductionFile(db_sphotref.filename, 'r') as sphotref_dr:
+            print(
+                f"Adding info for {db_step!r} step, "
+                f"{db_sphotref.filename!r} sphotref"
+            )
+            with DataReductionFile(db_sphotref.filename, "r") as sphotref_dr:
                 sphotref_header = sphotref_dr.get_frame_header()
 
             db_sphotref_image = db_session.scalar(
-                select(
-                    Image
-                ).where(
-                    Image.raw_fname.contains(sphotref_header['RAWFNAME']
-                                             +
-                                             '.fits')
+                select(Image).where(
+                    Image.raw_fname.contains(  # pylint: disable=no-member
+                        sphotref_header["RAWFNAME"] + ".fits"
+                    )
                 )
             )
-            lc_processing.evaluate_expressions_image(db_sphotref_image,
-                                                     db_session)
+            lc_processing.evaluate_expressions_image(
+                db_sphotref_image, db_session
+            )
 
             catalog_fname, step_config = lc_processing.get_step_config(
                 step=db_step,
                 db_sphotref=db_sphotref,
                 db_sphotref_image=db_sphotref_image,
                 sphotref_header=sphotref_header,
-                db_session=db_session
+                db_session=db_session,
             )[:2]
-            detrending_name = db_step.name.split('_')[1]
+            detrending_name = db_step.name.split("_")[1]
             stat_fname = step_config[
-                detrending_name + '_statistics_fname'
-            ].format_map(
-                sphotref_header
-            )
+                detrending_name + "_statistics_fname"
+            ].format_map(sphotref_header)
             photref_entries.append(
                 {
-                    'id': f'{detrending_name}_{db_sphotref.id!s}',
-                    'filenames': (catalog_fname, stat_fname),
-                    'expressions': (
+                    "id": f"{detrending_name}_{db_sphotref.id!s}",
+                    "filenames": (catalog_fname, stat_fname),
+                    "expressions": (
                         (detrending_name.upper(),)
-                        +
-                        tuple(
+                        + tuple(
                             str(Evaluator(sphotref_header)(expr))
                             for expr in match_expressions
                         )
-                    )
+                    ),
                 }
             )
 
 
 def refresh_detrending_diagnostics(request):
-    """Reset all diagnostics related entries in the BUI session """
+    """Reset all diagnostics related entries in the BUI session"""
 
-    if 'diagnostics' in request.session:
-        del request.session['diagnostics']
-    return redirect('/diagnostics/display_detrending_diagnostics')
+    if "diagnostics" in request.session:
+        del request.session["diagnostics"]
+    return redirect("/diagnostics/display_detrending_diagnostics")
 
 
 def display_detrending_diagnostics(request):
     """View displaying the scatter after magnitude fitting."""
 
-
-    print('Using session with keys: ' + repr(request.session.keys()))
+    print("Using session with keys: " + repr(request.session.keys()))
 
     if (
-        'diagnostics' not in request.session
-        or
-        'detrending' not in request.session['diagnostics']
+        "diagnostics" not in request.session
+        or "detrending" not in request.session["diagnostics"]
     ):
-        print('Refreshing session')
+        print("Refreshing session")
         _init_detrending_session(request)
         _init_lc_detrending_session(request)
-        photref_entries = request.session[
-            'diagnostics'
-        ][
-            'detrending'
-        ][
-            'photref'
+        photref_entries = request.session["diagnostics"]["detrending"][
+            "photref"
         ]
-        color_map = matplotlib.colormaps.get_cmap('tab10')
+        try:
+            clrchnl_expr_idx = request.session["diagnostics"]["detrending"][
+                "match_expressions"
+            ].index("CLRCHNL")
+        except ValueError:
+            clrchnl_expr_idx = None
+        color_map = matplotlib.colormaps.get_cmap("tab10")
         for photref_index, entry in enumerate(photref_entries):
-            entry['color'] = hex_color(color_map(photref_index % color_map.N))
-            entry['marker'] = ''
-            entry['scale'] = '1.0'
-            entry['min_fraction'] = '0.8'
+            entry["color"] = None
+            if clrchnl_expr_idx is not None:
+                entry["color"] = channel_colors.get(
+                    (entry["expressions"][clrchnl_expr_idx] or [None])[0],
+                )
+            if entry["color"] is None:
+                entry["color"] = hex_color(
+                    color_map(photref_index % color_map.N)
+                )
+            entry["marker"] = ""
+            entry["scale"] = "1.0"
+            entry["min_fraction"] = "0.8"
 
         _guess_labels(photref_entries)
 
-    print('Using session: '
-          +
-          repr(request.session['diagnostics']['detrending']))
+    print(
+        "Using session: " + repr(request.session["diagnostics"]["detrending"])
+    )
 
     return render(
         request,
-        'diagnostics/detrending_diagnostics.html',
-        request.session['diagnostics']['detrending'],
+        "diagnostics/detrending_diagnostics.html",
+        request.session["diagnostics"]["detrending"],
     )
 
 
@@ -232,107 +235,107 @@ def create_plot(session_detrending):
 
     pyplot.clf()
     pyplot.cla()
+    axes = pyplot.gca()
 
-    plot_config = session_detrending['plot_config']
-    for photref_info in session_detrending['photref']:
-        if not photref_info['marker']:
+    plot_config = session_detrending["plot_config"]
+    for photref_info in session_detrending["photref"]:
+        if not photref_info["marker"]:
             continue
 
         data = get_detrending_performance_data(
-            *photref_info['filenames'],
-            photref_info['expressions'][0],
-            min_unrejected_fraction=float(photref_info['min_fraction']),
-            magnitude_expression=plot_config['mag_expression'][0],
-            skip_first_stat=False
+            *photref_info["filenames"],
+            photref_info["expressions"][0],
+            min_unrejected_fraction=float(photref_info["min_fraction"]),
+            magnitude_expression=plot_config["mag_expression"][0],
+            skip_first_stat=False,
         )
-        pyplot.semilogy(
-            data['magnitudes'],
-            data['best_scatter'],
-            linestyle='none',
-            marker=photref_info['marker'],
-            markersize=(float(plot_config['marker_size'])
-                        *
-                        float(photref_info['scale'])),
-            markeredgecolor=(
-                photref_info['color']
-                if photref_info['marker'] in 'x+.,1234|_' else
-                'none'
-            ),
-            markerfacecolor=photref_info['color'],
-            label=photref_info['label']
+        marker = photref_info["marker"]
+        size = float(plot_config["marker_size"]) * float(photref_info["scale"])
+        color = photref_info["color"]
+        collection = axes.scatter(
+            data["magnitudes"],
+            data["best_scatter"],
+            marker=marker,
+            s=size * 20,
+            c=color,
+            label=photref_info["label"],
         )
+        gaia_ids = data.index if hasattr(data, "index") else data["ID"]
+        collection.set_urls([
+            reverse(
+                "results:display_lightcurve_for_star",
+                kwargs={"gaia_id": int(gid)},
+            )
+            for gid in gaia_ids
+        ])
+
+    axes.set_yscale("log")
 
     try:
-        pyplot.xlim(*(float(v) for v in plot_config['x_range']))
+        axes.set_xlim(*(float(v) for v in plot_config["x_range"]))
     except ValueError:
         pass
 
     try:
-        pyplot.ylim(*(float(v) for v in plot_config['y_range']))
+        axes.set_ylim(*(float(v) for v in plot_config["y_range"]))
     except ValueError:
         pass
 
-    pyplot.xlabel(plot_config['mag_expression'][1])
-    pyplot.ylabel('MAD')
-    pyplot.grid(True, which='both', linewidth=0.2)
-    pyplot.legend()
+    axes.set_xlabel(plot_config["mag_expression"][1])
+    axes.set_ylabel("MAD")
+    axes.grid(True, which="both", linewidth=0.2)
+    axes.legend()
 
 
 def update_detrending_diagnostics_plot(request):
     """Generate and respond with update plot, also update session."""
 
     plot_config = json.loads(request.body.decode())
-    print('Plot config: ' + repr(plot_config))
+    print("Plot config: " + repr(plot_config))
 
-    matplotlib.use('svg')
-    pyplot.style.use('dark_background')
+    setup_svg_matplotlib()
 
-    session_detrending = request.session['diagnostics']['detrending']
-    session_detrending['plot_config'].update(plot_config)
+    session_detrending = request.session["diagnostics"]["detrending"]
+    session_detrending["plot_config"].update(plot_config)
 
-    to_update = session_detrending['photref']
+    to_update = session_detrending["photref"]
     for photref_info in to_update:
-        this_config = plot_config['datasets'].get(str(photref_info['id']))
+        this_config = plot_config["datasets"].get(str(photref_info["id"]))
         if this_config is None:
-            photref_info['marker'] = ''
+            photref_info["marker"] = ""
         else:
             photref_info.update(this_config)
 
-
-    print('Updated session: '
-          +
-          repr(request.session['diagnostics']['detrending']))
+    print(
+        "Updated session: " + repr(request.session["diagnostics"]["detrending"])
+    )
 
     request.session.modified = True
 
     create_plot(session_detrending)
 
-    with StringIO() as image_stream:
-        pyplot.savefig(image_stream, bbox_inches='tight', format='svg')
-        return JsonResponse({
-            'plot_data': image_stream.getvalue(),
-            'plot_config': (
-                request.session['diagnostics']['detrending']['plot_config']
-            )
-        })
+    return figure_to_svg_response(
+        pyplot.gcf(),
+        plot_config=request.session["diagnostics"]["detrending"]["plot_config"],
+    )
 
 
 def download_detrending_diagnostics_plot(request):
     """Send the user the diagnostics plot as a PDF file."""
 
-    matplotlib.use('pdf')
-    pyplot.style.use('default')
+    matplotlib.use("pdf")
+    pyplot.style.use("default")
 
-    create_plot(request.session['diagnostics']['detrending'])
+    create_plot(request.session["diagnostics"]["detrending"])
 
     with BytesIO() as image_stream:
-        pyplot.savefig(image_stream, bbox_inches='tight', format='pdf')
+        pyplot.savefig(image_stream, bbox_inches="tight", format="pdf")
         return HttpResponse(
             image_stream.getvalue(),
             headers={
-                'Content-Type': 'application/pdf',
-                'Content-Disposition': (
+                "Content-Type": "application/pdf",
+                "Content-Disposition": (
                     'attachment; filename="detrending_performance.pdf"'
-                )
-            }
+                ),
+            },
         )

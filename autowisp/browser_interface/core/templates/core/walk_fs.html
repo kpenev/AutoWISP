@@ -120,11 +120,12 @@
             <div class="lcars-column">
                 {% block selectable_entries_begin %}
                 {% endblock %}
-                <select multiple 
+                {% with total=dir_list|length|add:num_files %}
+                <select multiple
                         name="selected"
                         class="lcars-text-input decorated rounded"
-                        size="{{dir_list|length|add:num_files}}" 
-                        onDblClick="enterDirectory(this.value)">
+                        size="{% if total < 2 %}2{% else %}{{ total }}{% endif %}"
+                        onDblClick="enterDirectory(this.value)">{% endwith %}
                     {% for dname in dir_list %}
                     <option value="{{dname}}" class="selectdir">{{dname}}</option>
                     {% endfor %}
