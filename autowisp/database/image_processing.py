@@ -1725,7 +1725,7 @@ class ImageProcessingManager(ProcessingManager):
             ),
         )
 
-    def __call__(self, limit_to_steps=None):
+    def __call__(self, limit_to_steps=None, step_imtype_filter=None):
         """Perform all the processing for the given steps (all if None)."""
 
         with start_db_session() as db_session:
@@ -1733,7 +1733,26 @@ class ImageProcessingManager(ProcessingManager):
 
         DataReductionFile.get_file_structure()
 
+        if step_imtype_filter:
+            self._logger.info(
+                "Applying step-image-type filter: %s",
+                step_imtype_filter,
+            )
+
         for step, image_type in processing_sequence:
+            # If (step, image_type) combo is filtered out, skip it.
+            if (
+                step_imtype_filter
+                and step.name in step_imtype_filter
+                and image_type.name not in step_imtype_filter[step.name]
+            ):
+                self._logger.info(
+                    "User skipped %s for %s - skipping step",
+                    step.name,
+                    image_type.name,
+                )
+                continue
+
             (step_name, image_type_name, processing_batches) = (
                 self._prepare_processing(step, image_type, limit_to_steps)
             )
@@ -1747,6 +1766,8 @@ class ImageProcessingManager(ProcessingManager):
                     f"{key!r}: {len(val)}" for key, val in self.pending.items()
                 ),
             )
+            
+            #If filtered or not ready, stop processing here
             if processing_batches is None:
                 continue
 
