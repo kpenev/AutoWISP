@@ -1,4 +1,4 @@
-"""Run the image processing pipeline in a detached mode."""
+﻿"""Run the image processing pipeline in a detached mode."""
 
 import logging
 import os
@@ -52,6 +52,12 @@ def parse_command_line():
         "processing.",
     )
     parser.add_argument(
+        "--step-imtypes",
+        nargs="+",
+        default=[],
+        help="Fine-grained filter as step:imagetype pairs (e.g., calibrate:flat calibrate:science).",
+    )
+    parser.add_argument(
         "--detached",
         action="store_true",
         help=SUPPRESS,  # Only used internally to detach in windows
@@ -64,6 +70,10 @@ def main(config):
     """Avoid global variables."""
 
     set_project_home(config.project_home)
+
+    #old code
+    # db_fname = os.path.abspath(config.processing_database)
+    # set_sqlite_database(db_fname)
 
     #with start_db_session() as db_session:
     #    dummy_processing = ProcessingManager(None)
@@ -90,6 +100,22 @@ def main(config):
         db_session.commit()
         pipeline_run = pipeline_run.id
 
+    step_imtype_filter = None
+    if hasattr(config, "step_imtypes") and config.step_imtypes:
+        per_step = {}
+        for pair in config.step_imtypes:
+            if ":" not in pair:
+                continue
+            step, imt = pair.split(":", 1)
+            step = step.strip()
+            imt = imt.strip()
+            if not step or not imt:
+                continue
+            per_step.setdefault(step, set()).add(imt)
+        if per_step:
+            step_imtype_filter = per_step
+            logging.info("Applied step-image-type filter: %s", step_imtype_filter)
+
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
 
     for img_to_add in config.add_raw_images:
@@ -104,7 +130,10 @@ def main(config):
         sys.stdout.flush()
         sys.stderr.flush()
 
-        processing(limit_to_steps=config.steps)
+        processing(
+            limit_to_steps=config.steps,
+            step_imtype_filter=step_imtype_filter,
+        )
         logging.info("Processing completed.")
         sys.stdout.flush()
         sys.stderr.flush()

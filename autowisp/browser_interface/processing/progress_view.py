@@ -118,4 +118,11 @@ def progress(request, await_start=-1):
                     sql.func.now()  # pylint: disable=not-callable
                 )
 
+    #Get selected steps from session if processing
+    selected_tokens = set()
+    if context["running"] and 'selected_step_tokens' in request.session:
+        selected_tokens = set(request.session['selected_step_tokens'])
+    
+    context['selected_tokens'] = selected_tokens
+
     return render(request, "processing/progress.html", context)
