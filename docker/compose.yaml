@@ -1,9 +1,14 @@
 services:
   wisp:
     image: kpenev/wisp:1.0.19
+    shm_size: '2g'
+    ipc: host
     ports:
       - "8089:8089"
     volumes:
       - type: bind
-        source: /Users/kpenev/tmp
+        source: C:\WISP\docker_storage
         target: /storage
+      - type: bind
+        source: C:\WISP\docker_tmp
+        target: /tmp
