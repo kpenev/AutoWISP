@@ -73,11 +73,13 @@
   display: inline-flex;
   align-items: center;
   margin-left: 0;                 /* sit flush with the name */
+  padding-left: 10px;             /* offset the -10px margin on checkbox-ui so the semicircle aligns flush with the button edge */
   height: var(--aw-step-h, 44px); /* increased fallback so checkbox is visible */
   flex: 0 0 auto;
   cursor: pointer;
   user-select: none;
   position: relative;
+  opacity: 0.6;
 }
 
 /*hide native checkbox */
@@ -90,7 +92,7 @@
 /*disabled checkbox style */
 .aw-step-checkbox:has(input:disabled) {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 1;
 }
 
 /*right-facing semicircle aligned to the button */
