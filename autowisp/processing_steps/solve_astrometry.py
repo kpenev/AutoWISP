@@ -73,7 +73,7 @@ def add_anet_cmdline_args(parser):
                 rf"\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\wide",
             )
             if os.name == "nt"
-            else ("/data/anet_indices/narrow", "/data/anet_indices/wide")
+            else ("/anet_indices/narrow", "/anet_indices/wide")
         ),
         help="Full paths to the narrow and wide astometry.net index files. If "
         "these directories are not found, the web solver is used instead.",

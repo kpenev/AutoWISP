@@ -689,7 +689,18 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         )
 
         destination_config = self._file_structure[corrected_key]
-        self[destination_config.abspath % substitutions][
+        dest_path = destination_config.abspath % substitutions
+        self._logger.debug(
+            "Setting %d points in %s[%s]. Selection shape: %s. "
+            "Destination shape: %s. Corrected values shape: %s.",
+            corrected_selection.sum(),
+            self.filename,
+            dest_path,
+            corrected_selection.shape,
+            self[dest_path].shape,
+            corrected_values.shape,
+        )
+        self[dest_path][
             corrected_selection
         ] = self._replace_nonfinite(
             corrected_values,
