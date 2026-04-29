@@ -19,50 +19,31 @@ class WalkFSView(View):
     _root_dir = (
         ("Computer", "Computer") if os.name == "nt" else ("/", "Computer")
     )
+    if "AUTOWISP_ROOT" in os.environ:
+        _root_dir = (
+            path.abspath(os.environ["AUTOWISP_ROOT"]),
+            os.environ["AUTOWISP_ROOT"],
+        )
 
     template = "core/walk_fs.html"
     url_name = None
     cancel_url_name = None
 
-    def _get_context(self, config, search_dir):
-        """Return the context required by the file system walk template."""
+    def _add_fs_context(
+        self, search_dir, filename_check, dirname_check, result
+    ):
+        """Add filesystem entries and breadcrumb navigation to result context.
 
-        result = {
-            "url_name": self.url_name,
-            "cancel_url_name": self.cancel_url_name,
-        }
-        filename_check = config.get("filename_filter", "[^.]")
-        result["filename_filter"] = filename_check
-        result["filename_filter_type"] = config.get(
-            "filefilter_type", "Regular Expression"
-        )
-        if result["filename_filter_type"] != "Regular Expression":
-            filename_check = fnmatch.translate(filename_check)
-        try:
-            filename_check = re.compile(filename_check)
-        except re.error:
-            filename_check = re.compile("")
-
-        dirname_check = config.get("dirname_filter", "[^.]")
-        result["dirname_filter"] = dirname_check
-        result["dirname_filter_type"] = config.get(
-            "dirfilter_type", "Regular Expression"
-        )
-        if result["dirname_filter_type"] != "Regular Expression":
-            dirname_check = fnmatch.translate(dirname_check)
-        try:
-            dirname_check = re.compile(dirname_check)
-        except re.error:
-            print(f"Invalid REX: {dirname_check!r}")
-            dirname_check = re.compile("")
-
-        if search_dir is None:
-            search_dir = config.get("currentdir", path.expanduser("~"))
-            if "enter_dir" in config:
-                search_dir = path.join(search_dir, config["enter_dir"])
-        result["currentdir"] = (
-            path.abspath(search_dir) if search_dir != "Computer" else "Computer"
-        )
+        Populates result with:
+        - ``file_list``: sorted list of filenames in search_dir matching
+          filename_check.
+        - ``dir_list``: sorted list of subdirectory names in search_dir
+          matching dirname_check. On Windows with search_dir == "Computer",
+          lists available drive letters instead.
+        - ``parent_dir_list``: list of ``(path, display_name)`` tuples
+          representing the breadcrumb trail from ``_root_dir`` down to
+          search_dir, in top-to-bottom order.
+        """
 
         result["file_list"] = []
         result["dir_list"] = []
@@ -98,6 +79,65 @@ class WalkFSView(View):
                 head = path.dirname(head)
 
         result["parent_dir_list"] = parent_dir_list
+
+    def _get_context(self, config, search_dir):
+        """Return the context required by the file system walk template."""
+
+        result = {
+            "url_name": self.url_name,
+            "cancel_url_name": self.cancel_url_name,
+        }
+        filename_check = config.get("filename_filter", "[^.]")
+        result["filename_filter"] = filename_check
+        result["filename_filter_type"] = config.get(
+            "filefilter_type", "Regular Expression"
+        )
+        if result["filename_filter_type"] != "Regular Expression":
+            filename_check = fnmatch.translate(filename_check)
+        try:
+            filename_check = re.compile(filename_check)
+        except re.error:
+            filename_check = re.compile("")
+
+        dirname_check = config.get("dirname_filter", "[^.]")
+        result["dirname_filter"] = dirname_check
+        result["dirname_filter_type"] = config.get(
+            "dirfilter_type", "Regular Expression"
+        )
+        if result["dirname_filter_type"] != "Regular Expression":
+            dirname_check = fnmatch.translate(dirname_check)
+        try:
+            dirname_check = re.compile(dirname_check)
+        except re.error:
+            print(f"Invalid REX: {dirname_check!r}")
+            dirname_check = re.compile("")
+
+        if search_dir is None:
+            search_dir = config.get(
+                "currentdir",
+                (
+                    path.expanduser("~")
+                    if self._root_dir[1] == "Computer"
+                    else self._root_dir[0]
+                ),
+            )
+            if "enter_dir" in config:
+                search_dir = path.join(search_dir, config["enter_dir"])
+        if search_dir != "Computer" and self._root_dir[1] != "Computer":
+            abs_search = path.abspath(search_dir)
+            if not (
+                abs_search == self._root_dir[0]
+                or abs_search.startswith(self._root_dir[0] + os.sep)
+            ):
+                raise PermissionError(
+                    f"{search_dir!r} is outside root {self._root_dir[0]!r}"
+                )
+
+        result["currentdir"] = (
+            path.abspath(search_dir) if search_dir != "Computer" else "Computer"
+        )
+
+        self._add_fs_context(search_dir, filename_check, dirname_check, result)
 
         self._logger.debug("Context: %s", repr(result))
         return result
