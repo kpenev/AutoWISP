@@ -1,6 +1,6 @@
 services:
   wisp:
-    image: kpenev/wisp:1.0.19
+    image: kpenev/wisp:latest
     shm_size: '2g'
     ipc: host
     ports:
@@ -16,8 +16,10 @@ services:
         source: <BUIDir| directory for BUI logs and other data>
         target: /app_data/autowisp
       - type: bind
+        read_only: true
         source: <AnetNarrowDir| directory containing narrow field astroetry.net indices>
         target: /anet_indices/narrow
       - type: bind
+        read_only: true
         source: <AnetWideDir| directory containing wide field astroetry.net indices>
         target: /anet_indices/wide

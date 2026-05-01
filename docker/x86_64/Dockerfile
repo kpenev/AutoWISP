@@ -3,6 +3,7 @@ RUN apt-get -y update && \
     apt-get -y --no-install-recommends install astrometry.net
 RUN pip3 install autowisp
 RUN mkdir /storage
+RUN mkdir /anet_indices
 RUN mkdir -p /app_data/autowisp
 
 ENV XDG_DATA_HOME=/app_data
