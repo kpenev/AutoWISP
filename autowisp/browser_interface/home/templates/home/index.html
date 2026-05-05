@@ -29,7 +29,8 @@ Projects
     <div class="lcars-element
                 button
                 lcars-melrose-bg
-                lcars-u-1-2">
+                lcars-u-1-2"
+         id="tutorial-new-project">
         New Project
     </div>
 </a>
@@ -40,6 +41,15 @@ Projects
      onclick="deleteSelected()"
      style="cursor: pointer;">
     Delete Selected
+</div>
+<div class="lcars-element
+            button
+            lcars-u-1-2"
+     id="tutorial-stack-button"
+     role="button"
+     tabindex="0"
+     style="cursor: pointer; background-color: #b9c77a; color: #000000;">
+    Tutorial
 </div>
 {% endblock %}
 
@@ -73,7 +83,9 @@ Projects
         </tr>
         {% else %}
         {% url 'home:select_project' project_id=project_id as project_url %}
-        <tr onclick="window.location='{{ project_url }}'">
+        <tr onclick="window.location='{{ project_url }}'"
+            class="tutorial-project-row"
+            data-project-id="{{ project_id }}">
             <td onclick="event.stopPropagation()">
                 <input type="checkbox" name="project_ids"
                        value="{{ project_id }}">

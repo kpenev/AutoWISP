@@ -11,6 +11,7 @@
               href="{% static 'configuration/css/config_tree.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+        <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
         <style type="text/css">
             #chart-container { text-align: left; }
         </style>
@@ -19,7 +20,7 @@
         {% csrf_token %}
         <div class="navbar" id="navbar">
             <div class="dropdown">
-                <button class="dropbtn">Step: {{ selected_step }}
+                <button class="dropbtn" id="tutorial-config-step">Step: {{ selected_step }}
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
@@ -67,6 +68,7 @@
             </div> 
             <div class="dropdown">
                 <button class="dropbtn" 
+                        id="tutorial-config-export"
                         onclick="theTree.export()">
                     Export
                 </button>
@@ -78,7 +80,9 @@
                       method="post"> 
                     {% csrf_token %}
 
-                    <label for="import-config" class="dropbtn">
+                    <label for="import-config"
+                           id="tutorial-config-import"
+                           class="dropbtn">
                         Import
                     </label>
 
@@ -105,7 +109,9 @@
             </div>
 
             <div class="dropdown dropdown-right" >
-                <a class="dropbtn" href="{% url 'processing:progress' %}">
+                <a class="dropbtn"
+                   id="tutorial-config-processing-status"
+                   href="{% url 'processing:progress' %}">
                     Processing Status
                 </a>
             </div>
@@ -168,6 +174,7 @@
         <script type="text/javascript" 
                 src="{% static 'configuration/js/autowisp.config.tree.js' %}">
         </script>
+        <script type="text/javascript" src="{% static 'js/tutorial.js' %}"></script>
 
         <script type="text/javascript">
             let remainingHeight = screen.availHeight

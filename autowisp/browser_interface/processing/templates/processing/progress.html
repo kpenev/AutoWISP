@@ -40,16 +40,18 @@ Processing Progress
         class="lcars-element 
                button 
                lcars-melrose-bg
-               lcars-u-1-1">
+               lcars-u-1-1"
+        id="tutorial-start-processing">
     Start Processing
 </button>
 {% endif %}
 
-<a href="{% url 'processing:select_raw_images' %}">
+<a href="{% url 'processing:select_raw_images' %}" id="tutorial-add-images-link">
     <div class="lcars-element 
                               button 
                               lcars-husk-bg
-                              lcars-u-1">
+                              lcars-u-1"
+         id="tutorial-add-images">
         Add New Images
     </div>
 </a>
@@ -92,7 +94,42 @@ Processing Progress
     {% for step, imtype, by_channel, runs in progress %}
     <tr style="border-bottom: 3px dotted white;">
         <td class="tooltip">
-            <span class="tooltiptext">step configuration</span>
+            <span class="tooltiptext">
+                {% if step.0 == 'calibrate' %}
+                Calibrates raw frames using bias, dark, and flat corrections.
+                This normalizes pixel values so later steps work on clean data.
+                {% elif step.0 == 'find' and step.1 == 'stars' %}
+                Detects point sources using your threshold and extraction settings.
+                This produces initial star coordinates used by later steps.
+                {% elif step.0 == 'solve' and step.1 == 'astrometry' %}
+                Solves the WCS so sky coordinates map to pixel coordinates.
+                This enables catalog matching and accurate positions.
+                {% elif step.0 == 'fit' and step.1 == 'star' and step.2 == 'shape' %}
+                Fits PSF/PRF shapes to measure flux more precisely.
+                These fits provide the basis for high-quality photometry.
+                {% elif step.0 == 'measure' and step.1 == 'aperture' and step.2 == 'photometry' %}
+                Measures flux in fixed apertures for each source.
+                This provides robust brightness estimates for later modeling.
+                {% elif step.0 == 'fit' and step.1 == 'source' and step.2 == 'extracted' and step.4 == 'map' %}
+                Fits a smooth PSF map across the image using many stars.
+                This reduces noise in PSF parameters and improves consistency.
+                {% elif step.0 == 'fit' and step.1 == 'magnitudes' %}
+                Fits relative magnitudes by comparing each frame to a reference.
+                This removes frame-to-frame systematics and normalizes fluxes.
+                {% elif step.0 == 'create' and step.1 == 'lightcurves' %}
+                Reorganizes measurements into per-star lightcurves.
+                This collects each star’s time series into a single file.
+                {% elif step.0 == 'epd' or step.1 == 'epd' %}
+                Removes trends correlated with external parameters.
+                This reduces instrumental systematics in each lightcurve.
+                {% elif step.0 == 'tfa' or step.1 == 'tfa' %}
+                Filters trends shared across many stars in the field.
+                This improves precision while preserving real variability.
+                {% else %}
+                Runs this pipeline step and updates its outputs.
+                Use hover for quick context while monitoring progress.
+                {% endif %}
+            </span>
 
             <div class="aw-step-puzzle">
                 <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
@@ -131,6 +168,9 @@ Processing Progress
                                 button 
                                 rounded 
                                 lcars-chestnut-rose-bg"
+                         {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                         id="tutorial-object-button"
+                         {% endif %}
                          style="align-items: center; justify-content: left;">
                         {{ imtype }}
                     </div>
@@ -222,7 +262,10 @@ Processing Progress
                                lcars-element 
                                button 
                                rounded 
-                               lcars-husk-bg"
+                               lcars-husk-bg
+                               {% if forloop.first %}
+                               tutorial-first-log
+                               {% endif %}"
                  style="align-items: center;">
                 Logs
             </div>

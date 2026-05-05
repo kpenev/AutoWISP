@@ -4,6 +4,7 @@ src = [
   'navbar.css',
   'reset.css',
   'style.css',
+  'tutorial.css',
   'walk_fs.css'
 ]
 

@@ -17,6 +17,7 @@ The Survey
     {% csrf_token %}
 
     <label for="survey-import"
+           id="tutorial-survey-import"
            class="lcars-element button lcars-husk-bg lcars-u-1-2">
         Import Servey Info
     </label>
@@ -33,7 +34,8 @@ The Survey
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
-                lcars-u-1-2">
+                lcars-u-1-2"
+         id="tutorial-survey-export">
         Export Servey Info
     </div>
 </a>
@@ -46,7 +48,7 @@ The Survey
 {% block main %}
 {% with 'camera telescope mount' as equipment_components_str %}
 {% with equipment_components_str.split as equipment_components %}
-<div class="lcars-row">
+<div class="lcars-row" id="tutorial-survey-panel">
     <div class="lcars-column centered" style="width:100%">
         {% with component="observer" item_list=observers attribute_list=attributes.observer %}
         {% if selected_component in equipment_components and not selected_type_id %}
