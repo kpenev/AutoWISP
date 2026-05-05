@@ -21,6 +21,26 @@ _config_dset_key_rex = re.compile(
 )
 
 
+class StaleCorrectionsError(Exception):
+    """Raised when a corrected dataset is stale and EPD/TFA must be re-run.
+
+    Occurs when the LC file grew after EPD/TFA already ran: the existing
+    corrected dataset has fewer entries than the current LC, and some of the
+    new observations fall within the fit filter, meaning the correction
+    ensemble has changed.
+    """
+
+    def __init__(self, corrected_key, existing_size, required_size):
+        self.corrected_key = corrected_key
+        self.existing_size = existing_size
+        self.required_size = required_size
+        super().__init__(
+            f"Corrected dataset {corrected_key!r} has stale size "
+            f"{existing_size} (required {required_size}): new observations "
+            f"match the fit filter — EPD/TFA must be re-run."
+        )
+
+
 # Come from H5py.
 # pylint: disable=too-many-ancestors
 class LightCurveFile(HDF5FileDatabaseStructure):
@@ -657,8 +677,9 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             corrected_values:    The resulting values after the correction has
                 been applied.
 
-            corrected_selection:    Some sort of slice on the dataset that
-                identifies the points which were corrected.
+            corrected_selection(bool array):    Boolean mask over all LC points
+                identifying which points were corrected. Must be a boolean
+                array; integer index arrays are not supported.
 
             substitutions:    Any arguments that need to be substituted in the
                 paths of the original and corrected datasets to get a unique
@@ -678,7 +699,10 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         original_dset = self[
             self._file_structure[original_key].abspath % substitutions
         ]
-        self.add_dataset(
+        destination_config = self._file_structure[corrected_key]
+        dest_path = destination_config.abspath % substitutions
+        fill_val = destination_config.replace_nonfinite
+        newly_created = self.add_dataset(
             dataset_key=corrected_key,
             data=None,
             if_exists="ignore",
@@ -687,9 +711,29 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             dtype=original_dset.dtype,
             **substitutions,
         )
-
-        destination_config = self._file_structure[corrected_key]
-        dest_path = destination_config.abspath % substitutions
+        dest_dset = self[dest_path]
+        if dest_dset.dtype.kind == "f":
+            fill_value = numpy.nan if fill_val is None else float(fill_val)
+        else:
+            fill_value = numpy.zeros(1, dtype=dest_dset.dtype)[0]
+        if newly_created is not None:
+            dest_dset[:] = fill_value
+        else:
+            existing_size = dest_dset.shape[0]
+            required_size = corrected_selection.shape[0]
+            if existing_size < required_size:
+                prev_corrected = dest_dset[corrected_selection[:existing_size]]
+                if dest_dset.dtype.kind == "f" and fill_val is None:
+                    is_stale = not numpy.isnan(prev_corrected).all()
+                else:
+                    is_stale = not (prev_corrected == fill_value).all()
+                if is_stale:
+                    dest_dset[corrected_selection[:existing_size]] = fill_value
+                    raise StaleCorrectionsError(
+                        corrected_key, existing_size, required_size
+                    )
+                dest_dset.resize(required_size, axis=0)
+                dest_dset[existing_size:] = fill_value
         self._logger.debug(
             "Setting %d points in %s[%s]. Selection shape: %s. "
             "Destination shape: %s. Corrected values shape: %s.",
