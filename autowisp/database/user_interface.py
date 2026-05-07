@@ -803,18 +803,13 @@ def add_camera_type_channels(camera_type_id, properties, db_session):
         return edit_id, edit_property
 
     channel_info = get_channel_info()
-    print(80 * "*")
-    print(f"Channel info: {channel_info!r}")
     result = remove_unspecified(channel_info)
-    print(f"Cleaned channel info: {channel_info!r}")
-    print(f"Result: {result!r}")
     if channel_info:
         assert (
             camera_type_id >= 0
         ), "Attempting to set channels of non-existant camera type"
 
     for channel_id, channel_properties in channel_info.items():
-        print(f"Editing channel {channel_id} per: {channel_properties!r}")
         if channel_id == "new":
             db_channel = provenance.CameraChannel(  # pylint: disable=no-member
                 camera_type_id=camera_type_id, **channel_properties
@@ -830,7 +825,6 @@ def add_camera_type_channels(camera_type_id, properties, db_session):
 
         if channel_id == "new":
             db_session.add(db_channel)
-    print(80 * "*")
     return result
 
 
@@ -885,10 +879,6 @@ def update_db_entry(
     Add/update a survey component or type, return its ID and what to autofocus.
     """
 
-    print(80 * "*")
-    print(repr(properties))
-    print(80 * "*")
-
     incomplete = None
     entry_id = int(entry_id)
     if entry_id < 0:
@@ -916,7 +906,6 @@ def update_db_entry(
             ):
                 incomplete = {"channel": channel_incomplete}
         elif attr != "type":
-            print(f"Updating {type(db_item)}.{attr} with {properties}")
             setattr(db_item, attr, properties[get_human_name(attr)])
 
     if "type" in attribute_names:
