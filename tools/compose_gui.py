@@ -192,14 +192,6 @@ def get_current_sources():
         anet_wide_label,
     )
 
-
-def create_backup():
-    ts = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
-    backup = COMPOSE_PATH.with_suffix(f".yaml.{ts}.bak")
-    shutil.copy2(COMPOSE_PATH, backup)
-    return backup
-
-
 def reset_compose_to_git():
     """Reset compose.yaml to HEAD version using git restore.
 
@@ -283,15 +275,11 @@ class ComposeEditorApp:
         button_frame = tk.Frame(root)
         button_frame.grid(row=6, column=0, columnspan=3, pady=8)
 
-        # keep references to action buttons so they can be disabled until storage is chosen
-        self.preview_btn = tk.Button(button_frame, text="Preview changes", command=self.preview)
-        self.preview_btn.grid(row=0, column=0, padx=6)
-        self.apply_btn = tk.Button(button_frame, text="Apply changes", command=self.apply)
-        self.apply_btn.grid(row=0, column=1, padx=6)
+        # Action buttons (Preview/Apply removed — changes are saved immediately)
         self.reset_btn = tk.Button(button_frame, text="Reset compose.yaml (git restore)", command=self.reset_compose)
-        self.reset_btn.grid(row=0, column=2, padx=6)
+        self.reset_btn.grid(row=0, column=0, padx=6)
         self.run_btn = tk.Button(button_frame, text="Run 'docker compose up'", command=self.run_docker)
-        self.run_btn.grid(row=0, column=3, padx=6)
+        self.run_btn.grid(row=0, column=1, padx=6)
 
         # Reduce height so the preview isn't excessively tall
         # Place the preview below the controls and buttons (row 7) so the
@@ -368,11 +356,33 @@ class ComposeEditorApp:
         # enable UI now that storage is provided
         self.enable_all_widgets()
 
-        # Do not prompt the user with popups to select astrometry directories.
-        # The GUI already exposes individual fields and Browse... buttons for
-        # anet narrow and anet wide so users can change them directly if they wish.
+        # Inform the user and immediately persist the chosen paths to compose.yaml.
+        # This writes changes as soon as the user selects folders (no Preview/Apply).
         if show_info:
-            messagebox.showinfo("Storage selected", "You can update other paths based on your need.")
+            messagebox.showinfo("Storage selected", "Paths updated in the form and will be saved to compose.yaml.")
+
+        try:
+            new_text = find_and_replace_sources(
+                read_compose_text(),
+                self.storage_var.get(),
+                self.tmp_var.get(),
+                new_bui=self.bui_var.get() if hasattr(self, 'bui_var') else None,
+                new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
+                new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
+            )
+            # preserve port mappings as-is
+            new_text = find_and_replace_port(new_text, self.port_var.get())
+            COMPOSE_PATH.write_text(new_text, encoding="utf-8")
+            with open(LOG_PATH, "a", encoding="utf-8") as lf:
+                lf.write(f"{datetime.datetime.now().isoformat()} Applied changes from GUI\n")
+            # update preview box to reflect saved changes
+            try:
+                self.preview_box.delete("1.0", tk.END)
+                self.preview_box.insert(tk.END, "compose.yaml updated\n")
+            except Exception:
+                pass
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save compose.yaml: {e}")
 
     def disable_all_except_storage(self):
         """Disable all entries/browse buttons and action buttons except the storage row."""
@@ -389,8 +399,6 @@ class ComposeEditorApp:
         self.anet_wide_browse_btn.configure(state="disabled")
 
         # Action buttons
-        self.preview_btn.configure(state="disabled")
-        self.apply_btn.configure(state="disabled")
         self.reset_btn.configure(state="disabled")
         self.run_btn.configure(state="disabled")
 
@@ -410,8 +418,6 @@ class ComposeEditorApp:
         self.anet_narrow_browse_btn.configure(state="normal")
         self.anet_wide_browse_btn.configure(state="normal")
 
-        self.preview_btn.configure(state="normal")
-        self.apply_btn.configure(state="normal")
         self.reset_btn.configure(state="normal")
         self.run_btn.configure(state="normal")
 
@@ -465,15 +471,6 @@ class ComposeEditorApp:
         if not messagebox.askyesno("Confirm", "Apply changes to compose file?"):
             return
         try:
-            # # create a timestamped backup before modifying compose.yaml
-            # try:
-            #     b = create_backup()
-            #     with open(LOG_PATH, "a", encoding="utf-8") as lf:
-            #         lf.write(f"{datetime.datetime.now().isoformat()} Created backup {b}\n")
-            # except Exception:
-            #     # non-fatal: continue even if backup fails
-            #     pass
-
             # write directly; user can use Reset to restore from git if needed
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
             with open(LOG_PATH, "a", encoding="utf-8") as lf:
@@ -484,28 +481,49 @@ class ComposeEditorApp:
             messagebox.showerror("Error", f"Failed to apply changes: {e}")
 
     def enforce_storage_at_startup(self):
-        """Force the user to select a storage folder before the UI becomes usable.
-
-        This shows an informational dialog then opens a directory chooser. If the
-        user cancels, they are offered to retry; cancelling the retry will close
-        the application.
+        """Decide startup behaviour based on whether compose.yaml still contains
+        the placeholder markers (i.e. it is unmodified). If the compose file is
+        unmodified (contains placeholders like <IOdir|...), only the Storage
+        selector remains enabled. If the compose file appears modified, enable
+        all controls so the user can edit freely.
         """
-        while True:
-            # Explain why storage is required
-            messagebox.showinfo("Storage required", "You must choose a storage folder before continuing.")
-            p = filedialog.askdirectory(initialdir=self.storage_var.get() or os.getcwd(), title="Select storage folder")
-            if p:
-                self.handle_storage_selected(p, show_info=True)
+        text = ""
+        try:
+            text = read_compose_text()
+        except Exception:
+            # If compose can't be read, default to strict mode (only storage enabled)
+            text = ""
+
+        # detect placeholder-style entries used in the original template
+        placeholder_re = re.compile(r"<[^>|]+\|[^>]+>")
+
+        try:
+            if placeholder_re.search(text):
+                # compose.yaml looks unmodified -> keep only storage enabled
+                messagebox.showinfo(
+                    "Welcome!",
+                    "This compose.yaml looks uninitialized. Please select a storage folder first using the Storage Browse... button."
+                )
+                # leave other widgets disabled (they were disabled already)
                 return
-            # user didn't pick a directory — ask if they want to try again
-            retry = messagebox.askretrycancel("Storage required", "Storage folder is required to continue. Retry?")
-            if not retry:
-                # close app
+            else:
+                # compose.yaml appears modified -> enable the UI immediately
                 try:
-                    self.root.destroy()
+                    messagebox.showinfo(
+                        "Welcome",
+                        "compose.yaml already configured — you may change any paths now."
+                    )
                 except Exception:
                     pass
+                self.enable_all_widgets()
                 return
+        except Exception:
+            # On any error, fall back to keeping only storage enabled
+            try:
+                messagebox.showinfo("Welcome!", "Please select a storage folder when ready using the Storage Browse... button.")
+            except Exception:
+                pass
+            return
 
     def run_docker(self):
         # Run docker compose up in the AutoWISP/docker directory using cmd.exe
