@@ -3,8 +3,11 @@
 
 import json
 import logging
+import sys
 from time import sleep
 from traceback import print_exc
+
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from sqlalchemy import sql, select, delete, inspect, func, and_
 from sqlalchemy.orm import ColumnProperty
@@ -1064,15 +1067,52 @@ def export_survey_to_json(destination, **limit_to):
     json.dump(config, destination, indent=4)
 
 
-def main():
-    """Avoid polluting the global namespace."""
+def parse_command_line():
+    """Return the parsed command line configuration."""
 
-    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test")
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    with open("test_survey.json", "w", encoding="utf-8") as outf:
-        export_survey_to_json(outf)
-    # import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
+    parser = ArgumentParser(
+        description="Import or export survey configuration to/from JSON.",
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False,
+    )
+    parser.add_argument(
+        "project_home",
+        help="Path to the project home directory.",
+    )
+    parser.add_argument(
+        "action",
+        choices=["import", "export"],
+        help="Whether to import JSON into the survey database or export "
+        "survey data to JSON.",
+    )
+    parser.add_argument(
+        "--filename",
+        "-f",
+        default=None,
+        help="File to read from (import) or write to (export). "
+        "Defaults to stdin for import and stdout for export.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    """Run the import or export action specified on the command line."""
+
+    config = parse_command_line()
+    set_project_home(config.project_home)
+    if config.action == "import":
+        if config.filename is None:
+            import_json_to_survey(sys.stdin)
+        else:
+            with open(config.filename, "r", encoding="utf-8") as json_file:
+                import_json_to_survey(json_file)
+    else:
+        if config.filename is None:
+            export_survey_to_json(sys.stdout)
+        else:
+            with open(config.filename, "w", encoding="utf-8") as json_file:
+                export_survey_to_json(json_file)
 
 
 if __name__ == "__main__":
