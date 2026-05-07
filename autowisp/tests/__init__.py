@@ -11,6 +11,7 @@ from autowisp.database.interface import (
     set_project_home,
     initialize_cmdline_database,
 )
+from autowisp.database.user_interface import import_json_to_survey
 from autowisp.database.initialize_database import initialize_database
 
 
@@ -50,6 +51,7 @@ class AutoWISPTestCase(FloatTestCase):
     def setUp(self):
         """Make sure the data to compare against is defined."""
 
+        print(f"Setting up processing in {self.processing_directory!r}")
         self.assertTrue(
             hasattr(self, "test_directory"), "No test data directory defined!"
         )
@@ -67,12 +69,19 @@ class AutoWISPTestCase(FloatTestCase):
             path.join(self.processing_directory, "test.cfg"),
         )
         set_project_home(self.processing_directory)
+        with open(
+            path.join(self.test_directory, "survey_instruments.json"),
+            "r",
+            encoding="utf-8",
+        ) as survey_json:
+            import_json_to_survey(survey_json)
 
         self.successful_test = False
 
     def tearDown(self):
         """Remove the processing directory."""
 
+        print(f"Tearing down processing in {self.processing_directory!r}")
         if self.successful_test:
             rmtree(self.processing_directory)
         else:
