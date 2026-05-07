@@ -1,0 +1,74 @@
+{
+    "Cameras": [
+        {
+            "make": "Sony",
+            "model": "Alpha7R",
+            "version": "",
+            "sensor type": "",
+            "x resolution": 500,
+            "y resolution": 500,
+            "pixel size": 9.0,
+            "channels": {
+                "R": {
+                    "x offset": 0,
+                    "x step": 1,
+                    "y offset": 0,
+                    "y step": 1
+                }
+            },
+            "notes": "Center cut-out of example SonyAlpha images",
+            "devices": [
+                {
+                    "serial no": "None",
+                    "notes": "Serial number was not recorded in FITS header"
+                }
+            ]
+        }
+    ],
+    "Telescopes": [
+        {
+            "make": "Canon",
+            "model": "135mm f/2",
+            "version": "",
+            "focal ratio": 2.0,
+            "focal length": 135.0,
+            "notes": "lens used for SonyAlpha experiment",
+            "devices": [
+                {
+                    "serial no": "Canon 135mm f2 SN 230236",
+                    "notes": "This is how it was recorded in FITS header"
+                }
+            ]
+        }
+    ],
+    "Mounts": [
+        {
+            "make": "HAT",
+            "model": "Net",
+            "version": "",
+            "notes": "Camera was attached in parallel to HATNet telescope",
+            "devices": [
+                {
+                    "serial no": "11",
+                    "notes": "No serial number but unique ID was assigned"
+                }
+            ]
+        }
+    ],
+    "Observers": [
+        {
+            "name": "0.0.X-1958",
+            "email": "",
+            "phone": "",
+            "notes": "ProMount version number"
+        }
+    ],
+    "Observatories": [
+        {
+            "latitude": 31.68138,
+            "longitude": -110.87857,
+            "altitude": 2345.3,
+            "name": "FLWO"
+        }
+    ]
+}
