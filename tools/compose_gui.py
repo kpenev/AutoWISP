@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import datetime
+import sys
 import difflib
 import subprocess
 import threading
@@ -13,9 +14,88 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+def _find_compose_path():
+    """Locate the docker/compose.yaml file.
+
+    Search order:
+      1. sibling docker/compose.yaml next to the source file (development)
+      2. docker/compose.yaml under current working directory
+      3. docker/compose.yaml next to the frozen executable (PyInstaller)
+      4. search upwards from cwd and exe parent for a docker/compose.yaml
+    Returns a Path object (may not exist).
+    """
+
+    def exists_at(base):
+        p = Path(base) / "docker" / "compose.yaml"
+        return p if p.exists() else None
+
+    # 1. next to the source tree
+    try:
+        src_root = Path(__file__).resolve().parents[1]
+        p = exists_at(src_root)
+        if p:
+            return p
+    except Exception:
+        pass
+
+    # 2. cwd/docker/compose.yaml
+    try:
+        p = exists_at(Path.cwd())
+        if p:
+            return p
+    except Exception:
+        pass
+
+    # 3. near the frozen executable or _MEIPASS (PyInstaller)
+    try:
+        if getattr(sys, "frozen", False):
+            # first check _MEIPASS (PyInstaller bundled data)
+            meipass = getattr(sys, "_MEIPASS", None)
+            if meipass:
+                p = exists_at(Path(meipass))
+                if p:
+                    return p
+            # then check next to the executable
+            exe_parent = Path(sys.executable).resolve().parent
+            p = exists_at(exe_parent)
+            if p:
+                return p
+    except Exception:
+        pass
+
+    # 4. walk upwards from cwd and exe_parent looking for docker/compose.yaml
+    def walk_up_search(start):
+        start = Path(start).resolve()
+        for parent in [start] + list(start.parents):
+            candidate = parent / "docker" / "compose.yaml"
+            if candidate.exists():
+                return candidate
+        return None
+
+    try:
+        p = walk_up_search(Path.cwd())
+        if p:
+            return p
+    except Exception:
+        pass
+
+    try:
+        p = walk_up_search(Path(sys.executable).resolve().parent)
+        if p:
+            return p
+    except Exception:
+        pass
+
+    # fallback: return a path next to source (may not exist)
+    try:
+        return Path(__file__).resolve().parents[1] / "docker" / "compose.yaml"
+    except Exception:
+        return Path("docker/compose.yaml")
+
+
+COMPOSE_PATH = _find_compose_path()
+PROJECT_ROOT = COMPOSE_PATH.resolve().parents[1] if COMPOSE_PATH.exists() else Path(__file__).resolve().parents[1]
 DOCKER_DIR = PROJECT_ROOT / "docker"
-COMPOSE_PATH = DOCKER_DIR / "compose.yaml"
 LOG_PATH = PROJECT_ROOT / "compose_gui.log"
 
 
