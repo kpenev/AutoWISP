@@ -64,7 +64,7 @@ if __name__ == '__main__':
             with fits.open(fits_fname, 'readonly') as frame:
                 #False positive
                 #pylint: disable=no-member
-                data_reduction.add_frame_header(frame[1].header)
+                data_reduction.initialize(frame[1].header)
                 #pylint: enable=no-member
 
             data_reduction.add_hat_astrometry(astrom_filenames,

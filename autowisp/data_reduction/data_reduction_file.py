@@ -345,10 +345,22 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             self._file_structure["srcproj.columns"].abspath % path_substitutions
         ].len()
 
-    def add_frame_header(self, header, **substitutions):
-        """Add the header of the corresponding FITS frame to DR file."""
+    def initialize(self, header, *, observing_session=None, **substitutions):
+        """Write the FITS header and (optionally) provenance to the DR file.
+
+        Args:
+            header:                The FITS primary header to embed.
+            observing_session:     If supplied, its instrument/observer/target
+                attributes are written to ``/Provenance`` via
+                :meth:`add_provenance`. If ``None``, the ``/Provenance`` group
+                is left untouched.
+            **substitutions:       Path substitutions forwarded to
+                :meth:`write_fitsheader_to_dataset`.
+        """
 
         self.write_fitsheader_to_dataset("fitsheader", header, **substitutions)
+        if observing_session is not None:
+            self.add_provenance(observing_session)
 
     def get_frame_header(self, **substitutions):
         """Return the header of the corresponding FITS frame."""

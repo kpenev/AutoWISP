@@ -28,6 +28,8 @@ from autowisp.catalog import read_catalog_file
 
 input_type = "dr"
 
+_logger = logging.getLogger(__name__)
+
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -153,9 +155,9 @@ def get_observatory(header, configuration):
     """Return (latitude, longitude, altitude) where given data was collected."""
 
     evaluate = Interpreter()
-    print(
-        "Observatory expressions: "
-        + repr(
+    _logger.debug(
+        "Observatory expressions: %s",
+        repr(
             tuple(
                 configuration[coordinate].format_map(header)
                 for coordinate in [
@@ -164,7 +166,7 @@ def get_observatory(header, configuration):
                     "altitude_meters",
                 ]
             )
-        )
+        ),
     )
     return tuple(
         evaluate(configuration[coordinate].format_map(header))
@@ -273,6 +275,8 @@ def create_lightcurves(
     """Create lightcurves from the data in the given DR files."""
 
     # TODO: figure out source extraction map variables from DR file
+    _logger.debug("Organizing DR files by observatory")
+
     dr_by_observatory = sort_by_observatory(dr_collection, configuration)
 
     assert start_status in [None, 1]
@@ -282,11 +286,22 @@ def create_lightcurves(
         return None
 
     path_substitutions = get_path_substitutions(configuration)
-    print("Path substitutions: " + repr(path_substitutions))
+    _logger.debug("Path substitutions: %s", repr(path_substitutions))
 
+    _logger.debug(
+        "Creating master catalog with configuration: %s", repr(configuration)
+    )
     master_catalog = MasterCatalog(configuration)
 
     for (lat, lon, alt), dr_filename_list in dr_by_observatory.items():
+        _logger.debug(
+            "Collecting lightcurves for %d DR files at observatory "
+            "(lat, lon, alt) = (%.4f, %.4f, %.4f)",
+            len(dr_filename_list),
+            lat,
+            lon,
+            alt,
+        )
         master_catalog.add_batch(
             *collect_light_curves(
                 dr_filename_list,
@@ -316,7 +331,7 @@ def cleanup_interrupted(interrupted, configuration):
     min_status = min(interrupted, key=lambda x: x[1])[1]
     max_status = max(interrupted, key=lambda x: x[1])[1]
     assert min_status >= 0
-    logging.getLogger(__name__).info(
+    _logger.info(
         "Cleaning up interrupted lightcurve generation with status %d to %d",
         min_status,
         max_status,
@@ -346,6 +361,11 @@ def cleanup_interrupted(interrupted, configuration):
 def has_magfit(dr_fname, substitutions):
     """Check if the DR file contains magnitude fitting data."""
 
+    _logger.debug(
+        "Checking %s for magnitude fitting data with substitutions %s",
+        repr(dr_fname),
+        repr(substitutions),
+    )
     with DataReductionFile(dr_fname, mode="r") as dr_file:
         try:
             dr_file.check_for_dataset(
@@ -360,9 +380,7 @@ def main():
     """Run the light curve creation step from the command line."""
 
     configuration = parse_command_line()
-    setup_process(
-        task="main", **configuration
-    )
+    setup_process(task="main", **configuration)
 
     dr_path_substitutions = get_path_substitutions(configuration)
     with DataReductionFile(
