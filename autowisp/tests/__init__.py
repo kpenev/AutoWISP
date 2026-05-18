@@ -91,6 +91,7 @@ class AutoWISPTestCase(FloatTestCase):
             copytree(self.processing_directory, self.failed_test_directory)
         rmtree(self.processing_directory)
 
+
     def run_step(self, command):
         """Run a calibration step and check the return code."""
 
