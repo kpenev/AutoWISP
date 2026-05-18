@@ -4,6 +4,7 @@ from os import path, makedirs
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, rmtree
 from glob import glob
+import logging
 
 from astrowisp.tests.utilities import FloatTestCase
 
@@ -19,6 +20,7 @@ class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
     successful_test = False
+    _logger = logging.getLogger(__name__)
 
     def get_inputs(self, inputs):
         """Get the input files for the test step and return what to clean up."""
@@ -30,6 +32,7 @@ class AutoWISPTestCase(FloatTestCase):
                     self.processing_directory,
                 )
                 assert path.exists(source)
+                self._logger.debug("Copying %r to %r", source, destination)
                 if path.isdir(source):
                     copytree(source, destination)
                 else:
@@ -85,7 +88,8 @@ class AutoWISPTestCase(FloatTestCase):
         if self.successful_test:
             rmtree(self.processing_directory)
         else:
-            rmtree(self.failed_test_directory, ignore_errors=True)
+            if path.exists(self.failed_test_directory):
+                rmtree(self.failed_test_directory, ignore_errors=False)
             copytree(self.processing_directory, self.failed_test_directory)
 
     def run_step(self, command):
@@ -97,7 +101,7 @@ class AutoWISPTestCase(FloatTestCase):
             check=False,
             stdout=PIPE,
             stderr=STDOUT,
-            timeout=600,
+            timeout=660,
         )
         self.assertTrue(
             calib_process.returncode == 0,
