@@ -422,6 +422,7 @@ def _apply_operations(spec, src, dst, args):
                     dry_run=args.dry_run,
                 )
 
+
 def main():
     """Entry point: apply the spec-listed operations to matching HDF5 files.
 

@@ -3,8 +3,7 @@
 """Run the AutoWISP test suite."""
 
 from tempfile import TemporaryDirectory
-from os import path, makedirs
-from shutil import copy
+from os import path
 from sys import argv
 from glob import glob
 
