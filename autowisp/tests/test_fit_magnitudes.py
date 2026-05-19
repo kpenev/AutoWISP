@@ -7,7 +7,7 @@ class TestFitMagnitudes(H5TestCase):
     """Tests of the fit_source_extracted_psf_map step."""
 
     def test_fit_magnitudes(self):
-        """Run the fit_source_extracted_psf_map step and check the outputs."""
+        """Run the fit_magnitudes step and check the outputs."""
 
         self.run_step_test(
             "fit_magnitudes",

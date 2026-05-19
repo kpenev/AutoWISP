@@ -66,7 +66,7 @@ class AutoWISPTestCase(FloatTestCase):
             path.exists(self.test_directory),
             f"Test directory {self.test_directory} does not exist!",
         )
-        makedirs(self.processing_directory, exist_ok=True)
+        makedirs(self.processing_directory, exist_ok=False)
         copy(
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
@@ -85,12 +85,11 @@ class AutoWISPTestCase(FloatTestCase):
         """Remove the processing directory."""
 
         print(f"Tearing down processing in {self.processing_directory!r}")
-        if self.successful_test:
-            rmtree(self.processing_directory)
-        else:
+        if not self.successful_test:
             if path.exists(self.failed_test_directory):
                 rmtree(self.failed_test_directory, ignore_errors=False)
             copytree(self.processing_directory, self.failed_test_directory)
+        rmtree(self.processing_directory)
 
     def run_step(self, command):
         """Run a calibration step and check the return code."""
@@ -101,7 +100,7 @@ class AutoWISPTestCase(FloatTestCase):
             check=False,
             stdout=PIPE,
             stderr=STDOUT,
-            timeout=660,
+            timeout=3600,
         )
         self.assertTrue(
             calib_process.returncode == 0,

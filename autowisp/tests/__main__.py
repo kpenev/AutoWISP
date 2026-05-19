@@ -43,13 +43,13 @@ if __name__ == "__main__":
         # "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
         # )
         processing_dir = path.join(temp_dir, "processing")
-        makedirs(processing_dir, exist_ok=False)
-        print(f"Temp directory contents: {glob(temp_dir + '/*')}")
+        #makedirs(processing_dir, exist_ok=False)
+        #print(f"Temp directory contents: {glob(temp_dir + '/*')}")
 
-        copy(
-            path.join(temp_dir, "test.cfg"),
-            path.join(processing_dir, "test.cfg"),
-        )
+        #copy(
+        #    path.join(temp_dir, "test.cfg"),
+        #    path.join(processing_dir, "test.cfg"),
+        #)
         AutoWISPTestCase.set_test_directory(
             temp_dir, processing_dir, argv.pop(1)
         )
