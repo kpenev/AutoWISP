@@ -41,7 +41,6 @@ if __name__ == "__main__":
         get_test_data(temp_dir)
         processing_dir = path.join(temp_dir, "processing")
         print(f"Temp directory contents: {glob(temp_dir + '/*')}")
-
         AutoWISPTestCase.set_test_directory(
             temp_dir, processing_dir, argv.pop(1)
         )
