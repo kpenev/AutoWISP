@@ -15,8 +15,18 @@ to copy from source to destination or ``-`` to delete from destination:
 The ``-`` form only touches the destination; ``source_dir`` is not consulted.
 Operations are applied in spec-file order, so a ``-`` followed by a ``+`` for
 the same path replaces it cleanly even with ``--on-conflict=error``.
+
+Path and attribute-name tokens are interpreted as Python ``re`` regular
+expressions, anchored end-to-end (i.e. matched with :func:`re.fullmatch`).
+For ``+`` operations the regexes are resolved against the source file; for
+``-`` operations they are resolved against the destination file. A line that
+matches zero items is treated like a missing source / destination (governed
+by ``--missing-source`` / ``--missing-dest``). Note that HDF5 paths starting
+with a literal ``.`` will be matched by the regex metacharacter ``.``; escape
+special characters with ``\\`` if a strict literal match is required.
 """
 
+import re
 import sys
 import logging
 from argparse import ArgumentParser
@@ -98,6 +108,66 @@ class UpdateSpec:  # pylint: disable=too-few-public-methods
                         f"expected 'dataset' or 'attribute'"
                     )
         return spec
+
+
+# ---------------------------------------------------------------------------
+# Regex resolution against an HDF5 file
+# ---------------------------------------------------------------------------
+
+
+def _all_dataset_paths(h5_root):
+    """Return every dataset path in ``h5_root`` (absolute, ``/...``)."""
+
+    paths = []
+
+    def _visit(name, obj):
+        if isinstance(obj, h5py.Dataset):
+            paths.append("/" + name)
+
+    h5_root.visititems(_visit)
+    return paths
+
+
+def _all_object_paths(h5_root):
+    """Return every object path in ``h5_root`` (groups + datasets) and ``/``."""
+
+    paths = ["/"]
+
+    def _visit(name, _obj):
+        paths.append("/" + name)
+
+    h5_root.visititems(_visit)
+    return paths
+
+
+def _resolve_dataset_paths(h5_root, pattern):
+    """Return ``(dataset_path,)`` tuples in ``h5_root`` matching the regex.
+
+    Tuples (rather than bare strings) are returned so callers can unpack the
+    result uniformly with the ``(obj_path, attr_name)`` pairs returned by
+    :func:`_resolve_attribute_targets`. Matching uses :func:`re.fullmatch`.
+    """
+
+    compiled = re.compile(pattern)
+    return [(p,) for p in _all_dataset_paths(h5_root) if compiled.fullmatch(p)]
+
+
+def _resolve_attribute_targets(h5_root, obj_pattern, attr_pattern):
+    """Return ``(obj_path, attr_name)`` pairs in ``h5_root`` matching regexes.
+
+    Both patterns are matched with :func:`re.fullmatch`.
+    """
+
+    obj_re = re.compile(obj_pattern)
+    attr_re = re.compile(attr_pattern)
+    targets = []
+    for obj_path in _all_object_paths(h5_root):
+        if not obj_re.fullmatch(obj_path):
+            continue
+        for attr_name in h5_root[obj_path].attrs.keys():
+            if attr_re.fullmatch(attr_name):
+                targets.append((obj_path, attr_name))
+    return targets
 
 
 # ---------------------------------------------------------------------------
@@ -292,45 +362,65 @@ def parse_args():
     return parser.parse_args()
 
 
+def _report_empty_match(label, missing_policy):
+    """Raise or warn that a regex matched zero items, per ``missing_policy``."""
+
+    if missing_policy == "error":
+        raise KeyError(f"No {label}")
+    log.warning("No %s — skipping", label)
+
+
 def _apply_operations(spec, src, dst, args):
-    """Apply every operation in ``spec`` to the (``src``, ``dst``) pair."""
+    """Apply every operation in ``spec`` to the (``src``, ``dst``) pair.
+
+    The path / attribute-name tokens in each op are treated as Python regular
+    expressions and resolved against ``src`` for ``+`` ops and ``dst`` for
+    ``-`` ops. If a regex matches zero items, ``--missing-source`` /
+    ``--missing-dest`` controls whether that is an error or a warning.
+    """
 
     for op in spec.operations:
         action, kind = op[0], op[1]
-        if action == "+" and kind == "dataset":
-            _copy_dataset(
-                src,
-                dst,
-                op[2],
-                on_conflict=args.on_conflict,
-                missing_source=args.missing_source,
-                dry_run=args.dry_run,
+        resolver = (
+            _resolve_dataset_paths
+            if kind == "dataset"
+            else _resolve_attribute_targets
+        )
+        targets = resolver(src if action == "+" else dst, *op[2:])
+        if not targets:
+            _report_empty_match(
+                f"{'source' if action == '+' else 'destination'} "
+                f"{kind}s matching r'{op[2]}'"
+                + (f" / r'{op[3]}'" if kind == "attribute" else "")
+                + "in "
+                + (
+                    Path(src.filename).name
+                    if action == "+"
+                    else Path(dst.filename).name
+                ),
+                args.missing_source if action == "+" else args.missing_dest,
             )
-        elif action == "+" and kind == "attribute":
-            _copy_attribute(
-                src,
-                dst,
-                op[2],
-                op[3],
-                on_conflict=args.on_conflict,
-                missing_source=args.missing_source,
-                dry_run=args.dry_run,
-            )
-        elif action == "-" and kind == "dataset":
-            _delete_dataset(
-                dst,
-                op[2],
-                missing_dest=args.missing_dest,
-                dry_run=args.dry_run,
-            )
-        else:  # action == "-" and kind == "attribute"
-            _delete_attribute(
-                dst,
-                op[2],
-                op[3],
-                missing_dest=args.missing_dest,
-                dry_run=args.dry_run,
-            )
+            continue
+        if action == "+":
+            copy = _copy_dataset if kind == "dataset" else _copy_attribute
+            for tgt in targets:
+                copy(
+                    src,
+                    dst,
+                    *tgt,
+                    on_conflict=args.on_conflict,
+                    missing_source=args.missing_source,
+                    dry_run=args.dry_run,
+                )
+        else:  # action == "-"
+            delete = _delete_dataset if kind == "dataset" else _delete_attribute
+            for tgt in targets:
+                delete(
+                    dst,
+                    *tgt,
+                    missing_dest=args.missing_dest,
+                    dry_run=args.dry_run,
+                )
 
 
 def main():
