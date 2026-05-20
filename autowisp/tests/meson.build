@@ -14,6 +14,7 @@ py_src = [
   'test_fit_source_extracted_psf_map.py',
   'test_fit_star_shape.py',
   'test_measure_aperture_photometry.py',
+  'test_provenance_resolver.py',
   'test_solve_astrometry.py',
   'test_stack_to_master.py',
   'test_tfa.py',

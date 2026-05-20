@@ -31,6 +31,7 @@ from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
 from autowisp.tests.test_detrending_stat import TestDetrendingStat
 from autowisp.tests.test_catalog import TestCatalog
+from autowisp.tests.test_provenance_resolver import TestProvenanceResolver
 
 # pylint: enable=unused-import
 

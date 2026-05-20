@@ -18,7 +18,6 @@ py_src = [
   'source_finder.py',
   'source_finder_util.py',
   'split_sources.py',
-  'tess_interface.py',
 ]
 
 py.install_sources(
