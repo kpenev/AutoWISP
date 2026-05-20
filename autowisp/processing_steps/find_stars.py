@@ -262,6 +262,8 @@ def find_stars(
                 ),
                 image_collection,
             )
+            pool.close()
+            pool.join()
 
 
 def cleanup_interrupted(interrupted, configuration):
