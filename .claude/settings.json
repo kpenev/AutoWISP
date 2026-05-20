@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(pylint --rcfile=scripts/.pylintrc scripts/bui/select_ticids/views.py)",
+      "Edit(*_plan.md)",
+      "Write(*_plan.md)"
+    ]
+  }
+}
