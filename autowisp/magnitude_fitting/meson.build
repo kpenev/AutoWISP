@@ -3,7 +3,6 @@ py_src = [
   'base.py',
   'iterative_refit.py',
   'linear.py',
-  'master_photref_collector_grcollect.py',
   'master_photref_collector_zarr.py',
   'util.py',
 ]

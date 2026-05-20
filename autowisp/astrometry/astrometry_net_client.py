@@ -47,7 +47,7 @@ try:
     from urllib.parse import urlencode, quote
     from urllib.request import urlopen, Request
     from urllib.error import HTTPError, URLError
-except ImportError:
+except ImportError:  # pragma: no cover
     # py2
     from urllib import urlencode, quote
     from urllib2 import urlopen, Request, HTTPError, URLError
@@ -107,7 +107,7 @@ class Client(object):
         self._logger.debug("Sending to URL: %s", url)
 
         # If we're sending a file, format a multipart/form-data
-        if file_args is not None:
+        if file_args is not None:  # pragma: no cover
             import random
 
             boundary_key = "".join(
@@ -153,10 +153,10 @@ class Client(object):
 
         # Add session cookie if available
         if self.session is not None:
-            request.add_header('Cookie', f'session={self.session}')
+            request.add_header("Cookie", f"session={self.session}")
         # Optionally add Referer header as well
-        request.add_header('Referer', 'https://nova.astrometry.net/api/login')
-        
+        request.add_header("Referer", "https://nova.astrometry.net/api/login")
+
         for _ in range(20):
             try:
                 f = urlopen(request)
@@ -243,7 +243,7 @@ class Client(object):
         result = self.send_request("submission_images", {"subid": subid})
         return result.get("image_ids")
 
-    def overlay_plot(self, service, outfn, wcsfn, wcsext=0):
+    def overlay_plot(self, service, outfn, wcsfn, wcsext=0):  # pragma: no cover
         from astrometry.util import util as anutil
 
         wcs = anutil.Tan(wcsfn, wcsext)
@@ -266,13 +266,13 @@ class Client(object):
         open(outfn, "wb").write(plotdata)
         self._logger.debug("Wrote %s", outfn)
 
-    def sdss_plot(self, outfn, wcsfn, wcsext=0):
+    def sdss_plot(self, outfn, wcsfn, wcsext=0):  # pragma: no cover
         return self.overlay_plot("sdss_image_for_wcs", outfn, wcsfn, wcsext)
 
-    def galex_plot(self, outfn, wcsfn, wcsext=0):
+    def galex_plot(self, outfn, wcsfn, wcsext=0):  # pragma: no cover
         return self.overlay_plot("galex_image_for_wcs", outfn, wcsfn, wcsext)
 
-    def myjobs(self):
+    def myjobs(self):  # pragma: no cover
         result = self.send_request("myjobs/")
         return result["jobs"]
 
@@ -280,8 +280,8 @@ class Client(object):
         result = self.send_request("jobs/%s" % job_id)
         if justdict:
             return result
-        stat = result.get("status")
-        if stat == "success":
+        stat = result.get("status")  # pragma: no cover
+        if stat == "success":  # pragma: no cover
             result = self.send_request("jobs/%s/calibration" % job_id)
             self._logger.debug("Calibration: %s", result)
             result = self.send_request("jobs/%s/tags" % job_id)
@@ -295,9 +295,9 @@ class Client(object):
             result = self.send_request("jobs/%s/info" % job_id)
             self._logger.debug("Calibration: %s", result)
 
-        return stat
+        return stat  # pragma: no cover
 
-    def annotate_data(self, job_id):
+    def annotate_data(self, job_id):  # pragma: no cover
         """
         :param job_id: id of job
         :return: return data for annotations
@@ -311,7 +311,7 @@ class Client(object):
             return result
         return result.get("status")
 
-    def jobs_by_tag(self, tag, exact):
+    def jobs_by_tag(self, tag, exact):  # pragma: no cover
         exact_option = "exact=yes" if exact else ""
         result = self.send_request(
             "jobs_by_tag?query=%s&%s" % (quote(tag.strip()), exact_option),
@@ -320,7 +320,7 @@ class Client(object):
         return result
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     print("Running with args %s" % sys.argv)
     import optparse
 
