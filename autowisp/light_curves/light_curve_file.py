@@ -340,6 +340,12 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             index_dset = numpy.empty(config_indices.shape, dtype=numpy.uint)
 
             config_keys = None
+            # Lazy-initialized to ``{key: [] for key in config_keys}`` the
+            # first time a *new* configuration is encountered. If every
+            # configuration is already stored, this stays empty and we
+            # return only the cfg_index dataset -- no empty per-key arrays
+            # for the caller to process as no-ops.
+            config_data_to_add = {}
             for config_index, new_config in enumerate(configurations):
                 config_hash = hash(new_config)
                 if config_keys is None:
@@ -347,7 +353,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                     stored_configurations = self._get_configurations(
                         component, config_keys, **substitutions
                     )
-                    config_data_to_add = {key: [] for key in config_keys}
                 else:
                     assert len(new_config) == len(config_keys)
                     for entry in new_config:
@@ -368,6 +373,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         index_dset[config_index],
                         new_config,
                     )
+                    if not config_data_to_add:
+                        config_data_to_add = {key: [] for key in config_keys}
                     for key, value in new_config:
                         config_data_to_add[key].append(
                             value.unwrap()
