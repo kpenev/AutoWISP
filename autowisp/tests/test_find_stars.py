@@ -14,5 +14,5 @@ class TestFindStars(H5TestCase):
         self.run_step_test(
             "find_stars",
             path.join("CAL", "object"),
-            ["SourceExtraction/Version000/Sources"],
+            ["SourceExtraction/Version000/Sources", "Provenance", "FITSHeader"],
         )

@@ -2,34 +2,20 @@
 
 """Register new images with the database."""
 
-from datetime import timedelta
 import logging
-
-from astropy import units
-from astropy.time import Time
-from astropy.coordinates import EarthLocation, SkyCoord
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
 from autowisp.database.interface import start_db_session
+from autowisp.database.provenance_resolver import (
+    get_or_create_observing_session,
+)
 
 # false positive due to unusual importing
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model.provenance import (
-    Observer,
-    Camera,
-    Telescope,
-    Mount,
-    Observatory,
-)
-from autowisp.database.data_model import (
-    Image,
-    ImageType,
-    ObservingSession,
-    Target,
-)
+from autowisp.database.data_model import Image, ImageType
 
 # pylint: enable=no-name-in-module
 
@@ -45,103 +31,9 @@ def parse_command_line(*args):
         inputtype = "raw"
 
     parser = ManualStepArgumentParser(
-        description=__doc__, input_type=inputtype, add_exposure_timing=True
-    )
-    parser.add_argument(
-        "--observer",
-        default="ORIGIN",
-        help="The name of the observer who/which collected the images. Can "
-        "be arbitrary expression involving header keywords. Must already have "
-        "an entry in the ``observer`` table.",
-    )
-    parser.add_argument(
-        "--camera-serial-number",
-        "--cam-sn",
-        default="CAMSN",
-        help="The serial number of the camera which collected the images. Can "
-        "be arbitrary expression involving header keywords. Must already have "
-        "an entry in the ``camera`` table.",
-    )
-    parser.add_argument(
-        "--telescope-serial-number",
-        "--tel-sn",
-        default="INTSN",
-        help="The serial number of the telescope (lens) which collected the "
-        "images (or some other unique and persistent identifier of it). Can "
-        "be arbitrary expression involving header keywords. Must already have "
-        "an entry in the ``telescope`` table.",
-    )
-    parser.add_argument(
-        "--mount-serial-number",
-        "--mount-sn",
-        default="OBSERVER",
-        help="The serial number of the mount which collected the "
-        "images (or some other unique and persistent identifier of it). Can "
-        "be arbitrary expression involving header keywords. "
-        "Must already have an entry in the ``mount`` table.",
-    )
-    parser.add_argument(
-        "--observatory",
-        default=None,
-        help="The name of the observatory from where the images were collected."
-        " Can be arbitrary expression involving header keywords. Must already "
-        "have an entry in the ``observatory`` table. If not specified, "
-        "--observatory-location is used to determine the observatory.",
-    )
-    parser.add_argument(
-        "--observatory-location",
-        metavar=("LATITUDE", "LONGITUDE", "ALTITUDE"),
-        default=["LAT_OBS", "LONG_OBS", "ALT_OBS"],
-        nargs=3,
-        help="The latitude and longitude of the observatory from where the "
-        "images were collected. Can be arbitrary expression involving header "
-        "keywords. Must already have an entry in the ``observatory`` table "
-        "within approximately 100km. Only used if --observatory is not "
-        "specified.",
-    )
-    parser.add_argument(
-        "--target-ra",
-        "--ra",
-        default="RA_MNT",
-        help="The RA targetted by the observations in degrees. Can be arbitrary"
-        " expression involving header keywords. If target table already "
-        "contains an entry for this target, the RA must match within 1%% of the"
-        " field of view or an error is raised. It can be left unspecified if "
-        "the target is already in the target table, in which case it will be "
-        "identified by name.",
-    )
-    parser.add_argument(
-        "--target-dec",
-        "--dec",
-        default="DEC_MNT",
-        help="The Dec targetted by the observations. See --target-ra for "
-        "details.",
-    )
-    parser.add_argument(
-        "--target-name",
-        "--target",
-        default="FIELD",
-        help="The name of the targetted area of the sky. Can be arbitrary "
-        "expression involving header keywords. If not already in the target "
-        "table it is automatically added.",
-    )
-    parser.add_argument(
-        "--target-match-tolerance",
-        type=float,
-        default=0.05,
-        help="Maximum allowed separation between image and target"
-        " as a fraction of the field of view (default: 0.05 = 5%%). "
-        "Used to verify target consistency when adding images.",
-    )
-    parser.add_argument(
-        "--observing-session-label",
-        "--session-label",
-        "--session",
-        default="SEQID",
-        help="Unique label for the observing session. Can be arbitrary "
-        "expression involving header keywords. If not already in the "
-        "observing_session table it is automatically added. It will also be "
-        "added as ``OBS-SESN`` keyword to the calibrated images.",
+        description=__doc__,
+        input_type=inputtype,
+        add_provenance_args=True,
     )
     parser.add_argument(
         "--image-type",
@@ -169,213 +61,6 @@ def parse_command_line(*args):
             )
 
     return parser.parse_args(*args)
-
-
-def get_or_create_target(
-    image_type, header_eval, configuration, db_session, field_of_view
-):
-    """Return the target corresponding to the image (create if necessary)."""
-
-    target_name = header_eval(configuration["target_name"])
-    db_target = (
-        db_session.query(Target).filter_by(name=target_name).one_or_none()
-    )
-    no_pointing_imtypes = ["zero", "dark", "flat"]
-    if image_type in no_pointing_imtypes:
-        image_target = {"ra": None, "dec": None}
-    else:
-        image_target = {
-            "ra": header_eval(configuration["target_ra"]),
-            "dec": header_eval(configuration["target_dec"]),
-        }
-
-    if db_target is None:
-        # False positive
-        # pylint: disable=not-callable
-        db_target = Target(
-            **image_target, name=header_eval(configuration["target_name"])
-        )
-        # pylint: enable=not-callable
-        db_session.add(db_target)
-    elif image_type not in no_pointing_imtypes:
-        image_target = SkyCoord(
-            image_target["ra"] * units.deg, image_target["dec"] * units.deg
-        )
-        _logger.debug(
-            "Checking target %s for %s image. From DB: %s vs image: %s",
-            target_name,
-            repr(image_type),
-            repr(db_target),
-            repr(image_target),
-        )
-        assert (
-            image_target.separation(
-                SkyCoord(
-                    ra=db_target.ra * units.deg, dec=db_target.dec * units.deg
-                )
-            )
-            < configuration["target_match_tolerance"] * field_of_view
-        )
-
-    return db_target
-
-
-def _match_observatory(db_observatory, image_location):
-    """True iff the observatory matches the image location."""
-
-    db_location = EarthLocation(
-        lat=db_observatory.latitude * units.deg,
-        lon=db_observatory.longitude * units.deg,
-        height=db_observatory.altitude * units.m,
-    )
-    return (
-        (image_location.x - db_location.x) ** 2
-        + (image_location.y - db_location.y) ** 2
-        + (image_location.z - db_location.z) ** 2
-    ) ** 0.5 < 100 * units.km
-
-
-def get_observatory(header_eval, configuration, db_session):
-    """Return the observatory corresponding to the image (must exist)."""
-
-    _logger.debug(
-        "Observatory location: %s", repr(configuration["observatory_location"])
-    )
-    latitude, longitude, altitude = (
-        header_eval(expression)
-        for expression in configuration["observatory_location"]
-    )
-    image_location = EarthLocation(
-        lat=latitude * units.deg,
-        lon=longitude * units.deg,
-        height=altitude * units.m,
-    )
-
-    if configuration["observatory"] is None:
-        observatory = None
-        for db_observatory in db_session.query(Observatory).all():
-            if _match_observatory(db_observatory, image_location):
-                assert observatory is None
-                observatory = db_observatory
-    else:
-        observatory = (
-            db_session.query(Observatory)
-            .filter_by(name=header_eval(configuration["observatory"]))
-            .one()
-        )
-        assert _match_observatory(observatory, image_location)
-
-    return observatory
-
-
-def get_or_create_observing_session(
-    image_type, header_eval, configuration, db_session
-):
-    """Return the observing session the image is part of (create if needed)."""
-
-    observer = (
-        db_session.query(Observer)
-        .filter_by(name=header_eval(configuration["observer"]))
-        .one()
-    )
-    camera = (
-        db_session.query(Camera)
-        .filter_by(
-            serial_number=header_eval(configuration["camera_serial_number"])
-        )
-        .one()
-    )
-    telescope = (
-        db_session.query(Telescope)
-        .filter_by(
-            serial_number=header_eval(configuration["telescope_serial_number"])
-        )
-        .one()
-    )
-    mount = (
-        db_session.query(Mount)
-        .filter_by(
-            serial_number=header_eval(configuration["mount_serial_number"])
-        )
-        .one()
-    )
-    observatory = get_observatory(header_eval, configuration, db_session)
-    field_of_view = (
-        max(camera.camera_type.x_resolution, camera.camera_type.y_resolution)
-        * camera.camera_type.pixel_size
-        * units.um
-        / (telescope.telescope_type.focal_length * units.mm)
-    ) * units.rad
-    target = get_or_create_target(
-        image_type, header_eval, configuration, db_session, field_of_view
-    )
-    exposure_start = None
-    for time_format in ("utc", "jd"):
-        if configuration[f"exposure_start_{time_format}"]:
-            exposure_start = Time(
-                header_eval(configuration[f"exposure_start_{time_format}"]),
-                format=None if time_format == "utc" else time_format,
-            )
-            header_eval.symtable["JD-OBS"] = exposure_start.jd + header_eval(
-                configuration["exposure_seconds"]
-            ) / (2.0 * 24.0 * 3600.0)
-            exposure_start = exposure_start.utc.to_value("datetime")
-    assert exposure_start is not None
-    exposure_end = exposure_start + timedelta(
-        seconds=header_eval(configuration["exposure_seconds"])
-    )
-
-    result = (
-        db_session.query(ObservingSession)
-        .filter_by(label=header_eval(configuration["observing_session_label"]))
-        .one_or_none()
-    )
-    if result is None:
-        result = ObservingSession(
-            observer_id=observer.id,
-            camera_id=camera.id,
-            telescope_id=telescope.id,
-            mount_id=mount.id,
-            observatory_id=observatory.id,
-            target_id=target.id,
-            label=header_eval(configuration["observing_session_label"]),
-            start_time_utc=exposure_start,
-            end_time_utc=exposure_end,
-        )
-    else:
-        if any(
-            [
-                result.observer_id != observer.id,
-                result.camera_id != camera.id,
-                result.telescope_id != telescope.id,
-                result.mount_id != mount.id,
-                result.observatory_id != observatory.id,
-                result.target_id != target.id,
-            ]
-        ):
-            raise RuntimeError(
-                "Mismatch between observing session and other header "
-                "information:\n\t"
-                + "\n\t".join(
-                    [
-                        f'{what} ID: header = {getattr(result, what + "_id")} '
-                        f"session = {obj.id}: {obj}"
-                        for what, obj in [
-                            ("observer", observer),
-                            ("camera", camera),
-                            ("telescope", telescope),
-                            ("mount", mount),
-                            ("observatory", observatory),
-                            ("target", target),
-                        ]
-                    ]
-                )
-            )
-
-        result.start_time_utc = min(result.start_time_utc, exposure_start)
-        result.end_time_utc = max(result.end_time_utc, exposure_end)
-
-    return result
 
 
 def create_image(image_fname, header_eval, configuration, db_session):

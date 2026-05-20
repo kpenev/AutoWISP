@@ -6,7 +6,9 @@
 
 # Ignore vim swap files
 .*.swp
+.swp
 .*.swo
+.swo
 
 # Ignore debug files
 *.out

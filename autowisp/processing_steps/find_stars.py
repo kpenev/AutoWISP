@@ -2,6 +2,7 @@
 
 """Detect stars within calibrated image(s)."""
 
+from contextlib import ExitStack
 from functools import partial
 from multiprocessing import Pool
 from os import path, getpid
@@ -12,10 +13,21 @@ from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
 )
+from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
 from autowisp.source_finder import SourceFinder
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.database.interface import start_db_session
+from autowisp.database.provenance_resolver import (
+    get_or_create_observing_session,
+)
+
+# false positive due to unusual importing
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model import ObservingSession
+
+# pylint: enable=no-name-in-module
 
 input_type = "calibrated + dr"
 _logger = logging.getLogger(__name__)
@@ -29,6 +41,7 @@ def parse_command_line(*args):
         input_type=("+dr" if args else input_type),
         allow_parallel_processing=True,
         add_component_versions=("srcextract",),
+        add_provenance_args=True,
     )
     parser.add_argument(
         "--srcextract-only-if",
@@ -85,10 +98,68 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def find_stars_single(
-    image_fname, find_stars_in_image, srcextract_version, mark_start, mark_end
+def _resolve_observing_session_ids(image_collection, configuration):
+    """Pre-resolve provenance once in the parent (single-threaded).
+
+    Returns a ``{image_fname: observing_session_id}`` map. Empty if
+    ``--no-provenance`` is set. Running this in the parent avoids the
+    target/session-name UNIQUE races that would otherwise hit when several
+    worker processes call ``get_or_create_*`` against the same survey row.
+    """
+
+    if configuration.get("no_provenance"):
+        return {}
+
+    result = {}
+    with start_db_session() as db_session:
+        for image_fname in image_collection:
+            header_eval = Evaluator(image_fname)
+            header_eval.symtable["FULLPATH"] = image_fname
+            observing_session = get_or_create_observing_session(
+                "object", header_eval, configuration, db_session
+            )
+            db_session.flush()
+            result[image_fname] = observing_session.id
+    return result
+
+
+def _find_stars_worker(  # pylint: disable=too-many-arguments
+    image_fname,
+    *,
+    find_stars_in_image,
+    srcextract_version,
+    mark_start,
+    mark_end,
+    observing_session_ids,
 ):
-    """Find the stars in a single image."""
+    """Pool worker: dispatch to ``find_stars_single`` with the matching id."""
+
+    find_stars_single(
+        image_fname,
+        find_stars_in_image,
+        srcextract_version,
+        mark_start,
+        mark_end,
+        observing_session_id=observing_session_ids.get(image_fname),
+    )
+
+
+def find_stars_single(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+    image_fname,
+    find_stars_in_image,
+    srcextract_version,
+    mark_start,
+    mark_end,
+    observing_session_id=None,
+):
+    """Find the stars in a single image.
+
+    If ``observing_session_id`` is given (i.e. provenance was pre-resolved by
+    the caller), the worker looks up the ``ObservingSession`` row by id and
+    writes the ``/Provenance`` group to the DR file. Pre-resolving in the
+    caller -- rather than per worker -- is what prevents races when multiple
+    workers see the same target/session.
+    """
 
     fits_header = get_primary_header(image_fname)
     _logger.debug("Extracting sources from %r", image_fname)
@@ -97,8 +168,18 @@ def find_stars_single(
     mark_start(image_fname)
     _logger.debug("Marked started: %r", extracted_sources)
 
-    with DataReductionFile(header=fits_header, mode="a") as dr_file:
-        dr_file.add_frame_header(fits_header)
+    with ExitStack() as stack:
+        observing_session = None
+        if observing_session_id is not None:
+            db_session = stack.enter_context(start_db_session())
+            observing_session = db_session.get(
+                ObservingSession, observing_session_id
+            )
+
+        dr_file = stack.enter_context(
+            DataReductionFile(header=fits_header, mode="a")
+        )
+        dr_file.initialize(fits_header, observing_session=observing_session)
         _logger.debug("Added header from: %r", extracted_sources)
         dr_file.add_sources(
             extracted_sources,
@@ -122,7 +203,7 @@ def find_stars(
     _logger.debug(
         "Start of find_stars steps for DB %s for %d images with configuration "
         "%s",
-        configuration['project_home'],
+        configuration["project_home"],
         len(image_collection),
         repr(configuration),
     )
@@ -138,6 +219,9 @@ def find_stars(
         max_sources=configuration["srcextract_max_sources"],
     )
     _logger.debug("Created source finder")
+    observing_session_ids = _resolve_observing_session_ids(
+        image_collection, configuration
+    )
     if configuration["num_parallel_processes"] == 1:
         _logger.debug(
             "Running in serial mode for images: %s", repr(image_collection)
@@ -150,6 +234,7 @@ def find_stars(
                 configuration["srcextract_version"],
                 mark_start,
                 mark_end,
+                observing_session_id=observing_session_ids.get(image_fname),
             )
             _logger.debug("Finished extracting stars in image %s", image_fname)
 
@@ -158,7 +243,7 @@ def find_stars(
         _logger.debug(
             "Running in parallel mode with config %s and DB fname %s",
             configuration,
-            configuration['project_home'],
+            configuration["project_home"],
         )
 
         with Pool(
@@ -168,11 +253,12 @@ def find_stars(
         ) as pool:
             pool.map(
                 partial(
-                    find_stars_single,
+                    _find_stars_worker,
                     find_stars_in_image=find_stars_in_image,
                     srcextract_version=configuration["srcextract_version"],
                     mark_start=mark_start,
                     mark_end=mark_end,
+                    observing_session_ids=observing_session_ids,
                 ),
                 image_collection,
             )
@@ -203,9 +289,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     find_stars(
         list(

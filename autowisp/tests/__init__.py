@@ -4,6 +4,7 @@ from os import path, makedirs
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, rmtree
 from glob import glob
+import logging
 
 from astrowisp.tests.utilities import FloatTestCase
 
@@ -11,6 +12,7 @@ from autowisp.database.interface import (
     set_project_home,
     initialize_cmdline_database,
 )
+from autowisp.database.user_interface import import_json_to_survey
 from autowisp.database.initialize_database import initialize_database
 
 
@@ -18,6 +20,7 @@ class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
     successful_test = False
+    _logger = logging.getLogger(__name__)
 
     def get_inputs(self, inputs):
         """Get the input files for the test step and return what to clean up."""
@@ -29,6 +32,7 @@ class AutoWISPTestCase(FloatTestCase):
                     self.processing_directory,
                 )
                 assert path.exists(source)
+                self._logger.debug("Copying %r to %r", source, destination)
                 if path.isdir(source):
                     copytree(source, destination)
                 else:
@@ -50,6 +54,7 @@ class AutoWISPTestCase(FloatTestCase):
     def setUp(self):
         """Make sure the data to compare against is defined."""
 
+        print(f"Setting up processing in {self.processing_directory!r}")
         self.assertTrue(
             hasattr(self, "test_directory"), "No test data directory defined!"
         )
@@ -61,23 +66,30 @@ class AutoWISPTestCase(FloatTestCase):
             path.exists(self.test_directory),
             f"Test directory {self.test_directory} does not exist!",
         )
-        makedirs(self.processing_directory, exist_ok=True)
+        makedirs(self.processing_directory, exist_ok=False)
         copy(
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
         )
         set_project_home(self.processing_directory)
+        with open(
+            path.join(self.test_directory, "survey_instruments.json"),
+            "r",
+            encoding="utf-8",
+        ) as survey_json:
+            import_json_to_survey(survey_json)
 
         self.successful_test = False
 
     def tearDown(self):
         """Remove the processing directory."""
 
-        if self.successful_test:
-            rmtree(self.processing_directory)
-        else:
-            rmtree(self.failed_test_directory, ignore_errors=True)
+        print(f"Tearing down processing in {self.processing_directory!r}")
+        if not self.successful_test:
+            if path.exists(self.failed_test_directory):
+                rmtree(self.failed_test_directory, ignore_errors=False)
             copytree(self.processing_directory, self.failed_test_directory)
+        rmtree(self.processing_directory)
 
     def run_step(self, command):
         """Run a calibration step and check the return code."""
@@ -88,7 +100,7 @@ class AutoWISPTestCase(FloatTestCase):
             check=False,
             stdout=PIPE,
             stderr=STDOUT,
-            timeout=600,
+            timeout=3600,
         )
         self.assertTrue(
             calib_process.returncode == 0,

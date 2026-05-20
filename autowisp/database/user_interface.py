@@ -3,8 +3,11 @@
 
 import json
 import logging
+import sys
 from time import sleep
 from traceback import print_exc
+
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from sqlalchemy import sql, select, delete, inspect, func, and_
 from sqlalchemy.orm import ColumnProperty
@@ -800,18 +803,13 @@ def add_camera_type_channels(camera_type_id, properties, db_session):
         return edit_id, edit_property
 
     channel_info = get_channel_info()
-    print(80 * "*")
-    print(f"Channel info: {channel_info!r}")
     result = remove_unspecified(channel_info)
-    print(f"Cleaned channel info: {channel_info!r}")
-    print(f"Result: {result!r}")
     if channel_info:
         assert (
             camera_type_id >= 0
         ), "Attempting to set channels of non-existant camera type"
 
     for channel_id, channel_properties in channel_info.items():
-        print(f"Editing channel {channel_id} per: {channel_properties!r}")
         if channel_id == "new":
             db_channel = provenance.CameraChannel(  # pylint: disable=no-member
                 camera_type_id=camera_type_id, **channel_properties
@@ -827,7 +825,6 @@ def add_camera_type_channels(camera_type_id, properties, db_session):
 
         if channel_id == "new":
             db_session.add(db_channel)
-    print(80 * "*")
     return result
 
 
@@ -882,10 +879,6 @@ def update_db_entry(
     Add/update a survey component or type, return its ID and what to autofocus.
     """
 
-    print(80 * "*")
-    print(repr(properties))
-    print(80 * "*")
-
     incomplete = None
     entry_id = int(entry_id)
     if entry_id < 0:
@@ -913,7 +906,6 @@ def update_db_entry(
             ):
                 incomplete = {"channel": channel_incomplete}
         elif attr != "type":
-            print(f"Updating {type(db_item)}.{attr} with {properties}")
             setattr(db_item, attr, properties[get_human_name(attr)])
 
     if "type" in attribute_names:
@@ -1064,15 +1056,52 @@ def export_survey_to_json(destination, **limit_to):
     json.dump(config, destination, indent=4)
 
 
-def main():
-    """Avoid polluting the global namespace."""
+def parse_command_line():
+    """Return the parsed command line configuration."""
 
-    set_project_home("/home/kpenev/tmp/autowisp_test/BUI_test")
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    with open("test_survey.json", "w", encoding="utf-8") as outf:
-        export_survey_to_json(outf)
-    # import_json_to_survey(open("test_survey.json", "r", encoding="utf-8"))
+    parser = ArgumentParser(
+        description="Import or export survey configuration to/from JSON.",
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False,
+    )
+    parser.add_argument(
+        "project_home",
+        help="Path to the project home directory.",
+    )
+    parser.add_argument(
+        "action",
+        choices=["import", "export"],
+        help="Whether to import JSON into the survey database or export "
+        "survey data to JSON.",
+    )
+    parser.add_argument(
+        "--filename",
+        "-f",
+        default=None,
+        help="File to read from (import) or write to (export). "
+        "Defaults to stdin for import and stdout for export.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    """Run the import or export action specified on the command line."""
+
+    config = parse_command_line()
+    set_project_home(config.project_home)
+    if config.action == "import":
+        if config.filename is None:
+            import_json_to_survey(sys.stdin)
+        else:
+            with open(config.filename, "r", encoding="utf-8") as json_file:
+                import_json_to_survey(json_file)
+    else:
+        if config.filename is None:
+            export_survey_to_json(sys.stdout)
+        else:
+            with open(config.filename, "w", encoding="utf-8") as json_file:
+                export_survey_to_json(json_file)
 
 
 if __name__ == "__main__":

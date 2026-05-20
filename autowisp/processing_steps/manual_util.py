@@ -238,6 +238,116 @@ class ManualStepArgumentParser(ArgumentParser):
                 "are considered outliers.",
             )
 
+    def _add_provenance_args(self):
+        """Add provenance flags mirroring ``wisp-add-images-to-db``.
+
+        These let a manual step resolve a FITS header to the survey-database
+        rows (``Camera``, ``Telescope``, ``Mount``, ``Observatory``, ``Observer``,
+        ``Target``) via
+        :func:`autowisp.database.provenance_resolver.get_or_create_observing_session`,
+        so that the ``/Provenance`` group can be written to the DR file
+        without requiring ``wisp-add-images-to-db`` to have been run.
+
+        Flag names and defaults intentionally mirror
+        ``wisp-add-images-to-db`` so a shared config file works for both.
+        """
+
+        self.add_argument(
+            "--observer",
+            default="ORIGIN",
+            help="The name of the observer who/which collected the images. Can "
+            "be arbitrary expression involving header keywords. Must already "
+            "have an entry in the ``observer`` table.",
+        )
+        self.add_argument(
+            "--camera-serial-number",
+            "--cam-sn",
+            default="CAMSN",
+            help="The serial number of the camera which collected the images. "
+            "Can be arbitrary expression involving header keywords. Must "
+            "already have an entry in the ``camera`` table.",
+        )
+        self.add_argument(
+            "--telescope-serial-number",
+            "--tel-sn",
+            default="INTSN",
+            help="The serial number of the telescope (lens) which collected "
+            "the images. Can be arbitrary expression involving header "
+            "keywords. Must already have an entry in the ``telescope`` table.",
+        )
+        self.add_argument(
+            "--mount-serial-number",
+            "--mount-sn",
+            default="OBSERVER",
+            help="The serial number of the mount which collected the images. "
+            "Can be arbitrary expression involving header keywords. Must "
+            "already have an entry in the ``mount`` table.",
+        )
+        self.add_argument(
+            "--observatory",
+            default=None,
+            help="The name of the observatory from where the images were "
+            "collected. Can be arbitrary expression involving header keywords. "
+            "Must already have an entry in the ``observatory`` table. If not "
+            "specified, ``--observatory-location`` is used to determine the "
+            "observatory.",
+        )
+        self.add_argument(
+            "--observatory-location",
+            metavar=("LATITUDE", "LONGITUDE", "ALTITUDE"),
+            default=["LAT_OBS", "LONG_OBS", "ALT_OBS"],
+            nargs=3,
+            help="The latitude, longitude, and altitude of the observatory. "
+            "Can be arbitrary expressions involving header keywords. The "
+            "matching ``observatory`` row must be within ~100km. Only used if "
+            "``--observatory`` is not specified.",
+        )
+        self.add_argument(
+            "--target-ra",
+            "--ra",
+            default="RA_MNT",
+            help="The RA targeted by the observations in degrees. Can be "
+            "arbitrary expression involving header keywords.",
+        )
+        self.add_argument(
+            "--target-dec",
+            "--dec",
+            default="DEC_MNT",
+            help="The Dec targeted by the observations in degrees. Can be "
+            "arbitrary expression involving header keywords.",
+        )
+        self.add_argument(
+            "--target-name",
+            "--target",
+            default="FIELD",
+            help="The name of the targeted area of the sky. Can be arbitrary "
+            "expression involving header keywords.",
+        )
+        self.add_argument(
+            "--target-match-tolerance",
+            type=float,
+            default=0.05,
+            help="Maximum allowed separation between image and target as a "
+            "fraction of the field of view (default: 0.05 = 5%%).",
+        )
+        self.add_argument(
+            "--observing-session-label",
+            "--session-label",
+            "--session",
+            default="SEQID",
+            help="Unique label for the observing session. Can be arbitrary "
+            "expression involving header keywords.",
+        )
+        self.add_argument(
+            "--no-provenance",
+            action="store_true",
+            default=False,
+            help="Skip resolving and writing the ``/Provenance`` HDF5 group. "
+            "Use when the survey database has not been populated via "
+            "``wisp-survey import``. ``wisp-add-images-to-db`` ignores this "
+            "flag and always resolves provenance.",
+        )
+
     def _add_exposure_timing(self):
         """Add command line arguments to determine exposure start & duration."""
 
@@ -275,6 +385,7 @@ class ManualStepArgumentParser(ArgumentParser):
         convert_to_dict=True,
         add_lc_fname_arg=False,
         add_exposure_timing=False,
+        add_provenance_args=False,
         skip_io=False,
     ):
         """
@@ -448,8 +559,10 @@ class ManualStepArgumentParser(ArgumentParser):
         if add_catalog:
             self._add_catalog_args(add_catalog)
 
-        if add_exposure_timing:
+        if add_exposure_timing or add_provenance_args:
             self._add_exposure_timing()
+        if add_provenance_args:
+            self._add_provenance_args()
 
         if add_photref:
             self.add_argument(

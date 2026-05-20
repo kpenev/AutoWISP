@@ -84,7 +84,7 @@ class H5TestCase(AutoWISPTestCase):
                     with self.subTest(
                         msg=(
                             f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does "
-                            f"not match {dr_fname1!r}/{obj1.name!r}.{key}: "
+                            f"not match {dr_fname2!r}/{obj1.name!r}.{key}: "
                             f"{value!r} vs {obj2.attrs[key]!r}."
                         )
                     ):

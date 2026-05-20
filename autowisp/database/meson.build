@@ -10,6 +10,7 @@ py_src = [
   'lightcurve_processing.py',
   'manually_fill_tables.py',
   'processing.py',
+  'provenance_resolver.py',
   'user_interface.py',
 ]
 
