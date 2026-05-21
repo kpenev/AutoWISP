@@ -216,22 +216,6 @@ def get_current_sources():
         anet_wide_label=anet_wide_label,
     )
 
-def reset_compose_to_git():
-    """Reset compose.yaml to HEAD version using git restore.
-
-    This function runs 'git restore --staged' equivalent for the compose file
-    by calling 'git restore <path>' in the project root. It returns (ok, msg).
-    """
-    try:
-        # run git restore from PROJECT_ROOT
-        p = str(COMPOSE_PATH)
-        # Use subprocess; do not raise on non-zero so we can return message
-        proc = subprocess.run(["git", "restore", p], cwd=str(PROJECT_ROOT), capture_output=True, text=True)
-        if proc.returncode != 0:
-            return False, proc.stderr.strip() or proc.stdout.strip()
-        return True, "compose.yaml restored from git"
-    except Exception as e:
-        return False, str(e)
 
 class MountPoint:
     def __init__(self, root, row, label_text, initial_value, title, on_select=None, width=60):
@@ -310,8 +294,6 @@ class ComposeEditorApp:
         button_frame = tk.Frame(root)
         button_frame.grid(row=6, column=0, columnspan=3, pady=8)
 
-        self.reset_btn = tk.Button(button_frame, text="Reset compose.yaml (git restore)", command=self.reset_compose)
-        self.reset_btn.grid(row=0, column=0, padx=6)
         self.run_btn = tk.Button(button_frame, text="Run 'docker compose up'", command=self.run_docker)
         self.run_btn.grid(row=0, column=1, padx=6)
 
@@ -387,7 +369,6 @@ class ComposeEditorApp:
             mount.set_state("disabled")
 
         # Action buttons
-        self.reset_btn.configure(state="disabled")
         self.run_btn.configure(state="disabled")
 
         # Keep storage entry and browse enabled
@@ -543,34 +524,6 @@ class ComposeEditorApp:
             threading.Thread(target=_poll_and_open, daemon=True).start()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to start docker compose: {e}")
-
-    def reset_compose(self):
-        ok, msg = reset_compose_to_git()
-        if ok:
-            messagebox.showinfo("Reset", msg)
-            # refresh GUI fields to reflect restored compose file
-            sources = get_current_sources()
-            storage = sources.storage
-            tmp = sources.tmp
-            bui = sources.bui
-            anet_narrow = sources.anet_narrow
-            anet_wide = sources.anet_wide
-            storage_label = sources.storage_label
-            tmp_label = sources.tmp_label
-            bui_label = sources.bui_label
-            anet_narrow_label = sources.anet_narrow_label
-            anet_wide_label = sources.anet_wide_label
-            # update variables and labels
-            self.storage_var.set(storage)
-            self.tmp_var.set(tmp)
-            if hasattr(self, 'bui_var'):
-                self.bui_var.set(bui)
-            if hasattr(self, 'anet_narrow_var'):
-                self.anet_narrow_var.set(anet_narrow)
-            if hasattr(self, 'anet_wide_var'):
-                self.anet_wide_var.set(anet_wide)
-        else:
-            messagebox.showerror("Reset failed", msg)
 
 
 def find_and_replace_port(text, new_host_port):
