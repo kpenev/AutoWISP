@@ -10,6 +10,7 @@ import time
 import webbrowser
 import urllib.request
 from pathlib import Path
+from types import SimpleNamespace
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext
 
@@ -65,6 +66,7 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
         `target: /storage/<container name>` by using prefix matching instead of
         exact equality.
         """
+        # TODO: simplify this by proper usage of regular expressions
         # find line index with target: {target} or target: {target}/...
         for i, line in enumerate(lines):
             s = line.strip()
@@ -211,17 +213,17 @@ def get_current_sources():
                                         anet_wide_label = text_label
                             break
 
-    return (
-        storage,
-        tmp,
-        bui,
-        anet_narrow,
-        anet_wide,
-        storage_label,
-        tmp_label,
-        bui_label,
-        anet_narrow_label,
-        anet_wide_label,
+    return SimpleNamespace(
+        storage=storage,
+        tmp=tmp,
+        bui=bui,
+        anet_narrow=anet_narrow,
+        anet_wide=anet_wide,
+        storage_label=storage_label,
+        tmp_label=tmp_label,
+        bui_label=bui_label,
+        anet_narrow_label=anet_narrow_label,
+        anet_wide_label=anet_wide_label,
     )
 
 def reset_compose_to_git():
@@ -247,18 +249,17 @@ class ComposeEditorApp:
         self.root = root
         root.title("AutoWISP Compose Editor")
 
-        (
-            storage,
-            tmp,
-            bui,
-            anet_narrow,
-            anet_wide,
-            storage_label,
-            tmp_label,
-            bui_label,
-            anet_narrow_label,
-            anet_wide_label,
-        ) = get_current_sources()
+        sources = get_current_sources()
+        storage = sources.storage
+        tmp = sources.tmp
+        bui = sources.bui
+        anet_narrow = sources.anet_narrow
+        anet_wide = sources.anet_wide
+        storage_label = sources.storage_label
+        tmp_label = sources.tmp_label
+        bui_label = sources.bui_label
+        anet_narrow_label = sources.anet_narrow_label
+        anet_wide_label = sources.anet_wide_label
         host_port, container_port, quote = get_current_port()
 
         # Use labels extracted from the compose YAML placeholders when available
@@ -624,18 +625,17 @@ class ComposeEditorApp:
         if ok:
             messagebox.showinfo("Reset", msg)
             # refresh GUI fields to reflect restored compose file
-            (
-                storage,
-                tmp,
-                bui,
-                anet_narrow,
-                anet_wide,
-                storage_label,
-                tmp_label,
-                bui_label,
-                anet_narrow_label,
-                anet_wide_label,
-            ) = get_current_sources()
+            sources = get_current_sources()
+            storage = sources.storage
+            tmp = sources.tmp
+            bui = sources.bui
+            anet_narrow = sources.anet_narrow
+            anet_wide = sources.anet_wide
+            storage_label = sources.storage_label
+            tmp_label = sources.tmp_label
+            bui_label = sources.bui_label
+            anet_narrow_label = sources.anet_narrow_label
+            anet_wide_label = sources.anet_wide_label
             # update variables and labels
             self.storage_var.set(storage)
             self.tmp_var.set(tmp)
