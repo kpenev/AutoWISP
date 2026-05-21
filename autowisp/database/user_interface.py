@@ -1,8 +1,10 @@
 # pylint: disable=too-many-lines
 """Define interface to the pipeline database."""
 
+import copy
 import json
 import logging
+import re
 import sys
 from time import sleep
 from traceback import print_exc
@@ -12,6 +14,7 @@ from configargparse import ArgumentParser, DefaultsFormatter
 from sqlalchemy import sql, select, delete, inspect, func, and_
 from sqlalchemy.orm import ColumnProperty
 
+from autowisp.database import defaults as database_defaults
 from autowisp.database.interface import start_db_session, set_project_home
 from autowisp.database.data_model import provenance
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -990,6 +993,185 @@ def import_json_to_survey(json_file):
                 "Mal-formatted or not fully specified configuration for "
                 f"{key}: {value!r}"
             )
+
+
+def master_config_json_to_settings(json_obj):
+    """Translate a ``master_config.json`` structure into master settings.
+
+    The JSON has the shape
+    ``{master_type: {"enabled": ..., "split": [...], "match": [...]}, ...}``,
+    where ``master_type`` is ``"zero"``, ``"dark"``, ``"flat"``, etc. The
+    returned mapping uses ``"master-<type>-<param>"`` keys for every
+    ``(type, param)`` pair iterated over by the BUI -- ``master_info`` is
+    the canonical iteration order, with both ``highflat`` and ``lowflat``
+    collapsed onto ``flat`` so the keys produced here match what the BUI's
+    session storage uses.
+
+    Args:
+        json_obj: The result of ``json.load(...)`` on a master-config file.
+
+    Returns:
+        dict[str, str | list[str]]: Suitable as ``master_settings`` for
+        :func:`apply_master_config`.
+    """
+
+    master_settings = {}
+    for master_type in database_defaults.master_info:
+        if master_type in ("highflat", "lowflat"):
+            master_type = "flat"
+        for param in ("enabled", "split", "match"):
+            master_settings[f"master-{master_type}-{param}"] = json_obj[
+                master_type
+            ][param]
+    return master_settings
+
+
+def apply_master_config(master_settings):
+    """Apply user-supplied master settings to the default step / master info.
+
+    This is the pure-Python core of what the BUI uses to take the user's
+    chosen master configuration and produce the ``step_dependencies`` /
+    ``master_info`` arguments for
+    :func:`autowisp.database.initialize_database.initialize_database`.
+
+    Args:
+        master_settings: Mapping keyed by ``"master-<type>-<param>"``,
+            with values:
+
+            * ``"<type>-enabled"``: ``"always"`` or an int-as-string
+              (``"0"`` to disable, ``"1"`` to enable).
+            * ``"<type>-split"``, ``"<type>-match"``: iterables of header
+              expressions.
+
+            Both plain ``dict`` and Django ``QueryDict`` are accepted; the
+            list-valued keys are read via ``.getlist(...)`` when available
+            and otherwise via ``mapping[key]``.
+
+    Returns:
+        tuple of (step_dependencies, master_info): deep copies of the
+        ``database.defaults`` values with disabled masters pruned and the
+        ``must_match`` / ``split_by`` sets replaced from ``master_settings``.
+    """
+
+    def get_list(key):
+        if hasattr(master_settings, "getlist"):
+            return master_settings.getlist(key)
+        return master_settings[key]
+
+    step_dependencies = copy.deepcopy(database_defaults.step_dependencies)
+    master_info = copy.deepcopy(database_defaults.master_info)
+
+    disabled_masters = [
+        master_type
+        for master_type in ("zero", "dark", "flat")
+        if int(master_settings[f"master-{master_type}-enabled"]) == 0
+    ]
+    for i in range(len(step_dependencies) - 1, -1, -1):
+        if step_dependencies[i][0] == "calibrate":
+            if step_dependencies[i][1] in disabled_masters:
+                del step_dependencies[i]
+            else:
+                assert step_dependencies[i][1] in (
+                    "zero",
+                    "dark",
+                    "flat",
+                    "object",
+                )
+                for master_type in disabled_masters:
+                    try:
+                        step_dependencies[i][2].remove(
+                            (
+                                "stack_to_master"
+                                + ("_flat" if master_type == "flat" else ""),
+                                master_type,
+                            )
+                        )
+                    except ValueError:
+                        pass
+        elif (
+            step_dependencies[i][0].startswith("stack_to_master")
+            and step_dependencies[i][1] in disabled_masters
+        ):
+            del step_dependencies[i]
+
+    for master_type in disabled_masters:
+        if master_type == "flat":
+            del master_info["highflat"]
+            del master_info["lowflat"]
+        else:
+            del master_info[master_type]
+
+    for master_type, master_config in master_info.items():
+        if master_type in ("highflat", "lowflat"):
+            master_type = "flat"
+        enabled = master_settings[f"master-{master_type}-enabled"]
+        assert enabled == "always" or int(enabled) == 1
+        master_config["must_match"] = frozenset(
+            filter(None, get_list(f"master-{master_type}-match"))
+        )
+        master_config["split_by"] = frozenset(
+            filter(None, get_list(f"master-{master_type}-split"))
+        )
+
+    return step_dependencies, master_info
+
+
+def parse_config_overwrites(lines):
+    """Parse plain-text configuration lines into an overwrites dict.
+
+    Each non-blank, non-comment, non-section line is parsed as ``key`` or
+    ``key = value`` (``:`` is also accepted as the separator). Trailing
+    ``#`` comments are stripped. ``;`` is *not* a comment marker --
+    semicolons in unquoted values are preserved as data. Quoted values
+    keep their inner content (the surrounding quotes are removed).
+    Section headers (``[name]``) and blank lines are skipped.
+
+    Keys that are never valid as DB parameter overrides are silently
+    dropped, mirroring what the BUI's
+    ``static/home/js/create.project.js`` does before populating the
+    textarea: ``project-home`` (the project directory itself) and
+    ``split-channels`` (generated from camera information). The list is
+    a subset of what
+    :class:`autowisp.database.initialize_database.StepCreator` already
+    refuses to insert as a Parameter row.
+
+    Args:
+        lines: Iterable of strings, one per config line. Trailing
+            newlines are tolerated.
+
+    Returns:
+        dict[str, list[tuple[None, str | None]]]:
+            Suitable for the ``overwrite_default_config`` argument of
+            :func:`autowisp.database.initialize_database.initialize_database`.
+            Keys without a value are stored as ``None``.
+    """
+
+    line_rex = re.compile(
+        r"^\s*(?P<key>[A-Za-z_][\w\-.]*)\s*"
+        r"(?:[:=]\s*"
+        r"(?:(?P<q>['\"])(?P<quoted>.*?)(?P=q)|(?P<value>[^#\n]*?))"
+        r"\s*)?"
+        r"(?:#.*)?$"
+    )
+    non_parameter_keys = frozenset({"project-home", "split-channels"})
+    overwrites = {}
+    for raw in lines:
+        stripped = raw.strip()
+        if not stripped or stripped.startswith(("#", "[")):
+            continue
+        match = line_rex.match(raw)
+        if match is None:
+            continue
+        key = match.group("key")
+        if key in non_parameter_keys:
+            continue
+        value = match.group("quoted")
+        if value is None:
+            value = match.group("value")
+            if value is not None:
+                value = value.strip() or None
+        overwrites[key] = [(None, value)]
+    return overwrites
 
 
 def plural(word):

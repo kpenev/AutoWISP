@@ -2,15 +2,18 @@
 
 import os
 from argparse import Namespace
-import re
 import json
-import copy
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 
 from autowisp.database.interface import set_project_home, DB_URL_FNAME
 from autowisp.database.initialize_database import initialize_database
+from autowisp.database.user_interface import (
+    apply_master_config,
+    master_config_json_to_settings,
+    parse_config_overwrites,
+)
 from autowisp import database
 from autowisp.browser_interface.core.walk_fs_view import WalkFSView
 from .models import Project
@@ -66,71 +69,6 @@ class CreateProjectView(WalkFSView):
             context["valid_home"] = True
         return context
 
-    def _get_steps_and_masters(self, config):
-        """Set the processing sequence and masters per configuration."""
-
-        step_dependencies = copy.deepcopy(database.defaults.step_dependencies)
-        master_info = copy.deepcopy(database.defaults.master_info)
-
-        disabled_masters = [
-            master_type
-            for master_type in ["zero", "dark", "flat"]
-            if int(config[f"master-{master_type}-enabled"]) == 0
-        ]
-        for i in range(len(step_dependencies) - 1, -1, -1):
-            if step_dependencies[i][0] == "calibrate":
-                if step_dependencies[i][1] in disabled_masters:
-                    del step_dependencies[i]
-                else:
-                    assert step_dependencies[i][1] in [
-                        "zero",
-                        "dark",
-                        "flat",
-                        "object",
-                    ]
-
-                    for master_type in disabled_masters:
-                        try:
-                            step_dependencies[i][2].remove(
-                                (
-                                    "stack_to_master"
-                                    + (
-                                        "_flat" if master_type == "flat" else ""
-                                    ),
-                                    master_type,
-                                )
-                            )
-                        except ValueError:
-                            pass
-            elif (
-                step_dependencies[i][0].startswith("stack_to_master")
-                and step_dependencies[i][1] in disabled_masters
-            ):
-                del step_dependencies[i]
-
-        print("step_dependencies:", step_dependencies)
-
-        for master_type in disabled_masters:
-            if master_type == "flat":
-                del master_info["highflat"]
-                del master_info["lowflat"]
-            else:
-                del master_info[master_type]
-
-        for master_type, master_config in master_info.items():
-            if master_type in ["highflat", "lowflat"]:
-                master_type = "flat"
-            enabled = config[f"master-{master_type}-enabled"]
-            assert enabled == "always" or int(enabled) == 1
-            master_config["must_match"] = frozenset(
-                filter(None, config.getlist(f"master-{master_type}-match"))
-            )
-            master_config["split_by"] = frozenset(
-                filter(None, config.getlist(f"master-{master_type}-split"))
-            )
-
-        return step_dependencies, master_info
-
     def _create_project(self, config):
         """Create a new project following the given configuration."""
 
@@ -141,9 +79,7 @@ class CreateProjectView(WalkFSView):
             os.path.join(project_home, self.db_fname)
         ) and not os.path.exists(
             os.path.join(project_home, DB_URL_FNAME)
-        ), (
-            f"Directory {project_home} appears to already contain a project."
-        )
+        ), f"Directory {project_home} appears to already contain a project."
         proj = Project(
             name=config["project-name"],
             path=project_home,
@@ -151,21 +87,11 @@ class CreateProjectView(WalkFSView):
         )
         proj.save()
         set_project_home(project_home, db_url=db_url)
-        overwrites = {}
-
-        config_rex = re.compile(
-            r"^(?P<key>[^:=;#\s]+)\s*"
-            r'(?:(?P<equal>[:=\s])\s*([\'"]?)(?P<value>.+?)?\3)?'
-            r"\s*(?:\s[;#]\s*(?P<comment>.*?)\s*)?$"
-        )
-        for line in config["custom-config"].splitlines():
-            parsed = config_rex.match(line)
-            overwrites[parsed.group("key")] = [(None, parsed.group("value"))]
 
         initialize_database(
             Namespace(drop_hdf5_structure_tables=False, drop_all_tables=True),
-            *self._get_steps_and_masters(config),
-            overwrites,
+            *apply_master_config(config),
+            parse_config_overwrites(config["custom-config"].splitlines()),
         )
 
     def _save_form(self, request):
@@ -196,15 +122,11 @@ class CreateProjectView(WalkFSView):
     def _load_master_config(self, request):
         """Load master configuration from user-supplied JSON file."""
 
-        config = json.load(request.FILES["import-master-config"])
-
-        for master_type in database.defaults.master_info:
-            if master_type in ["highflat", "lowflat"]:
-                master_type = "flat"
-            for param in ["enabled", "split", "match"]:
-                request.session[f"master-{master_type}-{param}"] = config[
-                    master_type
-                ][param]
+        master_settings = master_config_json_to_settings(
+            json.load(request.FILES["import-master-config"])
+        )
+        for key, value in master_settings.items():
+            request.session[key] = value
 
     def get(self, request, dirname=None):
         """
