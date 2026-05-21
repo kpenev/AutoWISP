@@ -243,6 +243,36 @@ def reset_compose_to_git():
     except Exception as e:
         return False, str(e)
 
+class MountPoint:
+    def __init__(self, root, row, label_text, initial_value, title, on_select=None, width=60):
+        self.title = title
+        self.on_select = on_select
+        self.label = tk.Label(root, text=label_text)
+        self.label.grid(row=row, column=0, sticky="w")
+        self.var = tk.StringVar(value=initial_value)
+        self.entry = tk.Entry(root, textvariable=self.var, width=width)
+        self.entry.grid(row=row, column=1, padx=6, pady=6)
+        self.browse_btn = tk.Button(root, text="Browse...", command=self.browse)
+        self.browse_btn.grid(row=row, column=2, padx=6)
+
+    def get(self):
+        return self.var.get()
+
+    def set(self, value):
+        self.var.set(value)
+
+    def set_state(self, state):
+        self.entry.configure(state=state)
+        self.browse_btn.configure(state=state)
+
+    def browse(self):
+        p = filedialog.askdirectory(initialdir=self.get() or os.getcwd(), title=self.title)
+        if p:
+            if self.on_select:
+                self.on_select(p)
+            else:
+                self.set(p)
+
 
 class ComposeEditorApp:
     def __init__(self, root):
@@ -263,41 +293,23 @@ class ComposeEditorApp:
         host_port, container_port, quote = get_current_port()
 
         # Use labels extracted from the compose YAML placeholders when available
-        tk.Label(root, text=storage_label).grid(row=0, column=0, sticky="w")
-        self.storage_var = tk.StringVar(value=storage)
-        self.storage_entry = tk.Entry(root, textvariable=self.storage_var, width=60)
-        self.storage_entry.grid(row=0, column=1, padx=6, pady=6)
-        # keep a reference to the storage browse button so we can enable/disable it
-        self.storage_browse_btn = tk.Button(root, text="Browse...", command=self.browse_storage)
-        self.storage_browse_btn.grid(row=0, column=2, padx=6)
-
-        tk.Label(root, text=tmp_label).grid(row=1, column=0, sticky="w")
-        self.tmp_var = tk.StringVar(value=tmp)
-        self.tmp_entry = tk.Entry(root, textvariable=self.tmp_var, width=60)
-        self.tmp_entry.grid(row=1, column=1, padx=6, pady=6)
-        self.tmp_browse_btn = tk.Button(root, text="Browse...", command=self.browse_tmp)
-        self.tmp_browse_btn.grid(row=1, column=2, padx=6)
-
-        tk.Label(root, text=bui_label).grid(row=2, column=0, sticky="w")
-        self.bui_var = tk.StringVar(value=bui)
-        self.bui_entry = tk.Entry(root, textvariable=self.bui_var, width=60)
-        self.bui_entry.grid(row=2, column=1, padx=6, pady=6)
-        self.bui_browse_btn = tk.Button(root, text="Browse...", command=self.browse_bui)
-        self.bui_browse_btn.grid(row=2, column=2, padx=6)
-
-        tk.Label(root, text=anet_narrow_label).grid(row=3, column=0, sticky="w")
-        self.anet_narrow_var = tk.StringVar(value=anet_narrow)
-        self.anet_narrow_entry = tk.Entry(root, textvariable=self.anet_narrow_var, width=60)
-        self.anet_narrow_entry.grid(row=3, column=1, padx=6, pady=6)
-        self.anet_narrow_browse_btn = tk.Button(root, text="Browse...", command=self.browse_anet_narrow)
-        self.anet_narrow_browse_btn.grid(row=3, column=2, padx=6)
-
-        tk.Label(root, text=anet_wide_label).grid(row=4, column=0, sticky="w")
-        self.anet_wide_var = tk.StringVar(value=anet_wide)
-        self.anet_wide_entry = tk.Entry(root, textvariable=self.anet_wide_var, width=60)
-        self.anet_wide_entry.grid(row=4, column=1, padx=6, pady=6)
-        self.anet_wide_browse_btn = tk.Button(root, text="Browse...", command=self.browse_anet_wide)
-        self.anet_wide_browse_btn.grid(row=4, column=2, padx=6)
+        mount_defs = [
+            ("storage", storage_label, storage, "Select storage folder", self.handle_storage_selected),
+            ("tmp", tmp_label, tmp, "Select tmp folder", None),
+            ("bui", bui_label, bui, "Select BUI folder", None),
+            ("anet_narrow", anet_narrow_label, anet_narrow, "Select anet narrow indices folder", None),
+            ("anet_wide", anet_wide_label, anet_wide, "Select anet wide indices folder", None),
+        ]
+        self.mounts = {}
+        for row, (name, label_text, value, title, on_select) in enumerate(mount_defs):
+            callback = None
+            if on_select:
+                callback = lambda p, fn=on_select: fn(p, show_info=True)
+            mount = MountPoint(root, row, label_text, value, title, on_select=callback)
+            self.mounts[name] = mount
+            setattr(self, f"{name}_var", mount.var)
+            setattr(self, f"{name}_entry", mount.entry)
+            setattr(self, f"{name}_browse_btn", mount.browse_btn)
 
         tk.Label(root, text="Port (host:container)").grid(row=5, column=0, sticky="w")
         self.port_var = tk.StringVar(value=host_port)
@@ -325,32 +337,6 @@ class ComposeEditorApp:
         self.disable_all_except_storage()
         self.enforce_storage_at_startup()
 
-    def browse_storage(self):
-        p = filedialog.askdirectory(initialdir=self.storage_var.get() or os.getcwd(), title="Select storage folder")
-        if p:
-            # handle selection (may be called at startup or later)
-            self.handle_storage_selected(p, show_info=True)
-
-    def browse_tmp(self):
-        p = filedialog.askdirectory(initialdir=self.tmp_var.get() or os.getcwd(), title="Select tmp folder")
-        if p:
-            self.tmp_var.set(p)
-
-    def browse_bui(self):
-        p = filedialog.askdirectory(initialdir=self.bui_var.get() or os.getcwd(), title="Select BUI folder")
-        if p:
-            self.bui_var.set(p)
-
-    def browse_anet_narrow(self):
-        p = filedialog.askdirectory(initialdir=self.anet_narrow_var.get() or os.getcwd(), title="Select anet narrow indices folder")
-        if p:
-            self.anet_narrow_var.set(p)
-
-    def browse_anet_wide(self):
-        p = filedialog.askdirectory(initialdir=self.anet_wide_var.get() or os.getcwd(), title="Select anet wide indices folder")
-        if p:
-            self.anet_wide_var.set(p)
-
     def handle_storage_selected(self, p, show_info=False):
         """Common handler when a storage folder is selected.
 
@@ -362,7 +348,7 @@ class ComposeEditorApp:
         """
         # normalize path
         p = os.path.abspath(p)
-        self.storage_var.set(p)
+        self.mounts["storage"].set(p)
 
         # derive defaults
         tmp = os.path.join(p, "tmp")
@@ -372,10 +358,10 @@ class ComposeEditorApp:
         anet_wide = os.path.join(p, "astrometry", "wide")
 
         # set variables
-        self.tmp_var.set(tmp)
-        self.bui_var.set(bui)
-        self.anet_narrow_var.set(anet_narrow)
-        self.anet_wide_var.set(anet_wide)
+        self.mounts["tmp"].set(tmp)
+        self.mounts["bui"].set(bui)
+        self.mounts["anet_narrow"].set(anet_narrow)
+        self.mounts["anet_wide"].set(anet_wide)
 
         # create directories if missing (per Option A requirement)
         try:
@@ -419,37 +405,22 @@ class ComposeEditorApp:
 
     def disable_all_except_storage(self):
         """Disable all entries/browse buttons and action buttons except the storage row."""
-        # Entries
-        self.tmp_entry.configure(state="disabled")
-        self.bui_entry.configure(state="disabled")
-        self.anet_narrow_entry.configure(state="disabled")
-        self.anet_wide_entry.configure(state="disabled")
-
-        # Browse buttons
-        self.tmp_browse_btn.configure(state="disabled")
-        self.bui_browse_btn.configure(state="disabled")
-        self.anet_narrow_browse_btn.configure(state="disabled")
-        self.anet_wide_browse_btn.configure(state="disabled")
+        for name, mount in self.mounts.items():
+            if name == "storage":
+                continue
+            mount.set_state("disabled")
 
         # Action buttons
         self.reset_btn.configure(state="disabled")
         self.run_btn.configure(state="disabled")
 
         # Keep storage entry and browse enabled
-        self.storage_entry.configure(state="normal")
-        self.storage_browse_btn.configure(state="normal")
+        self.mounts["storage"].set_state("normal")
 
     def enable_all_widgets(self):
         """Enable all previously-disabled widgets after storage selection."""
-        self.tmp_entry.configure(state="normal")
-        self.bui_entry.configure(state="normal")
-        self.anet_narrow_entry.configure(state="normal")
-        self.anet_wide_entry.configure(state="normal")
-
-        self.tmp_browse_btn.configure(state="normal")
-        self.bui_browse_btn.configure(state="normal")
-        self.anet_narrow_browse_btn.configure(state="normal")
-        self.anet_wide_browse_btn.configure(state="normal")
+        for mount in self.mounts.values():
+            mount.set_state("normal")
 
         self.reset_btn.configure(state="normal")
         self.run_btn.configure(state="normal")
@@ -595,8 +566,6 @@ class ComposeEditorApp:
                             # getcode() works across Python versions
                             code = getattr(resp, 'status', None) or resp.getcode()
                             if code and code < 400:
-                                # notify user and open browser on success
-                                self.root.after(0, lambda u=url: messagebox.showinfo("Ready", f"Service is responding at {u} — opening browser"))
                                 try:
                                     webbrowser.open(url)
                                 except Exception:
