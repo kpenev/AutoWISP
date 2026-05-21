@@ -41,16 +41,6 @@ def _find_compose_path():
 
 COMPOSE_PATH = _find_compose_path()
 PROJECT_ROOT = COMPOSE_PATH.resolve().parent
-LOG_PATH = PROJECT_ROOT / "compose_gui.log"
-
-try:
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(LOG_PATH, "a", encoding="utf-8") as lf:
-        lf.write(f"{datetime.datetime.now().isoformat()} COMPOSE_PATH resolved: {COMPOSE_PATH} (exists={COMPOSE_PATH.exists()})\n")
-except Exception:
-    # non-fatal if logging fails
-    pass
-
 
 def read_compose_text():
     return COMPOSE_PATH.read_text(encoding="utf-8")
@@ -385,8 +375,7 @@ class ComposeEditorApp:
             # preserve port mappings as-is
             new_text = find_and_replace_port(new_text, self.port_var.get())
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-            with open(LOG_PATH, "a", encoding="utf-8") as lf:
-                lf.write(f"{datetime.datetime.now().isoformat()} Applied changes from GUI\n")
+
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save compose.yaml: {e}")
 
@@ -448,8 +437,6 @@ class ComposeEditorApp:
         try:
             # write directly; user can use Reset to restore from git if needed
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-            with open(LOG_PATH, "a", encoding="utf-8") as lf:
-                lf.write(f"{datetime.datetime.now().isoformat()} Applied changes\n")
             messagebox.showinfo("Success", "compose.yaml updated")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to apply changes: {e}")
