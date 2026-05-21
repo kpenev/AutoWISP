@@ -379,7 +379,6 @@ class ComposeEditorApp:
         for mount in self.mounts.values():
             mount.set_state("normal")
 
-        self.reset_btn.configure(state="normal")
         self.run_btn.configure(state="normal")
 
 
@@ -439,32 +438,24 @@ class ComposeEditorApp:
         # detect placeholder-style entries used in the original template
         placeholder_re = re.compile(r"<[^>|]+\|[^>]+>")
 
-        try:
-            if placeholder_re.search(text):
-                # compose.yaml looks unmodified -> keep only storage enabled
-                messagebox.showinfo(
-                    "Welcome!",
-                    "This compose.yaml looks uninitialized. Please select a storage folder first using the Storage Browse... button."
-                )
-                # leave other widgets disabled (they were disabled already)
-                return
-            else:
-                # compose.yaml appears modified -> enable the UI immediately
-                try:
-                    messagebox.showinfo(
-                        "Welcome",
-                        "compose.yaml already configured — you may change any paths now."
-                    )
-                except Exception:
-                    pass
-                self.enable_all_widgets()
-                return
-        except Exception:
-            # On any error, fall back to keeping only storage enabled
+        if placeholder_re.search(text):
+            # compose.yaml looks unmodified -> keep only storage enabled
+            messagebox.showinfo(
+                "Welcome!",
+                "This compose.yaml looks uninitialized. Please select a storage folder first using the Storage Browse... button."
+            )
+            # leave other widgets disabled (they were disabled already)
+            return
+        else:
+            # compose.yaml appears modified -> enable the UI immediately
             try:
-                messagebox.showinfo("Welcome!", "Please select a storage folder when ready using the Storage Browse... button.")
+                messagebox.showinfo(
+                    "Welcome",
+                    "compose.yaml already configured — you may change any paths now."
+                )
             except Exception:
                 pass
+            self.enable_all_widgets()
             return
 
     def run_docker(self):
