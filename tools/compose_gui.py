@@ -30,7 +30,10 @@ def _find_compose_path():
         pass
 
     try:
-        return Path(__file__).resolve().parents[1] / "compose.yaml"
+        # Use the script directory (same folder as this file) as the
+        # development fallback so compose.yaml next to compose_gui.py is
+        # preferred (e.g. C:/.../AutoWISP/tools/compose.yaml).
+        return Path(__file__).resolve().parent / "compose.yaml"
     except Exception:
         return Path("compose.yaml")
 
