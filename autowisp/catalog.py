@@ -521,7 +521,7 @@ def read_catalog_file(
     return result
 
 
-def parse_command_line():
+def parse_command_line():  # pragma: no cover
     """Return configuration of catalog to create."""
 
     from configargparse import (  # pylint: disable=import-outside-toplevel
@@ -1293,7 +1293,7 @@ def check_catalog_coverage(
     return width < catalog_header["WIDTH"] and height < catalog_header["HEIGHT"]
 
 
-def show_stars(catalog_fname):
+def show_stars(catalog_fname): # pragma: no cover
     """Show the stars in the catalog on a 3-D plot of the sky."""
 
     from matplotlib import pyplot  # pylint: disable=import-outside-toplevel
@@ -1333,7 +1333,7 @@ def show_stars(catalog_fname):
     pyplot.show()
 
 
-def main(config):
+def main(config): # pragma: no cover
     """Avoid polluting global namespace."""
 
     import doctest  # pylint: disable=import-outside-toplevel
