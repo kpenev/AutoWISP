@@ -15,78 +15,66 @@ from tkinter import filedialog, messagebox, scrolledtext
 
 
 def _find_compose_path():
-    """Locate the docker/compose.yaml file.
+    """Locate docker/compose.yaml.
 
-    Search order:
-      1. sibling docker/compose.yaml next to the source file (development)
-      2. docker/compose.yaml under current working directory
-      3. docker/compose.yaml next to the frozen executable (PyInstaller)
-      4. search upwards from cwd and exe parent for a docker/compose.yaml
+    Simplified search intended for the frozen PyInstaller executable:
+      1. If running frozen (PyInstaller), look for docker/compose.yaml next to the
+         executable (preferred) and in _MEIPASS.
+      2. For development, check the source tree sibling (project root) and cwd.
     Returns a Path object (may not exist).
     """
 
-    def exists_at(base):
-        p = Path(base) / "docker" / "compose.yaml"
-        return p if p.exists() else None
+    def path_at(base):
+        return Path(base) / "compose.yaml"
 
-    # 1. next to the source tree
-    try:
-        src_root = Path(__file__).resolve().parents[1]
-        p = exists_at(src_root)
-        if p:
-            return p
-    except Exception:
-        pass
-
-    # 2. cwd/docker/compose.yaml
-    try:
-        p = exists_at(Path.cwd())
-        if p:
-            return p
-    except Exception:
-        pass
-
-    # 3. near the frozen executable or _MEIPASS (PyInstaller)
+    # 1. If frozen, prefer docker/compose.yaml next to the executable or in _MEIPASS
     try:
         if getattr(sys, "frozen", False):
-            # first check _MEIPASS (PyInstaller bundled data)
+            exe_parent = Path(sys.executable).resolve().parent
+            p = path_at(exe_parent)
+            if p.exists():
+                return p
             meipass = getattr(sys, "_MEIPASS", None)
             if meipass:
-                p = exists_at(Path(meipass))
-                if p:
+                p = path_at(Path(meipass))
+                if p.exists():
                     return p
-            # then check next to the executable
-            exe_parent = Path(sys.executable).resolve().parent
-            p = exists_at(exe_parent)
-            if p:
-                return p
+            # return path next to exe even if it doesn't exist (so callers can use it)
+            return exe_parent / "docker" / "compose.yaml"
     except Exception:
         pass
 
-    # 4. walk upwards from cwd and exe_parent looking for docker/compose.yaml
-    def walk_up_search(start):
-        start = Path(start).resolve()
-        for parent in [start] + list(start.parents):
-            candidate = parent / "docker" / "compose.yaml"
-            if candidate.exists():
-                return candidate
-        return None
-
+    # 1b. Also check for a compose.yaml located beside this script (useful when
+    # the GUI and compose file are distributed together).
     try:
-        p = walk_up_search(Path.cwd())
-        if p:
+        script_dir = Path(__file__).resolve().parent
+        p = script_dir / "compose.yaml"
+        if p.exists():
+            return p
+        # also check docker/compose.yaml relative to the script directory
+        p = path_at(script_dir)
+        if p.exists():
+            return p
+    except Exception:
+        pass
+
+    # 2. Development / fallback: prefer project sibling then cwd
+    try:
+        src_root = Path(__file__).resolve().parents[1]
+        p = path_at(src_root)
+        if p.exists():
             return p
     except Exception:
         pass
 
     try:
-        p = walk_up_search(Path(sys.executable).resolve().parent)
-        if p:
+        p = path_at(Path.cwd())
+        if p.exists():
             return p
     except Exception:
         pass
 
-    # fallback: return a path next to source (may not exist)
+    # final fallback: return a sane default path next to source (may not exist)
     try:
         return Path(__file__).resolve().parents[1] / "docker" / "compose.yaml"
     except Exception:
@@ -97,6 +85,15 @@ COMPOSE_PATH = _find_compose_path()
 PROJECT_ROOT = COMPOSE_PATH.resolve().parents[1] if COMPOSE_PATH.exists() else Path(__file__).resolve().parents[1]
 DOCKER_DIR = PROJECT_ROOT / "docker"
 LOG_PATH = PROJECT_ROOT / "compose_gui.log"
+
+# Log which compose file was chosen so users/developers can diagnose path issues.
+try:
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOG_PATH, "a", encoding="utf-8") as lf:
+        lf.write(f"{datetime.datetime.now().isoformat()} COMPOSE_PATH resolved: {COMPOSE_PATH} (exists={COMPOSE_PATH.exists()})\n")
+except Exception:
+    # non-fatal if logging fails
+    pass
 
 
 def read_compose_text():
@@ -606,11 +603,23 @@ class ComposeEditorApp:
             return
 
     def run_docker(self):
-        # Run docker compose up in the AutoWISP/docker directory using cmd.exe
+        # Run docker compose up. Previously this always ran in the AutoWISP/docker
+        # directory which prevented running the GUI + compose.yaml from arbitrary
+        # locations. Use the compose file path directly so the command can be
+        # executed from anywhere.
         try:
-            cwd = str(DOCKER_DIR)
-            # Spawn a new cmd window running docker compose up so user can see logs
-            subprocess.Popen(["cmd.exe", "/c", "start", "cmd", "/k", "docker compose up"], cwd=cwd)
+            if not COMPOSE_PATH.exists():
+                messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
+                return
+            # Open a new cmd window in the current working directory and run
+            # 'docker compose up'. This is intentionally simple: it behaves
+            # like the user opened a terminal and ran 'docker compose up' in
+            # the folder where the GUI was started. Avoids fiddling with
+            # compose paths or -f arguments which previously caused quoting
+            # issues when using Windows 'start'.
+            cwd = os.getcwd()
+            cmd_str = 'docker compose up'
+            subprocess.Popen(["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=cwd)
             # Poll the service URL and open the browser only when it responds
             try:
                 port = int(self.port_var.get())
