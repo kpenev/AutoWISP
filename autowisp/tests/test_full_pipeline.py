@@ -18,7 +18,13 @@ from os import path
 import pandas
 
 from autowisp import run_pipeline
+from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.initialize_database import initialize_database
+from autowisp.database.interface import start_db_session
+from autowisp.database.photref_selection import (
+    bind_images_to_photref,
+    compute_photref_candidates,
+)
 from autowisp.database.user_interface import (
     apply_master_config,
     import_json_to_survey,
@@ -75,20 +81,44 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
         ) as survey_json:
             import_json_to_survey(survey_json)
 
-    def test_full_pipeline(self):
-        """Run the full pipeline and compare every output to expected."""
-
-        config = Namespace(
-            project_home=self.processing_directory,
-            add_raw_images=[
-                path.join(self.test_directory, "RAW", subdir)
-                for subdir in ("zero", "dark", "flat", "object")
-            ],
-            steps=None,
-            step_imtypes=[],
-            detached=False,
+        # The DR file the test will register as the single photometric
+        # reference comes from test.cfg, so adjusting the test or adding
+        # new fixtures only requires editing the config file.
+        self._photref_dr_path = path.join(
+            self.processing_directory,
+            overwrite_default_config["single-photref-dr-fname"][0][1],
         )
-        run_pipeline.main(config)
+
+    def test_full_pipeline(self):
+        """Run the full pipeline and compare every output to expected.
+
+        The pipeline runs in two passes. On the first pass it does as
+        much as it can; ``fit_magnitudes`` and the downstream lightcurve
+        steps stay pending because no ``single_photref`` master has been
+        registered yet. Between the passes the test registers the
+        single photometric reference DR file via the same helpers the
+        BUI uses, after which the second pass picks up
+        ``fit_magnitudes`` and everything beyond.
+        """
+
+        raw_image_dirs = [
+            path.join(self.test_directory, "RAW", subdir)
+            for subdir in ("zero", "dark", "flat", "object")
+        ]
+        for add_raw_images in (raw_image_dirs, []):
+            run_pipeline.main(
+                Namespace(
+                    project_home=self.processing_directory,
+                    add_raw_images=add_raw_images,
+                    steps=None,
+                    step_imtypes=[],
+                    detached=False,
+                )
+            )
+            if add_raw_images:
+                # Register the photref between the two passes -- the
+                # second pass will then resume from ``fit_magnitudes``.
+                self._register_photref()
 
         for imtype in ("zero", "dark", "flat", "object"):
             self._assert_dir_fits_match(path.join("CAL", imtype))
@@ -112,6 +142,45 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
         self._assert_h5_dir_match("LC")
 
         self.successful_test = True
+
+    def _register_photref(self):
+        """Mimic the BUI's ``record_photref_selection`` for the test photref.
+
+        Calls :func:`compute_photref_candidates` to obtain the same
+        per-condition batches the BUI would surface to the user, finds
+        the batch containing the test's chosen photref DR file (set in
+        ``setUp`` from ``test.cfg``), registers the file as a
+        ``single_photref`` master, and binds every eligible image in
+        the batch via :func:`bind_images_to_photref`.
+        """
+
+        processing = ImageProcessingManager(pipeline_run_id=None)
+        with start_db_session() as db_session:
+            result = compute_photref_candidates(processing, db_session)
+
+        photref_batch = None
+        for candidate in result["candidates"]:
+            for _, _, batch in candidate["groups"]:
+                if any(entry[1] == self._photref_dr_path for entry in batch):
+                    photref_batch = batch
+                    break
+            if photref_batch is not None:
+                break
+        self.assertIsNotNone(
+            photref_batch,
+            f"No candidate batch contains photref "
+            f"{self._photref_dr_path!r}.",
+        )
+
+        processing.add_masters(
+            {
+                "type": "single_photref",
+                "filename": self._photref_dr_path,
+                "preference_order": None,
+                "disable": False,
+            }
+        )
+        bind_images_to_photref(self._photref_dr_path, photref_batch)
 
     def _assert_dir_fits_match(self, relative_dir):
         """Assert every ``*.fits*`` in ``relative_dir`` matches expected."""
