@@ -12,7 +12,7 @@ import urllib.request
 from pathlib import Path
 from types import SimpleNamespace
 import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext
+from tkinter import filedialog, messagebox
 
 
 def _find_compose_path():
@@ -320,17 +320,10 @@ class ComposeEditorApp:
         button_frame = tk.Frame(root)
         button_frame.grid(row=6, column=0, columnspan=3, pady=8)
 
-        # Action buttons (Preview/Apply removed — changes are saved immediately)
         self.reset_btn = tk.Button(button_frame, text="Reset compose.yaml (git restore)", command=self.reset_compose)
         self.reset_btn.grid(row=0, column=0, padx=6)
         self.run_btn = tk.Button(button_frame, text="Run 'docker compose up'", command=self.run_docker)
         self.run_btn.grid(row=0, column=1, padx=6)
-
-        # Reduce height so the preview isn't excessively tall
-        # Place the preview below the controls and buttons (row 7) so the
-        # anet wide/narrow controls remain visible.
-        self.preview_box = scrolledtext.ScrolledText(root, width=100, height=12, font=("Courier", 10))
-        self.preview_box.grid(row=7, column=0, columnspan=3, padx=6, pady=6)
 
         # Enforce storage selection at startup (Option A): disable everything except storage
         # and force the user to pick a storage folder before proceeding.
@@ -376,7 +369,7 @@ class ComposeEditorApp:
         self.enable_all_widgets()
 
         # Inform the user and immediately persist the chosen paths to compose.yaml.
-        # This writes changes as soon as the user selects folders (no Preview/Apply).
+        # This writes changes as soon as the user selects folders.
         if show_info:
             messagebox.showinfo("Storage selected", "Paths updated in the form and will be saved to compose.yaml.")
 
@@ -394,12 +387,6 @@ class ComposeEditorApp:
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
             with open(LOG_PATH, "a", encoding="utf-8") as lf:
                 lf.write(f"{datetime.datetime.now().isoformat()} Applied changes from GUI\n")
-            # update preview box to reflect saved changes
-            try:
-                self.preview_box.delete("1.0", tk.END)
-                self.preview_box.insert(tk.END, "compose.yaml updated\n")
-            except Exception:
-                pass
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save compose.yaml: {e}")
 
@@ -425,22 +412,6 @@ class ComposeEditorApp:
         self.reset_btn.configure(state="normal")
         self.run_btn.configure(state="normal")
 
-
-    def preview(self):
-        orig = read_compose_text().splitlines(keepends=True)
-        new_text = find_and_replace_sources(
-            read_compose_text(),
-            self.storage_var.get(),
-            self.tmp_var.get(),
-            new_bui=self.bui_var.get() if hasattr(self, 'bui_var') else None,
-            new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
-            new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
-        )
-        new_text = find_and_replace_port(new_text, self.port_var.get())
-        new = new_text.splitlines(keepends=True)
-        diff = difflib.unified_diff(orig, new, fromfile=str(COMPOSE_PATH), tofile=str(COMPOSE_PATH) + " (new)")
-        self.preview_box.delete("1.0", tk.END)
-        self.preview_box.insert(tk.END, "".join(diff) or "No changes\n")
 
     def apply(self):
         s = self.storage_var.get()
@@ -480,7 +451,6 @@ class ComposeEditorApp:
             with open(LOG_PATH, "a", encoding="utf-8") as lf:
                 lf.write(f"{datetime.datetime.now().isoformat()} Applied changes\n")
             messagebox.showinfo("Success", "compose.yaml updated")
-            self.preview()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to apply changes: {e}")
 
@@ -575,10 +545,8 @@ class ComposeEditorApp:
                         # keep waiting
                         pass
 
-                    # Update preview box with waiting status (throttle to avoid flooding)
+                    # Waiting status is intentionally not shown in the UI.
                     if first_wait:
-                        msg = f"Waiting for {url} to respond...\n"
-                        self.root.after(0, lambda m=msg: self.preview_box.insert(tk.END, m))
                         first_wait = False
                     time.sleep(poll_interval)
 
