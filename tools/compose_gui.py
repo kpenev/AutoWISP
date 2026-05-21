@@ -15,78 +15,30 @@ from tkinter import filedialog, messagebox, scrolledtext
 
 
 def _find_compose_path():
-    """Locate docker/compose.yaml.
+    """Locate compose.yaml.
 
-    Simplified search intended for the frozen PyInstaller executable:
-      1. If running frozen (PyInstaller), look for docker/compose.yaml next to the
-         executable (preferred) and in _MEIPASS.
-      2. For development, check the source tree sibling (project root) and cwd.
+    When running as a PyInstaller frozen executable, resolve the compose file
+    from the executable directory.
     Returns a Path object (may not exist).
     """
 
-    def path_at(base):
-        return Path(base) / "compose.yaml"
-
-    # 1. If frozen, prefer docker/compose.yaml next to the executable or in _MEIPASS
     try:
         if getattr(sys, "frozen", False):
             exe_parent = Path(sys.executable).resolve().parent
-            p = path_at(exe_parent)
-            if p.exists():
-                return p
-            meipass = getattr(sys, "_MEIPASS", None)
-            if meipass:
-                p = path_at(Path(meipass))
-                if p.exists():
-                    return p
-            # return path next to exe even if it doesn't exist (so callers can use it)
-            return exe_parent / "docker" / "compose.yaml"
-    except Exception:
-        pass
-
-    # 1b. Also check for a compose.yaml located beside this script (useful when
-    # the GUI and compose file are distributed together).
-    try:
-        script_dir = Path(__file__).resolve().parent
-        p = script_dir / "compose.yaml"
-        if p.exists():
-            return p
-        # also check docker/compose.yaml relative to the script directory
-        p = path_at(script_dir)
-        if p.exists():
-            return p
-    except Exception:
-        pass
-
-    # 2. Development / fallback: prefer project sibling then cwd
-    try:
-        src_root = Path(__file__).resolve().parents[1]
-        p = path_at(src_root)
-        if p.exists():
-            return p
+            return exe_parent / "compose.yaml"
     except Exception:
         pass
 
     try:
-        p = path_at(Path.cwd())
-        if p.exists():
-            return p
+        return Path(__file__).resolve().parents[1] / "compose.yaml"
     except Exception:
-        pass
-
-    # final fallback: return a sane default path next to source (may not exist)
-    try:
-        return Path(__file__).resolve().parents[1] / "docker" / "compose.yaml"
-    except Exception:
-        return Path("docker/compose.yaml")
+        return Path("compose.yaml")
 
 
 COMPOSE_PATH = _find_compose_path()
-PROJECT_ROOT = COMPOSE_PATH.resolve().parents[1] if COMPOSE_PATH.exists() else Path(__file__).resolve().parents[1]
-DOCKER_DIR = PROJECT_ROOT / "docker"
+PROJECT_ROOT = COMPOSE_PATH.resolve().parent
 LOG_PATH = PROJECT_ROOT / "compose_gui.log"
 
-# Log which compose file was chosen so users/developers can diagnose path issues.
 try:
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG_PATH, "a", encoding="utf-8") as lf:
