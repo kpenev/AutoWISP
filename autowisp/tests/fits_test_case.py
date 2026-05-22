@@ -25,8 +25,31 @@ class FITSTestCase(AutoWISPTestCase):
             for fits_fname in [fname1, fname2]
         ]
 
+        # Keys whose presence and value must match between the two
+        # files do not include any of these:
+        #
+        # - ``EXTEND`` -- structural, not data.
+        # - ``CALGITID`` -- git commit of the calibration code.
+        # - ``COMMENT`` -- free-form text.
+        # - ``M{BIAS,DARK,FLAT}SHA`` -- hash of master files.
+        # - ``TARGETID``, ``TELSCPID``, ``CAMERAID``, ``OBSSSNID``,
+        #   ``OBSERVER`` -- DB row identifiers written by the
+        #   pipeline's ``add_images_to_db`` step but absent from the
+        #   per-step CLI flow used to produce the test_data fixtures.
+        ignore_header_keys = {
+            "CALGITID",
+            "COMMENT",
+            "EXTEND",
+            "TARGETID",
+            "TELSCPID",
+            "CAMERAID",
+            "OBSSSNID",
+            "OBSERVER",
+            "PROJHOME",
+        } | {f"M{master.upper()}SHA" for master in ("bias", "dark", "flat")}
         fits_keys = [
-            set(c["header"].keys()) - set(["EXTEND"]) for c in fits_components
+            set(c["header"].keys()) - ignore_header_keys
+            for c in fits_components
         ]
         self.assertTrue(
             fits_keys[0] == fits_keys[1],
@@ -35,9 +58,6 @@ class FITSTestCase(AutoWISPTestCase):
             f"    Only in {fname2}: {fits_keys[1] - fits_keys[0]}",
         )
         original_files = [set(), set()]
-        ignore_header_keys = ["CALGITID", "COMMENT", "EXTEND"] + [
-            f"M{master.upper()}SHA" for master in ["bias", "dark", "flat"]
-        ]
         for key, value in fits_components[0]["header"].items():
             if key.strip() == "" or key in ignore_header_keys:
                 continue
