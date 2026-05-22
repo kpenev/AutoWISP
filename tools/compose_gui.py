@@ -1,7 +1,5 @@
 import os
 import re
-import shutil
-import datetime
 import sys
 import difflib
 import subprocess
@@ -9,6 +7,7 @@ import threading
 import time
 import webbrowser
 import urllib.request
+import socket
 from pathlib import Path
 from types import SimpleNamespace
 import tkinter as tk
@@ -106,6 +105,13 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
     return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
 
 
+def find_free_port(hostname="localhost"):
+    """Find an available port by binding to port 0."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((hostname, 0))
+        return str(sock.getsockname()[1])
+
+
 def get_current_port():
     text = read_compose_text()
     lines = text.splitlines()
@@ -115,7 +121,6 @@ def get_current_port():
         # strip leading/trailing spaces
         s = line.strip()
         # regex for optional quotes around mapping
-        import re
         m = re.search(r'["\']?(\d+):(\d+)["\']?', s)
         if m:
             host = m.group(1)
@@ -123,8 +128,9 @@ def get_current_port():
             # determine if mapping used quotes
             quote = '"' if '"' in s or '"' in line else ('\'' if "'" in s else '')
             return host, container, quote
-    # default
-    return "8089", "8089", '"'
+    # default: find a free port on the host
+    free_port = find_free_port()
+    return free_port, "8089", '"'
 
 
 def get_current_sources():
@@ -467,6 +473,16 @@ class ComposeEditorApp:
             if not COMPOSE_PATH.exists():
                 messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
                 return
+            
+            # Save the port configuration to compose.yaml before running docker
+            try:
+                current_text = read_compose_text()
+                new_text = find_and_replace_port(current_text, self.port_var.get())
+                COMPOSE_PATH.write_text(new_text, encoding="utf-8")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to save port configuration: {e}")
+                return
+            
             # Open a new cmd window in the current working directory and run
             # 'docker compose up'. This is intentionally simple: it behaves
             # like the user opened a terminal and ran 'docker compose up' in
@@ -518,21 +534,31 @@ class ComposeEditorApp:
 
 
 def find_and_replace_port(text, new_host_port):
-    # Replace the first mapping where container port exists (e.g., "8089:8089") with new_host_port:container_port preserving quotes
-    import re
+    # Replace or add port mapping (e.g., "8089:8089") with new_host_port:8089
+    # If no port mapping exists, add a ports section after the shm_size line
     lines = text.splitlines()
     for i, line in enumerate(lines):
         s = line.strip()
         m = re.search(r'(["\']?)(\d+):(\d+)(["\']?)', s)
         if m:
             quote1 = m.group(1)
-            host = m.group(2)
             container = m.group(3)
             quote2 = m.group(4)
-            # build replacement preserving original quotes
             q = quote1 or quote2 or '"'
             lines[i] = line.replace(m.group(0), f'{q}{new_host_port}:{container}{q}')
             return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+    
+    # No port mapping found; add ports section after shm_size line
+    for i, line in enumerate(lines):
+        if 'shm_size:' in line:
+            indent = len(line) - len(line.lstrip())
+            port_lines = [
+                ' ' * indent + 'ports:',
+                ' ' * (indent + 2) + f'- "{new_host_port}:8089"'
+            ]
+            lines = lines[:i+1] + port_lines + lines[i+1:]
+            return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+    
     return text
 
 
