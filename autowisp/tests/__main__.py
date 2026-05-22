@@ -3,6 +3,7 @@
 """Run the AutoWISP test suite."""
 
 import argparse
+import os
 import sys
 from contextlib import nullcontext
 from glob import glob
@@ -102,7 +103,41 @@ def _parse_test_args(argv):
             "message asking you to remove it."
         ),
     )
+    parser.add_argument(
+        "--test-log",
+        default=None,
+        help=(
+            "Send unittest framework output (test progress, pass/fail, "
+            "tracebacks) to this file instead of stdout. Useful because "
+            "the pipeline run inside each test redirects stdout/stderr "
+            "to its own log file via ``setup_process_map``, taking the "
+            "framework output with it. Default: a duplicate of stdout "
+            "that survives the pipeline's redirect."
+        ),
+    )
     return parser.parse_known_args(argv)
+
+
+def _open_test_stream(test_log):
+    """Return a file object the unittest runner can use for its output.
+
+    ``ImageProcessingManager.__init__`` calls ``setup_process``, which
+    closes ``sys.stdout`` / ``sys.stderr`` before redirecting to its own
+    log file. The runner's stream therefore has to live on an
+    independent file descriptor; otherwise the framework's progress
+    output (and any traceback on a failure) is silently swallowed when
+    the first pipeline step runs.
+
+    If ``test_log`` is given, open it for writing. Otherwise duplicate
+    stdout's file descriptor so the runner ends up writing to wherever
+    stdout was pointing before the test suite started.
+    """
+
+    if test_log:
+        return open(  # pylint: disable=consider-using-with
+            path.abspath(test_log), "w", encoding="utf-8", buffering=1
+        )
+    return os.fdopen(os.dup(sys.stdout.fileno()), "w", buffering=1)
 
 
 def main():
@@ -126,19 +161,26 @@ def main():
     else:
         data_dir_cm = TemporaryDirectory()
 
-    with data_dir_cm as test_dir:
-        get_test_data(test_dir)
-        processing_dir = path.join(test_dir, "processing")
-        print(f"Test data directory: {test_dir!r}")
-        print(f"Test data contents: {glob(test_dir + '/*')}")
-        AutoWISPTestCase.set_test_directory(
-            test_dir, processing_dir, args.failed_test_dir
-        )
-        unittest.main(
-            argv=[sys.argv[0]] + unittest_argv,
-            failfast=True,
-            testLoader=_IntegrationLastLoader(),
-        )
+    test_stream = _open_test_stream(args.test_log)
+    try:
+        with data_dir_cm as test_dir:
+            get_test_data(test_dir)
+            processing_dir = path.join(test_dir, "processing")
+            print(f"Test data directory: {test_dir!r}")
+            print(f"Test data contents: {glob(test_dir + '/*')}")
+            AutoWISPTestCase.set_test_directory(
+                test_dir, processing_dir, args.failed_test_dir
+            )
+            unittest.main(
+                argv=[sys.argv[0]] + unittest_argv,
+                failfast=True,
+                testLoader=_IntegrationLastLoader(),
+                testRunner=unittest.TextTestRunner(
+                    stream=test_stream, verbosity=2
+                ),
+            )
+    finally:
+        test_stream.close()
 
 
 if __name__ == "__main__":
