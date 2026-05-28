@@ -12,6 +12,7 @@ from autowisp.processing_steps.lc_detrending_argument_parser import (
 from autowisp.processing_steps.lc_detrending import detrend_light_curves
 from autowisp.light_curves.apply_correction import load_correction_statistics
 from autowisp.processing_steps.manual_util import ignore_progress
+from autowisp.light_curves.light_curve_file import LightCurveFile
 
 
 def parse_command_line(*args):
@@ -53,6 +54,9 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
             epd_statistics["ID"] != int(configuration["target_id"])
         ]
 
+    # Filter light curve files based on the presence of the EPD dataset
+    lc_collection = filter_lc_files(lc_collection, configuration.get("ignore_missing_epd_lcs", False))
+
     detrend_light_curves(
         lc_collection,
         configuration,
@@ -67,6 +71,23 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
             mark_progress=mark_progress,
         ),
     )
+
+
+def filter_lc_files(lc_fnames, ignore_missing):
+    """Filter light curve files to exclude those missing the EPD dataset."""
+    if not ignore_missing:
+        return lc_fnames
+
+    valid_lc_fnames = []
+    for fname in lc_fnames:
+        try:
+            dataset_key = "apphot.epd.magnitude"
+            with LightCurveFile(fname, "r") as lc:
+                lc.get_dataset(dataset_key, aperture_index=0)
+            valid_lc_fnames.append(fname)
+        except Exception as e:
+            print(f"Ignoring {fname}: {e}")
+    return valid_lc_fnames
 
 
 def main():
