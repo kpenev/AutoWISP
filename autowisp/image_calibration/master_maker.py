@@ -64,7 +64,7 @@ class MasterMaker(Processor):
         min_valid_values=5,
         max_iter=numpy.inf,
         exclude_mask=default_exclude_mask,
-        compress=16,
+        compress=None,
         add_averaged_keywords=(),
     ):
         """
