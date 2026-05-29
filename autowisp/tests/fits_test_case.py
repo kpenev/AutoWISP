@@ -37,6 +37,8 @@ class FITSTestCase(AutoWISPTestCase):
         #   pipeline's ``add_images_to_db`` step but absent from the
         #   per-step CLI flow used to produce the test_data fixtures.
         ignore_header_keys = {
+            "DATASUM",
+            "CHECKSUM",
             "CALGITID",
             "COMMENT",
             "EXTEND",
@@ -66,7 +68,9 @@ class FITSTestCase(AutoWISPTestCase):
                     path.basename(fits_components[1]["header"][key]),
                     path.basename(value),
                     f"Master {key[1:-3].lower()} does not match between "
-                    f"{fname1} and {fname2}.",
+                    f"{fname1} and {fname2}: "
+                    f"{path.basename(value)!r} vs "
+                    f"{path.basename(fits_components[1]['header'][key])!r}.",
                 )
             elif key.startswith("ORIGF"):
                 original_files[0].add(path.basename(value))
@@ -78,12 +82,17 @@ class FITSTestCase(AutoWISPTestCase):
                     fits_components[1]["header"][key],
                     value,
                     f"Value for key {key!r} does not match between {fname1} and"
-                    f" {fname2}.",
+                    f" {fname2}: {value!r} vs "
+                    f"{fits_components[1]['header'][key]!r}.",
                 )
 
         self.assertEqual(
             *original_files,
-            f"Original input files in {fname1} and {fname2} do not match!",
+            f"Original input files in {fname1} and {fname2} do not match!\n"
+            f"    Only in {fname1}: "
+            f"{sorted(original_files[0] - original_files[1])}\n"
+            f"    Only in {fname2}: "
+            f"{sorted(original_files[1] - original_files[0])}",
         )
 
         if (

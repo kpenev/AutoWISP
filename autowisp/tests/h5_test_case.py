@@ -5,6 +5,8 @@ from glob import glob
 
 import numpy
 import h5py
+from scipy.spatial.distance import cdist
+from scipy.optimize import linear_sum_assignment
 
 
 from autowisp.tests import AutoWISPTestCase
@@ -13,8 +15,29 @@ from autowisp.tests import AutoWISPTestCase
 class H5TestCase(AutoWISPTestCase):
     """Add assert for comparing groups in HDF5 files."""
 
-    def assert_groups_match(self, dr_fname1, dr_fname2, group_name, ignore):
-        """Check if two DR files have the same groups."""
+    def assert_groups_match(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+        self, dr_fname1, dr_fname2, group_name, ignore, reorder=None
+    ):
+        """Check if two DR files have the same groups.
+
+        Args:
+            reorder(numpy.ndarray or None):    Optional integer permutation
+                applied to dr_fname2 datasets along axis 0 before comparison.
+                Only applied to datasets whose leading dimension equals
+                ``len(reorder)``.
+        """
+
+        def reordered(dset2):
+            """Return dset2 data with ``reorder`` applied along axis 0."""
+
+            data = dset2[:]
+            if (
+                reorder is not None
+                and data.ndim >= 1
+                and data.shape[0] == len(reorder)
+            ):
+                return data[reorder]
+            return data
 
         def assert_dset_match(dset1, dset2):
             """Assert that the two datasets contain the same data."""
@@ -25,36 +48,43 @@ class H5TestCase(AutoWISPTestCase):
                 f"Datasets {dr_fname1!r}/{dset1.name!r} and "
                 f"{dr_fname2!r}/{dset2.name!r} have different shapes.",
             )
+            data1 = dset1[:]
+            data2 = reordered(dset2)
             if dset1.dtype.kind == "f":
                 differ = numpy.logical_not(
                     numpy.isclose(
-                        dset1[:], dset2[:], rtol=1e-8, atol=1e-8, equal_nan=True
+                        data1, data2, rtol=1e-8, atol=1e-8, equal_nan=True
                     )
                 )
                 if differ.any():
-                    msg = (
+                    self.fail(
                         f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
                         f"{dr_fname2!r}/{dset2.name!r} do not match (different "
                         f"elements: {numpy.nonzero(differ)}."
                         "\n\tMax abs difference: "
-                        + str(numpy.abs(dset1[:] - dset2[:]).max())
+                        + str(numpy.abs(data1 - data2).max())
                         + "\n\tMax rel difference: "
                         + str(
                             numpy.abs(
-                                (dset1[:] - dset2[:])
-                                / numpy.maximum(dset1, dset2)
+                                (data1 - data2) / numpy.maximum(data1, data2)
                             ).max()
                         )
-                        + f"\n\t{dset1[differ]}\n\t{dset2[differ]}\n\t"
+                        + f"\n{dr_fname1!r}/{dset1.name!r}"
+                        + f"\n\t{data1[differ]}"
+                        + f"\n\t{data2[differ]}"
+                        + f"\n\tdiff: {data1[differ] - data2[differ]}\n\t"
                     )
-                    # self.assertFalse(True, msg)
-                    print(msg)
             else:
-                self.assertTrue(
-                    numpy.array_equal(dset1[:], dset2[:]),
-                    f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
-                    f"{dr_fname2!r}/{dset2.name!r} do not match.",
-                )
+                differ = data1 != data2
+                if numpy.any(differ):
+                    self.fail(
+                        f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
+                        f"{dr_fname2!r}/{dset2.name!r} do not match "
+                        f"(different elements: {numpy.nonzero(differ)})."
+                        f"\n{dr_fname1!r}/{dset1.name!r}"
+                        f"\n\t{data1[differ]}"
+                        f"\n\t{data2[differ]}"
+                    )
 
         with h5py.File(dr_fname1, "r") as dr1, h5py.File(dr_fname2, "r") as dr2:
             if group_name not in dr1:
@@ -81,29 +111,28 @@ class H5TestCase(AutoWISPTestCase):
                     f"{dr_fname2!r}/{obj2.name!r} do not match.",
                 )
                 for key, value in obj1.attrs.items():
-                    with self.subTest(
-                        msg=(
-                            f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does "
-                            f"not match {dr_fname2!r}/{obj1.name!r}.{key}: "
-                            f"{value!r} vs {obj2.attrs[key]!r}."
+                    msg = (
+                        f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does "
+                        f"not match {dr_fname2!r}/{obj1.name!r}.{key}: "
+                        f"{value!r} vs {obj2.attrs[key]!r}."
+                    )
+                    if numpy.atleast_1d(value).dtype.kind == "f":
+                        self.assertTrue(
+                            numpy.allclose(
+                                obj2.attrs[key],
+                                value,
+                                rtol=1e-8,
+                                atol=1e-8,
+                                equal_nan=True,
+                            ),
+                            msg,
                         )
-                    ):
-                        if numpy.atleast_1d(value).dtype.kind == "f":
-                            self.assertTrue(
-                                numpy.allclose(
-                                    obj2.attrs[key],
-                                    value,
-                                    rtol=1e-8,
-                                    atol=1e-8,
-                                    equal_nan=True,
-                                )
-                            )
-                        elif numpy.atleast_1d(value).size > 1:
-                            self.assertTrue(
-                                numpy.array_equal(obj2.attrs[key], value)
-                            )
-                        else:
-                            self.assertEqual(obj2.attrs[key], value)
+                    elif numpy.atleast_1d(value).size > 1:
+                        self.assertTrue(
+                            numpy.array_equal(obj2.attrs[key], value), msg
+                        )
+                    else:
+                        self.assertEqual(obj2.attrs[key], value, msg)
 
                 if isinstance(obj1, h5py.Dataset):
                     self.assertTrue(
@@ -182,3 +211,80 @@ class H5TestCase(AutoWISPTestCase):
         self.successful_test = True
 
     # pylint: enable=too-many-arguments
+
+
+class DRTestCase(H5TestCase):
+    """H5TestCase aware of row-order ambiguity in SourceExtraction groups."""
+
+    _srcext_match_columns = ("x", "y", "flux")
+
+    def _find_sources_group(self, root, group_name):
+        """Return path of subgroup of ``group_name`` holding source columns."""
+
+        cols = self._srcext_match_columns
+        sources_path = [None]
+
+        def visit(_, obj):
+            if isinstance(obj, h5py.Group) and all(c in obj for c in cols):
+                sources_path[0] = obj.name
+                return True
+            return None
+
+        node = root[group_name]
+        if isinstance(node, h5py.Group):
+            if all(c in node for c in cols):
+                return node.name
+            node.visititems(visit)
+        return sources_path[0]
+
+    def _build_srcextract_reorder(self, dr_fname1, dr_fname2, group_name):
+        """Return permutation aligning dr_fname2 sources with dr_fname1."""
+
+        with h5py.File(dr_fname1, "r") as dr1, h5py.File(dr_fname2, "r") as dr2:
+            sources_path = self._find_sources_group(dr1, group_name)
+            if sources_path is None or sources_path not in dr2:
+                return None
+            cols1 = numpy.column_stack(
+                [
+                    dr1[sources_path][col][:]
+                    for col in self._srcext_match_columns
+                ]
+            )
+            cols2 = numpy.column_stack(
+                [
+                    dr2[sources_path][col][:]
+                    for col in self._srcext_match_columns
+                ]
+            )
+        if cols1.shape != cols2.shape:
+            return None
+        scale = numpy.std(numpy.concatenate([cols1, cols2], axis=0), axis=0)
+        scale[scale == 0] = 1.0
+        cost = cdist(cols1 / scale, cols2 / scale)
+        row_ind, col_ind = linear_sum_assignment(cost)
+        perm = numpy.empty(cols1.shape[0], dtype=numpy.intp)
+        perm[row_ind] = col_ind
+        return perm
+
+    def assert_groups_match(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+        self, dr_fname1, dr_fname2, group_name, ignore, reorder=None
+    ):
+        """Compute SourceExtraction reorder, then delegate to H5TestCase."""
+
+        # is_srcextract = group_name.strip("/").startswith("SourceExtraction")
+        # if reorder is None and is_srcextract:
+        #    reorder = self._build_srcextract_reorder(
+        #        dr_fname1, dr_fname2, group_name
+        #    )
+
+        # if is_srcextract:
+        #    user_ignore = ignore
+
+        #    def ignore(name):
+        #        if name.rsplit("/", 1)[-1] == "id":
+        #            return True
+        #        return user_ignore is not None and user_ignore(name)
+
+        super().assert_groups_match(
+            dr_fname1, dr_fname2, group_name, ignore, reorder=reorder
+        )

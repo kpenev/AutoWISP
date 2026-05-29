@@ -1,9 +1,9 @@
 """Define test case for the fit_source_extracted_psf_map step."""
 
-from autowisp.tests.h5_test_case import H5TestCase
+from autowisp.tests.h5_test_case import DRTestCase
 
 
-class TestFitMagnitudes(H5TestCase):
+class TestFitMagnitudes(DRTestCase):
     """Tests of the fit_source_extracted_psf_map step."""
 
     def test_fit_magnitudes(self):

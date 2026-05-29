@@ -104,6 +104,17 @@ def _parse_test_args(argv):
         ),
     )
     parser.add_argument(
+        "--test-data",
+        default=None,
+        help=(
+            "Use a local copy of the test data instead of downloading "
+            "from Zenodo. Accepts either a path to a ``test_data.zip`` "
+            "file (extracted into the data directory) or a path to an "
+            "already-unzipped directory whose contents (CAL/, DR/, "
+            "RAW/, ...) are copied into the data directory."
+        ),
+    )
+    parser.add_argument(
         "--test-log",
         default=None,
         help=(
@@ -164,7 +175,7 @@ def main():
     test_stream = _open_test_stream(args.test_log)
     try:
         with data_dir_cm as test_dir:
-            get_test_data(test_dir)
+            get_test_data(test_dir, local_source=args.test_data)
             processing_dir = path.join(test_dir, "processing")
             print(f"Test data directory: {test_dir!r}")
             print(f"Test data contents: {glob(test_dir + '/*')}")
