@@ -384,6 +384,8 @@ def plot_image_diagnostic_series(
     color = config["color"]
     size = float(config.get("scale", 1.0))
 
+    image_ids_list = list(image_ids)
+
     collection = axes.scatter(
         time_values,
         diag_values,
@@ -397,16 +399,16 @@ def plot_image_diagnostic_series(
             "diagnostics:preview_calibrated_image",
             kwargs={"image_id": img_id, "color_channel": config["channel"]},
         )
-        for img_id in image_ids
+        for img_id in image_ids_list
     ])
 
     if cloudy_ids:
-        image_ids = numpy.asarray(image_ids)
+        image_ids = numpy.asarray(image_ids_list)
         time_values = numpy.asarray(time_values)
         diag_values = numpy.asarray(diag_values)
         cloudy_mask = numpy.isin(image_ids, list(cloudy_ids))
         if numpy.any(cloudy_mask):
-            axes.scatter(
+            overlay = axes.scatter(
                 time_values[cloudy_mask],
                 diag_values[cloudy_mask],
                 marker=marker,
@@ -417,6 +419,17 @@ def plot_image_diagnostic_series(
                 label="_nolegend_",
                 zorder=3,
             )
+            overlay_image_ids = image_ids[cloudy_mask]
+            overlay.set_urls([
+                reverse(
+                    "diagnostics:preview_calibrated_image",
+                    kwargs={
+                        "image_id": int(img_id),
+                        "color_channel": config["channel"],
+                    },
+                )
+                for img_id in overlay_image_ids
+            ])
 
 
 def group_series_by_jd_overlap(series_data):
