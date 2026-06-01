@@ -6,7 +6,7 @@ from traceback import print_exc
 from functools import reduce
 
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from sqlalchemy import select, sql
 
 from autowisp.source_finder import SourceFinder, Evaluator
@@ -30,6 +30,7 @@ from autowisp.database.data_model import (
     Condition,
     Configuration,
     Parameter,
+    AlternateParameterName,
 )
 from autowisp.database.data_model import provenance
 
@@ -50,12 +51,12 @@ def _init_session(request, processing, db_session):
     assert len(processing.configuration["camera-serial-number"]["value"]) == 1
 
     grouping_expressions = []
+    id_expressions = {
+        "Telescope": "TELSCPID",
+        "Camera": "CAMERAID",
+    }
     for component in ["Telescope", "Camera"]:
-        sn_expression = list(
-            processing.configuration.get(component.lower() + "-serial-number")[
-                "value"
-            ].values()
-        )[0]
+        sn_expression = id_expressions[component]
         for instrument_type in db_session.scalars(
             select(getattr(provenance, component + "Type"))
         ).all():
@@ -65,9 +66,14 @@ def _init_session(request, processing, db_session):
                     instrument_type, component.lower() + "s"
                 )
             )
+            if len(serial_numbers) == 1:
+                serial_number = next(iter(serial_numbers))
+                match_expression = f"{sn_expression} == {serial_number!r}"
+            else:
+                match_expression = f"{sn_expression} in {serial_numbers!r}"
             grouping_expressions.append(
                 (
-                    f"{sn_expression} in {serial_numbers!r}",
+                    match_expression,
                     f"{instrument_type.make} {instrument_type.model} "
                     f"{component.lower()}s",
                 )
@@ -121,6 +127,11 @@ def _get_pending(request):
                     processing.get_product_fname(
                         image.id, channel, "calibrated"
                     )
+                )
+                # Ensure DB-backed header fields like CAMERAID/TELSCPID exist
+                # for grouping expressions when they are missing in FITS.
+                evaluator.symtable.update(
+                    processing._get_extra_header(image)
                 )
                 grouping_key = json.dumps(
                     [
@@ -400,11 +411,68 @@ def project_catalog(request, fits_fname):
 def save_starfind_config(request, imtype, batch_index):
     """Save the currently set extraction configuration to the database."""
 
-    starfind_config = {
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+    submitted_config = {
         param: request.POST[param]
         for param in request.POST
         if not param.endswith("token")
     }
+
+    mode = submitted_config.get("threshold-mode", "brightness-threshold")
+    if mode not in ["brightness-threshold", "quantile"]:
+        if is_ajax:
+            return JsonResponse(
+                {"message": "Invalid threshold mode."},
+                status=400,
+            )
+        return HttpResponse("Invalid threshold mode.", status=400)
+
+    try:
+        normalized_config = {
+            "srcfind-tool": submitted_config["srcfind-tool"].strip(),
+            "filter-sources": submitted_config["filter-sources"].strip(),
+            "srcextract-max-sources": str(
+                int(submitted_config.get("srcextract-max-sources", "0"))
+            ),
+        }
+
+        if int(normalized_config["srcextract-max-sources"]) < 0:
+            raise ValueError("Max sources must be non-negative.")
+
+        if mode == "quantile":
+            quantile = float(submitted_config["brightness-quantile"])
+            quantile_scale = float(
+                submitted_config["brightness-quantile-scale"]
+            )
+            if not 0.0 <= quantile <= 1.0:
+                raise ValueError("Quantile must be between 0 and 1.")
+            if quantile_scale <= 0.0:
+                raise ValueError("Quantile scale must be positive.")
+            normalized_config.update(
+                {
+                    "brightness-threshold": None,
+                    "brightness-quantile": str(quantile),
+                    "brightness-quantile-scale": str(quantile_scale),
+                }
+            )
+        else:
+            threshold = float(submitted_config["brightness-threshold"])
+            if threshold <= 0.0:
+                raise ValueError("Brightness threshold must be positive.")
+            normalized_config["brightness-threshold"] = str(threshold)
+
+    except (KeyError, TypeError, ValueError) as error:
+        error_message = f"Invalid source extraction configuration: {error}"
+        if is_ajax:
+            return JsonResponse(
+                {"message": error_message},
+                status=400,
+            )
+        return HttpResponse(
+            error_message,
+            status=400,
+        )
 
     condition_values = json.loads(
         request.session["starfind"]["pending"][imtype][batch_index][0]
@@ -412,21 +480,7 @@ def save_starfind_config(request, imtype, batch_index):
     grouping_expressions = request.session["starfind"]["grouping_expressions"]
     assert len(condition_values) == len(grouping_expressions)
     with start_db_session() as db_session:
-        param_ids = {
-            param: db_session.scalar(select(Parameter.id).filter_by(name=param))
-            for param in starfind_config
-        }
-        param_ids = {
-            param: param_id
-            for param, param_id in param_ids.items()
-            if param_id is not None
-        }
-        condition_id = db_session.scalar(
-            select(
-                sql.functions.max(Condition.id) + 1  # pylint: disable=no-member
-            )
-        )
-
+        matched_expression_ids = set()
         for expression, value in zip(grouping_expressions, condition_values):
             if isinstance(value, bool):
                 if not value:
@@ -446,25 +500,118 @@ def save_starfind_config(request, imtype, batch_index):
                 )
                 db_session.add(db_expression)
                 db_session.flush()
-            db_session.add(
-                Condition(  # pylint: disable=not-callable
-                    id=condition_id,
-                    expression_id=db_expression.id,
-                    notes=(
-                        "BUI tuned source extraction for: "
-                        + _get_batch_description(
-                            condition_values, grouping_expressions
-                        )
-                    ),
+            matched_expression_ids.add(db_expression.id)
+
+        existing_conditions = {}
+        for cond_id, expr_id in db_session.execute(
+            select(Condition.id, Condition.expression_id)
+        ).all():
+            if cond_id not in existing_conditions:
+                existing_conditions[cond_id] = set()
+            existing_conditions[cond_id].add(expr_id)
+
+        matching_condition_ids = [
+            cond_id
+            for cond_id, expr_ids in existing_conditions.items()
+            if expr_ids == matched_expression_ids
+        ]
+        if matching_condition_ids:
+            condition_id = min(matching_condition_ids)
+        else:
+            condition_id = db_session.scalar(
+                select(
+                    sql.functions.max(Condition.id) + 1
                 )
             )
+            if condition_id is None:
+                condition_id = 1
+
+            condition_note = (
+                "BUI tuned source extraction for: "
+                + _get_batch_description(condition_values, grouping_expressions)
+            )
+            for expression_id in sorted(matched_expression_ids):
+                db_session.add(
+                    Condition(  # pylint: disable=not-callable
+                        id=condition_id,
+                        expression_id=expression_id,
+                        notes=condition_note,
+                    )
+                )
+
+        config_version = db_session.scalar(
+            select(sql.functions.max(Configuration.version))
+        )
+        if config_version is None:
+            config_version = 0
+
+        param_ids = {}
+        missing_params = []
+        for param in normalized_config:
+            param_id = db_session.scalar(
+                select(Parameter.id).filter_by(name=param)
+            )
+            if param_id is None:
+                alt_param = db_session.execute(
+                    select(AlternateParameterName).filter_by(alt_name=param)
+                ).scalar_one_or_none()
+                if alt_param is not None:
+                    param_id = alt_param.parameter.id
+            if param_id is None:
+                missing_params.append(param)
+            else:
+                param_ids[param] = param_id
+
+        if missing_params:
+            error_message = (
+                "Missing parameters in pipeline database: "
+                + ", ".join(sorted(missing_params))
+            )
+            if is_ajax:
+                return JsonResponse(
+                    {"message": error_message},
+                    status=500,
+                )
+            return HttpResponse(error_message, status=500)
+
         for param in param_ids:
-            db_session.add(
-                Configuration(  # pylint: disable=not-callable
+            db_config = db_session.execute(
+                select(Configuration).filter_by(
                     parameter_id=param_ids[param],
                     condition_id=condition_id,
-                    version=0,
-                    value=starfind_config[param],
+                    version=config_version,
                 )
+            ).scalar_one_or_none()
+            if db_config is None:
+                db_session.add(
+                    Configuration(  # pylint: disable=not-callable
+                        parameter_id=param_ids[param],
+                        condition_id=condition_id,
+                        version=config_version,
+                        value=normalized_config[param],
+                    )
+                )
+            else:
+                db_config.value = normalized_config[param]
+
+        if mode == "brightness-threshold":
+            threshold_param_id = db_session.scalar(
+                select(Parameter.id).filter_by(name="brightness-threshold")
             )
+            if threshold_param_id is not None:
+                db_threshold_config = db_session.execute(
+                    select(Configuration).filter_by(
+                        parameter_id=threshold_param_id,
+                        condition_id=condition_id,
+                        version=config_version,
+                    )
+                ).scalar_one_or_none()
+                if db_threshold_config is not None:
+                    db_threshold_config.value = normalized_config[
+                        "brightness-threshold"
+                    ]
+
+    if is_ajax:
+        return JsonResponse({"message": "Saved"})
+
     return redirect("/processing/select_starfind_batch")

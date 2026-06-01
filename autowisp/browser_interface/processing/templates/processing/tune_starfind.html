@@ -17,9 +17,9 @@ Tune Source Extraction
                   lcars-melrose-bg
                   lcars-u-1-2" value="SAVE &#10; CURRENT">
 </input>
-</a>
 
 {% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
+{% url 'processing:save_starfind_config' imtype=imtype batch_index=batch_index as save_url %}
 <div onclick="updateExtractedSources('{{ starfindURL }}')">
     <div class="lcars-element 
                 button 
@@ -43,8 +43,7 @@ Tune Source Extraction
 {% block full_view %}
 {{ block.super }}
 
-{% url 'processing:save_starfind_config' imtype=imtype batch_index=batch_index as save_url %}
-<form id="save_config" action="{{ save_url }}" method="post" class="param-parent"
+<form id="save_config" action="{% url 'processing:save_starfind_config' imtype=imtype batch_index=batch_index %}" method="post" class="param-parent"
     onkeydown="return event.key != 'Enter';">
     {% csrf_token %}
 
@@ -55,11 +54,11 @@ Tune Source Extraction
     <br />
     <div class="param">
         <label for="threshold-mode">Threshold mode:</label>
-        <select class="param" id="threshold-mode" onchange="setThresholdModeUI(this.value)">
-            <option value="brightness-threshold" {% if threshold_mode=="brightness-threshold" %}selected{% endif %}>
+        <select class="param" id="threshold-mode" name="threshold-mode" onchange="setThresholdModeUI(this.value)">
+            <option value="brightness-threshold" {% if threshold_mode == "brightness-threshold" %}selected{% endif %}>
                 Brightness Threshold
             </option>
-            <option value="quantile" {% if threshold_mode=="quantile" %}selected{% endif %}>
+            <option value="quantile" {% if threshold_mode == "quantile" %}selected{% endif %}>
                 Quantile
             </option>
         </select>

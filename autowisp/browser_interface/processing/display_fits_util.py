@@ -17,7 +17,15 @@ def update_fits_display(request):
     if request.method != 'POST':
         return None
 
-    request_data = json.loads(request.body.decode())
+    if not request.body:
+        return None
+    if request.content_type and "application/json" not in request.content_type:
+        return None
+
+    try:
+        request_data = json.loads(request.body.decode())
+    except json.JSONDecodeError:
+        return JsonResponse({"ok": False, "message": "Invalid JSON."}, status=400)
     print(f'Request data: {request_data!r}')
     change = request_data.pop('change')
     if change == 'next image':
