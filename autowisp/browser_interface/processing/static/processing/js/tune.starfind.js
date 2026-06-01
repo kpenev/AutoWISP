@@ -123,6 +123,40 @@ function updateExtractedSources(starfindURL) {
     return updateDetectedStars(starfindURL);
 }
 
+// Ensure Save Current writes mode-consistent values to the backend.
+function prepareStarfindConfigForSave() {
+    const params = getExtractParams();
+    if (!params) {
+        return false;
+    }
+
+    const thresholdMode = params["threshold-mode"];
+    const thresholdField = document.getElementById("brightness-threshold");
+    const quantileField = document.getElementById("brightness-quantile");
+    const quantileScaleField = document.getElementById(
+        "brightness-quantile-scale"
+    );
+
+    if (thresholdMode === "quantile") {
+        // Empty string is interpreted as None in the save view.
+        thresholdField.value = "";
+        quantileField.value = String(params["brightness-quantile"]);
+        quantileScaleField.value = String(params["brightness-quantile-scale"]);
+    } else {
+        thresholdField.value = String(params["brightness-threshold"]);
+    }
+    return true;
+}
+
+const saveFormElement = document.getElementById("save_config");
+if (saveFormElement) {
+    saveFormElement.addEventListener("submit", function (event) {
+        if (!prepareStarfindConfigForSave()) {
+            event.preventDefault();
+        }
+    });
+}
+
 // Initialize the threshold controls when the page loads.
 setThresholdModeUI(document.getElementById("threshold-mode").value);
 
