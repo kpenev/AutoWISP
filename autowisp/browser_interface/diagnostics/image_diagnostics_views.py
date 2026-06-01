@@ -1,5 +1,6 @@
 """Views for displaying per-image diagnostics."""
 
+from collections import defaultdict
 from io import BytesIO
 import json
 import math
@@ -31,6 +32,162 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
+
+CLOUD_RATIO_CHANNELS = ("R", "B")
+CLOUD_RATIO_MIN_DELTA = 0.1
+CLOUD_RATIO_SIGMA = 3.0
+CLOUD_FLAG_COLOR = "#f6b44b"
+
+
+def _parse_quantile_name(quantile_name):
+    """Return a float quantile value from a diagnostic name."""
+
+    if not quantile_name.startswith("pixel_q"):
+        return None
+    digits = quantile_name[len("pixel_q") :]
+    if not digits:
+        return None
+    return float(f"0.{digits}")
+
+
+def _get_cloud_quantile_names(db_session):
+    """Return all quantile diagnostic names available for cloudiness checks."""
+
+    return db_session.scalars(
+        select(DiagnosticType.name).where(
+            DiagnosticType.name.like("pixel_q%")
+        )
+    ).all()
+
+
+def _collect_cloud_ratios(db_session, quantile_name):
+    """Return per-session (image_id, ratio) entries for the R/B ratio."""
+
+    if not quantile_name:
+        return {}
+
+    rows = db_session.execute(
+        select(
+            ImageDiagnostics.image_id,
+            Image.observing_session_id,
+            ImageDiagnostics.channel,
+            ImageDiagnostics.value,
+        )
+        .join(Image, Image.id == ImageDiagnostics.image_id)
+        .join(DiagnosticType, DiagnosticType.id == ImageDiagnostics.diagnostic_id)
+        .where(DiagnosticType.name == quantile_name)
+    ).all()
+
+    per_image = {}
+    for image_id, session_id, channel, value in rows:
+        if not channel:
+            continue
+        channel_key = channel[0].upper()
+        if channel_key not in CLOUD_RATIO_CHANNELS:
+            continue
+        entry = per_image.setdefault(
+            image_id,
+            {"session_id": session_id, "values": {"R": [], "B": []}},
+        )
+        entry["values"][channel_key].append(float(value))
+
+    ratio_by_session = defaultdict(list)
+    for image_id, entry in per_image.items():
+        r_values = entry["values"]["R"]
+        b_values = entry["values"]["B"]
+        if not r_values or not b_values:
+            continue
+        r_mean = float(numpy.mean(r_values))
+        b_mean = float(numpy.mean(b_values))
+        if b_mean <= 0:
+            continue
+        ratio_by_session[entry["session_id"]].append(
+            (image_id, r_mean / b_mean)
+        )
+
+    return ratio_by_session
+
+
+def _collect_channel_quantiles(db_session, quantile_name):
+    """Return per-session/channel (image_id, value) entries for a quantile."""
+
+    if not quantile_name:
+        return {}
+
+    rows = db_session.execute(
+        select(
+            ImageDiagnostics.image_id,
+            Image.observing_session_id,
+            ImageDiagnostics.channel,
+            ImageDiagnostics.value,
+        )
+        .join(Image, Image.id == ImageDiagnostics.image_id)
+        .join(DiagnosticType, DiagnosticType.id == ImageDiagnostics.diagnostic_id)
+        .where(DiagnosticType.name == quantile_name)
+    ).all()
+
+    by_session_channel = defaultdict(list)
+    for image_id, session_id, channel, value in rows:
+        if not channel:
+            continue
+        by_session_channel[(session_id, channel)].append(
+            (image_id, float(value))
+        )
+
+    return by_session_channel
+
+
+def _get_cloudy_image_ids(db_session):
+    """Flag images with R/B ratio shifts relative to session median."""
+
+    quantile_names = _get_cloud_quantile_names(db_session)
+    cloudy_ids = set()
+
+    for quantile_name in quantile_names:
+        ratio_by_session = _collect_cloud_ratios(db_session, quantile_name)
+        channel_by_session = _collect_channel_quantiles(db_session, quantile_name)
+
+        for ratio_entries in ratio_by_session.values():
+            ratios = numpy.array(
+                [ratio for _, ratio in ratio_entries], dtype=float
+            )
+            if ratios.size < 2:
+                continue
+            median_ratio = float(numpy.median(ratios))
+            if median_ratio <= 0:
+                continue
+            deviations = numpy.abs(ratios - median_ratio)
+            mad = float(numpy.median(deviations))
+            ratio_delta = max(
+                CLOUD_RATIO_MIN_DELTA,
+                CLOUD_RATIO_SIGMA * (mad / median_ratio) if mad > 0 else 0.0,
+            )
+            low = median_ratio * (1.0 - ratio_delta)
+            high = median_ratio * (1.0 + ratio_delta)
+            for image_id, ratio in ratio_entries:
+                if ratio < low or ratio > high:
+                    cloudy_ids.add(image_id)
+
+        for entries in channel_by_session.values():
+            values = numpy.array([value for _, value in entries], dtype=float)
+            if values.size < 2:
+                continue
+            median_value = float(numpy.median(values))
+            if median_value <= 0:
+                continue
+            deviations = numpy.abs(values - median_value)
+            mad = float(numpy.median(deviations))
+            value_delta = max(
+                CLOUD_RATIO_MIN_DELTA,
+                CLOUD_RATIO_SIGMA * (mad / median_value) if mad > 0 else 0.0,
+            )
+            low = median_value * (1.0 - value_delta)
+            high = median_value * (1.0 + value_delta)
+            for image_id, value in entries:
+                if value < low or value > high:
+                    cloudy_ids.add(image_id)
+
+    return cloudy_ids
 def get_available_diagnostic_series(diagnostic_name, db_session):
     """
     Return the observing sessions and channels with data for a diagnostic.
@@ -199,7 +356,14 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
 
 
 def plot_image_diagnostic_series(
-    axes, time_values, diag_values, image_ids, config
+    axes,
+    time_values,
+    diag_values,
+    image_ids,
+    config,
+    *,
+    cloudy_ids=None,
+    cloudy_color=CLOUD_FLAG_COLOR,
 ):
     """
     Plot a single image diagnostic series on the given axes.
@@ -235,6 +399,24 @@ def plot_image_diagnostic_series(
         )
         for img_id in image_ids
     ])
+
+    if cloudy_ids:
+        image_ids = numpy.asarray(image_ids)
+        time_values = numpy.asarray(time_values)
+        diag_values = numpy.asarray(diag_values)
+        cloudy_mask = numpy.isin(image_ids, list(cloudy_ids))
+        if numpy.any(cloudy_mask):
+            axes.scatter(
+                time_values[cloudy_mask],
+                diag_values[cloudy_mask],
+                marker=marker,
+                s=size * 24,
+                c=cloudy_color,
+                alpha=0.9,
+                linewidths=0.4,
+                label="_nolegend_",
+                zorder=3,
+            )
 
 
 def group_series_by_jd_overlap(series_data):
@@ -366,6 +548,9 @@ def create_image_diagnostics_figure(
     figure_config = figure_config or {}
 
     series_data = []
+    cloudy_ids = set()
+    if diagnostic_name == "quantiles":
+        cloudy_ids = _get_cloudy_image_ids(db_session)
     min_jd = numpy.inf
     for series in series_list:
         if not series.get("marker", "").strip():
@@ -391,7 +576,12 @@ def create_image_diagnostics_figure(
     for axes, group in zip(all_axes.flatten(), groups):
         for series, jd_values, diag_values, image_ids in group:
             plot_image_diagnostic_series(
-                axes, jd_values - min_jd, diag_values, image_ids, series
+                axes,
+                jd_values - min_jd,
+                diag_values,
+                image_ids,
+                series,
+                cloudy_ids=cloudy_ids,
             )
         axes.set_xlabel(f"JD - {min_jd!r}")
         axes.set_ylabel(diagnostic_name)
@@ -522,6 +712,14 @@ def display_image_diagnostics(request, diagnostic_name):
     with start_db_session() as db_session:
         context = get_available_diagnostic_series(diagnostic_name, db_session)
         context["available_diagnostics"] = get_available_diagnostics(db_session)
+    if diagnostic_name == "quantiles":
+        min_percent = int(CLOUD_RATIO_MIN_DELTA * 100)
+        context["cloudy_note"] = (
+            "Frames flagged as cloudy use the highlight color "
+            f"(R/B or per-channel quantile shift across quantiles "
+            f"> {min_percent}% or > {CLOUD_RATIO_SIGMA}x MAD)."
+        )
+        context["cloudy_color"] = CLOUD_FLAG_COLOR
     context["diagnostics_title"] = diagnostic_name
     context["y_diagnostic"] = diagnostic_name
     context["update_plot_url"] = reverse(

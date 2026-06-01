@@ -114,6 +114,12 @@
         </table>
     </div>
     <div id="plot-sep" class="lcars-bracket hollow top"></div>
+    {% if cloudy_note %}
+    <p class="lcars-text" style="margin: 0.25rem 0;">
+        <span style="color: {{ cloudy_color }};">Cloud cue:</span>
+        {{ cloudy_note }}
+    </p>
+    {% endif %}
     <div id="diagnostics-display" class="fill-space">
         {% block diagnostics_display %}
         <p class="lcars-text">Select diagnostics to display.</p>
