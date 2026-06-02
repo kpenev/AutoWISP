@@ -126,6 +126,20 @@ def _parse_test_args(argv):
             "that survives the pipeline's redirect."
         ),
     )
+    parser.add_argument(
+        "--preserve-processing",
+        nargs="?",
+        const=".",
+        default=None,
+        metavar="DIR",
+        help=(
+            "Preserve each test's processing directory for debugging. "
+            "Each directory is moved to "
+            "``<DIR>/<test_method_name>_processing`` after the test "
+            "tears down (overwriting any prior copy). DIR defaults to "
+            "the current working directory if no value is given."
+        ),
+    )
     return parser.parse_known_args(argv)
 
 
@@ -179,8 +193,18 @@ def main():
             processing_dir = path.join(test_dir, "processing")
             print(f"Test data directory: {test_dir!r}")
             print(f"Test data contents: {glob(test_dir + '/*')}")
+            preserve_processing_dir = (
+                path.abspath(args.preserve_processing)
+                if args.preserve_processing is not None
+                else None
+            )
+            if preserve_processing_dir is not None:
+                makedirs(preserve_processing_dir, exist_ok=True)
             AutoWISPTestCase.set_test_directory(
-                test_dir, processing_dir, args.failed_test_dir
+                test_dir,
+                processing_dir,
+                args.failed_test_dir,
+                preserve_processing_dir=preserve_processing_dir,
             )
             unittest.main(
                 argv=[sys.argv[0]] + unittest_argv,
