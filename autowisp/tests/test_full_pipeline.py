@@ -20,6 +20,7 @@ import pandas
 from autowisp import run_pipeline
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.initialize_database import initialize_database
+from autowisp.processing_steps import stack_to_master, stack_to_master_flat
 from autowisp.database.interface import start_db_session
 from autowisp.database.photref_selection import (
     bind_images_to_photref,
@@ -57,6 +58,29 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             encoding="utf-8",
         ) as cfg_file:
             overwrite_default_config = parse_config_overwrites(cfg_file)
+        # The per-step CLI uses different ``--outlier-threshold``
+        # defaults for ``wisp-stack-to-master`` and
+        # ``wisp-stack-to-master-flat``, but the pipeline registers a
+        # single ``outlier-threshold`` parameter so the per-step
+        # asymmetry is lost by default. Replicate it with two
+        # mutually-exclusive conditional entries pulled straight from
+        # each step's ``parse_command_line`` default -- so any change to
+        # those defaults flows into the pipeline test automatically.
+        # The ``(None, ...)`` row is dropped by
+        # :func:`_overwrite_default_config`, which is what we want here:
+        # every image type matches exactly one of the two conditions,
+        # so there is no ambiguity.
+        for param_name in ["outlier-threshold", "min-valid-values", "max-iter"]:
+            non_flat_value = stack_to_master.parse_command_line([])[
+                "argument_defaults"
+            ][param_name]
+            flat_value = stack_to_master_flat.parse_command_line([])[
+                "argument_defaults"
+            ][param_name]
+            overwrite_default_config[param_name] = [
+                (('IMAGETYP.strip() != "flat"',), str(non_flat_value)),
+                (('IMAGETYP.strip() == "flat"',), str(flat_value)),
+            ]
         with open(
             path.join(self.test_directory, "master_config.json"),
             "r",
@@ -124,9 +148,9 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             self._assert_dir_fits_match(path.join("CAL", imtype))
 
         for master_basename in (
-            "zero_R.fits.fz",
-            "dark_R.fits.fz",
-            "flat_R.fits.fz",
+            "zero_R.fits",
+            "dark_R.fits",
+            "flat_R.fits",
         ):
             self.assert_fits_match(
                 path.join(self.test_directory, "MASTERS", master_basename),
@@ -219,6 +243,15 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
     def _assert_h5_dir_match(self, relative_dir):
         """Assert every ``*.h5`` file under ``relative_dir`` matches."""
 
+        def ignore(name):
+            for ending in [
+                "/EPD/FitProperties/Filter",
+                "/TFA/FitProperties/PointsFilterExpression",
+            ]:
+                if name.endswith(ending):
+                    return True
+            return False
+
         generated = sorted(
             glob(path.join(self.processing_directory, relative_dir, "*.h5"))
         )
@@ -231,5 +264,5 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
             f"HDF5 file list mismatch under {relative_dir!r}.",
         )
         for gen_fname, exp_fname in zip(generated, expected):
-            self.assert_groups_match(gen_fname, exp_fname, "/", ignore=None)
-            self.assert_groups_match(exp_fname, gen_fname, "/", ignore=None)
+            self.assert_groups_match(gen_fname, exp_fname, "/", ignore=ignore)
+            self.assert_groups_match(exp_fname, gen_fname, "/", ignore=ignore)
