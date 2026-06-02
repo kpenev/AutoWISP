@@ -2,10 +2,10 @@
 
 from os import path
 
-from autowisp.tests.h5_test_case import H5TestCase
+from autowisp.tests.h5_test_case import DRTestCase
 
 
-class TestFindStars(H5TestCase):
+class TestFindStars(DRTestCase):
     """Tests of the find_stars step."""
 
     def test_find_stars(self):
