@@ -334,9 +334,28 @@ class EPDCorrection(Correction):
                 num_extra_predictors=num_extra_predictors,
             )
             if save:
+                num_filter_matching_points = int(fit_points.sum())
+                self._logger.debug(
+                    "EPD fit for %r fit_index=%d: filter matched %d/%d "
+                    "points; fit point indices: %r",
+                    light_curve.filename,
+                    fit_index,
+                    num_filter_matching_points,
+                    int(fit_points.size),
+                    numpy.flatnonzero(fit_points).tolist(),
+                )
+                property_key_prefix = fit_target[2].rsplit(".", 1)[0]
+                extended_configuration = list(
+                    self._io_fit_config[fit_index]
+                ) + [
+                    (
+                        property_key_prefix + ".num_filter_matching_points",
+                        numpy.uint(num_filter_matching_points),
+                    ),
+                ]
                 self._save_result(
                     fit_index=fit_index,
-                    configuration=self._io_fit_config[fit_index],
+                    configuration=extended_configuration,
                     **fit_results,
                     fit_points=fit_points,
                     light_curve=light_curve,

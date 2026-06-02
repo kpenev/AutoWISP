@@ -604,6 +604,18 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         "properties applicable to each data point."
                     ),
                 ),
+                HDF5DataSet(
+                    pipeline_key=(
+                        property_key_prefix + ".num_filter_matching_points"
+                    ),
+                    abspath=(cfg_path + "NumberFilterMatchingPoints"),
+                    dtype="numpy.uint",
+                    compression="gzip",
+                    compression_options="9",
+                    description="The number of points in the "
+                    "lightcurve that satisfy the Filter "
+                    "expression.",
+                ),
             ]
         )
         if mode == "epd":
@@ -791,6 +803,17 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                         "part of a template or can "
                         "participate in the de-trending "
                         "fit.",
+                    ),
+                    HDF5DataSet(
+                        pipeline_key=(
+                            config_key_prefix + "template_source_ids"
+                        ),
+                        abspath=(cfg_path + "TemplateStarIDs"),
+                        dtype="numpy.uint64",
+                        compression="gzip",
+                        compression_options="9",
+                        description="The source IDs of the stars "
+                        "selected to serve as TFA templates.",
                     ),
                 ]
             )
