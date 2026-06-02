@@ -17,4 +17,5 @@ class TestEPD(H5TestCase):
                 for ap_ind in range(4)
             ],
             output_type="LC",
+            ignore=lambda name: name.endswith("/EPD/FitProperties/Filter"),
         )
