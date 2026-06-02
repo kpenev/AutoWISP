@@ -151,12 +151,12 @@ class H5TestCase(AutoWISPTestCase):
                     msg = (
                         f"Attribute {dr_fname1!r}/{obj1.name!r}.{key} does "
                         f"not match {dr_fname2!r}/{obj1.name!r}.{key}: "
-                        f"{value!r} vs {obj2.attrs[key]!r}."
+                        f"{value!r} vs {other!r}."
                     )
                     if numpy.atleast_1d(value).dtype.kind == "f":
                         self.assertTrue(
                             numpy.allclose(
-                                obj2.attrs[key],
+                                other,
                                 value,
                                 rtol=1e-8,
                                 atol=1e-8,
@@ -165,11 +165,9 @@ class H5TestCase(AutoWISPTestCase):
                             msg,
                         )
                     elif numpy.atleast_1d(value).size > 1:
-                        self.assertTrue(
-                            numpy.array_equal(obj2.attrs[key], value), msg
-                        )
+                        self.assertTrue(numpy.array_equal(other, value), msg)
                     else:
-                        self.assertEqual(obj2.attrs[key], value, msg)
+                        self.assertEqual(other, value, msg)
 
                 if isinstance(obj1, h5py.Dataset):
                     self.assertTrue(
