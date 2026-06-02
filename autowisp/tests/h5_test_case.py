@@ -8,6 +8,8 @@ import h5py
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+
 
 from autowisp.tests import AutoWISPTestCase
 
@@ -139,7 +141,19 @@ class H5TestCase(AutoWISPTestCase):
                         isinstance(obj2, h5py.Dataset),
                         f"Object {dr_fname2!r}/{obj2.name!r} is not a dataset!",
                     )
-                    if not obj1.name.endswith("/MaxSources"):
+                    if obj1.name == "/FITSHeader":
+                        with DataReductionFile(
+                            dr_fname1, "r"
+                        ) as dr1_file, DataReductionFile(
+                            dr_fname2, "r"
+                        ) as dr2_file:
+                            self._compare_headers(
+                                dr_fname1,
+                                dr_fname2,
+                                dr1_file.get_frame_header(),
+                                dr2_file.get_frame_header(),
+                            )
+                    elif not obj1.name.endswith("/MaxSources"):
                         assert_dset_match(obj1, obj2)
 
             if isinstance(dr1[group_name], h5py.Dataset):
