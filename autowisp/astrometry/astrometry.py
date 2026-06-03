@@ -7,6 +7,7 @@ import subprocess
 import os
 import shlex
 from traceback import format_exc
+from contextlib import nullcontext
 import time
 from urllib.request import Request, urlopen
 from urllib.error import URLError
@@ -522,6 +523,9 @@ def get_initial_corr(
         and os.path.exists(config["anet_indices"][1])
     ):
         return get_initial_corr_local(*initial_corr_arg, config["anet_indices"])
+
+    if web_lock is None:
+        web_lock = nullcontext()
 
     with web_lock:
         return get_initial_corr_web(*initial_corr_arg, config["anet_api_key"])

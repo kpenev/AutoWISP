@@ -278,6 +278,7 @@ def project_catalog(request, fits_fname):
                     fov_estimate * config["image_scale_factor"],
                 ),
                 "anet_indices": config["anet_indices"],
+                "anet_api_key": config["anet_api_key"],
                 "x_cent": header["NAXIS1"] / 2,
                 "y_cent": header["NAXIS2"] / 2,
             },
