@@ -2,13 +2,10 @@ services:
   wisp:
     image: kpenev/wisp:latest
     shm_size: '2g'
-    ipc: host
-    ports:
-      - "8089:8089"
     volumes:
       - type: bind
         source: <IOdir| directory for raw images or calibration results>
-        target: /storage/<container name>
+        target: /storage
       - type: bind
         source: <TMPdir| directory for temporary files>
         target: /tmp

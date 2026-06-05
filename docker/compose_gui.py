@@ -63,27 +63,6 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
                 # extract the configured path after 'target:' and compare prefix
                 tgt_val = s.split("target:", 1)[1].strip()
                 if tgt_val == target or tgt_val.startswith(target.rstrip("/") + "/") or tgt_val.startswith(target + ""):
-                    # If this is the storage target, update the container name
-                    # portion of the target path (replace <container name> with
-                    # the selected storage folder name).
-                    if target == "/storage":
-                        try:
-                            container_name = os.path.basename(os.path.normpath(new_path))
-                            indent_t = lines[i][: len(lines[i]) - len(lines[i].lstrip())]
-                            # replace any placeholder occurrence; if none, append
-                            if "<container name>" in lines[i]:
-                                lines[i] = lines[i].replace("<container name>", container_name)
-                            else:
-                                # if the target already has extra suffix, try to
-                                # replace the trailing segment after /storage
-                                parts = tgt_val.split("/storage", 1)
-                                if len(parts) > 1 and parts[1]:
-                                    lines[i] = f"{indent_t}target: /storage/{container_name}"
-                                else:
-                                    lines[i] = f"{indent_t}target: /storage/{container_name}"
-                        except Exception:
-                            # non-fatal: leave target line unchanged on errors
-                            pass
 
                     # search backwards for a source: line and replace it
                     for j in range(i - 1, -1, -1):
@@ -499,7 +478,7 @@ class ComposeEditorApp:
                 port = 8089
 
             url = f"http://localhost:{port}/"
-            timeout = 120  # seconds
+            timeout = 180  # seconds
             poll_interval = 2  # seconds
 
             def _poll_and_open():
