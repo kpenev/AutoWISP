@@ -17,6 +17,7 @@ from scipy.spatial import cKDTree
 from autowisp.fit_expression import iterative_fit, iterative_fit_qr
 from .light_curve_file import LightCurveFile
 from .correction import Correction
+from .hashable_array import HashableArray
 
 
 class TFACorrection(Correction):
@@ -1013,13 +1014,25 @@ class TFACorrection(Correction):
                 ),
             )
             if self._configuration["fit_points_filter_expression"] is not None:
-                fit_points = numpy.logical_and(
-                    fit_points,
-                    light_curve.evaluate_expression(
-                        self._configuration["variables"],
-                        self._configuration["fit_points_filter_expression"],
-                    ),
+                filter_match = light_curve.evaluate_expression(
+                    self._configuration["variables"],
+                    self._configuration["fit_points_filter_expression"],
                 )
+                num_filter_matching_points = int(filter_match.sum())
+                fit_points = numpy.logical_and(fit_points, filter_match)
+            else:
+                num_filter_matching_points = int(lc_observation_ids.size)
+
+            self._logger.debug(
+                "TFA fit for %r fit_index=%d: filter matched %d/%d points; "
+                "fitting %d points with observation IDs %r",
+                light_curve.filename,
+                fit_index,
+                num_filter_matching_points,
+                lc_observation_ids.size,
+                int(fit_points.sum()),
+                lc_observation_ids[fit_points].tolist(),
+            )
 
             raw_values = self._get_fit_data(
                 light_curve, get_fit_dataset, fit_target, fit_points
@@ -1114,9 +1127,28 @@ class TFACorrection(Correction):
                 num_extra_predictors=0,
             )
             if save:
+                config_key_prefix = self._get_config_key_prefix(fit_target)
+                property_key_prefix = fit_target[2].rsplit(".", 1)[0]
+                extended_configuration = list(
+                    self._io_configurations[fit_index]
+                ) + [
+                    (
+                        config_key_prefix + "template_source_ids",
+                        HashableArray(
+                            numpy.asarray(
+                                self._template_source_ids[fit_index],
+                                dtype=numpy.uint64,
+                            )
+                        ),
+                    ),
+                    (
+                        property_key_prefix + ".num_filter_matching_points",
+                        numpy.uint(num_filter_matching_points),
+                    ),
+                ]
                 self._save_result(
                     fit_index=fit_index,
-                    configuration=self._io_configurations[fit_index],
+                    configuration=extended_configuration,
                     **fit_results,
                     fit_points=fit_points,
                     light_curve=light_curve,

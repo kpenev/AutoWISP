@@ -195,6 +195,11 @@ class MasterPhotrefCollector:
                     ] = statistics[stat_quantity][:, quantity_column]
                 quantity_column += 1
 
+        # Sort by source_id so the on-disk row order is independent of
+        # the order ``statistics`` happened to be produced in. Keeps
+        # downstream consumers deterministic across CLI / pipeline runs.
+        save_stat = save_stat[numpy.argsort(save_stat["source_id"])]
+
         destination_dir = os.path.dirname(self._statistics_fname)
         if not os.path.exists(destination_dir):
             os.makedirs(destination_dir)

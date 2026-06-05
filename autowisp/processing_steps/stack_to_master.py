@@ -109,10 +109,10 @@ def get_command_line_parser(
     parser.add_argument(
         "--compress",
         type=float,
-        default=16,
-        help="If zero, the final result is not compressed. Otherwise,"
-        "this is the quantization level used for compressing the image (see "
-        "`astropy.io.fits` documentation).",
+        default=None,
+        help="Quantization level used for compressing the image (see "
+        "`astropy.io.fits` documentation). If not specified, the final result "
+        "is not compressed.",
     )
     parser.add_argument(
         "--add-averaged-keywords",

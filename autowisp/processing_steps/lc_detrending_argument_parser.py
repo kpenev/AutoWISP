@@ -420,7 +420,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "magnitude is done.",
         )
 
-    def __init__( # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         mode,
         description,
@@ -462,18 +462,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 "sphotref = apphot.magfit.cfg.single_photref : "
                 "aperture_index = 0"
                 + (
-                    (
-                        "; x = srcproj.columns : "
-                        "srcproj_column_name = 'x' & srcproj_version = 0; "
-                        "y = srcproj.columns : "
-                        "srcproj_column_name = 'y' & srcproj_version = 0; "
-                        "bg = bg.value; "
-                        "z = skypos.zenith_distance; "
-                        "S = srcextract.psf_map.eval: "
-                        "srcextract_psf_param = 's'"
-                    )
-                    if self._mode == "epd"
-                    else ""
+                    "; x = srcproj.columns : "
+                    "srcproj_column_name = 'x' & srcproj_version = 0; "
+                    "y = srcproj.columns : "
+                    "srcproj_column_name = 'y' & srcproj_version = 0; "
+                    "bg = bg.value; "
+                    "z = skypos.zenith_distance; "
+                    "S = srcextract.psf_map.eval: "
+                    "srcextract_psf_param = 's'"
                 )
             ),
             help="Define variables"

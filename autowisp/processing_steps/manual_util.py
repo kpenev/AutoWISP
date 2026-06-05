@@ -662,9 +662,19 @@ class ManualStepArgumentParser(ArgumentParser):
         result.processing_step = path.basename(argv[0])
         if result.processing_step.endswith(".py"):
             result.processing_step = result.processing_step[:-3]
-        else:
-            assert result.processing_step.startswith("wisp-")
+        elif result.processing_step.startswith("wisp-"):
             result.processing_step = result.processing_step[5:].replace(
+                "-", "_"
+            )
+        else:
+            # ``argv[0]`` is neither a ``wisp-*`` console entry point nor a
+            # ``*.py`` script. Reachable when the parser is invoked from a
+            # test harness or coverage runner (e.g. ``coverage run -m
+            # autowisp.tests``) where ``argv[0]`` is something like
+            # ``coverage`` or ``__main__``. ``processing_step`` is used only
+            # to template log filenames, so falling back to the basename
+            # keeps things working without crashing the test.
+            result.processing_step = result.processing_step.replace(
                 "-", "_"
             )
 

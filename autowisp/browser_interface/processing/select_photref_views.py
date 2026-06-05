@@ -1,7 +1,6 @@
 """Implement the view for selecting single photometric reference."""
 
 from io import StringIO
-from functools import reduce
 from os import path
 
 # from PIL.ImageTransform import AffineTransform
@@ -14,27 +13,20 @@ import pandas
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
 
-from autowisp.database.image_processing import (
-    ImageProcessingManager,
-    get_master_expression_ids,
-    remove_failed_prerequisite,
-)
+from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.interface import start_db_session
-from autowisp.database.user_interface import get_processing_sequence
-from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.database.photref_selection import (
+    bind_images_to_photref,
+    compute_photref_candidates,
+)
 from autowisp.evaluator import Evaluator
 
-# False positive due to unusual importing
+# false positive due to unusual importing
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
-    MasterType,
-    MasterFile,
-    ConditionExpression,
-    Step,
+    DiagnosticType,
     Image,
     ImageDiagnostics,
-    DiagnosticType,
-    ImageMasterSelection,
 )
 
 # pylint: enable=no-name-in-module
@@ -92,114 +84,28 @@ def get_photref_merit_info(photref_group, db_session, merit_function):
     return merit_info
 
 
-def _get_missing_photref(request):  # pylint: disable=too-many-locals
+def _get_missing_photref(request):
     """Add all frame sets missing photometric reference to the session."""
 
     assert "need_photref" not in request.session
     processing = ImageProcessingManager(pipeline_run_id=None)
     with start_db_session() as db_session:
-        master_type_id = db_session.scalar(
-            select(MasterType.id).filter_by(name="single_photref")
-        )
-        magfit_steps = [
-            entry
-            for entry in get_processing_sequence(db_session)
-            if entry[0].name == "fit_magnitudes"
-        ]
-        processing.set_pending(db_session, magfit_steps)
-        for step in magfit_steps:
-            for pending in processing.pending[(step[0].id, step[1].id)]:
-                processing.evaluate_expressions_image(pending[0], db_session)
+        result = compute_photref_candidates(processing, db_session)
 
-        request.session["merit_function"] = (
-            "1.0 / ((1.0 - qnt_s_center)**2 + qnt_bg_center**2)"
-        )
-        request.session["demo"] = False
-        if not reduce(
-            lambda x, y: bool(x) or bool(y), processing.pending.values(), False
-        ):
-            request.session["demo"] = True
-            processing.set_pending(db_session, magfit_steps, True)
-
-        astrom_step_id = db_session.scalar(
-            select(Step.id).filter_by(name="solve_astrometry")
-        )
-        for (
-            step_id,
-            image_type_id,
-        ), pending_images in processing.pending.items():
-            remove_failed_prerequisite(
-                pending_images, image_type_id, astrom_step_id, db_session
-            )
-            request.session["need_photref"] = {
-                "master_expressions": [
-                    db_session.scalar(
-                        select(ConditionExpression.expression).filter_by(
-                            id=expr_id
-                        )
-                    )
-                    for expr_id in get_master_expression_ids(
-                        step_id, image_type_id, db_session
-                    )
-                ],
-                "master_values": [],
-            }
-
-            by_photref = processing.group_pending_by_conditions(
-                pending_images,
-                db_session,
-                match_observing_session=False,
-                step_id=step_id,
-                masters_only=True,
-            )
-            for by_master_values, master_values in by_photref:
-                if request.session["demo"]:
-                    unbound_images = by_master_values
-                else:
-                    group_channel = by_master_values[0][1]
-                    bound_image_ids = set(
-                        db_session.scalars(
-                            select(ImageMasterSelection.image_id).where(
-                                ImageMasterSelection.master_type_id
-                                == master_type_id,
-                                ImageMasterSelection.channel == group_channel,
-                                ImageMasterSelection.image_id.in_(
-                                    [img.id for img, _, _ in by_master_values]
-                                ),
-                            )
-                        ).all()
-                    )
-                    unbound_images = [
-                        (img, ch, st)
-                        for img, ch, st in by_master_values
-                        if img.id not in bound_image_ids
-                    ]
-                if not unbound_images:
-                    continue
-                config = processing.get_config(
-                    matched_expressions=None,
-                    db_session=db_session,
-                    image_id=unbound_images[0][0].id,
-                    channel=unbound_images[0][1],
-                    step_name="calculate_photref_merit",
-                )[0]
-                request.session["need_photref"]["master_values"].append(
-                    (
-                        list(master_values),
-                        config,
-                        [
-                            (
-                                processing.get_step_input(
-                                    image, channel, "calibrated"
-                                ),
-                                processing.get_step_input(image, channel, "dr"),
-                                image.id,
-                                channel,
-                            )
-                            for image, channel, _ in unbound_images
-                        ],
-                    )
-                )
+    request.session["merit_function"] = (
+        "1.0 / ((1.0 - qnt_s_center)**2 + qnt_bg_center**2)"
+    )
+    request.session["demo"] = result["demo"]
+    # Preserve the original "last entry wins" behavior: the outer loop in
+    # the previous implementation overwrote ``request.session["need_photref"]``
+    # on every iteration, so only the final ``(step_id, image_type_id)``
+    # entry's data survived.
+    if result["candidates"]:
+        last = result["candidates"][-1]
+        request.session["need_photref"] = {
+            "master_expressions": last["master_expressions"],
+            "master_values": last["groups"],
+        }
     request.session.modified = True
 
 
@@ -479,123 +385,6 @@ def select_photref_target(request, recalc=False):
     )
 
 
-def _bind_images_to_photref(dr_fname, batch):  # pylint: disable=too-many-locals
-    """
-    Write ImageMasterSelection rows for batch images within distance of photref.
-
-    Reads the fit_magnitudes config to get max_photref_separation (which may
-    be conditional), then for each image in batch computes the angular
-    separation between the image center and the photref center.  Images whose
-    separation is within max_photref_separation * photref_diagonal_fov are
-    bound to the photref via an upsert into ImageMasterSelection.
-
-    Args:
-        dr_fname(str):    Path to the photref DR file that was just registered.
-        batch(list):    List of (calibrated_fname, dr_fname, image_id, channel)
-            tuples — the candidate images from the same condition group.
-    """
-
-    with DataReductionFile(dr_fname, "r") as pf_dr:
-        pf_header = pf_dr.get_frame_header()
-    pf_rawfname = pf_header["RAWFNAME"]
-    pf_channel = pf_header["CLRCHNL"]
-
-    processing = ImageProcessingManager(pipeline_run_id=None)
-
-    with start_db_session() as db_session:
-        master_file = db_session.scalar(
-            select(MasterFile).where(MasterFile.filename == dr_fname)
-        )
-        if master_file is None:
-            return
-
-        pf_image_id = db_session.scalar(
-            select(Image.id).where(  # pylint:disable=no-member
-                Image.raw_fname.like(  # pylint:disable=no-member
-                    f"%/{pf_rawfname}.%"
-                )
-            )
-        )
-        if pf_image_id is None:
-            return
-        pf_diags = dict(
-            db_session.execute(
-                select(DiagnosticType.name, ImageDiagnostics.value)
-                .join(
-                    DiagnosticType,
-                    ImageDiagnostics.diagnostic_id == DiagnosticType.id,
-                )
-                .where(
-                    ImageDiagnostics.image_id == pf_image_id,
-                    ImageDiagnostics.channel == pf_channel,
-                    DiagnosticType.name.in_(
-                        ["ra_center", "dec_center", "diagonal_fov"]
-                    ),
-                )
-            ).all()
-        )
-        if not all(
-            k in pf_diags for k in ["ra_center", "dec_center", "diagonal_fov"]
-        ):
-            return
-
-        pf_center = SkyCoord(
-            ra=pf_diags["ra_center"] * astropy_units.deg,
-            dec=pf_diags["dec_center"] * astropy_units.deg,
-            frame="icrs",
-        )
-
-        first_image_id, first_channel = batch[0][2], batch[0][3]
-        first_image = db_session.get(Image, first_image_id)
-        processing.evaluate_expressions_image(first_image, db_session)
-        fit_config = processing.get_config(
-            matched_expressions=None,
-            db_session=db_session,
-            image_id=first_image_id,
-            channel=first_channel,
-            step_name="fit_magnitudes",
-        )[0]
-        threshold_deg = (
-            fit_config.get("max_photref_separation", 0.2)
-            * pf_diags["diagonal_fov"]
-        )
-
-        for _, _, image_id, channel in batch:
-            img_diags = dict(
-                db_session.execute(
-                    select(DiagnosticType.name, ImageDiagnostics.value)
-                    .join(
-                        DiagnosticType,
-                        ImageDiagnostics.diagnostic_id == DiagnosticType.id,
-                    )
-                    .where(
-                        ImageDiagnostics.image_id == image_id,
-                        ImageDiagnostics.channel == channel,
-                        DiagnosticType.name.in_(["ra_center", "dec_center"]),
-                    )
-                ).all()
-            )
-            if "ra_center" not in img_diags or "dec_center" not in img_diags:
-                continue
-            img_center = SkyCoord(
-                ra=img_diags["ra_center"] * astropy_units.deg,
-                dec=img_diags["dec_center"] * astropy_units.deg,
-                frame="icrs",
-            )
-            if (
-                pf_center.separation(img_center).to_value(astropy_units.deg)
-                <= threshold_deg
-            ):
-                db_session.merge(
-                    ImageMasterSelection(
-                        image_id=image_id,
-                        channel=channel,
-                        master_type_id=master_file.type_id,
-                        master_file_id=master_file.id,
-                    )
-                )
-
-
 def record_photref_selection(request, target_index, image_index):
     """Record a single photometric reference frame selected by the user."""
 
@@ -622,7 +411,7 @@ def record_photref_selection(request, target_index, image_index):
             "disable": False,
         }
     )
-    _bind_images_to_photref(dr_fname, batch)
+    bind_images_to_photref(dr_fname, batch)
 
     # Force full re-derivation of the photref selection list on next page load
     request.session.pop("need_photref", None)

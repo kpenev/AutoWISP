@@ -2,10 +2,10 @@
 
 from os import path
 
-from autowisp.tests.h5_test_case import H5TestCase
+from autowisp.tests.h5_test_case import DRTestCase
 
 
-class TestMeasureAperturePhotometry(H5TestCase):
+class TestMeasureAperturePhotometry(DRTestCase):
     """Tests of the fit_star_shape step."""
 
     @staticmethod

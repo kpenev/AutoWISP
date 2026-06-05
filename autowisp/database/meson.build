@@ -8,7 +8,7 @@ py_src = [
   'initialize_light_curve_structure.py',
   'interface.py',
   'lightcurve_processing.py',
-  'manually_fill_tables.py',
+  'photref_selection.py',
   'processing.py',
   'provenance_resolver.py',
   'user_interface.py',

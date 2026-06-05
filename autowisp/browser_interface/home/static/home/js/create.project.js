@@ -49,27 +49,15 @@ function showMessage(message, type) {
   messageDisplay.style.color = type === "error" ? "red" : "green";
 }
 
-//Return the part of the configuration to change given a config file
+// Return the full contents of the uploaded config file. The server-side
+// ``create_project_view`` now handles the full config-file syntax via
+// ``parse_config_overwrites``, so no client-side filtering is needed.
 function getConfig(fileText) {
-    const lines = fileText.split("\n");
-    let configSection = [];
-
-    for (let line of lines) {
-        split = line.split('=')
-        if ( split.length == 2 ) {
-            key = split[0].trim();
-            value = split[1].trim();
-            if ( key != 'split-channels' && key != 'project-home' ) {
-                configSection.push(split[0].trim() + " = " + split[1].trim());
-            }
-        }
-    }
-
-    if (configSection.length === 0) {
-        showMessage("No configuration section found in the file.", "error");
+    if (fileText.length === 0) {
+        showMessage("Selected file is empty.", "error");
         return "";
     }
 
     showMessage("Configuration loaded successfully.", "success");
-    return configSection.join("\n");
+    return fileText;
 }

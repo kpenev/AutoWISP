@@ -17,7 +17,16 @@ from .reconstructive_correction_transit import ReconstructiveCorrectionTransit
 
 
 def save_correction_statistics(correction_statistics, filename):
-    """Save the given statistics (result of apply_parallel_correction)."""
+    """Save the given statistics (result of apply_parallel_correction).
+
+    Rows are written sorted by ``ID`` so the on-disk order is
+    independent of the order in which the parallel correction returned
+    the lightcurves. Downstream consumers (notably TFA template
+    selection) therefore see the same source ordering regardless of
+    whether the upstream EPD ran via ``wisp-epd`` or ``run_pipeline``,
+    which keeps the QR decomposition of the template matrix bit-for-bit
+    identical between the two paths.
+    """
 
     print("Correction statistics:\n" + repr(correction_statistics))
     dframe = pandas.DataFrame(
@@ -35,17 +44,23 @@ def save_correction_statistics(correction_statistics, filename):
                 prefix
             ][:, phot_index]
 
+    dframe = dframe.sort_values(by="ID").reset_index(drop=True)
+
     with open(filename, "w", encoding="utf-8") as outf:
         dframe.to_string(outf, col_space=25, index=False, justify="left")
 
 
 def load_correction_statistics(filename, add_catalog=False):
-    """Read a previously stored statistics from a file."""
+    """Read a previously stored statistics from a file.
+
+    The returned array is sorted by ``ID`` regardless of the row order
+    on disk; see :func:`save_correction_statistics` for the motivation.
+    """
 
     with DataReductionFile() as mem_dr:
         dframe = pandas.read_csv(
             filename, sep=r"\s+", index_col="ID"
-        )
+        ).sort_index()
 
         num_sources, num_photometries = dframe.shape
         num_photometries = (num_photometries - 3) // 2

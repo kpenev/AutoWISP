@@ -33,13 +33,18 @@ class TestCalibrate(FITSTestCase):
         )
         expected = sorted(
             glob(
-                path.join(self.test_directory, "CAL", input_imtype, "*.fits.fz")
+                path.join(self.test_directory, "CAL", input_imtype, "*.fits")
             )
         )
+        generated_names = [path.basename(fname) for fname in generated]
+        expected_names = [path.basename(fname) for fname in expected]
         self.assertTrue(
-            [path.basename(fname) for fname in generated]
-            == [path.basename(fname) for fname in expected],
-            "Generated files do not match expected files!",
+            generated_names == expected_names,
+            "Generated files do not match expected files!\n"
+            f"    Only in generated: "
+            f"{sorted(set(generated_names) - set(expected_names))}\n"
+            f"    Only in expected: "
+            f"{sorted(set(expected_names) - set(generated_names))}",
         )
         for gen_fname, exp_fname in zip(generated, expected):
             self.assert_fits_match(exp_fname, gen_fname)
@@ -57,7 +62,7 @@ class TestCalibrate(FITSTestCase):
         self._test_calibration(
             "dark",
             bias="R:"
-            + path.join(self.test_directory, "MASTERS", "zero_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "zero_R.fits"),
         )
 
     def test_flat_calibration(self):
@@ -66,9 +71,9 @@ class TestCalibrate(FITSTestCase):
         self._test_calibration(
             "flat",
             bias="R:"
-            + path.join(self.test_directory, "MASTERS", "zero_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "zero_R.fits"),
             dark="R:"
-            + path.join(self.test_directory, "MASTERS", "dark_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "dark_R.fits"),
         )
 
     def test_object_calibration(self):
@@ -77,9 +82,9 @@ class TestCalibrate(FITSTestCase):
         self._test_calibration(
             "object",
             bias="R:"
-            + path.join(self.test_directory, "MASTERS", "zero_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "zero_R.fits"),
             dark="R:"
-            + path.join(self.test_directory, "MASTERS", "dark_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "dark_R.fits"),
             flat="R:"
-            + path.join(self.test_directory, "MASTERS", "flat_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "flat_R.fits"),
         )
