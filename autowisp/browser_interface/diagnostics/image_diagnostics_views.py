@@ -36,6 +36,7 @@ from autowisp.database.data_model import (
 CLOUD_RATIO_CHANNELS = ("R", "B")
 CLOUD_RATIO_MIN_DELTA = 0.1
 CLOUD_RATIO_SIGMA = 3.0
+CLOUD_CLEAR_BASELINE_QUANTILE = 0.2
 CLOUD_FLAG_COLOR = "#f6b44b"
 
 
@@ -138,53 +139,36 @@ def _collect_channel_quantiles(db_session, quantile_name):
 
 
 def _get_cloudy_image_ids(db_session):
-    """Flag images with R/B ratio shifts relative to session median."""
+    """Flag images whose background level is above a clear-sky baseline."""
 
     quantile_names = _get_cloud_quantile_names(db_session)
     cloudy_ids = set()
 
     for quantile_name in quantile_names:
-        ratio_by_session = _collect_cloud_ratios(db_session, quantile_name)
         channel_by_session = _collect_channel_quantiles(db_session, quantile_name)
-
-        for ratio_entries in ratio_by_session.values():
-            ratios = numpy.array(
-                [ratio for _, ratio in ratio_entries], dtype=float
-            )
-            if ratios.size < 2:
-                continue
-            median_ratio = float(numpy.median(ratios))
-            if median_ratio <= 0:
-                continue
-            deviations = numpy.abs(ratios - median_ratio)
-            mad = float(numpy.median(deviations))
-            ratio_delta = max(
-                CLOUD_RATIO_MIN_DELTA,
-                CLOUD_RATIO_SIGMA * (mad / median_ratio) if mad > 0 else 0.0,
-            )
-            low = median_ratio * (1.0 - ratio_delta)
-            high = median_ratio * (1.0 + ratio_delta)
-            for image_id, ratio in ratio_entries:
-                if ratio < low or ratio > high:
-                    cloudy_ids.add(image_id)
 
         for entries in channel_by_session.values():
             values = numpy.array([value for _, value in entries], dtype=float)
             if values.size < 2:
                 continue
-            median_value = float(numpy.median(values))
-            if median_value <= 0:
+            baseline_value = float(
+                numpy.quantile(values, CLOUD_CLEAR_BASELINE_QUANTILE)
+            )
+            if baseline_value <= 0:
                 continue
-            deviations = numpy.abs(values - median_value)
+            deviations = numpy.abs(values - baseline_value)
             mad = float(numpy.median(deviations))
             value_delta = max(
                 CLOUD_RATIO_MIN_DELTA,
-                CLOUD_RATIO_SIGMA * (mad / median_value) if mad > 0 else 0.0,
+                CLOUD_RATIO_SIGMA * (mad / baseline_value)
+                if mad > 0
+                else 0.0,
             )
-            low = median_value * (1.0 - value_delta)
-            high = median_value * (1.0 + value_delta)
+            high = baseline_value * (1.0 + value_delta)
             for image_id, value in entries:
-                if value < low or value > high:
+                # Clouds usually raise and flatten sky background, so flag only
+                # the high side to avoid tagging unusually clear/dark frames.
+                if value > high:
                     cloudy_ids.add(image_id)
 
     return cloudy_ids
@@ -727,9 +711,11 @@ def display_image_diagnostics(request, diagnostic_name):
         context["available_diagnostics"] = get_available_diagnostics(db_session)
     if diagnostic_name == "quantiles":
         min_percent = int(CLOUD_RATIO_MIN_DELTA * 100)
+        baseline_percent = int(CLOUD_CLEAR_BASELINE_QUANTILE * 100)
         context["cloudy_note"] = (
             "Frames flagged as cloudy use the highlight color "
-            f"(R/B or per-channel quantile shift across quantiles "
+            f"(high-side quantile shift across channels/quantiles from the "
+            f"{baseline_percent}th-percentile baseline "
             f"> {min_percent}% or > {CLOUD_RATIO_SIGMA}x MAD)."
         )
         context["cloudy_color"] = CLOUD_FLAG_COLOR
