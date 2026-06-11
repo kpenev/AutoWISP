@@ -37,6 +37,11 @@ CLOUD_RATIO_CHANNELS = ("R", "B")
 CLOUD_RATIO_MIN_DELTA = 0.1
 CLOUD_RATIO_SIGMA = 3.0
 CLOUD_CLEAR_BASELINE_QUANTILE = 0.2
+CLOUD_MIN_SESSION_PAIRS = 3
+CLOUD_STAR_COUNT_ABS_MAX = 300.0
+CLOUD_STAR_COUNT_BASELINE_FRACTION = 0.35
+CLOUD_COLOR_SPREAD_ABS_MAX = 1.12
+CLOUD_COLOR_SPREAD_BASELINE_FRACTION = 0.92
 CLOUD_FLAG_COLOR = "#f6b44b"
 
 
@@ -61,26 +66,56 @@ def _get_cloud_quantile_names(db_session):
     ).all()
 
 
-def _collect_cloud_ratios(db_session, quantile_name):
-    """Return per-session (image_id, ratio) entries for the R/B ratio."""
+def _get_median_quantile_name(db_session):
+    """Return the available pixel quantile closest to the image median."""
 
-    if not quantile_name:
+    quantiles = [
+        (abs(_parse_quantile_name(name) - 0.5), name)
+        for name in _get_cloud_quantile_names(db_session)
+        if _parse_quantile_name(name) is not None
+    ]
+    if not quantiles:
+        return None
+    return min(quantiles)[1]
+
+
+def _diagnostic_exists(db_session, diagnostic_name):
+    """Return whether the named diagnostic has at least one value."""
+
+    return (
+        db_session.scalar(
+            select(func.count(ImageDiagnostics.id))
+            .join(
+                DiagnosticType,
+                DiagnosticType.id == ImageDiagnostics.diagnostic_id,
+            )
+            .where(DiagnosticType.name == diagnostic_name)
+        )
+        > 0
+    )
+
+
+def _collect_cloud_ratios(db_session, diagnostic_name):
+    """Return per-session (image_id, jd, ratio) entries for the R/B ratio."""
+
+    if not diagnostic_name:
         return {}
 
     rows = db_session.execute(
         select(
             ImageDiagnostics.image_id,
             Image.observing_session_id,
+            Image.jd,
             ImageDiagnostics.channel,
             ImageDiagnostics.value,
         )
         .join(Image, Image.id == ImageDiagnostics.image_id)
         .join(DiagnosticType, DiagnosticType.id == ImageDiagnostics.diagnostic_id)
-        .where(DiagnosticType.name == quantile_name)
+        .where(DiagnosticType.name == diagnostic_name)
     ).all()
 
     per_image = {}
-    for image_id, session_id, channel, value in rows:
+    for image_id, session_id, jd, channel, value in rows:
         if not channel:
             continue
         channel_key = channel[0].upper()
@@ -88,7 +123,11 @@ def _collect_cloud_ratios(db_session, quantile_name):
             continue
         entry = per_image.setdefault(
             image_id,
-            {"session_id": session_id, "values": {"R": [], "B": []}},
+            {
+                "session_id": session_id,
+                "jd": jd,
+                "values": {"R": [], "B": []},
+            },
         )
         entry["values"][channel_key].append(float(value))
 
@@ -103,75 +142,323 @@ def _collect_cloud_ratios(db_session, quantile_name):
         if b_mean <= 0:
             continue
         ratio_by_session[entry["session_id"]].append(
-            (image_id, r_mean / b_mean)
+            (image_id, entry["jd"], r_mean / b_mean)
         )
 
     return ratio_by_session
 
 
-def _collect_channel_quantiles(db_session, quantile_name):
-    """Return per-session/channel (image_id, value) entries for a quantile."""
+def _format_ratio_entry(entry):
+    """Return a compact serializable description of one ratio sample."""
 
-    if not quantile_name:
-        return {}
+    image_id, jd, ratio = entry
+    return {
+        "image_id": int(image_id),
+        "jd": None if jd is None else float(jd),
+        "ratio": round(float(ratio), 6),
+    }
+
+
+def _collect_star_color_cloud_metrics(db_session):
+    """Return per-session metrics for existing star/color diagnostics."""
 
     rows = db_session.execute(
         select(
             ImageDiagnostics.image_id,
             Image.observing_session_id,
+            Image.jd,
+            DiagnosticType.name,
             ImageDiagnostics.channel,
             ImageDiagnostics.value,
         )
         .join(Image, Image.id == ImageDiagnostics.image_id)
         .join(DiagnosticType, DiagnosticType.id == ImageDiagnostics.diagnostic_id)
-        .where(DiagnosticType.name == quantile_name)
+        .where(DiagnosticType.name.in_(["num_extracted_src", "pixel_q999"]))
     ).all()
 
-    by_session_channel = defaultdict(list)
-    for image_id, session_id, channel, value in rows:
+    per_image = {}
+    for image_id, session_id, jd, diagnostic_name, channel, value in rows:
         if not channel:
             continue
-        by_session_channel[(session_id, channel)].append(
-            (image_id, float(value))
+        entry = per_image.setdefault(
+            image_id,
+            {
+                "session_id": session_id,
+                "jd": jd,
+                "star_counts": [],
+                "q999": {"R": [], "G": [], "B": []},
+            },
+        )
+        if diagnostic_name == "num_extracted_src":
+            entry["star_counts"].append(float(value))
+            continue
+        channel_key = channel[0].upper()
+        if channel_key in entry["q999"]:
+            entry["q999"][channel_key].append(float(value))
+
+    result = defaultdict(list)
+    for image_id, entry in per_image.items():
+        channels = entry["q999"]
+        if (
+            not entry["star_counts"]
+            or not channels["R"]
+            or not channels["G"]
+            or not channels["B"]
+        ):
+            continue
+        color_values = [
+            float(numpy.mean(channels["R"])),
+            float(numpy.mean(channels["G"])),
+            float(numpy.mean(channels["B"])),
+        ]
+        min_color = min(color_values)
+        if min_color <= 0:
+            continue
+        result[entry["session_id"]].append(
+            {
+                "image_id": int(image_id),
+                "jd": None if entry["jd"] is None else float(entry["jd"]),
+                "star_count": float(numpy.mean(entry["star_counts"])),
+                "color_spread": max(color_values) / min_color,
+            }
         )
 
-    return by_session_channel
+    return result
 
 
-def _get_cloudy_image_ids(db_session):
-    """Flag images whose background level is above a clear-sky baseline."""
+def _get_star_color_cloud_detection(db_session, selected_image_ids, report):
+    """Flag cloudy images from existing star count and color diagnostics."""
 
-    quantile_names = _get_cloud_quantile_names(db_session)
+    by_session = _collect_star_color_cloud_metrics(db_session)
+    report["signal"] = "num_extracted_src + pixel_q999 color spread"
+    report["signal_description"] = (
+        "clouds suppress extracted stars and collapse RGB bright-tail contrast"
+    )
+    report["rule"] = (
+        "flag frames with low extracted-star count and low q999 RGB color "
+        "spread within each observing session"
+    )
+    report["evaluated"] = bool(by_session)
+
     cloudy_ids = set()
+    usable = 0
+    for session_id, entries in sorted(by_session.items()):
+        entries = sorted(entries, key=lambda entry: (entry["jd"] is None, entry["jd"]))
+        usable += len(entries)
+        star_values = numpy.array(
+            [entry["star_count"] for entry in entries], dtype=float
+        )
+        spread_values = numpy.array(
+            [entry["color_spread"] for entry in entries], dtype=float
+        )
+        if not star_values.size:
+            continue
 
-    for quantile_name in quantile_names:
-        channel_by_session = _collect_channel_quantiles(db_session, quantile_name)
-
-        for entries in channel_by_session.values():
-            values = numpy.array([value for _, value in entries], dtype=float)
-            if values.size < 2:
-                continue
-            baseline_value = float(
-                numpy.quantile(values, CLOUD_CLEAR_BASELINE_QUANTILE)
+        star_baseline = float(numpy.nanmax(star_values))
+        spread_baseline = float(numpy.nanmax(spread_values))
+        star_threshold = max(
+            CLOUD_STAR_COUNT_ABS_MAX,
+            star_baseline * CLOUD_STAR_COUNT_BASELINE_FRACTION,
+        )
+        spread_threshold = max(
+            CLOUD_COLOR_SPREAD_ABS_MAX,
+            spread_baseline * CLOUD_COLOR_SPREAD_BASELINE_FRACTION,
+        )
+        flagged = [
+            entry
+            for entry in entries
+            if (
+                entry["star_count"] <= star_threshold
+                and entry["color_spread"] <= spread_threshold
             )
-            if baseline_value <= 0:
-                continue
-            deviations = numpy.abs(values - baseline_value)
-            mad = float(numpy.median(deviations))
-            value_delta = max(
-                CLOUD_RATIO_MIN_DELTA,
-                CLOUD_RATIO_SIGMA * (mad / baseline_value)
-                if mad > 0
-                else 0.0,
-            )
-            high = baseline_value * (1.0 + value_delta)
-            for image_id, value in entries:
-                # Clouds usually raise and flatten sky background, so flag only
-                # the high side to avoid tagging unusually clear/dark frames.
-                if value > high:
-                    cloudy_ids.add(image_id)
+        ]
+        for entry in flagged:
+            cloudy_ids.add(entry["image_id"])
 
-    return cloudy_ids
+        report["groups"].append(
+            {
+                "session_id": int(session_id) if session_id is not None else None,
+                "usable_pairs": len(entries),
+                "flagged": len(flagged),
+                "star_threshold": round(star_threshold, 1),
+                "color_threshold": round(spread_threshold, 3),
+                "flagged_examples": [
+                    {
+                        "image_id": entry["image_id"],
+                        "star_count": round(entry["star_count"], 1),
+                        "color_spread": round(entry["color_spread"], 3),
+                    }
+                    for entry in flagged[:5]
+                ],
+            }
+        )
+
+    report["usable_pairs"] = usable
+    report["sessions_evaluated"] = len(by_session)
+    report["frames_flagged"] = len(cloudy_ids)
+    report["selected_flagged"] = len(cloudy_ids & selected_image_ids)
+    if not by_session:
+        report["reasons"].append("no num_extracted_src/pixel_q999 metrics")
+    elif not cloudy_ids:
+        report["reasons"].append("no frames met low-star and low-color-spread rule")
+    elif selected_image_ids and not (cloudy_ids & selected_image_ids):
+        report["reasons"].append("selected rows do not include flagged points")
+
+    return cloudy_ids, report
+
+
+def _cloud_signal_candidates(db_session):
+    """Yield existing diagnostics that can provide a sky-color ratio."""
+
+    if _diagnostic_exists(db_session, "bg_center"):
+        yield (
+            "bg_center",
+            "bg_center R/B",
+            "smoothed per-source background ratio",
+        )
+
+    median_quantile = _get_median_quantile_name(db_session)
+    if median_quantile:
+        quantile = _parse_quantile_name(median_quantile)
+        yield (
+            median_quantile,
+            f"{median_quantile} R/B",
+            f"calibrated pixel median ratio (q={quantile:g})",
+        )
+
+
+def _get_cloud_detection(db_session, selected_image_ids=None):
+    """Return cloudy image ids and a debug report for the quantiles page."""
+
+    selected_image_ids = set(selected_image_ids or [])
+    rule = (
+        "flag high R/B within each observing session when "
+        f"ratio > q{CLOUD_CLEAR_BASELINE_QUANTILE:g} baseline plus "
+        f"max({CLOUD_RATIO_MIN_DELTA:.0%}, {CLOUD_RATIO_SIGMA:g}x MAD)"
+    )
+    candidates = list(_cloud_signal_candidates(db_session))
+    report = {
+        "evaluated": bool(candidates),
+        "signal": None,
+        "signal_description": None,
+        "rule": rule,
+        "sessions_evaluated": 0,
+        "usable_pairs": 0,
+        "frames_flagged": 0,
+        "selected_flagged": 0,
+        "groups": [],
+        "reasons": [],
+    }
+
+    if not candidates:
+        report["reasons"].append("no R/B-capable bg_center or median quantile")
+        return _get_star_color_cloud_detection(
+            db_session, selected_image_ids, report
+        )
+
+    ratio_by_session = {}
+    for diagnostic_name, signal_label, signal_description in candidates:
+        ratio_by_session = _collect_cloud_ratios(db_session, diagnostic_name)
+        if (
+            diagnostic_name == "bg_center"
+            and any(ratio_by_session.values())
+        ):
+            report["signal"] = signal_label
+            report["signal_description"] = signal_description
+            break
+    else:
+        return _get_star_color_cloud_detection(
+            db_session, selected_image_ids, report
+        )
+
+    cloudy_ids = set()
+    for session_id, entries in sorted(ratio_by_session.items()):
+        entries = sorted(entries, key=lambda entry: (entry[1] is None, entry[1]))
+        ratios = numpy.array([ratio for _, _, ratio in entries], dtype=float)
+        group = {
+            "session_id": int(session_id) if session_id is not None else None,
+            "usable_pairs": int(ratios.size),
+            "flagged": 0,
+            "baseline": None,
+            "threshold": None,
+            "mad": None,
+            "min_ratio": None,
+            "max_ratio": None,
+            "examples": [_format_ratio_entry(entry) for entry in entries[:3]],
+            "reason": "",
+        }
+        report["usable_pairs"] += int(ratios.size)
+
+        if ratios.size < CLOUD_MIN_SESSION_PAIRS:
+            group["reason"] = (
+                f"too few frames for robust per-session comparison "
+                f"({ratios.size} < {CLOUD_MIN_SESSION_PAIRS})"
+            )
+            report["groups"].append(group)
+            continue
+
+        baseline = float(
+            numpy.quantile(ratios, CLOUD_CLEAR_BASELINE_QUANTILE)
+        )
+        if baseline <= 0:
+            group["reason"] = "non-positive R/B baseline"
+            report["groups"].append(group)
+            continue
+
+        deviations = numpy.abs(ratios - numpy.median(ratios))
+        mad = float(numpy.median(deviations))
+        ratio_delta = max(
+            CLOUD_RATIO_MIN_DELTA,
+            CLOUD_RATIO_SIGMA * (mad / baseline) if mad > 0 else 0.0,
+        )
+        threshold = baseline * (1.0 + ratio_delta)
+        flagged_entries = [
+            entry for entry in entries if float(entry[2]) > threshold
+        ]
+        for image_id, _, _ in flagged_entries:
+            cloudy_ids.add(image_id)
+
+        group.update(
+            {
+                "flagged": len(flagged_entries),
+                "baseline": round(baseline, 6),
+                "threshold": round(float(threshold), 6),
+                "mad": round(mad, 6),
+                "min_ratio": round(float(numpy.min(ratios)), 6),
+                "max_ratio": round(float(numpy.max(ratios)), 6),
+                "flagged_examples": [
+                    _format_ratio_entry(entry) for entry in flagged_entries[:3]
+                ],
+            }
+        )
+        if not flagged_entries:
+            group["reason"] = "all R/B shifts below threshold"
+        report["groups"].append(group)
+
+    report["sessions_evaluated"] = len(ratio_by_session)
+    report["frames_flagged"] = len(cloudy_ids)
+    report["selected_flagged"] = len(cloudy_ids & selected_image_ids)
+
+    if not ratio_by_session:
+        report["reasons"].append("no same-image R/B pairs")
+    elif not cloudy_ids:
+        if report["usable_pairs"] < CLOUD_MIN_SESSION_PAIRS:
+            report["reasons"].append("too few frames")
+        else:
+            report["reasons"].append("all shifts below threshold")
+    elif selected_image_ids and not (cloudy_ids & selected_image_ids):
+        report["reasons"].append("selected rows do not include flagged points")
+
+    multi_group_counts = [group["usable_pairs"] for group in report["groups"]]
+    if len(multi_group_counts) > 1:
+        report["reasons"].append(
+            "images are split across observing sessions; each session is "
+            "thresholded separately"
+        )
+
+    return cloudy_ids, report
+
+
 def get_available_diagnostic_series(diagnostic_name, db_session):
     """
     Return the observing sessions and channels with data for a diagnostic.
@@ -336,7 +623,7 @@ def get_diagnostic_series_data(series, diagnostic_name, db_session):
     if not rows:
         return (), (), ()
 
-    return zip(*rows)
+    return tuple(zip(*rows))
 
 
 def plot_image_diagnostic_series(
@@ -546,8 +833,6 @@ def create_image_diagnostics_figure(
 
     series_data = []
     cloudy_ids = set()
-    if diagnostic_name == "quantiles":
-        cloudy_ids = _get_cloudy_image_ids(db_session)
     min_jd = numpy.inf
     for series in series_list:
         if not series.get("marker", "").strip():
@@ -556,9 +841,19 @@ def create_image_diagnostics_figure(
             series, diagnostic_name, db_session
         )
         jd_values = numpy.atleast_1d(jd_values)
+        diag_values = numpy.atleast_1d(diag_values)
+        image_ids = numpy.atleast_1d(image_ids)
         if jd_values.size:
             min_jd = min(min_jd, numpy.nanmin(jd_values))
             series_data.append((series, jd_values, diag_values, image_ids))
+
+    if diagnostic_name == "quantiles":
+        selected_ids = {
+            int(image_id)
+            for _, _, _, image_ids in series_data
+            for image_id in image_ids
+        }
+        cloudy_ids, _ = _get_cloud_detection(db_session, selected_ids)
 
     groups = group_series_by_jd_overlap(series_data)
     fig, all_axes = create_figure(
@@ -710,13 +1005,11 @@ def display_image_diagnostics(request, diagnostic_name):
         context = get_available_diagnostic_series(diagnostic_name, db_session)
         context["available_diagnostics"] = get_available_diagnostics(db_session)
     if diagnostic_name == "quantiles":
-        min_percent = int(CLOUD_RATIO_MIN_DELTA * 100)
-        baseline_percent = int(CLOUD_CLEAR_BASELINE_QUANTILE * 100)
         context["cloudy_note"] = (
             "Frames flagged as cloudy use the highlight color "
-            f"(high-side quantile shift across channels/quantiles from the "
-            f"{baseline_percent}th-percentile baseline "
-            f"> {min_percent}% or > {CLOUD_RATIO_SIGMA}x MAD)."
+            "(prefers star-suppressed bg_center color ratios when available; "
+            "otherwise uses existing star-count and RGB high-quantile color "
+            "contrast diagnostics)."
         )
         context["cloudy_color"] = CLOUD_FLAG_COLOR
     context["diagnostics_title"] = diagnostic_name
