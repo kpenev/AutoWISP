@@ -1,6 +1,5 @@
 """Views for displaying per-image diagnostics."""
 
-from collections import defaultdict
 from io import BytesIO
 import json
 import math
@@ -38,144 +37,23 @@ CLOUD_BRIGHTNESS_MINMAX_THRESHOLD = 0.0168
 CLOUD_FLAG_COLOR = "#f6b44b"
 
 
-def _diagnostic_exists(db_session, diagnostic_name):
-    """Return whether the named diagnostic has at least one value."""
+def _get_cloud_detection(db_session):
+    """Return image ids whose saved local-sky metric is above threshold."""
 
-    return (
-        db_session.scalar(
-            select(func.count(ImageDiagnostics.id))
+    return {
+        int(image_id)
+        for image_id in db_session.scalars(
+            select(ImageDiagnostics.image_id)
             .join(
                 DiagnosticType,
                 DiagnosticType.id == ImageDiagnostics.diagnostic_id,
             )
-            .where(DiagnosticType.name == diagnostic_name)
+            .where(DiagnosticType.name == CLOUD_BRIGHTNESS_DIAGNOSTIC)
+            .where(
+                ImageDiagnostics.value >= CLOUD_BRIGHTNESS_MINMAX_THRESHOLD
+            )
         )
-        > 0
-    )
-
-
-def _collect_saved_cloud_metric(db_session, diagnostic_name):
-    """Return per-session saved cloud metric values."""
-
-    rows = db_session.execute(
-        select(
-            ImageDiagnostics.image_id,
-            Image.observing_session_id,
-            Image.jd,
-            ImageDiagnostics.value,
-        )
-        .join(Image, Image.id == ImageDiagnostics.image_id)
-        .join(DiagnosticType, DiagnosticType.id == ImageDiagnostics.diagnostic_id)
-        .where(DiagnosticType.name == diagnostic_name)
-    ).all()
-
-    by_session = defaultdict(list)
-    for image_id, session_id, jd, value in rows:
-        by_session[session_id].append((image_id, jd, float(value)))
-    return by_session
-
-
-def _format_metric_entry(entry):
-    """Return a compact serializable description of one metric sample."""
-
-    image_id, jd, value = entry
-    return {
-        "image_id": int(image_id),
-        "jd": None if jd is None else float(jd),
-        "value": round(float(value), 6),
     }
-
-
-def _get_cloud_detection(db_session, selected_image_ids=None):
-    """Return cloudy image ids and a debug report for the quantiles page."""
-
-    selected_image_ids = set(selected_image_ids or [])
-    evaluated = _diagnostic_exists(db_session, CLOUD_BRIGHTNESS_DIAGNOSTIC)
-    report = {
-        "evaluated": evaluated,
-        "signal": "saved local sky brightness range" if evaluated else None,
-        "signal_description": (
-            "fractional range of star-suppressed sky brightness across "
-            "image blocks"
-            if evaluated
-            else None
-        ),
-        "rule": (
-            "flag frames when "
-            f"{CLOUD_BRIGHTNESS_DIAGNOSTIC} >= "
-            f"{CLOUD_BRIGHTNESS_MINMAX_THRESHOLD:g}"
-            if evaluated
-            else None
-        ),
-        "sessions_evaluated": 0,
-        "usable_pairs": 0,
-        "frames_flagged": 0,
-        "selected_flagged": 0,
-        "groups": [],
-        "reasons": [],
-    }
-
-    if not evaluated:
-        report["reasons"].append(
-            f"no saved {CLOUD_BRIGHTNESS_DIAGNOSTIC} metric"
-        )
-        return set(), report
-
-    metric_by_session = _collect_saved_cloud_metric(
-        db_session, CLOUD_BRIGHTNESS_DIAGNOSTIC
-    )
-    if not any(metric_by_session.values()):
-        report["reasons"].append(
-            f"no same-image {CLOUD_BRIGHTNESS_DIAGNOSTIC} values"
-        )
-        return set(), report
-
-    cloudy_ids = set()
-    for session_id, entries in sorted(metric_by_session.items()):
-        entries = sorted(entries, key=lambda entry: (entry[1] is None, entry[1]))
-        values = numpy.array([value for _, _, value in entries], dtype=float)
-        flagged_entries = [
-            entry
-            for entry in entries
-            if float(entry[2]) >= CLOUD_BRIGHTNESS_MINMAX_THRESHOLD
-        ]
-        for image_id, _, _ in flagged_entries:
-            cloudy_ids.add(image_id)
-
-        group = {
-            "session_id": int(session_id) if session_id is not None else None,
-            "usable_pairs": int(values.size),
-            "flagged": len(flagged_entries),
-            "baseline": None,
-            "threshold": CLOUD_BRIGHTNESS_MINMAX_THRESHOLD,
-            "mad": None,
-            "min_ratio": (
-                round(float(numpy.min(values)), 6) if values.size else None
-            ),
-            "max_ratio": (
-                round(float(numpy.max(values)), 6) if values.size else None
-            ),
-            "examples": [_format_metric_entry(entry) for entry in entries[:3]],
-            "flagged_examples": [
-                _format_metric_entry(entry) for entry in flagged_entries[:3]
-            ],
-            "reason": "",
-        }
-        if not flagged_entries:
-            group["reason"] = "all brightness ranges below threshold"
-        report["groups"].append(group)
-        report["usable_pairs"] += int(values.size)
-
-    report["sessions_evaluated"] = len(metric_by_session)
-    report["frames_flagged"] = len(cloudy_ids)
-    report["selected_flagged"] = len(cloudy_ids & selected_image_ids)
-
-    if not cloudy_ids:
-        report["reasons"].append("all brightness ranges below threshold")
-    elif selected_image_ids and not (cloudy_ids & selected_image_ids):
-        report["reasons"].append("selected rows do not include flagged points")
-
-    return cloudy_ids, report
 
 
 def get_available_diagnostic_series(diagnostic_name, db_session):
@@ -544,12 +422,7 @@ def create_image_diagnostics_figure(
             series_data.append((series, jd_values, diag_values, image_ids))
 
     if diagnostic_name == "quantiles":
-        selected_ids = {
-            int(image_id)
-            for _, _, _, image_ids in series_data
-            for image_id in image_ids
-        }
-        cloudy_ids, _ = _get_cloud_detection(db_session, selected_ids)
+        cloudy_ids = _get_cloud_detection(db_session)
 
     groups = group_series_by_jd_overlap(series_data)
     fig, all_axes = create_figure(

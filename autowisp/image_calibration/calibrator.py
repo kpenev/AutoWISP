@@ -828,6 +828,8 @@ class Calibrator(Processor):
         local_sky_diagnostics = get_local_sky_diagnostics(
             pixels_by_channel, channel_masks
         )
+        # These diagnostics combine multiple color channels, but are returned
+        # under a real channel key so ImageProcessingManager saves them.
         for channel_name, channel_diags in local_sky_diagnostics.items():
             diagnostics.setdefault(channel_name, []).extend(channel_diags)
 

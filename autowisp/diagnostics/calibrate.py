@@ -87,6 +87,8 @@ def _block_sky_medians(channel_pixels, channel_masks, grid_size, bright_clip):
             if good is None or good.sum() < 100:
                 continue
 
+            # Keep the dimmer pixels in each block so stars do not dominate
+            # the local sky estimate.
             sky = good.copy()
             for channel_key in required:
                 values = block_values[channel_key][good]
@@ -148,6 +150,8 @@ def get_local_sky_diagnostics(
     if red_channel is None:
         return {}
 
+    # Attach cross-channel diagnostics to a real processed channel so the
+    # existing image-diagnostics save path persists them.
     diagnostics = [
         (MEDIAN_RB_RATIO_DIAGNOSTIC, float(numpy.median(rb_ratios))),
         (LOCAL_SKY_GB_RATIO_DIAGNOSTIC, float(numpy.median(gb_ratios))),
