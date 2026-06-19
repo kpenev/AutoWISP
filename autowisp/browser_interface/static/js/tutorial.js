@@ -40,6 +40,7 @@
         },
         select_project_home: {
             path: /^\/select_project_home(?:\/.*)?$/,
+            goTo: "/select_project_home/",
             selector: "#tutorial-set-project-home",
             actionSelector: "#tutorial-set-project-home",
             title: "Set Project Home",
@@ -84,6 +85,7 @@
         },
         processing_edit_survey: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-edit-survey",
             actionSelector: "#tutorial-edit-survey",
             title: "Edit Survey",
@@ -91,6 +93,7 @@
         },
         survey_overview: {
             path: /^\/configuration\/survey(?:\/.*)?$/,
+            goTo: "/configuration/survey",
             selector: "#tutorial-survey-panel",
             title: "Survey Setup",
             body: "Fill or import survey info, then return to Processing Status. If importing, use exactly survey_instruments.json from the Zenodo record.",
@@ -104,6 +107,7 @@
         },
         survey_back_processing: {
             path: /^\/configuration\/survey(?:\/.*)?$/,
+            goTo: "/configuration/survey",
             selector: "#tutorial-processing-status",
             actionSelector: "#tutorial-processing-status",
             title: "Back To Processing",
@@ -111,6 +115,7 @@
         },
         processing_configure: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-configure-processing",
             actionSelector: "#tutorial-configure-processing",
             title: "Configure Processing",
@@ -118,6 +123,7 @@
         },
         config_api_key: {
             path: /^\/configuration(?:\/(?!survey(?:\/|$)).*)?$/,
+            goTo: "/configuration/",
             selector: "#chart-container",
             title: "Set Your API Key",
             body: "In Configure Processing press Ctrl+F, find api key, then paste your own key from the Astrometry website.",
@@ -130,6 +136,7 @@
         },
         config_back_processing: {
             path: /^\/configuration(?:\/(?!survey(?:\/|$)).*)?$/,
+            goTo: "/configuration/",
             selector: "#tutorial-config-processing-status",
             actionSelector: "#tutorial-config-processing-status",
             title: "Back To Processing",
@@ -137,6 +144,7 @@
         },
         processing_add_images: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-add-images",
             actionSelector: "#tutorial-add-images",
             title: "Add Raw Images",
@@ -144,6 +152,7 @@
         },
         raw_select_files: {
             path: /^\/processing\/select_raw_images(?:\/.*)?$/,
+            goTo: "/processing/select_raw_images/",
             selector: "#tutorial-file-selector",
             title: "Select Files",
             body: "Select raw FITS files or folders. If survey setup is not done yet, go back and complete Edit Survey plus survey instruments first. For test data, this is usually in Downloads/test_data/RAW; select dark, flat, object, and zero.",
@@ -157,6 +166,7 @@
         },
         raw_add_selected: {
             path: /^\/processing\/select_raw_images(?:\/.*)?$/,
+            goTo: "/processing/select_raw_images/",
             selector: "#tutorial-add-selected-images",
             actionSelector: "#tutorial-add-selected-images",
             title: "Import Selected Images",
@@ -164,6 +174,7 @@
         },
         processing_start: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-start-processing",
             actionSelector: "#tutorial-start-processing",
             title: "Start Processing",
@@ -171,6 +182,7 @@
         },
         processing_logs: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: ".tutorial-first-log",
             waitForTarget: true,
             title: "Monitor Logs",
@@ -178,6 +190,7 @@
         },
         processing_object: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-object-button",
             actionSelector: "#tutorial-object-button",
             waitForTarget: true,
@@ -186,6 +199,7 @@
         },
         photref_target: {
             path: /^\/processing\/select_photref_target\/?$/,
+            goTo: "/processing/select_photref_target",
             selector: ".tutorial-photref-target-row",
             actionSelector: ".tutorial-photref-target-row",
             title: "Choose Target",
@@ -200,6 +214,7 @@
         },
         processing_resume: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-start-processing",
             actionSelector: "#tutorial-start-processing",
             title: "Resume Processing",
@@ -207,6 +222,7 @@
         },
         processing_review_results: {
             path: /^\/processing(?:\/\d+)?\/?$/,
+            goTo: "/processing/",
             selector: "#tutorial-review-results",
             actionSelector: "#tutorial-review-results",
             title: "Open Results",
@@ -214,12 +230,14 @@
         },
         results_enter_id: {
             path: /^\/results\/?$/,
+            goTo: "/results/",
             selectors: ["#star-id-type", "#star-id"],
             title: "Select A Target",
             body: "Set ID type to Gaia DR3. From LC files like GDR3_808862192901442816.h5, keep only numbers after the underscore and enter that value.",
         },
         results_open_config: {
             path: /^\/results\/?$/,
+            goTo: "/results/",
             selector: "#open-config",
             actionSelector: "#open-config",
             title: "Open Config",
@@ -227,6 +245,7 @@
         },
         results_magfit_buttons: {
             path: /^\/results\/?$/,
+            goTo: "/results/",
             selectors: ["#btn-magfit-minimize", "#btn-magfit-magnitude"],
             waitForTarget: true,
             title: "Use Magfit Buttons",
@@ -234,6 +253,7 @@
         },
         results_apply: {
             path: /^\/results\/?$/,
+            goTo: "/results/",
             selector: "#apply",
             actionSelector: "#apply",
             title: "Plot First Light Curve",
@@ -329,6 +349,8 @@
             track: null,
             stepId: null,
             completedStepIds: [],
+            manualStepId: null,
+            manualStepPath: null,
         };
     }
 
@@ -747,6 +769,8 @@
             track: current.track || null,
             stepId: null,
             completedStepIds: current.completedStepIds || [],
+            manualStepId: null,
+            manualStepPath: null,
         });
         hideTutorialUI();
         showFab();
@@ -766,6 +790,8 @@
             track: state.track,
             stepId: stepId,
             completedStepIds: state.completedStepIds || [],
+            manualStepId: stepId,
+            manualStepPath: window.location.pathname,
         });
         renderTutorial();
     }
@@ -798,6 +824,8 @@
                     track: updated.track,
                     stepId: nextId,
                     completedStepIds: updated.completedStepIds || [],
+                    manualStepId: null,
+                    manualStepPath: null,
                 });
             };
             target.addEventListener("click", handler, true);
@@ -815,6 +843,8 @@
             track: "sony",
             stepId: "home_new_project",
             completedStepIds: [],
+            manualStepId: null,
+            manualStepPath: null,
         });
 
         const { prompt } = createUI();
@@ -838,6 +868,8 @@
             track: state.track || "sony",
             stepId: state.stepId || "home_new_project",
             completedStepIds: state.completedStepIds || [],
+            manualStepId: null,
+            manualStepPath: null,
         });
 
         const { prompt } = createUI();
@@ -1156,7 +1188,23 @@
             state.stepId = flow[0];
         }
 
-        state = promoteForCurrentPath(state, flow);
+        const pathname = window.location.pathname;
+        const selectedStep = STEPS[state.stepId];
+        const keepManualStep =
+            state.manualStepId === state.stepId &&
+            state.manualStepPath === pathname &&
+            selectedStep &&
+            !selectedStep.path.test(pathname);
+
+        if (keepManualStep) {
+            state = Object.assign({}, state);
+        } else {
+            state = Object.assign({}, state, {
+                manualStepId: null,
+                manualStepPath: null,
+            });
+            state = promoteForCurrentPath(state, flow);
+        }
         saveState(state);
 
         clearActionListeners();
@@ -1169,7 +1217,6 @@
             return;
         }
 
-        const pathname = window.location.pathname;
         const pathMatches = step.path.test(pathname);
 
         if (!pathMatches && isTransientPath(pathname)) {
