@@ -15,6 +15,7 @@ from autowisp.image_calibration.fits_util import (
     add_channel_keywords,
     create_result,
 )
+from autowisp.diagnostics.calibrate import get_local_sky_diagnostics
 
 from autowisp.exceptions import OutsideImageError, ImageMismatchError
 from autowisp.processor import Processor
@@ -806,9 +807,13 @@ class Calibrator(Processor):
             split_channels = {None: slice(None)}
 
         diagnostics = {}
+        pixels_by_channel = {}
+        channel_masks = {}
         for channel_name, channel_slice in split_channels.items():
             channel_pixels = calibrated_images[0][channel_slice]
             channel_mask = calibrated_images[2][channel_slice]
+            pixels_by_channel[channel_name] = channel_pixels
+            channel_masks[channel_name] = channel_mask
             good_pixels = channel_pixels[channel_mask == 0]
             if good_pixels.size == 0:
                 continue
@@ -819,5 +824,11 @@ class Calibrator(Processor):
                     (diag_name, numpy.quantile(good_pixels, quantile).item())
                 )
             diagnostics[channel_name] = channel_diags
+
+        local_sky_diagnostics = get_local_sky_diagnostics(
+            pixels_by_channel, channel_masks
+        )
+        for channel_name, channel_diags in local_sky_diagnostics.items():
+            diagnostics.setdefault(channel_name, []).extend(channel_diags)
 
         return diagnostics

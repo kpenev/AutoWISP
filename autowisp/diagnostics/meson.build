@@ -1,4 +1,5 @@
 py_src = [
+  'calibrate.py',
   'detrending.py',
   'get_from_lc.py',
 ]
