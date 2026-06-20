@@ -680,10 +680,13 @@ def solve_image(  # pylint: disable=too-many-locals
                         fov_estimate / configuration["image_scale_factor"],
                         fov_estimate * configuration["image_scale_factor"],
                     ),
-                    "anet_indices": configuration["anet_indices"],
+                    "anet_indices": [
+                        fname.format_map(header)
+                        for fname in configuration["anet_indices"]
+                    ],
                     "anet_api_key": configuration["anet_api_key"],
-                    "x_cent": header['NAXIS1'] / 2,
-                    "y_cent": header['NAXIS2'] / 2,
+                    "x_cent": header["NAXIS1"] / 2,
+                    "y_cent": header["NAXIS2"] / 2,
                 },
                 header=header,
                 web_lock=web_lock,
