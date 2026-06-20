@@ -56,7 +56,7 @@ It follows from what this pipeline already is:
 
 - **It outlives the process that raised it.** The raising worker is
   gone by the time anyone looks (possibly segfaulted); the snapshotting
-  in phase 1 (`PipelineRunContext`, `code_version`) exists precisely so
+  in phase 1 (a `FrozenRow` of the run, plus `code_version`) exists so
   the row remains reproducible after the session — and the rotated log
   — is gone.
 
@@ -133,11 +133,13 @@ verify that every concrete exception sets it (no `None`).
 # autowisp/exceptions.py
 import os
 import socket
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Iterable, Optional, Sequence
+from typing import Optional, Sequence
+
+from autowisp.database.frozen_row import FrozenRow
 
 
 class Component(str, Enum):
@@ -177,42 +179,118 @@ class RelatedFile:
     kind: FileKind
     path: Path
     role: str = ""
+```
+
+`FrozenRow` is a dependency-free dataclass, so it gets its own tiny
+module with **no SQLAlchemy import in any form** — which is exactly what
+lets `exceptions.py` import it directly (above) without dragging the ORM
+into the exception hierarchy:
+
+```python
+# autowisp/database/frozen_row.py
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class PipelineRunContext:
-    """Snapshot of the ``PipelineRun`` row at the moment of failure.
+class FrozenRow:
+    """Immutable, picklable snapshot of an ORM row's column values.
 
-    Snapshotted rather than holding the ORM instance directly so the
-    exception remains useful after the session is closed.
+    Holds the column values of a SQLAlchemy row detached from any
+    session, so it stays usable after the session that produced it is
+    closed and survives pickling across process/host boundaries (where a
+    live ORM instance would not). Column values are reached by attribute
+    (``snapshot.host``) or via :attr:`columns`.
+
+    Built from a live instance with :func:`snapshot_row` (parent side,
+    where the row exists) or directly from a dict (a worker, which only
+    has primitives threaded through its config).
+
+    This is a *general* utility — not specific to errors. Any place that
+    needs a durable, picklable copy of a row (related-artifact context,
+    provenance, caching a row past its session) can use it.
 
     Attributes:
-        pipeline_run_id(int or None):    The ``PipelineRun.id`` this
-            failure belongs to, or ``None`` for standalone ``wisp-*``
-            invocations.
+        table(str):    Name of the source table, for display/debugging.
 
-        host(str):    Fully qualified host name the run executed on.
-
-        process_id(int):    PID of the main pipeline process.
-
-        started(datetime or None):    When the run started.
-
-        crashed(datetime or None):    When the failure surfaced, filled
-            in by the top-level handler.
-
-        code_version(str):    Git hash of the working tree that produced
-            the failure (HEAD SHA, suffixed ``:dirty`` for an unclean
-            tree), from ``get_code_version_str()``. Identifies the whole
-            codebase so a developer can check out the exact code without
-            any per-file read.
+        columns(dict):    ``{column_key: value}`` for every mapped
+            column captured. Treated as read-only.
     """
 
-    pipeline_run_id: Optional[int]
-    host: str
-    process_id: int
-    started: Optional[datetime]
-    crashed: Optional[datetime]
-    code_version: str = ""
+    table: str
+    columns: dict
+
+    def __getattr__(self, name):
+        # Only reached when normal attribute lookup fails, so ``table``
+        # and ``columns`` are unaffected.
+        try:
+            return self.columns[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
+```
+
+`snapshot_row` is the only piece that touches SQLAlchemy, so it lives in
+`autowisp/database/interface.py` — the module that already manages the
+session lifecycle and already imports `inspect as sa_inspect`.
+Detaching a row's values so they survive past its session is exactly the
+concern `interface.py` owns (it is the generalized form of the
+`pipeline_run = pipeline_run.id` move `run_pipeline.main` already makes):
+
+```python
+# autowisp/database/interface.py  (sa_inspect already imported here)
+from autowisp.database.frozen_row import FrozenRow
+
+
+def snapshot_row(orm_obj, *, exclude=()) -> FrozenRow:
+    """Freeze all mapped columns of a live ORM instance into a FrozenRow.
+
+    Must be called while ``orm_obj`` is still attached/loaded (i.e.
+    inside the ``start_db_session()`` block that produced it).
+
+    Args:
+        orm_obj:    A SQLAlchemy ORM instance.
+
+        exclude(Iterable[str]):    Column keys to omit (e.g. large or
+            sensitive columns).
+
+    Returns:
+        FrozenRow:    Snapshot of the instance's column values.
+    """
+
+    mapper = sa_inspect(orm_obj).mapper
+    return FrozenRow(
+        table=mapper.local_table.name,
+        columns={
+            attr.key: getattr(orm_obj, attr.key)
+            for attr in mapper.column_attrs
+            if attr.key not in exclude
+        },
+    )
+```
+
+Splitting them this way keeps `FrozenRow` importable with zero
+dependencies, so `exceptions.py` imports it directly — no `TYPE_CHECKING`
+dance and no SQLAlchemy pulled into the exception hierarchy — while
+`snapshot_row`, the only SQLAlchemy-touching piece, sits with the session
+machinery it generalizes (the decoupling point in "Why a snapshot, not
+the ORM object?" below).
+
+The pipeline-run context an exception carries is then **just a
+``FrozenRow`` of the ``PipelineRun`` row** — no hand-maintained field
+list, so it tracks the table definition automatically (and picks up the
+``code_version`` column added in phase 4 with zero changes here):
+
+```python
+# Parent side (run_pipeline.main), inside the session:
+pipeline_run_context = snapshot_row(pipeline_run)   # FrozenRow
+
+# Worker side, no ORM object — build from config primitives:
+pipeline_run_context = FrozenRow(
+    "pipeline_run",
+    {"id": config["pipeline_run_id"],
+     "host": config.get("host") or socket.gethostname(),
+     "started": config.get("pipeline_started"),
+     "code_version": config.get("code_version") or get_code_version_str()},
+)
 
 
 def _rebuild_autowisp_error(cls, state):
@@ -248,9 +326,15 @@ class AutoWISPError(Exception):
         related_files(tuple):    The :class:`RelatedFile` entries this
             error is about.
 
-        pipeline_run(PipelineRunContext or None):    Snapshot set by the
+        pipeline_run(FrozenRow or None):    Snapshot of the
+            ``PipelineRun`` row (see :class:`FrozenRow`), set by the
             pipeline driver when it wraps a step's exception, or by
-            ``wisp-*`` entry points.
+            ``wisp-*`` entry points. ``None`` for runs with no DB row.
+
+        crashed(datetime or None):    When the failure surfaced, filled
+            in by the top-level handler. (This is error-level, not a
+            column of ``PipelineRun``, so it lives here rather than in
+            the row snapshot.)
 
         subprocess_id(int or None):    PID of the multiprocessing worker
             that raised, when the exception travelled out of a Pool;
@@ -271,7 +355,8 @@ class AutoWISPError(Exception):
         message: str,
         *,
         related_files: Sequence[RelatedFile] = (),
-        pipeline_run: Optional[PipelineRunContext] = None,
+        pipeline_run: Optional[FrozenRow] = None,
+        crashed: Optional[datetime] = None,
         subprocess_id: Optional[int] = None,
         user_message: Optional[str] = None,
         details: Optional[dict] = None,
@@ -281,6 +366,7 @@ class AutoWISPError(Exception):
         super().__init__(message)
         self.related_files = tuple(related_files)
         self.pipeline_run = pipeline_run
+        self.crashed = crashed
         self.subprocess_id = subprocess_id
         self.user_message = user_message or message
         self.details = dict(details or {})
@@ -315,32 +401,61 @@ class AutoWISPError(Exception):
         if self.subprocess_id is None:
             self.subprocess_id = os.getpid()
 
-    def with_pipeline_run(self, ctx: PipelineRunContext) -> "AutoWISPError":
-        """Attach a :class:`PipelineRunContext` snapshot.
+    def with_pipeline_run(
+        self, run: Optional[FrozenRow], *, crashed: Optional[datetime] = None
+    ) -> "AutoWISPError":
+        """Attach a :class:`FrozenRow` snapshot of the ``PipelineRun``.
 
         Args:
-            ctx(PipelineRunContext):    The snapshot to attach. If its
-                ``host`` is blank it is filled from the current host and
-                ``crashed`` is set to now.
+            run(FrozenRow or None):    Row snapshot to attach. Built by
+                ``snapshot_row`` (parent) or from config primitives
+                (worker), so host/started are already populated; nothing
+                is reconstructed here.
+
+            crashed(datetime or None):    Failure time; defaults to now
+                if not already set on the exception.
 
         Returns:
             AutoWISPError:    ``self``, so it can be used inline before
                 re-raising.
         """
 
-        # Snapshot host even if ctx omitted it.
-        if ctx.host == "":
-            ctx = PipelineRunContext(
-                pipeline_run_id=ctx.pipeline_run_id,
-                host=socket.gethostname(),
-                process_id=ctx.process_id,
-                started=ctx.started,
-                crashed=ctx.crashed or datetime.utcnow(),
-                code_version=ctx.code_version,
-            )
-        self.pipeline_run = ctx
+        self.pipeline_run = run
+        self.crashed = self.crashed or crashed or datetime.utcnow()
         return self
 ```
+
+### Why a snapshot, not the ORM object?
+
+The exception carries a `FrozenRow` snapshot rather than the live
+`PipelineRun` instance because the ORM object is **session-bound and not
+durable**, while the exception must stay useful long after, and far
+from, the session that produced it:
+
+- **It does not outlive its session.** Everything goes through
+  `start_db_session()` (scoped sessions, `NullPool`). Once the `with`
+  block exits the instance is detached and touching an unloaded
+  attribute raises `DetachedInstanceError`. An exception propagates
+  through many such blocks and is persisted much later. Tellingly,
+  `run_pipeline.main` already discards the object today
+  (`pipeline_run = pipeline_run.id`) because it cannot hold it past the
+  block — `snapshot_row` is that same move, keeping *all* the fields.
+- **It must pickle across processes (phase 3).** An ORM instance drags
+  a session reference and `InstanceState`; it does not pickle cleanly
+  and could not be reattached in the parent. A `FrozenRow` of primitives
+  pickles trivially.
+- **Workers have no ORM object at all.** They rebuild the snapshot from
+  config primitives (`pipeline_run_context_from_config`), never having
+  queried the row.
+- **Snapshot semantics + decoupling.** A frozen copy freezes the values
+  as they were at failure (the row can't mutate or be deleted under it),
+  and keeps `exceptions.py` and the deep algorithmic code free of a hard
+  SQLAlchemy dependency.
+
+Generalising this to `FrozenRow` / `snapshot_row` (rather than a
+bespoke, hand-listed `PipelineRunContext`) means the snapshot tracks the
+table definition automatically, and the same utility is reusable for any
+other row we need to detach and carry (related artifacts, provenance).
 
 ### Component bases and subclasses
 
@@ -422,20 +537,20 @@ don't break in step 1):
 The migration keeps the old names as aliases so external callers (and
 tests) keep working until phase 7.
 
-### How PipelineRunContext gets attached
+### How the run snapshot gets attached
 
 This is mostly the job of phase 2, but the hierarchy needs to support
 it now:
 
-- `run_pipeline.py` constructs a `PipelineRunContext` from the
-  `PipelineRun` ORM row at startup, snapshotting `host`, `process_id`,
-  `started`. It stashes it on a `contextvars.ContextVar` so any code
-  on the call stack can grab it.
+- `run_pipeline.py` snapshots the `PipelineRun` ORM row at startup with
+  `snapshot_row(...)` (while the session is open) and stashes the
+  resulting `FrozenRow` on a `contextvars.ContextVar` so any code on the
+  call stack can grab it.
 - A top-level `except AutoWISPError as exc:` in `run_pipeline.main`
-  calls `exc.with_pipeline_run(get_pipeline_run_context())` if the
-  field is unset, fills in `crashed=datetime.utcnow()`, and re-raises.
-- `wisp-*` CLI entry points do the same but with `pipeline_run_id =
-  None`.
+  calls `exc.with_pipeline_run(get_pipeline_run_context())` if the field
+  is unset (which also fills `crashed`), and re-raises.
+- `wisp-*` CLI entry points do the same but with the context set to
+  `None` (no `PipelineRun` row).
 
 ### How subprocess_id gets attached
 
@@ -459,46 +574,42 @@ Phase 1 ships with:
   exception class, instantiates it with a minimal payload, and
   asserts:
   - `component` is a `Component`, not `None`.
-  - `related_files`, `pipeline_run`, `subprocess_id`,
+  - `related_files`, `pipeline_run`, `crashed`, `subprocess_id`,
     `user_message`, `details` round-trip through
     pickling (needed for Pool propagation).
   - `stamp_subprocess()` is idempotent and sets `subprocess_id` to
     `os.getpid()` when previously `None`.
-  - `with_pipeline_run()` snapshots `host` when blank.
+  - `with_pipeline_run()` attaches the `FrozenRow` and sets `crashed`.
+  - `FrozenRow` / `snapshot_row` round-trip through pickling and expose
+    columns by attribute.
 
 ## Open questions to revisit before phase 2
 
 - ~~Should `RelatedFile` carry a hash or only a path?~~ **Resolved:
   path only.** Codebase identity is captured once per run as a git
-  hash (`code_version` on :class:`PipelineRunContext`, via
+  hash (`code_version` on the run snapshot, via
   `get_code_version_str()` in `multiprocessing_util.py`), which
   identifies the *entire* working tree — including its dirty state —
   without an extra per-file read. Per-file content hashes would cost a
   read each and still not capture the code that produced the file, so
   they are dropped.
-- **`details` size vs. retention (these two questions are connected).**
-  For debugging it is genuinely useful to capture rich context on a
-  failure — and for BUI errors specifically, the full request context
-  (path, view, query/POST keys, session ID) would help a lot. But that
-  makes a single `details` payload potentially large, and an `Error`
-  table that keeps every such payload *forever* will balloon the SQLite
-  file. The resolution combines three levers, to be finalized in
-  phases 4–5:
-  - **Bounded persistence.** Error rows (or at least their heavy
-    payloads) are retained for a limited period rather than
-    indefinitely.
-  - **Keep the heavy part separate.** Store the small, queryable fields
-    (component, step, artifact FKs, `user_message`, timestamps) inline
-    in the table, but spill the large `details`/request snapshot to a
-    sidecar artifact (file or a separate, prunable blob), referenced by
-    the row — so routine queries and the BUI list stay cheap and the
-    bulk can be aged out or dropped independently.
-  - **User-driven cleanup.** Provide an explicit mechanism for users to
-    purge old error info (CLI command and/or BUI action), so retention
-    is not solely automatic.
-  - *Implication for phase 5:* BUI request snapshots are worth
-    capturing **into the sidecar `details`, not inline**, precisely
-    because they are the largest contributor to row size.
+- ~~`details` size vs. retention.~~ **Resolved in phases 4–5.**
+  Capturing rich per-failure context (and, for BUI errors, the full
+  request context) makes a single `details` payload large, and keeping
+  every payload forever would balloon the SQLite file. Phases 4–5 settle
+  this with three levers, each now specified:
+  - **Keep the heavy part separate** — Phase 4 "The sidecar file": small
+    queryable fields inline on the `Error` row, the large
+    `details`/request snapshot spilled to a per-error sidecar so routine
+    queries and the BUI list never touch it.
+  - **Bounded persistence + user-driven cleanup** — Phase 4 "Retention &
+    cleanup": `wisp-cleanup-errors --older-than` (and a BUI action), an
+    orphan/dangling sweep, and an optional opportunistic prune at
+    startup.
+  - **BUI request snapshot to the sidecar** — Phase 5 "Request snapshot
+    for BUI errors": request context (keys only, never values) captured
+    into `details` so it reaches the sidecar rather than inline,
+    precisely because it is the largest contributor to row size.
 
 ## Phase 2 — Context collection
 
@@ -549,16 +660,17 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Optional, Sequence
 
+from autowisp.database.frozen_row import FrozenRow
+from autowisp.database.interface import snapshot_row
 from autowisp.exceptions import (
     AutoWISPError,
     Component,
-    PipelineRunContext,
     RelatedFile,
     StepError,
     WorkerCrashedError,
 )
 
-_pipeline_run: contextvars.ContextVar[Optional[PipelineRunContext]] = (
+_pipeline_run: contextvars.ContextVar[Optional[FrozenRow]] = (
     contextvars.ContextVar("autowisp_pipeline_run", default=None)
 )
 _step_name: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
@@ -569,7 +681,7 @@ _related_files: contextvars.ContextVar[tuple] = contextvars.ContextVar(
 )
 
 
-def get_pipeline_run_context() -> Optional[PipelineRunContext]:
+def get_pipeline_run_context() -> Optional[FrozenRow]:
     return _pipeline_run.get()
 
 
@@ -585,55 +697,58 @@ def get_related_files() -> tuple:
 
 Two entry points set it once, near the top of the call stack:
 
-- **`run_pipeline.main`** already builds the `PipelineRun` row. Right
-  after the commit, build the snapshot and stash it (and put its parts
-  into the processing config so workers can rebuild it):
+- **`run_pipeline.main`** already builds the `PipelineRun` row. While
+  the session is still open, snapshot it and stash the snapshot (and
+  thread its parts into the processing config so workers can rebuild
+  it):
 
   ```python
-  ctx = PipelineRunContext(
-      pipeline_run_id=pipeline_run,
-      host=getfqdn(),
-      process_id=os.getpid(),
-      started=started,
-      crashed=None,
-      code_version=get_code_version_str(),
-  )
-  set_pipeline_run_context(ctx)
+  set_pipeline_run_context(snapshot_row(pipeline_run))
   ```
 
-- **`wisp-*` CLI entry points** (steps run standalone) set the same
-  thing with `pipeline_run_id=None`. A tiny decorator
-  `@cli_entry_point(component=...)` wraps each `main()` and does this
-  before dispatch, then runs the capture/handler on the way out (see
-  below).
+  (Before phase 4 adds the `code_version` column, attach it to the
+  snapshot's `columns` here; afterwards `snapshot_row` captures it
+  automatically.)
+
+- **`wisp-*` CLI entry points** (steps run standalone) have no
+  `PipelineRun` row; they set the context to `None` (and the `Error`
+  row's `pipeline_run_id` ends up null). A tiny decorator
+  `@cli_entry_point(component=...)` wraps each `main()` and runs the
+  capture/handler on the way out (see below).
 
 ```python
-def set_pipeline_run_context(ctx: PipelineRunContext) -> contextvars.Token:
-    return _pipeline_run.set(ctx)
+def set_pipeline_run_context(run: Optional[FrozenRow]) -> contextvars.Token:
+    return _pipeline_run.set(run)
 
 
-def pipeline_run_context_from_config(config: dict) -> Optional[PipelineRunContext]:
+def pipeline_run_context_from_config(config: dict) -> Optional[FrozenRow]:
     """Rebuild the run snapshot inside a freshly-started process.
+
+    A worker has no ORM instance, so the snapshot is built from the
+    primitives threaded through the per-process config dict rather than
+    via ``snapshot_row``.
 
     Args:
         config(dict):    The per-process config dict, carrying the
             pipeline-run keys threaded through by the parent.
 
     Returns:
-        PipelineRunContext or None:    The rebuilt snapshot, or ``None``
-            when the keys are absent (e.g. a unit test calling a step
-            directly).
+        FrozenRow or None:    The rebuilt snapshot, or ``None`` when the
+            keys are absent (e.g. a unit test calling a step directly).
     """
 
     if "pipeline_run_id" not in config:
         return None
-    return PipelineRunContext(
-        pipeline_run_id=config["pipeline_run_id"],
-        host=config.get("host") or socket.gethostname(),
-        process_id=os.getpid(),
-        started=config.get("pipeline_started"),
-        crashed=None,
-        code_version=config.get("code_version") or get_code_version_str(),
+    return FrozenRow(
+        "pipeline_run",
+        {
+            "id": config["pipeline_run_id"],
+            "host": config.get("host") or socket.gethostname(),
+            "started": config.get("pipeline_started"),
+            "code_version": (
+                config.get("code_version") or get_code_version_str()
+            ),
+        },
     )
 ```
 
@@ -654,7 +769,7 @@ def pipeline_run_context_from_config(config: dict) -> Optional[PipelineRunContex
 Because `setup_process` runs in every worker, this single change gives
 both the main process and the workers their pipeline-run + step context
 for free. `run_pipeline.main` / the CLI decorator additionally set the
-`PipelineRunContext` directly (so context exists even before the first
+run snapshot directly (so context exists even before the first
 `setup_process` call).
 
 #### Scoping finer context: `error_context`
@@ -766,10 +881,10 @@ step it becomes the step's `StepError` subclass (looked up from
 swallowed.
 
 Note `_stamp` mutates `exc.step_name` / `exc.related_files` /
-`exc.pipeline_run`. Phase 1 declares these `__init__`-assigned instance
-attributes (not the frozen dataclasses), so they remain writable; only
-the `RelatedFile` / `PipelineRunContext` payloads are frozen. This is
-the one place that writes them post-construction.
+`exc.pipeline_run` / `exc.crashed`. Phase 1 declares these
+`__init__`-assigned instance attributes (not the frozen dataclasses), so
+they remain writable; only the `RelatedFile` / `FrozenRow` payloads are
+frozen. This is the one place that writes them post-construction.
 
 ### Worker propagation hook
 
@@ -818,9 +933,11 @@ fills the pipeline-run snapshot it has locally.
 
 | File | Change |
 | ---- | ------ |
+| `autowisp/database/frozen_row.py` | **New.** Dependency-free `FrozenRow` (no SQLAlchemy import in any form). |
+| `autowisp/database/interface.py` | Add `snapshot_row` (uses the `inspect as sa_inspect` it already imports). |
 | `autowisp/error_context.py` | **New.** ContextVars (incl. an `in_worker` flag), getters/setters, `pipeline_run_context_from_config`, `error_context`, `capture_errors`, `worker_entry`. |
 | `autowisp/multiprocessing_util.py` | `setup_process_map` sets step + pipeline-run context from `config` **and the `in_worker` flag**; thread `pipeline_run_id` / `host` / `pipeline_started` / `code_version` into the default keys (the parent computes `code_version` once so workers reuse it instead of each shelling out to git). |
-| `autowisp/run_pipeline.py` | Set `PipelineRunContext` after creating the `PipelineRun` row; fill `crashed` in the top-level handler. |
+| `autowisp/run_pipeline.py` | Set the run snapshot (`snapshot_row`) after creating the `PipelineRun` row; fill `crashed` in the top-level handler. |
 | `autowisp/database/processing.py`, `image_processing.py` | Pass pipeline-run keys into the config dicts handed to `setup_process`; wrap per-image dispatch in `error_context` using the already-computed input/output paths. |
 | each `processing_steps/*.py` `main()` | Decorate with `@capture_errors(component=Component.STEP)` (and `@cli_entry_point` for the standalone path). |
 | Pool worker sites (`epd_correction.py`, `iterative_refit.py`, `apply_correction.py`, and others) | Begin replacing bespoke try/except-stringify with `worker_entry`; full inventory and the Process+Queue case (`solve_astrometry.py`) are handled in phase 3. |
@@ -830,9 +947,9 @@ fills the pipeline-run snapshot it has locally.
 - A step `main()` that raises a bare `ValueError` surfaces as the
   correct `StepError` subclass with `step_name` set and `__cause__`
   preserved.
-- With a `PipelineRunContext` set in the ambient context, a raised
-  `AutoWISPError` comes out carrying it; with none set (unit-test
-  path), `pipeline_run` stays `None` and nothing crashes.
+- With a run snapshot (`FrozenRow`) set in the ambient context, a raised
+  `AutoWISPError` comes out carrying it (and `crashed` set); with none
+  set (unit-test path), `pipeline_run` stays `None` and nothing crashes.
 - `error_context(related_files=...)` nesting attaches/detaches
   correctly and the innermost set wins for `step_name`.
 - A `setup_process` call rebuilds context from a config dict (simulating
@@ -1098,13 +1215,14 @@ the connected open question above).
 
 ### `PipelineRun` gains a `code_version` column
 
-The git hash lives on :class:`PipelineRunContext` (phase 1 / phase 2).
-To survive past the in-memory snapshot, add
+The git hash is carried on the run snapshot (`FrozenRow`) in
+phase 1 / phase 2. To survive past the in-memory snapshot, add
 `code_version = Column(String(...), nullable=True)` to the `PipelineRun`
 model and populate it in `run_pipeline.main` where the row is created
-(the value is already on hand from `get_code_version_str()`). The
-`Error` table references the run rather than duplicating the hash per
-error.
+(the value is already on hand from `get_code_version_str()`). Once it is
+a real column, `snapshot_row` captures it automatically — the explicit
+hand-off in phase 2 can be dropped. The `Error` table references the run
+rather than duplicating the hash per error.
 
 ### The `Error` table (inline, queryable fields)
 
@@ -1126,7 +1244,7 @@ aggregate queries need, so they never have to open a sidecar:
   lightcurve?".
 - `subprocess_id` — nullable.
 - `user_message` — the short, jargon-free string for the BUI/CLI.
-- `created` — timestamp (the `crashed` time from the run context).
+- `created` — timestamp (the exception's `crashed` value).
 - `sidecar_path` — path to the detail file, **relative to
   `project_home`**, resolved through `get_project_home()` on read;
   nullable so a row remains valid even if the sidecar write failed.
