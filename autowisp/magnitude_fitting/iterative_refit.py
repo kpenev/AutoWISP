@@ -173,7 +173,7 @@ def iterative_refit(
         old_reference,
         num_photometries,
         fname_substitutions,
-        common_header,
+        sphotref_header,
     ):
         """
         Return the next iteration photometric reference or None if converged.
@@ -204,7 +204,7 @@ def iterative_refit(
                 master_reference_fname=master_reference_fname,
                 catalog=catalog,
                 fit_terms_expression=configuration.mphotref_scatter_fit_terms,
-                extra_header=common_header,
+                extra_header=sphotref_header,
             )
         except RuntimeError:
             return None, None
@@ -262,8 +262,8 @@ def iterative_refit(
     )
 
     with DataReductionFile(single_photref_dr_fname, "r") as photref_dr:
-        common_header = photref_dr.get_frame_header()
-        fname_substitutions = dict(common_header)
+        sphotref_header = photref_dr.get_frame_header()
+        fname_substitutions = dict(sphotref_header)
         fname_substitutions.update(path_substitutions)
         if configuration.continue_from_iteration > 0:
             master_reference_fname = (
@@ -282,7 +282,7 @@ def iterative_refit(
     num_photometries = next(iter(photref.values()))["mag"].size
 
     photref_fname = None
-    common_header["IMAGETYP"] = "mphotref"
+    sphotref_header["IMAGETYP"] = "mphotref"
     while (
         photref
         and path_substitutions["magfit_iteration"]
@@ -321,7 +321,7 @@ def iterative_refit(
             old_reference=photref,
             num_photometries=num_photometries,
             fname_substitutions=fname_substitutions,
-            common_header=common_header,
+            sphotref_header=sphotref_header,
         )
         mark_start = partial(mark_end, final=False)
     for fit_dr_fname in fit_dr_filenames:
