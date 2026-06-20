@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, inspect as sa_inspect
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
+from autowisp.database.frozen_row import FrozenRow
 from autowisp.database.initialize_data_reduction_structure import (
     get_default_data_reduction_structure,
 )
@@ -55,6 +56,36 @@ def get_project_home():
     """Return the project home directory currently being used."""
 
     return _project_home
+
+
+def snapshot_row(orm_obj, *, exclude=()):
+    """Freeze all mapped columns of a live ORM instance into a FrozenRow.
+
+    Must be called while ``orm_obj`` is still attached/loaded (i.e.
+    inside the ``start_db_session()`` block that produced it), otherwise
+    touching an expired column would raise ``DetachedInstanceError``.
+
+    Args:
+        orm_obj:    A SQLAlchemy ORM instance.
+
+        exclude(Iterable[str]):    Column keys to omit (e.g. large or
+            sensitive columns).
+
+    Returns:
+        FrozenRow:    Snapshot of the instance's column values, detached
+            from the session and safe to pickle.
+    """
+
+    mapper = sa_inspect(orm_obj).mapper
+    exclude = set(exclude)
+    return FrozenRow(
+        table=mapper.local_table.name,
+        columns={
+            attr.key: getattr(orm_obj, attr.key)
+            for attr in mapper.column_attrs
+            if attr.key not in exclude
+        },
+    )
 
 
 def initialize_cmdline_database():

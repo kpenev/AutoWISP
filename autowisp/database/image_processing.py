@@ -16,6 +16,7 @@ from autowisp.multiprocessing_util import (
 )
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.exceptions import MasterSelectionError
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -50,7 +51,7 @@ from autowisp.database.data_model.provenance import (
 # pylint: enable=no-name-in-module
 
 
-class NoMasterError(ValueError):
+class NoMasterError(MasterSelectionError, ValueError):
     """Raised when no suitable master can be found for a batch of frames."""
 
 

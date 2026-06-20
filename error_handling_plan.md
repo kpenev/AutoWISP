@@ -293,15 +293,22 @@ pipeline_run_context = FrozenRow(
 )
 
 
-def _rebuild_autowisp_error(cls, state):
+def _rebuild_autowisp_error(cls, args, state):
     """Reconstruct an :class:`AutoWISPError` subclass for unpickling.
 
-    Bypasses ``__init__`` (so required keyword-only arguments on
-    subclasses do not block unpickling) and restores the instance
-    ``__dict__`` directly. See :meth:`AutoWISPError.__reduce__`.
+    Bypasses ``__init__`` (so keyword-only arguments on subclasses do not
+    block unpickling) and restores both ``BaseException.args`` and the
+    instance ``__dict__`` directly. ``args`` *must* be restored
+    separately: the message lives in ``BaseException.args``, which is
+    C-level storage **outside** ``__dict__``, so restoring only
+    ``__dict__`` would silently drop the message (``str(exc)`` becomes
+    empty). See :meth:`AutoWISPError.__reduce__`.
 
     Args:
         cls(type):    The concrete exception class to rebuild.
+
+        args(tuple):    The original ``self.args`` (carrying the
+            message).
 
         state(dict):    The instance ``__dict__`` captured at pickle
             time.
@@ -311,6 +318,7 @@ def _rebuild_autowisp_error(cls, state):
     """
 
     obj = cls.__new__(cls)
+    obj.args = args
     obj.__dict__.update(state)
     return obj
 
@@ -372,21 +380,27 @@ class AutoWISPError(Exception):
         self.details = dict(details or {})
 
     def __reduce__(self):
-        """Pickle by restoring ``__dict__`` rather than re-running
-        ``__init__``.
+        """Pickle by restoring ``args`` + ``__dict__`` rather than
+        re-running ``__init__``.
 
-        Subclasses (e.g. :class:`StepError`) take required keyword-only
-        arguments, so the default exception unpickler — which calls
-        ``cls(*self.args)`` — would raise ``TypeError``. Reconstructing
-        through ``__new__`` + ``__dict__`` keeps every field intact and
-        lets the exception travel back out of a multiprocessing Pool
-        (see phase 3).
+        Subclasses (e.g. :class:`StepError`) take keyword-only arguments
+        and carry context attributes that are not part of ``self.args``,
+        so the default exception unpickler — which calls
+        ``cls(*self.args)`` — would drop those fields (and, for any
+        required kwarg, raise ``TypeError``). Reconstructing through
+        ``__new__`` while restoring ``args`` *and* ``__dict__`` keeps
+        every field intact — including the message, which lives in
+        ``args``, not ``__dict__`` — and lets the exception travel back
+        out of a multiprocessing Pool (see phase 3).
 
         Returns:
             tuple:    ``(callable, args)`` per the pickle protocol.
         """
 
-        return (_rebuild_autowisp_error, (type(self), self.__dict__.copy()))
+        return (
+            _rebuild_autowisp_error,
+            (type(self), self.args, self.__dict__.copy()),
+        )
 
     def stamp_subprocess(self) -> None:
         """Record the current PID as the raising sub-process.
@@ -463,7 +477,9 @@ other row we need to detach and carry (related artifacts, provenance).
 class StepError(AutoWISPError):
     component = Component.STEP
 
-    def __init__(self, message: str, *, step_name: str, **kwargs):
+    def __init__(
+        self, message: str, *, step_name: Optional[str] = None, **kwargs
+    ):
         super().__init__(message, **kwargs)
         self.step_name = step_name
 
@@ -475,6 +491,14 @@ class PipelineError(AutoWISPError):
 class BUIError(AutoWISPError):
     component = Component.BUI
 ```
+
+`step_name` is **optional**, not required. A deep call site must be able
+to `raise SolveAstrometryError("no WCS solution")` without repeating the
+step name (the whole point of phase 2, which fills it from the ambient
+context in `_stamp`), and the re-rooted legacy classes (below) are still
+raised as `raise BadImageError("...")` with only a message. A required
+`step_name` would break both. It is therefore `None` at raise time and
+stamped in later.
 
 Concrete step-level exceptions are defined per pipeline stage so
 catch sites can be specific without having to string-match step names:
@@ -1031,13 +1055,14 @@ Phase 3 implements each once:
 
 Three things must survive the round-trip:
 
-- **The type and all phase-1 fields.** This is *not* automatic. A
-  subclass such as `StepError` has a required keyword-only `step_name`
-  in its `__init__`, but the default exception unpickler reconstructs
-  via `cls(*self.args)` — which would call `StepError(message)` and
-  raise `TypeError`. Phase 1's base class handles this with the
-  `__reduce__` / `_rebuild_autowisp_error` pair defined above, which
-  reconstructs through `__new__` + `__dict__` instead of `__init__`.
+- **The type and all phase-1 fields.** This is *not* automatic. The
+  default exception unpickler reconstructs via `cls(*self.args)`, which
+  preserves only the message and drops every context field
+  (`subprocess_id`, `pipeline_run`, `step_name`, `details`, …) set after
+  construction. Phase 1's base class handles this with the `__reduce__` /
+  `_rebuild_autowisp_error` pair defined above, which reconstructs
+  through `__new__` while restoring both `args` (the message) and
+  `__dict__` (the context fields) instead of re-running `__init__`.
   Phase 1's pickling test (`tests/test_exception_hierarchy.py`) is what
   guards this; Phase 3 depends on it.
 

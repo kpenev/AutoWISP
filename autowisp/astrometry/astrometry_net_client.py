@@ -61,6 +61,8 @@ from email.encoders import encode_noop
 
 import json
 
+from autowisp.exceptions import SolveAstrometryError
+
 
 def json2python(data):
     try:
@@ -73,12 +75,12 @@ def json2python(data):
 python2json = json.dumps
 
 
-class MalformedResponse(Exception):
-    pass
+class MalformedResponse(SolveAstrometryError):
+    """The astrometry.net server returned an unparseable response."""
 
 
-class RequestError(Exception):
-    pass
+class RequestError(SolveAstrometryError):
+    """The astrometry.net server reported an error for a request."""
 
 
 class Client(object):

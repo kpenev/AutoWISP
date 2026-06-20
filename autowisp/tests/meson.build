@@ -9,6 +9,7 @@ py_src = [
   'test_create_lightcurves.py',
   'test_detrending_stat.py',
   'test_epd.py',
+  'test_exception_hierarchy.py',
   'test_find_stars.py',
   'test_fit_magnitudes.py',
   'test_full_pipeline.py',

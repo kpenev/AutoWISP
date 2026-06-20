@@ -3,6 +3,7 @@ py_src = [
   'bui_util.py',
   'catalog.py',
   'evaluator.py',
+  'exceptions.py',
   'file_utilities.py',
   'fits_utilities.py',
   'hdf5_file.py',

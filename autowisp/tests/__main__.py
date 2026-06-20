@@ -39,6 +39,12 @@ from autowisp.tests.test_parse_config_overwrites import (
     TestParseConfigOverwrites,
 )
 from autowisp.tests.test_full_pipeline import TestFullPipeline
+from autowisp.tests.test_exception_hierarchy import (
+    TestExceptionHierarchy,
+    TestMigratedExceptions,
+    TestFrozenRow,
+    TestSnapshotRow,
+)
 
 # pylint: enable=unused-import
 

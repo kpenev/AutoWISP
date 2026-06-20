@@ -9,6 +9,7 @@ from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.exceptions import PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -39,16 +40,14 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 
 
-class ProcessingInProgress(Exception):
+class ProcessingInProgress(PipelineError):
     """Raised when a particular step is running in a different process/host."""
 
     def __init__(self, pipeline_run):
         self.host = pipeline_run.host
         self.process_id = pipeline_run.process_id
         self.started = pipeline_run.started
-
-    def __str__(self):
-        return (
+        super().__init__(
             f"Processing pipeline is still running on {self.host!r} with "
             f"process id {self.process_id!r}, started {self.started}!"
         )
