@@ -16,7 +16,8 @@ from autowisp.multiprocessing_util import (
 )
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import start_db_session, get_project_home
-from autowisp.exceptions import MasterSelectionError
+from autowisp.exceptions import Component, MasterSelectionError
+from autowisp.error_context import capture_errors, error_context
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -721,17 +722,28 @@ class ImageProcessingManager(ProcessingManager):
     ):
         """Run the current step for a batch of images given configuration."""
 
-        step_module = getattr(processing_steps, step_name)
+        # ``error_context`` (outer) scopes the step name so it is still
+        # active when ``_run_step``'s ``capture_errors`` stamps the
+        # exception on the way out -- the context manager's reset fires
+        # only after the inner ``except`` has run.
+        with error_context(step_name=step_name):
+            new_masters = self._run_step(batch, start_status, config, step_name)
 
-        new_masters = getattr(step_module, step_name)(
+        if new_masters:
+            self.add_masters(new_masters, step_name, image_type_name)
+
+    @capture_errors(component=Component.STEP)
+    def _run_step(self, batch, start_status, config, step_name):
+        """Invoke the step's entry function for a batch of images."""
+
+        step_module = getattr(processing_steps, step_name)
+        return getattr(step_module, step_name)(
             batch,
             start_status,
             config,
             self._start_processing,
             self._end_processing,
         )
-        if new_masters:
-            self.add_masters(new_masters, step_name, image_type_name)
 
     def _start_processing(self, input_fname, status=0):
         """

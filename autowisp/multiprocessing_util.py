@@ -6,7 +6,6 @@ from datetime import datetime
 import logging
 import re
 from glob import glob
-import inspect
 import sys
 
 import platformdirs
@@ -14,31 +13,11 @@ import platformdirs
 from autowisp.database.interface import set_project_home
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.catalog import WISPGaia
+from autowisp.error_context import ErrorContext, set_error_context
 
-try:
-    import git
-except ImportError:
-    pass
-
-
-def get_code_version_str():
-    """Return a string identifying the version of the code being used."""
-
-    check_path = os.path.abspath(inspect.stack()[1].filename)
-    repository = None
-    while check_path != "/":
-        check_path = os.path.dirname(check_path)
-        try:
-            repository = git.Repo(check_path)
-            break
-        except git.exc.InvalidGitRepositoryError:
-            pass
-    if repository is None:
-        return "Caller not under git version control."
-    head_sha = repository.commit().hexsha
-    if repository.is_dirty():
-        return head_sha + ":dirty"
-    return head_sha
+# Used by this module's ``__main__``; canonical home is
+# ``autowisp.miscellaneous``.
+from autowisp.miscellaneous import get_code_version_str
 
 
 default_config = {
@@ -219,6 +198,10 @@ def setup_process_map(config):
         WISPGaia.set_credentials(
             user=config["gaia_user"], password=config["gaia_password"]
         )
+
+    # Establish the ambient error context for this process (main process
+    # or worker).
+    set_error_context(ErrorContext.from_config(config))
 
 
 def setup_process(**config):

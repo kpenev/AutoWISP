@@ -9,6 +9,7 @@ from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.miscellaneous import get_code_version_str
 from autowisp.exceptions import PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
@@ -34,6 +35,7 @@ from autowisp.database.data_model import (
     LightCurveProcessingProgress,
     MasterFile,
     MasterType,
+    PipelineRun,
     Step,
 )
 
@@ -620,7 +622,21 @@ class ProcessingManager:
         self.pending = {}
         self._some_failed = False
         self._pipeline_run_id = pipeline_run_id
+        # Keys threaded into every per-step config so each worker process
+        # can rebuild the pipeline-run snapshot for error context (phase
+        # 2). ``code_version`` is computed once here rather than having
+        # every worker shell out to git.
+        self._error_context_keys = {}
         with start_db_session() as db_session:
+            if pipeline_run_id is not None:
+                pipeline_run = db_session.get(PipelineRun, pipeline_run_id)
+                if pipeline_run is not None:
+                    self._error_context_keys = {
+                        "pipeline_run_id": pipeline_run_id,
+                        "host": pipeline_run.host,
+                        "pipeline_started": pipeline_run.started,
+                        "code_version": get_code_version_str(),
+                    }
             if version is None:
                 version = db_session.execute(
                     # False positivie
@@ -736,6 +752,7 @@ class ProcessingManager:
                 ).parse_command_line(["-c", config_file.name])
 
                 config['project_home'] = get_project_home()
+                config.update(self._error_context_keys)
 
                 return (config, config_key)
 

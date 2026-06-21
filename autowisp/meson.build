@@ -2,6 +2,7 @@ py_src = [
   '__init__.py',
   'bui_util.py',
   'catalog.py',
+  'error_context.py',
   'evaluator.py',
   'exceptions.py',
   'file_utilities.py',

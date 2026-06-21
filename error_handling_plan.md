@@ -459,8 +459,8 @@ from, the session that produced it:
   and could not be reattached in the parent. A `FrozenRow` of primitives
   pickles trivially.
 - **Workers have no ORM object at all.** They rebuild the snapshot from
-  config primitives (`pipeline_run_context_from_config`), never having
-  queried the row.
+  config primitives (`ErrorContext.from_config`), never having queried
+  the row.
 - **Snapshot semantics + decoupling.** A frozen copy freezes the values
   as they were at failure (the row can't mutate or be deleted under it),
   and keeps `exceptions.py` and the deep algorithmic code free of a hard
@@ -568,12 +568,12 @@ it now:
 
 - `run_pipeline.py` snapshots the `PipelineRun` ORM row at startup with
   `snapshot_row(...)` (while the session is open) and stashes the
-  resulting `FrozenRow` on a `contextvars.ContextVar` so any code on the
-  call stack can grab it.
+  resulting `FrozenRow` in the ambient `ErrorContext` (via
+  `set_pipeline_run`) so any code on the call stack can grab it.
 - A top-level `except AutoWISPError as exc:` in `run_pipeline.main`
-  calls `exc.with_pipeline_run(get_pipeline_run_context())` if the field
-  is unset (which also fills `crashed`), and re-raises.
-- `wisp-*` CLI entry points do the same but with the context set to
+  calls `exc.with_pipeline_run(get_error_context().pipeline_run)` if the
+  field is unset (which also fills `crashed`), and re-raises.
+- `wisp-*` CLI entry points do the same but with `pipeline_run` left
   `None` (no `PipelineRun` row).
 
 ### How subprocess_id gets attached
@@ -612,7 +612,7 @@ Phase 1 ships with:
 - ~~Should `RelatedFile` carry a hash or only a path?~~ **Resolved:
   path only.** Codebase identity is captured once per run as a git
   hash (`code_version` on the run snapshot, via
-  `get_code_version_str()` in `multiprocessing_util.py`), which
+  `get_code_version_str()` in `miscellaneous.py`), which
   identifies the *entire* working tree — including its dirty state —
   without an extra per-file read. Per-file content hashes would cost a
   read each and still not capture the code that produced the file, so
@@ -673,48 +673,129 @@ the existing code:
 
 ### New module: `autowisp/error_context.py`
 
-Holds the ambient context in `contextvars` plus helpers to set, read,
-and scope it.
+The ambient context is a single immutable `ErrorContext` bundle held in
+one `contextvars.ContextVar`, plus helpers to read it, set it, and scope
+a finer version of it.
+
+Bundling the fields into one frozen dataclass (rather than three loose
+`ContextVar`s) keeps related state cohesive — a deep raise site, the
+capture decorators, and the worker hooks all read one consistent
+snapshot in a single `get_error_context()` — while a *single* ContextVar
+holding a *frozen* object preserves exactly the `contextvars` semantics
+the scoping relies on: entering a scope `set`s a new value and exiting
+`reset`s the token, so nothing is mutated in place and thread/asyncio
+isolation is intact. (A mutable object mutated in `__enter__`/`__exit__`
+would lose both.)
 
 ```python
 import contextvars
-import os
+import functools
 import socket
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from traceback import format_exc
 from typing import Optional, Sequence
 
 from autowisp.database.frozen_row import FrozenRow
-from autowisp.database.interface import snapshot_row
+from autowisp.miscellaneous import get_code_version_str
 from autowisp.exceptions import (
     AutoWISPError,
     Component,
+    PipelineError,
     RelatedFile,
     StepError,
+    ViewError,
     WorkerCrashedError,
-)
-
-_pipeline_run: contextvars.ContextVar[Optional[FrozenRow]] = (
-    contextvars.ContextVar("autowisp_pipeline_run", default=None)
-)
-_step_name: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
-    "autowisp_step_name", default=None
-)
-_related_files: contextvars.ContextVar[tuple] = contextvars.ContextVar(
-    "autowisp_related_files", default=()
+    # ... plus the concrete StepError subclasses _wrap maps step names to.
 )
 
 
-def get_pipeline_run_context() -> Optional[FrozenRow]:
-    return _pipeline_run.get()
+@dataclass(frozen=True)
+class ErrorContext:
+    """Immutable bundle of the ambient context attached to errors.
+
+    Held in a single :data:`_context` ContextVar so any code on the call
+    stack can read a consistent snapshot without it being threaded
+    through every call. Frozen so that establishing or scoping context
+    replaces the ContextVar value (preserving its set/reset semantics and
+    thread/async isolation) rather than mutating shared state.
+
+    Attributes:
+        pipeline_run(FrozenRow or None):    Snapshot of the
+            ``PipelineRun`` row, or ``None`` for runs with no DB row.
+
+        step_name(str or None):    The processing step currently
+            executing.
+
+        related_files(tuple):    The :class:`RelatedFile` entries in
+            scope.
+
+        in_worker(bool):    True inside a multiprocessing worker process;
+            used by the phase-3 nesting guard.
+    """
+
+    pipeline_run: Optional[FrozenRow] = None
+    step_name: Optional[str] = None
+    related_files: tuple = ()
+    in_worker: bool = False
+
+    @classmethod
+    def from_config(cls, config):
+        """Rebuild context inside a freshly-started process from config.
+
+        A worker has no ORM instance, so the pipeline-run snapshot is
+        built from the primitives threaded through the per-process config
+        dict rather than via ``snapshot_row``. Also picks up the step
+        name already present in ``config``, and infers ``in_worker`` from
+        ``parent_pid`` — the key the parent threads in for workers (and
+        which is absent in the main process; see
+        ``get_log_outerr_filenames``).
+
+        Args:
+            config(dict):    The per-process config dict, carrying the
+                pipeline-run keys, ``processing_step``, and (for workers)
+                ``parent_pid`` threaded through by the parent.
+
+        Returns:
+            ErrorContext:    The rebuilt context. ``pipeline_run`` is
+                ``None`` when the keys are absent (e.g. a unit test
+                calling a step directly).
+        """
+
+        pipeline_run = None
+        if "pipeline_run_id" in config:
+            pipeline_run = FrozenRow(
+                "pipeline_run",
+                {
+                    "id": config["pipeline_run_id"],
+                    "host": config.get("host") or socket.gethostname(),
+                    "started": config.get("pipeline_started"),
+                    "code_version": (
+                        config.get("code_version") or get_code_version_str()
+                    ),
+                },
+            )
+        step_name = config.get("processing_step")
+        if step_name in (None, "none", "init_processing"):
+            step_name = None
+        return cls(
+            pipeline_run=pipeline_run,
+            step_name=step_name,
+            in_worker=bool(config.get("parent_pid")),
+        )
 
 
-def get_step_name() -> Optional[str]:
-    return _step_name.get()
+_context: contextvars.ContextVar[ErrorContext] = contextvars.ContextVar(
+    "autowisp_error_context", default=ErrorContext()
+)
 
 
-def get_related_files() -> tuple:
-    return _related_files.get()
+def get_error_context() -> ErrorContext:
+    return _context.get()
+
+
+def in_worker() -> bool:
+    return _context.get().in_worker
 ```
 
 #### Establishing pipeline-run context
@@ -727,7 +808,7 @@ Two entry points set it once, near the top of the call stack:
   it):
 
   ```python
-  set_pipeline_run_context(snapshot_row(pipeline_run))
+  set_pipeline_run(snapshot_row(pipeline_run))
   ```
 
   (Before phase 4 adds the `code_version` column, attach it to the
@@ -735,66 +816,51 @@ Two entry points set it once, near the top of the call stack:
   automatically.)
 
 - **`wisp-*` CLI entry points** (steps run standalone) have no
-  `PipelineRun` row; they set the context to `None` (and the `Error`
-  row's `pipeline_run_id` ends up null). A tiny decorator
+  `PipelineRun` row; they leave `pipeline_run` as ``None`` (and the
+  `Error` row's `pipeline_run_id` ends up null). A tiny decorator
   `@cli_entry_point(component=...)` wraps each `main()` and runs the
   capture/handler on the way out (see below).
 
+`set_pipeline_run` replaces the whole bundle with a copy carrying the new
+snapshot, keeping any step/files already in scope. The from-config
+constructor is `ErrorContext.from_config` (above); `set_error_context`
+installs a fully-built bundle (used by the bootstrap).
+
 ```python
-def set_pipeline_run_context(run: Optional[FrozenRow]) -> contextvars.Token:
-    return _pipeline_run.set(run)
+def set_error_context(ctx: ErrorContext) -> contextvars.Token:
+    return _context.set(ctx)
 
 
-def pipeline_run_context_from_config(config: dict) -> Optional[FrozenRow]:
-    """Rebuild the run snapshot inside a freshly-started process.
-
-    A worker has no ORM instance, so the snapshot is built from the
-    primitives threaded through the per-process config dict rather than
-    via ``snapshot_row``.
-
-    Args:
-        config(dict):    The per-process config dict, carrying the
-            pipeline-run keys threaded through by the parent.
-
-    Returns:
-        FrozenRow or None:    The rebuilt snapshot, or ``None`` when the
-            keys are absent (e.g. a unit test calling a step directly).
-    """
-
-    if "pipeline_run_id" not in config:
-        return None
-    return FrozenRow(
-        "pipeline_run",
-        {
-            "id": config["pipeline_run_id"],
-            "host": config.get("host") or socket.gethostname(),
-            "started": config.get("pipeline_started"),
-            "code_version": (
-                config.get("code_version") or get_code_version_str()
-            ),
-        },
+def set_pipeline_run(run: Optional[FrozenRow]) -> contextvars.Token:
+    current = _context.get()
+    return _context.set(
+        ErrorContext(
+            pipeline_run=run,
+            step_name=current.step_name,
+            related_files=current.related_files,
+            in_worker=current.in_worker,
+        )
     )
 ```
 
 #### Hooking the existing bootstrap
 
-`setup_process_map()` gains a few lines at the end (it already has
+`setup_process_map()` gains one line at the end (it already has
 `project_home`, `processing_step`, etc. in `config`):
 
 ```python
     # ... existing logging / IO / project-home setup ...
-    ctx = pipeline_run_context_from_config(config)
-    if ctx is not None:
-        set_pipeline_run_context(ctx)
-    if config.get("processing_step") not in (None, "none", "init_processing"):
-        _step_name.set(config["processing_step"])
+    set_error_context(ErrorContext.from_config(config))
 ```
 
-Because `setup_process` runs in every worker, this single change gives
-both the main process and the workers their pipeline-run + step context
-for free. `run_pipeline.main` / the CLI decorator additionally set the
-run snapshot directly (so context exists even before the first
-`setup_process` call).
+One call rebuilds the whole bundle — pipeline-run snapshot, step name,
+and the `in_worker` flag (inferred from `parent_pid`) — from `config`.
+Because this code path runs in every process (`setup_process` in the
+main process, `setup_process_map` as the Pool `initializer` in workers),
+it gives both the main process and the workers their context for free —
+the main process gets `in_worker=False` since it has no `parent_pid`.
+`run_pipeline.main` / the CLI decorator additionally set the run snapshot
+directly (so context exists even before the first `setup_process` call).
 
 #### Scoping finer context: `error_context`
 
@@ -807,28 +873,34 @@ on exit:
 def error_context(*, step_name=None, related_files: Sequence[RelatedFile] = ()):
     """Scope additional context for any error raised inside the block.
 
+    Builds a new :class:`ErrorContext` (step and files supplied at
+    construction, not by mutating the current one), installs it for the
+    duration of the block, and resets the token on exit.
+
     Args:
         step_name(str or None):    Override the ambient step name for
             the duration of the block.
 
-        related_files(Sequence[RelatedFile]):    Files to append to the
-            ambient related-files list; removed again on exit.
+        related_files(Sequence[RelatedFile]):    Files appended to the
+            ambient related-files list for the duration of the block.
 
     Yields:
         None
     """
 
-    tokens = []
-    if step_name is not None:
-        tokens.append((_step_name, _step_name.set(step_name)))
-    if related_files:
-        merged = get_related_files() + tuple(related_files)
-        tokens.append((_related_files, _related_files.set(merged)))
+    current = _context.get()
+    token = _context.set(
+        ErrorContext(
+            pipeline_run=current.pipeline_run,
+            step_name=step_name or current.step_name,
+            related_files=current.related_files + tuple(related_files),
+            in_worker=current.in_worker,
+        )
+    )
     try:
         yield
     finally:
-        for var, token in reversed(tokens):
-            var.reset(token)
+        _context.reset(token)
 ```
 
 The manager wraps each per-image dispatch in
@@ -888,21 +960,20 @@ def _stamp(exc: AutoWISPError) -> None:
         None
     """
 
+    ctx = get_error_context()
     if isinstance(exc, StepError) and not getattr(exc, "step_name", None):
-        exc.step_name = get_step_name()
+        exc.step_name = ctx.step_name
     if not exc.related_files:
-        exc.related_files = get_related_files()
-    if exc.pipeline_run is None:
-        ctx = get_pipeline_run_context()
-        if ctx is not None:
-            exc.with_pipeline_run(ctx)
+        exc.related_files = ctx.related_files
+    if exc.pipeline_run is None and ctx.pipeline_run is not None:
+        exc.with_pipeline_run(ctx.pipeline_run)
 ```
 
 `_wrap` maps an unknown exception to the right concrete class: inside a
 step it becomes the step's `StepError` subclass (looked up from
-`component`/`get_step_name()`); in the orchestration layer it becomes a
-`PipelineError`. The original is preserved as `__cause__` — never
-swallowed.
+`component`/`get_error_context().step_name`); in the orchestration layer
+it becomes a `PipelineError`. The original is preserved as `__cause__` —
+never swallowed.
 
 Note `_stamp` mutates `exc.step_name` / `exc.related_files` /
 `exc.pipeline_run` / `exc.crashed`. Phase 1 declares these
@@ -959,12 +1030,14 @@ fills the pipeline-run snapshot it has locally.
 | ---- | ------ |
 | `autowisp/database/frozen_row.py` | **New.** Dependency-free `FrozenRow` (no SQLAlchemy import in any form). |
 | `autowisp/database/interface.py` | Add `snapshot_row` (uses the `inspect as sa_inspect` it already imports). |
-| `autowisp/error_context.py` | **New.** ContextVars (incl. an `in_worker` flag), getters/setters, `pipeline_run_context_from_config`, `error_context`, `capture_errors`, `worker_entry`. |
-| `autowisp/multiprocessing_util.py` | `setup_process_map` sets step + pipeline-run context from `config` **and the `in_worker` flag**; thread `pipeline_run_id` / `host` / `pipeline_started` / `code_version` into the default keys (the parent computes `code_version` once so workers reuse it instead of each shelling out to git). |
-| `autowisp/run_pipeline.py` | Set the run snapshot (`snapshot_row`) after creating the `PipelineRun` row; fill `crashed` in the top-level handler. |
-| `autowisp/database/processing.py`, `image_processing.py` | Pass pipeline-run keys into the config dicts handed to `setup_process`; wrap per-image dispatch in `error_context` using the already-computed input/output paths. |
-| each `processing_steps/*.py` `main()` | Decorate with `@capture_errors(component=Component.STEP)` (and `@cli_entry_point` for the standalone path). |
-| Pool worker sites (`epd_correction.py`, `iterative_refit.py`, `apply_correction.py`, and others) | Begin replacing bespoke try/except-stringify with `worker_entry`; full inventory and the Process+Queue case (`solve_astrometry.py`) are handled in phase 3. |
+| `autowisp/error_context.py` | **New.** `ErrorContext` bundle (incl. an `in_worker` flag) in a single ContextVar, `get_error_context` / `set_error_context` / `set_pipeline_run` / `in_worker`, `ErrorContext.from_config`, `error_context`, `capture_errors`, `worker_entry`. |
+| `autowisp/miscellaneous.py` | `get_code_version_str` moved here from `multiprocessing_util.py` — it is general code-provenance, not multiprocessing-specific, and as a dependency-free leaf it lets `error_context` import it at top level (no cycle, no lazy import). `multiprocessing_util` re-imports it for its `__main__`. |
+| `autowisp/multiprocessing_util.py` | `setup_process_map` ends with `set_error_context(ErrorContext.from_config(config))` — one call sets step + pipeline-run context **and the `in_worker` flag** (inferred from `parent_pid`). |
+| `autowisp/database/processing.py` | `ProcessingManager.__init__` looks up the `PipelineRun` row once and stores `pipeline_run_id` / `host` / `pipeline_started` / `code_version` (computed once here, not per-worker); `get_config` injects these into every per-step config so each worker rebuilds the snapshot. |
+| `autowisp/run_pipeline.py` | Set the run snapshot (`snapshot_row` via `set_pipeline_run`) right after creating the `PipelineRun` row; top-level handler in `main` fills `crashed`/run on any escaping `AutoWISPError` (body extracted to `_run_pipeline`). |
+| `autowisp/database/image_processing.py` | Per-batch dispatch split into `_process_batch` (scopes the step via `error_context(step_name=...)`) wrapping `_run_step` (`@capture_errors(component=Component.STEP)`), so the step name is still in scope when the inner capture stamps. |
+| each `processing_steps/*.py` `main()` | Decorate with `@capture_errors` / `@cli_entry_point` for the standalone path. **Deferred to phase 5**: capture-only stamping at the CLI top has no observable effect until the phase-5 renderer/handler exists, so the decoration lands together with `cli_entry_point`. |
+| Pool worker sites (`epd_correction.py`, `iterative_refit.py`, `apply_correction.py`, and others) | `worker_entry` is defined and unit-tested here; **adoption at the call sites is phase 3** (full inventory + the Process+Queue case in `solve_astrometry.py`). |
 
 ### Tests (Phase 2)
 
@@ -978,6 +1051,8 @@ fills the pipeline-run snapshot it has locally.
   correctly and the innermost set wins for `step_name`.
 - A `setup_process` call rebuilds context from a config dict (simulating
   a worker) and a subsequent raise is fully stamped.
+- `ErrorContext.from_config` infers `in_worker` from `parent_pid`: true
+  when the key is present, false (main process) when it is absent.
 - `worker_entry` stamps `subprocess_id` and the result pickles
   round-trip (feeds directly into the Phase 3 Pool tests).
 

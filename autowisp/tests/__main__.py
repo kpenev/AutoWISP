@@ -45,6 +45,14 @@ from autowisp.tests.test_exception_hierarchy import (
     TestFrozenRow,
     TestSnapshotRow,
 )
+from autowisp.tests.test_error_context import (
+    TestErrorContextDataclass,
+    TestFromConfig,
+    TestAmbientAccessors,
+    TestErrorContextManager,
+    TestCaptureErrors,
+    TestWorkerEntry,
+)
 
 # pylint: enable=unused-import
 

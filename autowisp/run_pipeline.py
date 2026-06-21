@@ -14,12 +14,15 @@ from autowisp.database.interface import (
     start_db_session,
     set_project_home,
     get_project_home,
+    snapshot_row,
 )
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
 )
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
+from autowisp.error_context import get_error_context, set_pipeline_run
+from autowisp.exceptions import AutoWISPError
 from autowisp.file_utilities import find_fits_fnames
 
 
@@ -67,9 +70,25 @@ def parse_command_line():
 
 
 def main(config):
-    """Avoid global variables."""
+    """Set up the project and run the pipeline, stamping any error.
+
+    The top-level handler attaches the pipeline-run snapshot (and, with
+    it, the ``crashed`` time) to any :class:`AutoWISPError` that has not
+    already picked it up deeper in the stack, then re-raises. Rendering
+    and persistence of that error are added in later phases.
+    """
 
     set_project_home(config.project_home)
+    try:
+        _run_pipeline(config)
+    except AutoWISPError as exc:
+        if exc.pipeline_run is None:
+            exc.with_pipeline_run(get_error_context().pipeline_run)
+        raise
+
+
+def _run_pipeline(config):
+    """Create the pipeline run and drive image + lightcurve processing."""
 
     #old code
     # db_fname = os.path.abspath(config.processing_database)
@@ -98,6 +117,9 @@ def main(config):
         )
         db_session.add(pipeline_run)
         db_session.commit()
+        # Snapshot the row while the session is still open, so the error
+        # context carries it even before the first setup_process call.
+        set_pipeline_run(snapshot_row(pipeline_run))
         pipeline_run = pipeline_run.id
 
     step_imtype_filter = None
