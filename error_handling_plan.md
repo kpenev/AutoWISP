@@ -991,13 +991,13 @@ wrapped with:
 
 ```python
 def worker_entry(func, component: Component):
-    """Wrap a Pool worker callable so errors return picklable + stamped.
+    """Wrap a Pool worker callable so errors come back picklable + stamped.
 
     Args:
         func(Callable):    The worker callable to wrap.
 
-        component(Component):    Component to assign when wrapping an
-            unknown exception in a :class:`WorkerCrashedError`.
+        component(Component):    Component used to pick the wrapper class
+            for a non-AutoWISP exception (see ``_stamp_worker_error``).
 
     Returns:
         Callable:    The wrapped callable, suitable to hand to a Pool.
@@ -1007,17 +1007,23 @@ def worker_entry(func, component: Component):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except AutoWISPError as exc:
-            exc.stamp_subprocess()
-            _stamp(exc)
-            raise
         except Exception as exc:  # noqa: BLE001
-            wrapped = WorkerCrashedError(str(exc), ...)  # phase 3 details
-            wrapped.stamp_subprocess()
-            _stamp(wrapped)
-            raise wrapped from exc
+            stamped = _stamp_worker_error(exc, component)
+            if stamped is exc:   # already an AutoWISPError, stamped in place
+                raise
+            raise stamped from exc
     return wrapper
 ```
+
+The shared `_stamp_worker_error(exc, component)` (also used by Phase 3's
+`capture_for_queue`) stamps an `AutoWISPError` in place, or wraps any
+other exception via `_wrap` into the step's concrete `StepError` subclass
+— **not** a `WorkerCrashedError`, which is reserved for a worker that
+dies *without* producing an error object (synthesised by the parent;
+Requirement 3). It also records the worker traceback in
+`details["original_traceback"]`, the only copy that survives back to the
+parent (Scheme A's `RemoteTraceback` is on the live object only, Scheme B
+has none, and neither transport pickles `__cause__`).
 
 This is safe to pickle back to the parent precisely because Phase 1
 made every field round-trip through pickle. The parent's
@@ -1141,15 +1147,17 @@ Three things must survive the round-trip:
   Phase 1's pickling test (`tests/test_exception_hierarchy.py`) is what
   guards this; Phase 3 depends on it.
 
-- **The `__cause__` chain.** When an unknown exception is wrapped in a
-  `WorkerCrashedError`, the original may itself be unpicklable (e.g. a
-  third-party C-extension error). So the wrapper stores a *formatted
-  string* of the original (`traceback.format_exc()`) in
-  `details["original_traceback"]` and only keeps a picklable cause —
-  never a live reference to something that may fail to pickle and turn
-  the whole error into an opaque `PicklingError`. This matters for
-  *both* schemes: a `Queue.put` of an unpicklable object fails just as
-  a Pool re-raise does.
+- **The `__cause__` chain.** When an unknown exception is wrapped (into
+  the step's `StepError` subclass), the original may itself be
+  unpicklable (e.g. a third-party C-extension error). So
+  `_stamp_worker_error` stores a *formatted string* of the original
+  (`traceback.format_exc()`) in `details["original_traceback"]` rather
+  than relying on a live `__cause__` reference — which would not survive
+  pickling anyway (our `__reduce__` carries only `args` + `__dict__`, not
+  `__cause__`) and, if kept alive and unpicklable, could turn the whole
+  error into an opaque `PicklingError`. This matters for *both* schemes:
+  a `Queue.put` of an unpicklable object fails just as a Pool re-raise
+  does.
 
 - **The traceback.** In Scheme A, `multiprocessing` attaches the
   worker's traceback to the re-raised exception as a `RemoteTraceback`
@@ -1163,9 +1171,10 @@ Three things must survive the round-trip:
 
 The stamping logic is identical; only *where it runs* differs.
 
-- **Scheme A (Pool):** wrap the mapped callable with `worker_entry`
-  (phase 2). On the way out it calls `stamp_subprocess()` (idempotent)
-  and `_stamp()`, then **re-raises**, letting Pool pickle it.
+- **Scheme A (process pool):** `run_pool` wraps the mapped callable with
+  `worker_entry` (phase 2). On the way out it calls `stamp_subprocess()`
+  (idempotent) and `_stamp()`, then **re-raises**, letting the executor
+  pickle it back to the parent.
 
 - **Scheme B (Process+Queue):** the worker does not re-raise, so
   `worker_entry` does not fit. Phase 3 adds a sibling helper
@@ -1190,27 +1199,34 @@ The stamping logic is identical; only *where it runs* differs.
 
 Segfault, OOM-killer, `os._exit` — nothing gets pickled or queued.
 
-- **Scheme A:** on supported Python a broken pool surfaces as an error
-  from the `.map()` call (older versions could hang). Phase 3 wraps the
-  parent-side `.map()` / `.imap*()` in a helper `run_pool` that, on such
-  a failure, synthesises a `WorkerCrashedError` (component `PIPELINE`)
-  carrying what the *parent* knows — step, the batch of inputs in
-  flight, pipeline-run context — plus any OS-level clue (exit
-  code/signal).
+- **Scheme A:** a bare `multiprocessing.Pool` **hangs** on a worker that
+  dies mid-task — verified empirically on CPython 3.12: `pool.map`
+  neither returns nor raises. A hung pipeline step is exactly the opaque,
+  confusing failure this plan exists to eliminate, so `run_pool` is built
+  on `concurrent.futures.ProcessPoolExecutor`, which raises
+  `BrokenProcessPool` when a worker dies. `run_pool` catches that (and
+  any other non-`AutoWISPError`) and synthesises a `WorkerCrashedError`
+  (component `PIPELINE`) carrying what the *parent* knows — step, the
+  inputs in flight (`num_inputs` + a sample), pipeline-run context — plus
+  the underlying `pool_error`.
 
 - **Scheme B:** `manage_astrometry` *already* detects this
-  (`not any(p.is_alive())`) and raises a bare `RuntimeError`. Phase 3
+  (`not any(p.is_alive())`) and raised a bare `RuntimeError`. Phase 3
   upgrades that to a `WorkerCrashedError` and reads `process.exitcode`
   (negative → killed by signal `-exitcode`) for the OS clue.
 
 This "the worker cannot describe its own death, so the parent owns it"
 case is the one place the parent synthesises the error in both schemes.
 
-> Note: `concurrent.futures.ProcessPoolExecutor` reports the Scheme-A
-> case more cleanly (`BrokenProcessPool`). We keep `Pool`/`Process` to
-> minimise churn at the existing call sites and just detect + wrap;
-> `run_pool` / the `manage_astrometry` loop are the single places that
-> would change if we ever switch.
+> Why `ProcessPoolExecutor` for Scheme A: it is the only option that
+> turns a silent worker death into a prompt, catchable error rather than
+> a hang. `run_pool` mirrors the previous `Pool` usage — `executor.map`
+> for the ordered/eager sites, `submit` + `as_completed` for the one
+> streaming site (`iterative_refit`'s stat collector, replacing
+> `imap_unordered`), and `max_tasks_per_child` replacing
+> `maxtasksperchild` (CPython ≥ 3.11; the pipeline targets 3.12). Scheme
+> B keeps its hand-rolled `Process`/`Queue` loop, with `run_pool` and the
+> `manage_astrometry` loop the two places that own worker-death handling.
 
 ### Requirement 4 — re-raise in the parent with the full chain
 
@@ -1267,9 +1283,9 @@ hacks go. Note the audit found more Pool sites than the detrending ones:
 | Site | Scheme | Today | After phase 3 |
 | ---- | ------ | ----- | ------------- |
 | `epd_correction.py` (~L399–423) | A | Catches all, builds a giant string, raises `RuntimeError` "to avoid pickling error". | Let the wrapped `EPDError` propagate; diagnostics move into `details`. Delete the stringify. |
-| `iterative_refit.py` | A | Bare `pool_magfit` mapped. | Wrap `pool_magfit` in `worker_entry`; map via `run_pool`. |
-| `apply_correction.py` | A | Bare `correct` mapped. | Wrap `correct` in `worker_entry`; map via `run_pool`. |
-| `find_stars.py`, `fit_star_shape.py`, `measure_aperture_photometry.py` | A | Bare callable mapped (already use `setup_process_map` initializer). | Wrap callable in `worker_entry`; map via `run_pool`. |
+| `iterative_refit.py` | A | Bare `pool_magfit` mapped (`map` / `imap_unordered`). | Call `run_pool(pool_magfit, …)`; the stat-collector case passes `stream_consumer=`. |
+| `apply_correction.py` | A | Bare `correct` mapped. | `numpy.concatenate(run_pool(correct, …))`. |
+| `find_stars.py`, `fit_star_shape.py`, `measure_aperture_photometry.py` | A | Bare callable mapped on a `Pool`. | Call `run_pool(callable, …)` (it wraps with `worker_entry` and runs the executor); `fit_star_shape`/`measure` pass `max_tasks_per_child=1`. |
 | `solve_astrometry.py` | B | Worker puts `RuntimeError(format_exc())` on `result_queue`; parent `raise result["error"]`; dead workers → bare `RuntimeError`. | Worker puts `capture_for_queue(exc, ...)`; parent `reraise_from_worker(...)`; dead workers → `WorkerCrashedError` with `exitcode`. |
 
 The Scheme-A sites need no change to `setup_process_map` beyond

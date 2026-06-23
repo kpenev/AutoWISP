@@ -2,10 +2,9 @@
 
 """Fit a model for the shape of stars (PSF or PRF) in images."""
 
-from multiprocessing import Pool, Manager
+from multiprocessing import Manager
 import logging
 from functools import partial
-from os import getpid
 from contextlib import nullcontext
 
 import numpy
@@ -15,7 +14,8 @@ from autowisp.fit_expression import (
     Interface as FitTermsInterface,
     iterative_fit,
 )
-from autowisp.multiprocessing_util import setup_process, setup_process_map
+from autowisp.multiprocessing_util import setup_process
+from autowisp.error_context import run_pool
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
@@ -875,15 +875,9 @@ def fit_star_shape(
         for frame_set in fit_arguments:
             fit_frame_set(frame_set, configuration, mark_start, mark_end)
     else:
-        configuration["parent_pid"] = getpid()
-        with Pool(
-            processes=configuration["num_parallel_processes"],
-            initializer=setup_process_map,
-            initargs=(configuration,),
-            maxtasksperchild=1,
-        ) as pool, Manager() as manager:
+        with Manager() as manager:
             catalog_lock = manager.Lock()
-            pool.map(
+            run_pool(
                 partial(
                     fit_frame_set,
                     configuration=configuration,
@@ -892,6 +886,9 @@ def fit_star_shape(
                     catalog_lock=catalog_lock,
                 ),
                 fit_arguments,
+                config=configuration,
+                num_processes=configuration["num_parallel_processes"],
+                max_tasks_per_child=1,
             )
 
 

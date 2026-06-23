@@ -4,8 +4,6 @@
 
 from ctypes import c_char, c_double
 from functools import partial
-from multiprocessing import Pool
-from os import getpid
 import logging
 
 import numpy
@@ -23,6 +21,7 @@ from autowisp.processing_steps.fit_star_shape import add_image_options
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.multiprocessing_util import setup_process_map
+from autowisp.error_context import run_pool
 from autowisp.data_reduction.utils import (
     fill_aperture_photometry_input_tree,
     add_aperture_photometry,
@@ -176,21 +175,20 @@ def measure_aperture_photometry(
         for frame_fname in image_collection:
             photometer_one(frame_fname)
     else:
-        configuration["parent_pid"] = getpid()
         _logger.debug(
             "Starting aperture photometry of %d images using %d processes",
             len(image_collection),
             min(configuration["num_parallel_processes"], len(image_collection)),
         )
-        with Pool(
-            processes=min(
+        run_pool(
+            photometer_one,
+            image_collection,
+            config=configuration,
+            num_processes=min(
                 configuration["num_parallel_processes"], len(image_collection)
             ),
-            initializer=setup_process_map,
-            initargs=(configuration,),
-            maxtasksperchild=1,
-        ) as pool:
-            pool.map(photometer_one, image_collection)
+            max_tasks_per_child=1,
+        )
 
 
 def cleanup_interrupted(interrupted, configuration):

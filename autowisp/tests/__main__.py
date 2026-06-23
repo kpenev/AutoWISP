@@ -52,6 +52,9 @@ from autowisp.tests.test_error_context import (
     TestErrorContextManager,
     TestCaptureErrors,
     TestWorkerEntry,
+    TestPoolPropagation,
+    TestProcessQueuePropagation,
+    TestNestingGuard,
 )
 
 # pylint: enable=unused-import

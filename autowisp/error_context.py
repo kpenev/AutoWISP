@@ -18,7 +18,9 @@ on. See ``error_handling_plan.md`` (Phase 2) for the design.
 
 import contextvars
 import functools
+import os
 import socket
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from traceback import format_exc
@@ -309,44 +311,294 @@ def capture_errors(*, component: Component, wrap_unknown=True):
     return decorate
 
 
-def worker_entry(func, component: Component):
-    """Wrap a Pool worker callable so errors return picklable + stamped.
+def _stamp_worker_error(exc: Exception, component: Component) -> AutoWISPError:
+    """Turn an error raised in a worker into a stamped, picklable one.
 
-    On the way out it stamps ``subprocess_id`` (the worker PID) and the
-    ambient context, then re-raises, letting the Pool pickle the
-    exception back to the parent. Non-:class:`AutoWISPError` exceptions
-    are wrapped in a :class:`WorkerCrashedError` whose ``__cause__`` is
-    the original and whose ``details`` carry the worker traceback (phase
-    3 enriches this further).
+    Shared by :func:`worker_entry` (Scheme A: ``Pool``, which re-raises)
+    and :func:`capture_for_queue` (Scheme B: ``Process`` + ``Queue``,
+    which puts the returned object on a queue). An :class:`AutoWISPError`
+    is stamped in place; any other exception is wrapped via :func:`_wrap`
+    into the step's concrete :class:`StepError` subclass (so a worker's
+    bare ``ValueError`` surfaces as e.g. ``FindStarsError``), *not* a
+    :class:`WorkerCrashedError` -- that type is reserved for a worker that
+    dies without producing an error object at all (synthesised by the
+    parent).
+
+    The worker traceback is captured into ``details["original_traceback"]``
+    because it is the only durable record that crosses back: Scheme A's
+    ``RemoteTraceback`` lives only on the live re-raised object, Scheme B
+    has none, and neither transport pickles ``__cause__``.
 
     Args:
-        func(Callable):    The worker callable to wrap.
+        exc(Exception):    The exception raised in the worker.
+
+        component(Component):    Component of the worker callable, used to
+            pick the wrapper class for a non-AutoWISP exception.
+
+    Returns:
+        AutoWISPError:    The stamped exception, safe to pickle.
+    """
+
+    stamped = exc if isinstance(exc, AutoWISPError) else _wrap(exc, component)
+    stamped.stamp_subprocess()
+    _stamp(stamped)
+    stamped.details.setdefault("original_traceback", format_exc())
+    return stamped
+
+
+class _WorkerEntry:  # pylint: disable=too-few-public-methods
+    """Picklable wrapper that stamps errors leaving a Pool worker.
+
+    Scheme A (``Pool`` + ``map``/``imap``): on the way out an error is
+    stamped with ``subprocess_id`` + ambient context (see
+    :func:`_stamp_worker_error`) and re-raised, letting the Pool pickle it
+    back to the parent.
+
+    This is a class, not a closure, because ``Pool.map`` pickles the
+    mapped callable to send it to the worker (under both ``fork`` and
+    ``spawn``); a closure is not picklable, whereas an instance holding a
+    picklable ``func`` (e.g. a ``functools.partial`` of a module-level
+    function) and an enum ``component`` is.
+
+    Attributes:
+        func(Callable):    The wrapped per-item worker callable.
+
+        component(Component):    Component for wrapping unknown errors.
+    """
+
+    def __init__(self, func, component: Component):
+        self.func = func
+        self.component = component
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.func(*args, **kwargs)
+        except Exception as exc:  # pylint: disable=broad-except
+            stamped = _stamp_worker_error(exc, self.component)
+            if stamped is exc:
+                raise
+            raise stamped from exc
+
+
+def worker_entry(func, component: Component):
+    """Wrap a Pool worker callable so errors come back picklable + stamped.
+
+    Args:
+        func(Callable):    The worker callable to wrap (must itself be
+            picklable, e.g. a module-level function or a ``partial`` of
+            one).
 
         component(Component):    Component to assign when wrapping an
             unknown exception.
 
     Returns:
-        Callable:    The wrapped callable, suitable to hand to a Pool.
+        _WorkerEntry:    A picklable callable suitable to hand to a Pool.
     """
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except AutoWISPError as exc:
-            exc.stamp_subprocess()
-            _stamp(exc)
-            raise
-        except Exception as exc:  # pylint: disable=broad-except
-            wrapped = WorkerCrashedError(
-                str(exc) or exc.__class__.__name__,
-                details={
-                    "original_traceback": format_exc(),
-                    "worker_component": component.value,
-                },
-            )
-            wrapped.stamp_subprocess()
-            _stamp(wrapped)
-            raise wrapped from exc
+    return _WorkerEntry(func, component)
 
-    return wrapper
+
+def capture_for_queue(exc: Exception, *, component: Component) -> AutoWISPError:
+    """Stamp a worker error and return it for a result queue (Scheme B).
+
+    Sibling of :func:`worker_entry` for ``Process`` + ``Queue`` workers
+    that catch and *return* their error (to ``result_queue.put(...)``)
+    rather than re-raising it. Performs the same stamping + traceback
+    capture and returns the picklable exception.
+
+    Args:
+        exc(Exception):    The exception raised in the worker.
+
+        component(Component):    Component of the worker callable.
+
+    Returns:
+        AutoWISPError:    The stamped exception, safe to put on a queue.
+    """
+
+    return _stamp_worker_error(exc, component)
+
+
+def reraise_from_worker(exc: AutoWISPError) -> None:
+    """Re-raise in the parent an error pulled off a worker result queue.
+
+    Fills the pipeline-run snapshot from the parent's ambient context if
+    the worker did not already carry one, then raises. The error then
+    flows up to the parent's ``capture_errors`` boundary like any other.
+
+    Args:
+        exc(AutoWISPError):    The stamped exception from the queue.
+
+    Returns:
+        None
+    """
+
+    if isinstance(exc, AutoWISPError) and exc.pipeline_run is None:
+        ctx = get_error_context()
+        if ctx.pipeline_run is not None:
+            exc.with_pipeline_run(ctx.pipeline_run)
+    raise exc
+
+
+def forbid_nested_workers() -> None:
+    """Enforce the no-nested-workers policy (resource control).
+
+    Every parallel site is sized by ``num_parallel_processes``; a worker
+    that spawned its own pool/process would multiply that out to ``N^2``
+    live processes. Called before any worker launch so an accidental
+    nested launch fails loudly instead of silently blowing the limit.
+
+    Returns:
+        None
+    """
+
+    if in_worker():
+        raise PipelineError(
+            "Nested multiprocessing is not allowed: a worker attempted to "
+            "create its own pool/process, which would multiply "
+            "num_parallel_processes out to N^2 live processes."
+        )
+
+
+def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
+    """Synthesise the parent-side error for a worker that died silently.
+
+    Used when a worker dies without producing an error object (segfault,
+    OOM-killer, ``os._exit``), so the parent must describe the failure
+    from what *it* knows: the step, the in-flight inputs, and the
+    underlying pool error.
+
+    Args:
+        items:    The work items that were in flight.
+
+        exc(Exception):    The error the pool surfaced for the death.
+
+    Returns:
+        WorkerCrashedError:    Stamped with the ambient context.
+    """
+
+    ctx = get_error_context()
+    err = WorkerCrashedError(
+        f"A worker process died during step {ctx.step_name!r} without "
+        f"reporting an error ({exc!r})."
+    )
+    err.details["pool_error"] = repr(exc)
+    try:
+        items_list = list(items)
+        err.details["num_inputs"] = len(items_list)
+        err.details["inputs_sample"] = [repr(i) for i in items_list[:20]]
+    except Exception:  # pylint: disable=broad-except
+        pass
+    _stamp(err)
+    return err
+
+
+def _stream_as_completed(executor, wrapped, items):
+    """Yield worker results as they finish (unordered streaming).
+
+    The ``ProcessPoolExecutor`` analogue of ``Pool.imap_unordered``:
+    submit every item, then surface results via ``as_completed`` so a
+    consumer can process them lazily. ``future.result()`` re-raises a
+    worker error (a stamped :class:`AutoWISPError`) or, on a worker death,
+    a ``BrokenProcessPool`` -- both then handled by :func:`run_pool`.
+
+    Args:
+        executor(ProcessPoolExecutor):    The live executor.
+
+        wrapped(Callable):    The :func:`worker_entry`-wrapped worker.
+
+        items(iterable):    Work items to submit.
+
+    Yields:
+        The return value of ``wrapped`` for each item, in completion
+        order.
+    """
+
+    futures = [executor.submit(wrapped, item) for item in items]
+    for future in as_completed(futures):
+        yield future.result()
+
+
+# The keyword-only options each map an existing call-site knob; a config
+# object would just be a thin shim over the same set.
+# pylint: disable=too-many-arguments
+def run_pool(
+    worker,
+    items,
+    *,
+    config,
+    num_processes,
+    component: Component = Component.STEP,
+    max_tasks_per_child=None,
+    stream_consumer=None,
+):
+    """Map ``worker`` over ``items`` in a process pool, stamping errors.
+
+    Single entry point for the ``Pool``-style parallel sites. It enforces
+    the no-nested-workers policy, bootstraps each worker with
+    ``setup_process_map``, wraps ``worker`` with :func:`worker_entry` so
+    any error is stamped + picklable before it crosses back, and
+    synthesises a :class:`WorkerCrashedError` if a worker dies without
+    surfacing one.
+
+    Built on :class:`concurrent.futures.ProcessPoolExecutor` rather than
+    ``multiprocessing.Pool`` specifically so that a worker that dies
+    mid-task (segfault / OOM-killer / ``os._exit``) raises
+    ``BrokenProcessPool`` instead of hanging the pipeline forever -- the
+    silent-death case ``Pool`` cannot report.
+
+    Args:
+        worker(Callable):    The per-item callable (already bound, e.g.
+            via ``functools.partial``); must be picklable.
+
+        items(iterable):    Work items to map over.
+
+        config(dict):    Per-process config passed to
+            ``setup_process_map``; ``parent_pid`` is set here so workers
+            know they are workers.
+
+        num_processes(int):    Number of worker processes.
+
+        component(Component):    Component for wrapping unknown errors.
+
+        max_tasks_per_child(int or None):    Recycle each worker after
+            this many tasks (memory control); ``None`` keeps workers for
+            the whole run.
+
+        stream_consumer(Callable or None):    If given, it is called with
+            an iterator yielding results as they complete (consumed inside
+            the pool block) instead of returning a materialised, ordered
+            result list.
+
+    Returns:
+        list or None:    The ordered results, or ``None`` when a
+            ``stream_consumer`` is used.
+    """
+
+    forbid_nested_workers()
+    # Lazy import breaks a genuine cycle: multiprocessing_util imports
+    # this module for the setup_process_map bootstrap hook.
+    # pylint: disable=import-outside-toplevel
+    from autowisp.multiprocessing_util import setup_process_map
+
+    # pylint: enable=import-outside-toplevel
+
+    config["parent_pid"] = os.getpid()
+    wrapped = worker_entry(worker, component)
+    executor_kwargs = {
+        "max_workers": num_processes,
+        "initializer": setup_process_map,
+        "initargs": (config,),
+    }
+    if max_tasks_per_child is not None:
+        executor_kwargs["max_tasks_per_child"] = max_tasks_per_child
+
+    try:
+        with ProcessPoolExecutor(**executor_kwargs) as executor:
+            if stream_consumer is None:
+                return list(executor.map(wrapped, items))
+            stream_consumer(_stream_as_completed(executor, wrapped, items))
+            return None
+    except AutoWISPError:
+        raise
+    except Exception as exc:  # pylint: disable=broad-except
+        raise _worker_crashed(items, exc) from exc

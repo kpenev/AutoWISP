@@ -4,11 +4,11 @@
 
 from contextlib import ExitStack
 from functools import partial
-from multiprocessing import Pool
-from os import path, getpid
+from os import path
 import logging
 
-from autowisp.multiprocessing_util import setup_process, setup_process_map
+from autowisp.multiprocessing_util import setup_process
+from autowisp.error_context import run_pool
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -239,31 +239,25 @@ def find_stars(
             _logger.debug("Finished extracting stars in image %s", image_fname)
 
     else:
-        configuration["parent_pid"] = getpid()
         _logger.debug(
             "Running in parallel mode with config %s and DB fname %s",
             configuration,
             configuration["project_home"],
         )
 
-        with Pool(
-            configuration["num_parallel_processes"],
-            initializer=setup_process_map,
-            initargs=(configuration,),
-        ) as pool:
-            pool.map(
-                partial(
-                    _find_stars_worker,
-                    find_stars_in_image=find_stars_in_image,
-                    srcextract_version=configuration["srcextract_version"],
-                    mark_start=mark_start,
-                    mark_end=mark_end,
-                    observing_session_ids=observing_session_ids,
-                ),
-                image_collection,
-            )
-            pool.close()
-            pool.join()
+        run_pool(
+            partial(
+                _find_stars_worker,
+                find_stars_in_image=find_stars_in_image,
+                srcextract_version=configuration["srcextract_version"],
+                mark_start=mark_start,
+                mark_end=mark_end,
+                observing_session_ids=observing_session_ids,
+            ),
+            image_collection,
+            config=configuration,
+            num_processes=configuration["num_parallel_processes"],
+        )
 
 
 def cleanup_interrupted(interrupted, configuration):
