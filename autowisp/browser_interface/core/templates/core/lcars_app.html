@@ -43,6 +43,19 @@
                 {% block left_menu %}
                 {% endblock %}
 
+                {% block error_log_link %}
+                {% if error_count %}
+                <a href="{% url 'processing:error_list' %}">
+                    <div class="lcars-element
+                                button
+                                lcars-red-alert-bg
+                                lcars-u-1-2">
+                        Errors ({{ error_count }})
+                    </div>
+                </a>
+                {% endif %}
+                {% endblock error_log_link %}
+
                 {% block processing_link %}
                 <a href="{% url 'processing:progress' %}" id="tutorial-processing-status">
                     <div class="lcars-element 

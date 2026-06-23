@@ -59,6 +59,37 @@ Processing Progress
 
 {% block main %}
 
+{% if error_gate %}
+<div class="lcars-element lcars-red-alert-bg lcars-u-1"
+     style="margin: 1rem; padding: 1rem;">
+    <div style="margin-bottom: 0.75rem;">
+        {{ error_gate.count }} open error{{ error_gate.count|pluralize }}
+        recorded for the steps you selected. Resolve
+        {{ error_gate.count|pluralize:"it,them" }} first, or start anyway.
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{% url 'processing:error_list' %}">
+            <div class="lcars-element button rounded lcars-husk-bg">
+                Review Errors
+            </div>
+        </a>
+        <form method="post"
+              action="{% url 'processing:start_processing' %}"
+              style="margin: 0;">
+            {% csrf_token %}
+            {% for token in error_gate.steps %}
+            <input type="hidden" name="steps" value="{{ token }}">
+            {% endfor %}
+            <input type="hidden" name="acknowledge_errors" value="1">
+            <button type="submit"
+                    class="lcars-element button rounded lcars-golden-tanoi-bg">
+                Start Anyway
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 <form id="steps-form" method="post" action="{% url 'processing:start_processing' %}">
     {% csrf_token %}
 
@@ -91,7 +122,7 @@ Processing Progress
             {% endfor %}
         </tr>
     </thead>
-    {% for step, imtype, by_channel, runs in progress %}
+    {% for step, imtype, by_channel, runs, step_errors in progress %}
     <tr style="border-bottom: 3px dotted white;">
         <td class="tooltip">
             <span class="tooltiptext">
@@ -156,7 +187,20 @@ Processing Progress
             </div>
         </td>
         <td class="tooltip">
-            {% if step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'find' and step.1 == 'stars' %}
+            {% if step_errors %}
+                <a href="{% url 'processing:error_list' %}?step={{ step|join:'_' }}">
+                    <span class="tooltiptext">
+                        {{ step_errors }} recorded error{{ step_errors|pluralize }} — review
+                    </span>
+                    <div class="lcars-element
+                                button
+                                rounded
+                                lcars-red-alert-bg"
+                         style="align-items: center; justify-content: left;">
+                        {{ imtype }} ⚠
+                    </div>
+                </a>
+            {% elif step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'find' and step.1 == 'stars' %}
                 {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
                 <a href="{% url 'processing:select_photref_target' %}">
                     <span class="tooltiptext">select reference image</span>
@@ -164,9 +208,9 @@ Processing Progress
                 <a href="{% url 'processing:select_starfind_batch' %}">
                     <span class="tooltiptext">tune source extraction</span>
                 {% endif %}
-                    <div class="lcars-element 
-                                button 
-                                rounded 
+                    <div class="lcars-element
+                                button
+                                rounded
                                 lcars-chestnut-rose-bg"
                          {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
                          id="tutorial-object-button"

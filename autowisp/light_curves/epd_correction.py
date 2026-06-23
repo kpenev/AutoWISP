@@ -115,7 +115,7 @@ class EPDCorrection(Correction):
         fit_datasets,
         fit_weights=None,
         **iterative_fit_config,
-    ): # pylint: disable=too-many-arguments
+    ):  # pylint: disable=too-many-arguments
         """
         Configure the fitting.
 
@@ -401,9 +401,8 @@ class EPDCorrection(Correction):
                     except Exception as exc:  # pylint: disable=broad-except
                         # Full predictors/points/weights go to the log; the
                         # exception carries only lightweight, picklable
-                        # diagnostics. As an EPDError it now travels back
-                        # from the Pool faithfully (phase 3), so the old
-                        # stringify-to-RuntimeError workaround is gone.
+                        # diagnostics. As an EPDError it travels back from a
+                        # worker faithfully without a stringify workaround.
                         self._logger.critical(
                             "EPD failed for %r dataset of %r\n"
                             "Predictors:\n%r\nfit_points:\n%r\n"

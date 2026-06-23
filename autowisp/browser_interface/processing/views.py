@@ -12,6 +12,7 @@ import platformdirs
 
 from autowisp import run_pipeline
 from autowisp.database.interface import get_project_home
+from autowisp.error_render import open_error_count_for_steps
 
 # This module should collect all views
 # pylint: disable=unused-import
@@ -31,7 +32,14 @@ from .tune_starfind_views import (
     save_starfind_config,
 )
 from .display_fits_util import update_fits_display
+from .error_views import (
+    error_list,
+    error_detail_view,
+    toggle_error_resolved,
+)
+
 # pylint: enable=unused-import
+
 
 def start_processing(request):
     """Run the pipeline to complete any pending processing tasks."""
@@ -43,19 +51,19 @@ def start_processing(request):
 
     selected_steps = []
     selected_step_imtypes = []
-    
+
     if request.method == "POST":
         raw_tokens = request.POST.getlist("steps")
-        
+
         # Store which steps were selected
-        request.session['selected_step_tokens'] = list(raw_tokens)
-        
+        request.session["selected_step_tokens"] = list(raw_tokens)
+
         seen_base = set()
-        
+
         for token in raw_tokens:
             if not token:
                 continue
-            parts = token.rsplit('_', 1)
+            parts = token.rsplit("_", 1)
             if len(parts) == 2:
                 base_step, imtype = parts
                 selected_step_imtypes.append(f"{base_step}:{imtype}")
@@ -67,7 +75,22 @@ def start_processing(request):
                     selected_steps.append(token)
                     seen_base.add(token)
 
-    logging.info("start_processing: steps=%s step_imtypes=%s", selected_steps, selected_step_imtypes)
+    logging.info(
+        "start_processing: steps=%s step_imtypes=%s",
+        selected_steps,
+        selected_step_imtypes,
+    )
+
+    # Gate on open (unresolved) errors for the steps about to run, unless
+    # the user has explicitly chosen to start anyway.
+    if request.POST.get("acknowledge_errors") != "1":
+        open_errors = open_error_count_for_steps(selected_steps)
+        if open_errors:
+            request.session["error_gate"] = {
+                "count": open_errors,
+                "steps": list(request.POST.getlist("steps")),
+            }
+            return redirect("processing:progress")
 
     if selected_steps:
         cmd.extend(["--steps", *selected_steps])
@@ -99,5 +122,5 @@ def start_processing(request):
         # child still needs to be waited on here.  On macOS there is
         # no double-fork so this thread is the only reaper.
         threading.Thread(target=proc.wait, daemon=True).start()
-    print('Started')
+    print("Started")
     return redirect("processing:progress", await_start=0)

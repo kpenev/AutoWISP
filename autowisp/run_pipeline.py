@@ -22,7 +22,7 @@ from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_context import get_error_context, set_pipeline_run
-from autowisp.error_persistence import persist_error
+from autowisp.error_cli import report_error
 from autowisp.miscellaneous import get_code_version_str
 from autowisp.exceptions import AutoWISPError
 from autowisp.file_utilities import find_fits_fnames
@@ -77,10 +77,11 @@ def main(config):
 
     The top-level handler attaches the pipeline-run snapshot (and, with
     it, the ``crashed`` time) to any :class:`AutoWISPError` that has not
-    already picked it up deeper in the stack, persists it as a queryable
-    ``Error`` row plus sidecar (best-effort; never masks the original),
-    then re-raises. User-facing rendering of that error is added in
-    phase 5.
+    already picked it up deeper in the stack, then reports it via
+    :func:`report_error` -- recording it as a queryable ``Error`` row plus
+    sidecar and rendering a summary to stderr (which, for a detached run,
+    is ``run_pipeline.out``) -- and re-raises. Reporting is best-effort
+    and never masks the original error.
     """
 
     set_project_home(config.project_home)
@@ -89,7 +90,7 @@ def main(config):
     except AutoWISPError as exc:
         if exc.pipeline_run is None:
             exc.with_pipeline_run(get_error_context().pipeline_run)
-        persist_error(exc)
+        report_error(exc)
         raise
 
 

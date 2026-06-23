@@ -1,0 +1,162 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}
+AutoWISP Error {{ error_id }}
+{% endblock header_title %}
+
+{% block app_title %}
+Error {{ error_id }}
+{% endblock app_title %}
+
+{% block left_menu %}
+<a href="{% url 'processing:error_list' %}">
+    <div class="lcars-element button lcars-chestnut-rose-bg lcars-u-1-2">
+        Back to Error Log
+    </div>
+</a>
+<form method="post"
+      action="{% url 'processing:toggle_error_resolved' error_id %}">
+    {% csrf_token %}
+    <input type="hidden" name="next"
+           value="{% url 'processing:error_detail' error_id %}{% if developer %}?developer=1{% endif %}">
+    <button type="submit"
+            class="lcars-element button
+                   {% if resolved %}lcars-golden-tanoi-bg{% else %}lcars-husk-bg{% endif %}
+                   lcars-u-1-2">
+        {% if resolved %}Reopen Error{% else %}Mark Resolved{% endif %}
+    </button>
+</form>
+{% if developer %}
+<a href="{% url 'processing:error_detail' error_id %}">
+    <div class="lcars-element button lcars-husk-bg lcars-u-1-2">
+        Hide Developer Detail
+    </div>
+</a>
+{% else %}
+<a href="{% url 'processing:error_detail' error_id %}?developer=1">
+    <div class="lcars-element button lcars-husk-bg lcars-u-1-2">
+        Show Developer Detail
+    </div>
+</a>
+{% endif %}
+{% endblock left_menu %}
+
+{% block main %}
+<div style="margin: 1rem;">
+
+    <div class="lcars-element lcars-red-alert-bg lcars-u-1"
+         style="padding: 0.75rem 1rem; margin-bottom: 1rem;">
+        {{ detail.summary }}
+    </div>
+
+    <table class="lcars-table standard-header">
+        <tbody>
+            <tr>
+                <td class="lcars-u-1">Component</td>
+                <td>{{ detail.component }}</td>
+            </tr>
+            {% if detail.step_name %}
+            <tr>
+                <td class="lcars-u-1">Step</td>
+                <td>{{ detail.step_name }}</td>
+            </tr>
+            {% endif %}
+            {% if detail.artifact %}
+            <tr>
+                <td class="lcars-u-1">Affected</td>
+                <td>{{ detail.artifact }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td class="lcars-u-1">When</td>
+                <td>{{ detail.created|date:"Y-m-d H:i:s"|default:"—" }}</td>
+            </tr>
+            {% if detail.remediation %}
+            <tr>
+                <td class="lcars-u-1">How to fix</td>
+                <td>{{ detail.remediation }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    {% if developer %}
+    <h2 style="text-transform: uppercase; margin-top: 1.5rem;">
+        Developer detail
+    </h2>
+    <table class="lcars-table standard-header">
+        <tbody>
+            <tr>
+                <td class="lcars-u-1">Exception</td>
+                <td>{{ detail.exception_class }}</td>
+            </tr>
+            {% if detail.host %}
+            <tr><td class="lcars-u-1">Host</td><td>{{ detail.host }}</td></tr>
+            {% endif %}
+            {% if detail.process_id %}
+            <tr>
+                <td class="lcars-u-1">Process</td>
+                <td>{{ detail.process_id }}</td>
+            </tr>
+            {% endif %}
+            {% if detail.subprocess_id %}
+            <tr>
+                <td class="lcars-u-1">Worker process</td>
+                <td>{{ detail.subprocess_id }}</td>
+            </tr>
+            {% endif %}
+            {% if detail.code_version %}
+            <tr>
+                <td class="lcars-u-1">Code version</td>
+                <td>{{ detail.code_version }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    {% if detail.message and detail.message != detail.user_message %}
+    <h3 style="text-transform: uppercase; margin-top: 1rem;">Message</h3>
+    <div style="margin-bottom: 1rem;">{{ detail.message }}</div>
+    {% endif %}
+
+    {% if detail.related_files %}
+    <h3 style="text-transform: uppercase; margin-top: 1rem;">
+        Related files
+    </h3>
+    <ul>
+        {% for related in detail.related_files %}
+        <li>[{{ related.kind }}/{{ related.role }}] {{ related.path }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if detail.details %}
+    <h3 style="text-transform: uppercase; margin-top: 1rem;">Details</h3>
+    <table class="lcars-table standard-header">
+        <tbody>
+            {% for key, value in detail.details.items %}
+            <tr>
+                <td class="lcars-u-1">{{ key }}</td>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if detail.traceback %}
+    <h3 style="text-transform: uppercase; margin-top: 1rem;">Traceback</h3>
+    <pre style="overflow-x: auto; padding: 0.75rem;
+                background: rgba(0, 0, 0, 0.4);">{{ detail.traceback }}</pre>
+    {% elif not detail.sidecar_available %}
+    <div class="lcars-element lcars-husk-bg lcars-u-1"
+         style="padding: 0.75rem 1rem; margin-top: 1rem;">
+        Full detail is unavailable — the detail file for this error is
+        missing.
+    </div>
+    {% endif %}
+    {% endif %}
+
+</div>
+{% endblock main %}

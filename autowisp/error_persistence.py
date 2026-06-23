@@ -1,15 +1,15 @@
 """Persist AutoWISP errors as a queryable row plus a JSON sidecar.
 
-Phase 4 of error handling. Each persisted error becomes a small,
-queryable :class:`~autowisp.database.data_model.error.Error` row (the
-fields list views and aggregate queries need) plus a per-error JSON
-sidecar holding the heavy remainder (full message, complete related-file
-list, ``details``, traceback). The split keeps the SQLite file small
-while still capturing rich context. See ``error_handling_plan.md``.
+Each persisted error becomes a small, queryable
+:class:`~autowisp.database.data_model.error.Error` row (the fields list
+views and aggregate queries need) plus a per-error JSON sidecar holding
+the heavy remainder (full message, complete related-file list,
+``details``, traceback). The split keeps the SQLite file small while
+still capturing rich context.
 
 Two hard rules: persisting an error **never raises** (recording a
-failure must not cause a second one), and **only the parent process**
-writes -- by phase 3 the exception is already marshalled back to the main
+failure must not cause a second one), and **only the main process**
+writes -- a worker's exception is already marshalled back to the main
 process before the top-level handler calls :func:`persist_error`.
 """
 
@@ -48,8 +48,7 @@ def _resolve_artifact_fks(related_files, db_session):
     image, one matching ``MasterFile.filename`` gives the master. DR
     files, calibrated images, and lightcurves are HDF5 files with no row,
     so they are not linked here -- they remain in the sidecar's
-    related-file list by path. (Richer linkage for those is a phase-7
-    call-site concern.)
+    related-file list by path.
 
     Args:
         related_files(Sequence[RelatedFile]):    The error's related

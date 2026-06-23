@@ -1,19 +1,18 @@
 """Ambient error context and the capture boundaries that stamp it.
 
-Phase 1 (:mod:`autowisp.exceptions`) gave each error fields for the
+:class:`~autowisp.exceptions.AutoWISPError` carries fields for the
 pipeline run, the raising worker, the step, and the related files. This
-module is phase 2: it fills those fields in *without burdening every
-raise site*. A call deep inside a step can ``raise SolveAstrometryError(
-"no WCS solution")`` and have the step name, the pipeline-run snapshot,
-and the files it was working on attached automatically by the time the
-exception surfaces.
+module fills those fields in *without burdening every raise site*: a call
+deep inside a step can ``raise SolveAstrometryError("no WCS solution")``
+and have the step name, the pipeline-run snapshot, and the files it was
+working on attached automatically by the time the exception surfaces.
 
 The ambient context is a single immutable :class:`ErrorContext` bundle
 held in one ``contextvars.ContextVar``. A *single* var holding a *frozen*
 object keeps related state cohesive (one ``get_error_context()`` returns
 a consistent snapshot) while preserving exactly the contextvars
-set/reset semantics — and thread/asyncio isolation — the scoping relies
-on. See ``error_handling_plan.md`` (Phase 2) for the design.
+set/reset semantics -- and thread/asyncio isolation -- the scoping relies
+on.
 """
 
 import contextvars
@@ -72,7 +71,7 @@ class ErrorContext:
         related_files(tuple):    The ``RelatedFile`` entries in scope.
 
         in_worker(bool):    True inside a multiprocessing worker process;
-            used by the phase-3 nesting guard.
+            used by the nested-worker guard.
     """
 
     pipeline_run: Optional[FrozenRow] = None
@@ -231,7 +230,7 @@ def _stamp(exc: AutoWISPError) -> None:
 
     Already-populated fields are left untouched. This is the one place
     that writes ``step_name`` / ``related_files`` / ``pipeline_run`` /
-    ``crashed`` after construction (phase 1 leaves them writable).
+    ``crashed`` after construction (they are mutable instance attributes).
 
     Args:
         exc(AutoWISPError):    The exception to stamp in place.

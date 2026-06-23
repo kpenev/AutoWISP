@@ -3,6 +3,7 @@ py_src = [
   'admin.py',
   'apps.py',
   'display_fits_util.py',
+  'error_views.py',
   'log_views.py',
   'models.py',
   'progress_view.py',

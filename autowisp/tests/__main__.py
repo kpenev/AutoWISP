@@ -45,6 +45,21 @@ from autowisp.tests.test_error_persistence import (
     TestCleanupErrors,
     TestParseDuration,
 )
+from autowisp.tests.test_error_render import (
+    TestErrorSummary,
+    TestErrorDetail,
+    TestFormatDetailText,
+    TestErrorListRows,
+    TestErrorCounts,
+)
+from autowisp.tests.test_error_cli import (
+    TestExitCodeFor,
+    TestReportError,
+    TestCliEntryPoint,
+)
+from autowisp.tests.test_error_capture_middleware import (
+    TestErrorCaptureMiddleware,
+)
 from autowisp.tests.test_full_pipeline import TestFullPipeline
 from autowisp.tests.test_exception_hierarchy import (
     TestExceptionHierarchy,

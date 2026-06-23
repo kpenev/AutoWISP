@@ -1,10 +1,11 @@
-"""Unit tests for the phase-2/3 ambient error context and capture layer.
+"""Unit tests for the ambient error context and capture layer.
 
-The phase-2 tests need no pipeline fixtures or database; the phase-3
-tests spin up a real ``multiprocessing.Pool`` (through ``run_pool``) and
-let its worker bootstrap with the real ``setup_process_map``, which
-initialises a throwaway project home in a temporary directory. Each test
-starts from a clean ambient context (reset in ``setUp``).
+The in-process tests need no pipeline fixtures or database; the
+cross-process tests spin up a real ``multiprocessing.Pool`` (through
+``run_pool``) and let its worker bootstrap with the real
+``setup_process_map``, which initialises a throwaway project home in a
+temporary directory. Each test starts from a clean ambient context (reset
+in ``setUp``).
 """
 
 import os
@@ -464,7 +465,7 @@ class TestWorkerEntry(_ContextTestCase):
 
 
 class TestPoolPropagation(_ContextTestCase):
-    """Phase 3: errors raised in real Pool workers cross back stamped."""
+    """Errors raised in real Pool workers cross back stamped."""
 
     def test_step_error_propagates_with_context(self):
         """A worker StepError returns same-typed, stamped, with traceback.
@@ -562,7 +563,7 @@ class TestPoolPropagation(_ContextTestCase):
 
 
 class TestProcessQueuePropagation(_ContextTestCase):
-    """Phase 3: Process + Queue workers return stamped errors over a queue."""
+    """Process + Queue workers return stamped errors over a queue."""
 
     def test_queue_worker_error_round_trips(self):
         """A failed queue worker yields a stamped error the parent re-raises.
@@ -634,7 +635,7 @@ class TestProcessQueuePropagation(_ContextTestCase):
 
 
 class TestNestingGuard(_ContextTestCase):
-    """Phase 3: a worker may not launch nested workers (resource control)."""
+    """A worker may not launch nested workers (resource control)."""
 
     def test_forbid_nested_workers_only_inside_worker(self):
         """The guard is a no-op in the main process, raises in a worker."""

@@ -1,4 +1,4 @@
-"""Unit tests for the phase-1 exception hierarchy and FrozenRow.
+"""Unit tests for the exception hierarchy and FrozenRow.
 
 These tests need no pipeline fixtures or database, so they subclass
 ``unittest.TestCase`` directly rather than ``AutoWISPTestCase``.

@@ -14,7 +14,7 @@ __all__ = ["Error"]
 
 
 class Error(DataModelBase):
-    """A persisted pipeline/step/BUI error (phase 4 of error handling).
+    """A persisted pipeline/step/BUI error.
 
     Holds the *queryable subset* of an :class:`~autowisp.exceptions.
     AutoWISPError` -- the fields list views and aggregate queries need, so
@@ -94,6 +94,13 @@ class Error(DataModelBase):
         nullable=True,
         doc="Path to the JSON detail sidecar, relative to the project "
         "home; NULL if the sidecar write failed (row stays valid).",
+    )
+    resolved = Column(
+        TIMESTAMP,
+        nullable=True,
+        doc="When a user marked this error resolved; NULL while open. "
+        "Open errors drive the error badge, progress-grid markers, and "
+        "the start-processing gate; resolved errors are kept as history.",
     )
 
     def __repr__(self):

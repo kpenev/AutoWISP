@@ -215,7 +215,7 @@ class AutoWISPError(Exception):
         ``cls(*self.args)`` -- would both drop those fields and (for
         required kwargs) raise ``TypeError``. Reconstructing through
         ``__new__`` + ``__dict__`` keeps every field intact and lets the
-        exception travel back out of a multiprocessing Pool (phase 3).
+        exception travel back out of a multiprocessing worker faithfully.
 
         Returns:
             tuple:    ``(callable, args)`` per the pickle protocol.
@@ -265,7 +265,7 @@ class AutoWISPError(Exception):
     def to_detail_dict(self) -> dict:
         """Return the heavy, non-column fields for the error sidecar.
 
-        Complements the queryable columns of the ``Error`` row (phase 4):
+        Complements the queryable columns of the ``Error`` row:
         everything here is what does *not* live inline on the row -- the
         full technical message, the complete related-file list (a superset
         of the artifact FKs), the arbitrary ``details`` dict, and the
@@ -303,7 +303,7 @@ class StepError(AutoWISPError):
     Attributes:
         step_name(str or None):    Name of the step that failed. May be
             ``None`` at raise time and filled in from the ambient
-            context by the phase-2 capture layer.
+            context by the capture layer.
     """
 
     component = Component.STEP

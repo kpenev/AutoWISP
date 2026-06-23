@@ -6,7 +6,7 @@ hierarchy (gaining a :class:`~autowisp.exceptions.Component` and the
 shared error context), while *also* keeping the stdlib base class it
 used to derive from so that existing ``except ValueError`` /
 ``except RuntimeError`` / ``except IndexError`` handlers keep catching
-them. Call-site migration to the new names is deferred to phase 7.
+them.
 """
 
 from autowisp.exceptions import (

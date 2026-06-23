@@ -73,6 +73,7 @@ def apply_additive_migrations(engine):
     # Add any nullable columns added to tables that already existed.
     additive_columns = [
         ("pipeline_run", "code_version", "VARCHAR(1000)"),
+        ("error", "resolved", "TIMESTAMP"),
     ]
     inspector = sa_inspect(engine)
     present_tables = set(inspector.get_table_names())

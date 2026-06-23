@@ -1,0 +1,66 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}
+AutoWISP Error Log
+{% endblock header_title %}
+
+{% block app_title %}
+Error Log{% if filtered_step %} — {{ filtered_step }}{% endif %}{% if filtered_run %} — Run {{ filtered_run }}{% endif %}
+{% endblock app_title %}
+
+{% block main %}
+{% if errors %}
+<table class="lcars-table standard-header">
+    <thead>
+        <tr>
+            <th>When</th>
+            <th>Step</th>
+            <th>Affected</th>
+            <th>Message</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for error in errors %}
+        <tr style="border-bottom: 3px dotted white;
+                   {% if error.resolved %}opacity: 0.45;{% endif %}">
+            <td style="white-space: nowrap;">
+                {{ error.created|date:"Y-m-d H:i:s"|default:"—" }}
+            </td>
+            <td>
+                <a href="{% url 'processing:error_detail' error.id %}">
+                    <div class="lcars-element
+                                button
+                                rounded
+                                {% if error.resolved %}lcars-husk-bg{% else %}lcars-red-alert-bg{% endif %}"
+                         style="align-items: center; justify-content: left;">
+                        {{ error.step_name|default:error.component }}
+                    </div>
+                </a>
+            </td>
+            <td>{{ error.artifact|default:"—" }}</td>
+            <td>{{ error.user_message }}</td>
+            <td style="white-space: nowrap;">
+                <form method="post"
+                      action="{% url 'processing:toggle_error_resolved' error.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit"
+                            class="lcars-element button rounded
+                                   {% if error.resolved %}lcars-golden-tanoi-bg{% else %}lcars-husk-bg{% endif %}">
+                        {% if error.resolved %}Reopen{% else %}Mark resolved{% endif %}
+                    </button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="lcars-element lcars-golden-tanoi-bg lcars-u-1"
+     style="margin: 1rem; padding: 1rem;">
+    No errors recorded. All processing clear.
+</div>
+{% endif %}
+{% endblock main %}

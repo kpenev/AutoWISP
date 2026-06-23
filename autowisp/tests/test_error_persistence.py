@@ -1,4 +1,4 @@
-"""Unit tests for phase-4 error persistence (row + JSON sidecar).
+"""Unit tests for error persistence (row + JSON sidecar).
 
 These need a real (throwaway) project database, created once per class in
 a temporary directory.
