@@ -9,7 +9,6 @@ from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import start_db_session, get_project_home
-from autowisp.miscellaneous import get_code_version_str
 from autowisp.exceptions import PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
@@ -248,8 +247,13 @@ class ProcessingManager:
         return best_master_fname
 
     def _get_master(
-        self, master_type, image_values, image_eval, db_session,
-        *, ambiguous_ok=False,
+        self,
+        master_type,
+        image_values,
+        image_eval,
+        db_session,
+        *,
+        ambiguous_ok=False,
     ):
         """Return the master that should be used for the given image.
 
@@ -317,13 +321,20 @@ class ProcessingManager:
         self._logger.debug("Candidate Masters: %s", repr(candidates))
         if len(candidates) == 1:
             return candidates[0].filename
-        if ambiguous_ok and (not candidates or candidates[0].use_smallest is None):
+        if ambiguous_ok and (
+            not candidates or candidates[0].use_smallest is None
+        ):
             return None
         return self._get_best_master(candidates, image_eval)
 
     def _get_evaluated_entry(
-        self, evaluate, image_type_id, calib_config, db_session,
-        image_id=None, channel=None,
+        self,
+        evaluate,
+        image_type_id,
+        calib_config,
+        db_session,
+        image_id=None,
+        channel=None,
     ):
         """Return entry to add to self._evaluated_expressions."""
 
@@ -384,9 +395,7 @@ class ProcessingManager:
                         evaluated_expressions["values"],
                         evaluate,
                         db_session,
-                        ambiguous_ok=(
-                            master_type.name == "single_photref"
-                        ),
+                        ambiguous_ok=(master_type.name == "single_photref"),
                     )
                 )
 
@@ -487,8 +496,12 @@ class ProcessingManager:
             add_required_keywords(evaluate.symtable, calib_config, True)
 
             evaluated_expressions = self._get_evaluated_entry(
-                evaluate, image.image_type_id, calib_config, db_session,
-                image_id=image.id, channel=channel_name,
+                evaluate,
+                image.image_type_id,
+                calib_config,
+                db_session,
+                image_id=image.id,
+                channel=channel_name,
             )
 
             if all_channel["matched"] is None:
@@ -624,8 +637,8 @@ class ProcessingManager:
         self._pipeline_run_id = pipeline_run_id
         # Keys threaded into every per-step config so each worker process
         # can rebuild the pipeline-run snapshot for error context (phase
-        # 2). ``code_version`` is computed once here rather than having
-        # every worker shell out to git.
+        # 2). All come straight from the run row -- which is the single
+        # source of truth for code_version (set once at run creation).
         self._error_context_keys = {}
         with start_db_session() as db_session:
             if pipeline_run_id is not None:
@@ -635,7 +648,7 @@ class ProcessingManager:
                         "pipeline_run_id": pipeline_run_id,
                         "host": pipeline_run.host,
                         "pipeline_started": pipeline_run.started,
-                        "code_version": get_code_version_str(),
+                        "code_version": pipeline_run.code_version,
                     }
             if version is None:
                 version = db_session.execute(
@@ -751,12 +764,10 @@ class ProcessingManager:
                     processing_steps, db_step.name if db_step else step_name
                 ).parse_command_line(["-c", config_file.name])
 
-                config['project_home'] = get_project_home()
+                config["project_home"] = get_project_home()
                 config.update(self._error_context_keys)
 
                 return (config, config_key)
-
-
 
     def set_pending(self, db_session):
         """
@@ -774,7 +785,6 @@ class ProcessingManager:
         raise RuntimeError(
             "Setting pending is not defined for ProcessingManager base class"
         )
-
 
     def add_masters(self, new_masters, step_name=None, image_type_name=None):
         """
@@ -908,9 +918,7 @@ class ProcessingManager:
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
 
-        raise RuntimeError(
-            "Calling instance of ProcessingManager base class!"
-        )
+        raise RuntimeError("Calling instance of ProcessingManager base class!")
 
     # pylint: enable=too-many-locals
     # pylint: enable=too-many-branches

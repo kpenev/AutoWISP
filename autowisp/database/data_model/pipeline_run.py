@@ -34,6 +34,13 @@ class PipelineRun(DataModelBase):
     finished = Column(
         TIMESTAMP, nullable=True, doc="The end time of the pipeline run."
     )
+    code_version = Column(
+        String(1000),
+        nullable=True,
+        doc="Identifier of the code version used for the run, as returned "
+        "by get_code_version_str() (a git hash, with a ':dirty' suffix "
+        "when the working tree had uncommitted changes).",
+    )
 
     def __repr__(self):
         return (

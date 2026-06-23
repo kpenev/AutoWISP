@@ -3,6 +3,7 @@ py_src = [
   'bui_util.py',
   'catalog.py',
   'error_context.py',
+  'error_persistence.py',
   'evaluator.py',
   'exceptions.py',
   'file_utilities.py',

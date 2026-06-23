@@ -4,6 +4,7 @@ py_src = [
   'condition.py',
   'condition_expression.py',
   'configuration.py',
+  'error.py',
   'hdf5_attributes.py',
   'hdf5_datasets.py',
   'hdf5_links.py',

@@ -6,7 +6,7 @@ from contextlib import contextmanager
 import platformdirs
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, inspect as sa_inspect
+from sqlalchemy import create_engine, inspect as sa_inspect, text
 from sqlalchemy.pool import NullPool
 
 from autowisp.database.data_model.base import DataModelBase
@@ -27,7 +27,7 @@ _Session = None  # sessionmaker(db_engine, expire_on_commit=False)
 
 _project_home = None
 
-DB_URL_FNAME = "autowisp_db.url" # pylint: disable=invalid-name
+DB_URL_FNAME = "autowisp_db.url"  # pylint: disable=invalid-name
 """
 Filename (relative to project home) where a non-SQLite connection URL is stored.
 
@@ -36,6 +36,59 @@ etc.) the connection URL is written to this file so that subsequent calls to
 :func:`set_project_home` with only the directory path can reconnect without
 requiring the caller to supply the URL again.
 """
+
+
+def apply_additive_migrations(engine):
+    """Bring an existing project database up to the current schema.
+
+    A minimal, idempotent stand-in for a migration framework (the project
+    has none), covering the additive changes that are safe to apply
+    automatically on connect:
+
+    - **New tables** (e.g. ``error``) are created via ``create_all``,
+      which leaves existing tables and their data untouched. This is how a
+      table added after a project was initialized reaches that project.
+    - **New nullable columns** on existing tables are added with
+      ``ALTER TABLE ... ADD COLUMN``. Rows that predate a column keep
+      NULL -- e.g. ``pipeline_run`` rows from before ``code_version``
+      existed have no recorded code version, which is correct (it is
+      genuinely unknown).
+
+    Freshly initialized databases get everything from ``create_all``
+    already, so this is effectively a no-op for them. When the pipeline
+    runs, the main process opens the project first, so by the time workers
+    connect every table exists and their ``create_all`` does no DDL.
+
+    Args:
+        engine:    The SQLAlchemy engine for the project database.
+
+    Returns:
+        None
+    """
+
+    # Create any tables added since the project was initialized (idempotent;
+    # existing tables and data are left as-is).
+    DataModelBase.metadata.create_all(engine)
+
+    # Add any nullable columns added to tables that already existed.
+    additive_columns = [
+        ("pipeline_run", "code_version", "VARCHAR(1000)"),
+    ]
+    inspector = sa_inspect(engine)
+    present_tables = set(inspector.get_table_names())
+    with engine.begin() as connection:
+        for table, column, sql_type in additive_columns:
+            if table not in present_tables:
+                continue
+            columns = {col["name"] for col in inspector.get_columns(table)}
+            if column in columns:
+                continue
+            # table/column/type come from the trusted list above, not from
+            # user input, so the f-string is safe here.
+            connection.execute(
+                text(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}")
+            )
+
 
 def get_db_engine():
     """Return the database engine."""
@@ -175,3 +228,5 @@ def set_project_home(project_home, db_url=None):
     existing_tables = set(sa_inspect(_db_engine).get_table_names())
     if not set(DataModelBase.metadata.tables).intersection(existing_tables):
         initialize_cmdline_database()
+    else:
+        apply_additive_migrations(_db_engine)

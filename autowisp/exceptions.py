@@ -13,15 +13,70 @@ SQLAlchemy dependency.
 """
 
 import os
+import traceback as traceback_module
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Sequence
 
+import numpy
+
 from autowisp.database.frozen_row import FrozenRow
 
 git_id = "$Id$"
+
+
+# A type-dispatch sanitizer: one return per handled kind reads clearer
+# than nesting.
+# pylint: disable=too-many-return-statements
+def sanitize_for_json(obj, max_inline_array_size=64):
+    """Coerce an otherwise-unserializable object to a JSON-friendly form.
+
+    Intended as the ``default=`` argument to :func:`json.dump`/`json.dumps`
+    when writing the error sidecar: ``details`` may carry numpy
+    scalars/arrays, :class:`~pathlib.Path`, :class:`~datetime.datetime`,
+    sets, and arbitrary objects. This is *total* -- it never raises, so a
+    pathological value can never turn recording an error into a second
+    error; the last resort is ``repr()``.
+
+    Use directly (``default=sanitize_for_json``) for the default
+    threshold, or ``default=functools.partial(sanitize_for_json,
+    max_inline_array_size=N)`` to override it.
+
+    Args:
+        obj:    The value ``json`` could not serialize natively.
+
+        max_inline_array_size(int):    ndarrays with at most this many
+            elements are dumped in full; larger ones are summarized so a
+            stray full-frame array cannot write hundreds of MB.
+
+    Returns:
+        A JSON-serializable stand-in for ``obj``.
+    """
+
+    if isinstance(obj, numpy.ndarray):
+        if obj.size <= max_inline_array_size:
+            return obj.tolist()
+        return {
+            "__ndarray__": {
+                "shape": list(obj.shape),
+                "dtype": str(obj.dtype),
+                "head": obj.ravel()[:max_inline_array_size].tolist(),
+            }
+        }
+    if isinstance(obj, numpy.generic):
+        return obj.item()
+    if isinstance(obj, Path):
+        return str(obj)
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if isinstance(obj, (set, frozenset)):
+        return list(obj)
+    try:
+        return repr(obj)
+    except Exception:  # pylint: disable=broad-except
+        return "<unrepresentable>"
 
 
 class Component(str, Enum):
@@ -206,6 +261,40 @@ class AutoWISPError(Exception):
         self.pipeline_run = run
         self.crashed = self.crashed or crashed or datetime.now(timezone.utc)
         return self
+
+    def to_detail_dict(self) -> dict:
+        """Return the heavy, non-column fields for the error sidecar.
+
+        Complements the queryable columns of the ``Error`` row (phase 4):
+        everything here is what does *not* live inline on the row -- the
+        full technical message, the complete related-file list (a superset
+        of the artifact FKs), the arbitrary ``details`` dict, and the
+        formatted traceback (``__cause__`` chain included). The result may
+        still contain numpy/`Path`/etc. inside ``details``; serialize it
+        with ``json.dump(..., default=sanitize_for_json)``.
+
+        Returns:
+            dict:    The sidecar payload (see ``error_handling_plan.md``).
+        """
+
+        return {
+            "schema_version": 1,
+            "message": str(self),
+            "related_files": [
+                {
+                    "kind": related.kind.value,
+                    "path": str(related.path),
+                    "role": related.role,
+                }
+                for related in self.related_files
+            ],
+            "details": self.details,
+            "traceback": "".join(
+                traceback_module.format_exception(
+                    type(self), self, self.__traceback__
+                )
+            ),
+        }
 
 
 class StepError(AutoWISPError):

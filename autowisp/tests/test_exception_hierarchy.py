@@ -5,12 +5,15 @@ These tests need no pipeline fixtures or database, so they subclass
 """
 
 import inspect
+import json
 import os
 import pickle
 import unittest
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 
+import numpy
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
 
@@ -21,7 +24,9 @@ from autowisp.exceptions import (
     FileKind,
     RelatedFile,
     StepError,
+    sanitize_for_json,
 )
+from autowisp.tests.error_fixtures import make_find_stars_error
 from autowisp.pipeline_exceptions import ConvergenceError, HDF5LayoutError
 from autowisp.database.frozen_row import FrozenRow
 from autowisp.database.interface import snapshot_row
@@ -245,6 +250,84 @@ class TestSnapshotRow(unittest.TestCase):
         snap = snapshot_row(_ToyRow(id=5, host="node2", secret="x"))
         restored = pickle.loads(pickle.dumps(snap))
         self.assertEqual(restored.host, "node2")
+
+
+class TestToDetailDict(unittest.TestCase):
+    """``to_detail_dict`` + ``sanitize_for_json`` (the sidecar payload)."""
+
+    def test_detail_dict_fields(self):
+        """The payload carries the non-column fields, related files in full.
+
+        Models a real ``find_stars`` failure: the input is a calibrated
+        FITS image and the (expected) output is its DR file.
+        """
+
+        try:
+            raise ValueError("inner cause")
+        except ValueError as cause:
+            exc = make_find_stars_error()
+            exc.__cause__ = cause
+            exc.__traceback__ = cause.__traceback__
+
+        detail = exc.to_detail_dict()
+        self.assertEqual(detail["schema_version"], 1)
+        self.assertEqual(detail["message"], "no stars found")
+        self.assertEqual(detail["details"], {"brightness_quantile": 0.999})
+        self.assertEqual(
+            detail["related_files"],
+            [
+                {
+                    "kind": "calibrated_image",
+                    "path": "/data/cal/img001.fits",
+                    "role": "input",
+                },
+                {
+                    "kind": "dr_file",
+                    "path": "/data/dr/img001.h5",
+                    "role": "expected_output",
+                },
+            ],
+        )
+        self.assertIn("ValueError: inner cause", detail["traceback"])
+
+    def test_round_trips_through_json_with_sanitizer(self):
+        """A details payload of awkward types serializes without raising."""
+
+        exc = StepError(
+            "boom",
+            details={
+                "np_int": numpy.int64(7),
+                "np_float": numpy.float64(1.5),
+                "small_array": numpy.arange(3),
+                "path": Path("/tmp/y"),
+                "when": datetime(2026, 6, 22, 12, 0, 0),
+                "tags": {"a", "b"},
+            },
+        )
+
+        text = json.dumps(exc.to_detail_dict(), default=sanitize_for_json)
+        restored = json.loads(text)["details"]
+
+        self.assertEqual(restored["np_int"], 7)
+        self.assertEqual(restored["np_float"], 1.5)
+        self.assertEqual(restored["small_array"], [0, 1, 2])
+        self.assertEqual(restored["path"], "/tmp/y")
+        self.assertEqual(restored["when"], "2026-06-22T12:00:00")
+        self.assertEqual(sorted(restored["tags"]), ["a", "b"])
+
+    def test_large_array_is_summarized(self):
+        """A large ndarray is summarized, not dumped whole."""
+
+        exc = StepError("boom", details={"frame": numpy.arange(1000)})
+        text = json.dumps(
+            exc.to_detail_dict(),
+            default=partial(sanitize_for_json, max_inline_array_size=64),
+        )
+        summary = json.loads(text)["details"]["frame"]["__ndarray__"]
+
+        self.assertEqual(summary["shape"], [1000])
+        self.assertEqual(len(summary["head"]), 64)
+        self.assertIn("int", summary["dtype"])
 
 
 if __name__ == "__main__":
