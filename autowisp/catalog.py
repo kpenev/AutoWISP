@@ -13,7 +13,6 @@ import numpy
 import pandas
 from astropy import units
 from astropy.io import fits
-from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
