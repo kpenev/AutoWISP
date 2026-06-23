@@ -13,6 +13,7 @@ import numpy
 import pandas
 from astropy import units
 from astropy.io import fits
+from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
@@ -407,6 +408,33 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
         except KeyError:
             pass
 
+    # If a post-query filter file was supplied, read source IDs and filter results.
+    # The filter file should contain one source_id per line.
+    filter_path = query_kwargs.get("filter")
+    if filter_path:
+        try:
+            with open(filter_path[0][0], "r") as f:
+                source_ids_to_keep = set(
+                    line.strip() for line in f if line.strip()
+                )
+
+            if source_ids_to_keep:
+                mask = numpy.array(
+                    [str(sid) in source_ids_to_keep for sid in query["source_id"]]
+                )
+                query = query[mask]
+                _logger.debug(
+                    "Filtered catalog to %d sources matching %s",
+                    mask.sum(),
+                    filter_path,
+                )
+        except (IOError, OSError) as e:
+            _logger.warning(
+                "Could not read filter file %s: %s. Proceeding without filter.",
+                filter_path,
+                e,
+            )
+
     query.meta["CATALOG"] = "Gaia"
     query.meta["CATVER"] = gaia.MAIN_GAIA_TABLE
     for k in ["ra", "dec", "width", "height"]:
@@ -453,12 +481,21 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
             "fixture is absent or its checksum did not match."
         )
 
+    # Remove any local-only keys (like 'filter') before calling Gaia
+    # so they don't get forwarded as unexpected ADQL/fov kwargs.
+    query_kwargs_for_gaia = dict(query_kwargs)
+    filter_val = query_kwargs_for_gaia.pop("filter", None)
+
+    result = gaia.query_brightness_limited(**query_kwargs_for_gaia)
+
+    # Forward the original filter (if any) to the writer only
     write_query_to_file(
-        gaia.query_brightness_limited(**query_kwargs),
+        result,
         fname,
         overwrite,
-        **query_kwargs,
-    )
+        **query_kwargs_for_gaia,
+        filter=filter_val
+        )
 
 
 def read_catalog_file(
@@ -1081,6 +1118,8 @@ def get_catalog_info(  # pylint: disable=too-many-branches
         catalog_info["epoch"] = Evaluator(header)(configuration["epoch"])
 
     catalog_info["columns"] = configuration["columns"]
+    # Pass any catalog filter through so create_catalog_file can apply it
+    catalog_info["filter"] = configuration.get("filter")
 
     get_checksum = md5()
     for cfg in sorted(catalog_info.items()):

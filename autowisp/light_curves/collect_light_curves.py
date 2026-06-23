@@ -105,12 +105,19 @@ def collect_light_curves(
                 outlier_dr,
             )
             mark_end(outlier_dr, -2, final=True)
+        dr_sources = get_combined_sources(dr_filenames, **path_substitutions)
+        catalog_source_ids = set(catalog_sources.index)
+        source_list = [src for src in dr_sources if src in catalog_source_ids]
+        if len(source_list) != len(dr_sources):
+            skipped = sorted(set(dr_sources) - catalog_source_ids)
+            logger.debug(
+                "Skipping %d DR sources not present in limited LC catalog: %s",
+                len(skipped), repr(skipped[:10]),
+            )
         data_io = LCDataIO.create(
             catalog_sources=catalog_sources,
             config=configuration,
-            source_list=list(
-                get_combined_sources(dr_filenames, **path_substitutions)
-            ),
+            source_list=source_list,
             source_id_parser=first_dr.parse_hat_source_id,
             dr_fname_parser=dr_fname_parser,
             optional_header=optional_header,
