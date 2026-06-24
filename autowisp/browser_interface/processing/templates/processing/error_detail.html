@@ -45,8 +45,10 @@ Error {{ error_id }}
 {% block main %}
 <div style="margin: 1rem;">
 
-    <div class="lcars-element lcars-red-alert-bg lcars-u-1"
-         style="padding: 0.75rem 1rem; margin-bottom: 1rem;">
+    <div class="lcars-red-alert-bg"
+         style="width: 100%; box-sizing: border-box;
+                padding: 0.75rem 1rem; margin-bottom: 1rem;
+                color: #000; font-weight: bold;">
         {{ detail.summary }}
     </div>
 
@@ -150,8 +152,10 @@ Error {{ error_id }}
     <pre style="overflow-x: auto; padding: 0.75rem;
                 background: rgba(0, 0, 0, 0.4);">{{ detail.traceback }}</pre>
     {% elif not detail.sidecar_available %}
-    <div class="lcars-element lcars-husk-bg lcars-u-1"
-         style="padding: 0.75rem 1rem; margin-top: 1rem;">
+    <div class="lcars-husk-bg"
+         style="width: 100%; box-sizing: border-box;
+                padding: 0.75rem 1rem; margin-top: 1rem;
+                color: #000; font-weight: bold;">
         Full detail is unavailable — the detail file for this error is
         missing.
     </div>
