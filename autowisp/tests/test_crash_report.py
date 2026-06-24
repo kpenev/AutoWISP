@@ -1,8 +1,11 @@
-"""Unit tests for the crash-report credential scrubber."""
+"""Unit tests for the crash-report builder and its scrubbing helpers."""
 
 import json
+import os
+import sqlite3
 import tempfile
 import unittest
+import zipfile
 from types import SimpleNamespace
 
 from sqlalchemy import select
@@ -12,6 +15,7 @@ from autowisp.database.interface import set_project_home, start_db_session
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     Configuration,
+    Error,
     Image,
     ImageProcessingProgress,
     Parameter,
@@ -21,6 +25,7 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 from autowisp.crash_report import (
     REDACTED,
+    build_crash_report,
     collect_provenance,
     find_error_progress,
     scrub_config_values,
@@ -28,6 +33,8 @@ from autowisp.crash_report import (
     scrub_text,
     select_error_logs,
 )
+from autowisp.error_persistence import persist_error
+from autowisp.tests.error_fixtures import make_find_stars_error
 
 
 class TestScrubText(unittest.TestCase):
@@ -280,6 +287,91 @@ class TestCollectProvenance(unittest.TestCase):
         self.assertNotIn(
             "definitely-not-a-real-package", provenance["packages"]
         )
+
+
+class TestBuildCrashReport(unittest.TestCase):
+    """build_crash_report assembles a scrubbed, best-effort zip."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        set_project_home(self._tmp.name)
+        self._out = os.path.join(self._tmp.name, "report.zip")
+
+    def _add_secret_config(self):
+        # pylint: disable=not-callable
+        with start_db_session() as db_session:
+            secret = Parameter(name="gaia-password", description="creds")
+            db_session.add(secret)
+            db_session.flush()
+            db_session.add(
+                Configuration(
+                    parameter_id=secret.id, version=0, value="Secret123"
+                )
+            )
+        # pylint: enable=not-callable
+
+    def test_report_contents_and_scrubbing(self):
+        """The zip holds the expected members; the DB copy is scrubbed."""
+
+        self._add_secret_config()
+        error_id = persist_error(make_find_stars_error())
+
+        path = build_crash_report(error_id, self._out)
+
+        with zipfile.ZipFile(path) as report:
+            names = set(report.namelist())
+            self.assertIn("error.json", names)
+            self.assertIn("sidecar.json", names)
+            self.assertIn("provenance.json", names)
+            self.assertIn("manifest.json", names)
+            self.assertIn("database/autowisp.db", names)
+
+            manifest = json.loads(report.read("manifest.json"))
+            self.assertEqual(manifest["error_id"], error_id)
+            self.assertIn("error.json", manifest["collected"])
+
+            # The live secret is redacted in the bundled database copy.
+            db_copy = os.path.join(self._tmp.name, "from_zip.db")
+            with open(db_copy, "wb") as out_db:
+                out_db.write(report.read("database/autowisp.db"))
+        connection = sqlite3.connect(db_copy)
+        value = connection.execute(
+            "SELECT c.value FROM configuration c JOIN parameter p "
+            "ON c.parameter_id = p.id WHERE p.name = 'gaia-password'"
+        ).fetchone()[0]
+        connection.close()
+        self.assertEqual(value, REDACTED)
+
+        # The live database is untouched (still holds the real secret).
+        with start_db_session() as db_session:
+            live = db_session.scalar(
+                select(Configuration.value)  # pylint: disable=no-member
+                .join(Parameter)
+                .where(Parameter.name == "gaia-password")
+            )
+        self.assertEqual(live, "Secret123")
+
+    def test_missing_sidecar_is_a_gap(self):
+        """A sidecar-less error still builds, with the gap recorded."""
+
+        error_id = persist_error(make_find_stars_error())
+        with start_db_session() as db_session:
+            db_session.get(Error, error_id).sidecar_path = None
+
+        path = build_crash_report(error_id, self._out)
+
+        with zipfile.ZipFile(path) as report:
+            self.assertNotIn("sidecar.json", report.namelist())
+            manifest = json.loads(report.read("manifest.json"))
+        gaps = {gap["artifact"] for gap in manifest["gaps"]}
+        self.assertIn("sidecar.json", gaps)
+
+    def test_unknown_error_raises(self):
+        """An unknown error id raises ValueError."""
+
+        with self.assertRaises(ValueError):
+            build_crash_report(999999, self._out)
 
 
 if __name__ == "__main__":

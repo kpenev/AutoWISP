@@ -12,25 +12,35 @@ enters the report. Scrubbing is mandatory: nothing is written unscrubbed.
 """
 
 import importlib.metadata
+import json
 import logging
 import os
 import platform
 import re
+import shutil
 import socket
+import tempfile
+import zipfile
 from datetime import datetime, timezone
+from pathlib import Path
 
-from sqlalchemy import select, update
+from sqlalchemy import create_engine, select, update
+from sqlalchemy.orm import Session
 
-from autowisp.database.interface import start_db_session
+from autowisp.database.interface import start_db_session, get_project_home
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.error_persistence import load_sidecar
+from autowisp.exceptions import sanitize_for_json
 from autowisp.miscellaneous import get_code_version_str
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     Configuration,
+    Error,
     Image,
     ImageProcessingProgress,
     Parameter,
+    PipelineRun,
     Step,
 )
 
@@ -297,3 +307,206 @@ def collect_provenance():
             )
         ),
     }
+
+
+# --- Assembling the report. -------------------------------------------
+
+
+def _error_record(error_row, db_session):
+    """The inline error fields plus its run's host/PID/code version."""
+
+    record = {
+        "id": error_row.id,
+        "component": error_row.component,
+        "step_name": error_row.step_name,
+        "exception_class": error_row.exception_class,
+        "user_message": error_row.user_message,
+        "created": error_row.created,
+        "subprocess_id": error_row.subprocess_id,
+        "pipeline_run_id": error_row.pipeline_run_id,
+        "image_id": error_row.image_id,
+        "master_file_id": error_row.master_file_id,
+    }
+    if error_row.pipeline_run_id is not None:
+        run = db_session.get(PipelineRun, error_row.pipeline_run_id)
+        if run is not None:
+            record["run_host"] = run.host
+            record["run_process_id"] = run.process_id
+            record["run_code_version"] = run.code_version
+    return record
+
+
+def _read_log_scrubbed(path, max_log_bytes):
+    """Return a log's scrubbed text, head+tail truncated past the cap."""
+
+    size = os.path.getsize(path)
+    with open(path, "r", encoding="utf-8", errors="replace") as log_file:
+        if size <= max_log_bytes:
+            return scrub_text(log_file.read())
+        half = max_log_bytes // 2
+        head = log_file.read(half)
+        log_file.seek(size - half)
+        tail = log_file.read()
+    omitted = size - 2 * half
+    return scrub_text(
+        f"{head}\n\n... [{omitted} bytes omitted; log truncated] ...\n\n{tail}"
+    )
+
+
+def _add_scrubbed_database(zip_file, manifest):
+    """Add a copy of the SQLite project database with secrets redacted."""
+
+    src = os.path.join(get_project_home(), "autowisp.db")
+    if not os.path.exists(src):
+        manifest["gaps"].append(
+            {"artifact": "database", "reason": "no SQLite database found"}
+        )
+        return
+    with tempfile.TemporaryDirectory() as work_dir:
+        copy = os.path.join(work_dir, "autowisp.db")
+        shutil.copy(src, copy)
+        engine = create_engine(f"sqlite:///{copy}")
+        try:
+            with Session(engine) as scrub_session:
+                scrub_config_values(scrub_session)
+                scrub_session.commit()
+        finally:
+            engine.dispose()
+        zip_file.write(copy, "database/autowisp.db")
+    manifest["collected"].append("database/autowisp.db")
+
+
+def build_crash_report(
+    error_id, out_path=None, *, max_log_bytes=512 * 1024, db_session=None
+):
+    """Assemble a scrubbed crash-report zip for one error.
+
+    Collects the error record, its detail sidecar, the per-process logs
+    for its run/step, a credential-scrubbed copy of the SQLite project
+    database, and environment provenance, plus a ``manifest.json``
+    describing what was gathered. Every text artifact is scrubbed; the
+    database is scrubbed in the copy. Read-only with respect to live
+    pipeline state. Collection is best-effort: a source that cannot be
+    read is noted as a gap in the manifest rather than failing the report.
+
+    Args:
+        error_id(int):    The error to report on.
+
+        out_path(str or Path or None):    Destination zip; defaults to
+            ``crash_report_error_<id>.zip`` in the current directory.
+
+        max_log_bytes(int):    Per-log size cap; larger logs are head+tail
+            truncated. Raise it for a more thorough (larger) report.
+
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        Path:    The path to the written zip.
+
+    Raises:
+        ValueError:    If no error has the given id.
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return build_crash_report(
+                error_id,
+                out_path,
+                max_log_bytes=max_log_bytes,
+                db_session=own_session,
+            )
+
+    error_row = db_session.get(Error, error_id)
+    if error_row is None:
+        raise ValueError(f"No recorded error with id {error_id}.")
+
+    out_path = Path(
+        out_path or f"crash_report_error_{error_id}.zip"
+    ).expanduser()
+    manifest = {
+        "schema_version": 1,
+        "error_id": error_id,
+        "generated": datetime.now(timezone.utc).isoformat(),
+        "collected": [],
+        "gaps": [],
+    }
+
+    def add_json(name, payload):
+        zip_file.writestr(
+            name, json.dumps(payload, indent=2, default=sanitize_for_json)
+        )
+        manifest["collected"].append(name)
+
+    with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        # Error record.
+        try:
+            add_json("error.json", _error_record(error_row, db_session))
+        except Exception as exc:  # pylint: disable=broad-except
+            manifest["gaps"].append(
+                {"artifact": "error.json", "reason": repr(exc)}
+            )
+
+        # Detail sidecar (scrubbed).
+        try:
+            sidecar = load_sidecar(error_row)
+            if sidecar is None:
+                manifest["gaps"].append(
+                    {"artifact": "sidecar.json", "reason": "no sidecar"}
+                )
+            else:
+                zip_file.writestr(
+                    "sidecar.json",
+                    scrub_text(
+                        json.dumps(sidecar, indent=2, default=sanitize_for_json)
+                    ),
+                )
+                manifest["collected"].append("sidecar.json")
+        except Exception as exc:  # pylint: disable=broad-except
+            manifest["gaps"].append(
+                {"artifact": "sidecar.json", "reason": repr(exc)}
+            )
+
+        # Per-process logs (scrubbed, truncated).
+        try:
+            log_paths = select_error_logs(error_row, db_session)
+            if not log_paths:
+                manifest["gaps"].append(
+                    {"artifact": "logs", "reason": "no matching logs found"}
+                )
+            for path in log_paths:
+                try:
+                    arcname = f"logs/{os.path.basename(path)}"
+                    zip_file.writestr(
+                        arcname, _read_log_scrubbed(path, max_log_bytes)
+                    )
+                    manifest["collected"].append(arcname)
+                except Exception as exc:  # pylint: disable=broad-except
+                    manifest["gaps"].append(
+                        {"artifact": f"logs/{path}", "reason": repr(exc)}
+                    )
+        except Exception as exc:  # pylint: disable=broad-except
+            manifest["gaps"].append({"artifact": "logs", "reason": repr(exc)})
+
+        # Scrubbed database copy.
+        try:
+            _add_scrubbed_database(zip_file, manifest)
+        except Exception as exc:  # pylint: disable=broad-except
+            manifest["gaps"].append(
+                {"artifact": "database", "reason": repr(exc)}
+            )
+
+        # Environment provenance.
+        try:
+            add_json("provenance.json", collect_provenance())
+        except Exception as exc:  # pylint: disable=broad-except
+            manifest["gaps"].append(
+                {"artifact": "provenance.json", "reason": repr(exc)}
+            )
+
+        # Manifest last, so it records every gap seen above.
+        zip_file.writestr(
+            "manifest.json",
+            json.dumps(manifest, indent=2, default=sanitize_for_json),
+        )
+
+    return out_path

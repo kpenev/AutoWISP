@@ -66,6 +66,7 @@ from autowisp.tests.test_crash_report import (
     TestScrubConfigValues,
     TestFindErrorProgress,
     TestCollectProvenance,
+    TestBuildCrashReport,
 )
 from autowisp.tests.test_full_pipeline import TestFullPipeline
 from autowisp.tests.test_exception_hierarchy import (
