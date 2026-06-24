@@ -1631,12 +1631,19 @@ of the original plan.
 - The BUI middleware captures request *keys* (never values) into
   `details` and persists the error.
 
-## Phase 6 — crash-report bundler (early notes)
+## Phase 6 — crash-report bundler (implemented)
 
 When the structured detail is still not enough — or the user simply
 wants to hand the problem off — they should be able to produce a single
 self-contained zip to send to the maintainers, with no manual
 file-hunting across the per-PID logs.
+
+**Status: complete.** Delivered in `autowisp/crash_report.py`
+(scrubbing: `scrub_text` / `scrub_mapping` / `scrub_config_values`;
+log-selection: `find_error_progress` / `select_error_logs`;
+`collect_provenance`; `build_crash_report`; `crash_report_main`), the
+`wisp-crash-report` CLI, and the BUI error-detail "Download crash report"
+button plus the "View log" cross-link (the deferred phase-5 item).
 
 ### Trigger
 
@@ -1697,9 +1704,9 @@ enters the zip unscrubbed:
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/crash_report.py` | **New.** `build_crash_report()`, a reusable log-selection helper (error → matching per-process logs), scrubber. |
-| `pyproject.toml` | Add the `wisp-crash-report` script. |
-| BUI error detail view | "Download crash report" action calling the same builder, **and** a "View log" link to the matching `review`/`review_single` page (the phase-5 log cross-link), using the shared log-selection helper. |
+| `autowisp/crash_report.py` | **New.** `build_crash_report()`, the log-selection helpers (`find_error_progress` / `select_error_logs`, reusing the configured log naming via `find_processing_outputs`), `collect_provenance`, the scrubbers, and `crash_report_main`. |
+| `pyproject.toml` | Added the `wisp-crash-report` script. |
+| BUI error detail view (`error_views.py`, `urls.py`, `error_detail.html`) | "Download crash report" action (header bar) streaming the built zip, **and** a "View log" link (side bar) to the matching `review` page when `find_error_progress` resolves one. |
 
 ### Tests (Phase 6)
 

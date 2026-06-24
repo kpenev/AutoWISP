@@ -1,8 +1,10 @@
 """Views for browsing recorded pipeline/step/BUI errors."""
 
+import os
+import tempfile
 from datetime import datetime, timezone
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 
 from autowisp.database.interface import start_db_session
@@ -13,6 +15,7 @@ from autowisp.database.data_model import Error
 # pylint: enable=no-name-in-module
 from autowisp.error_render import error_detail, error_list_rows
 from autowisp.error_persistence import delete_error
+from autowisp.crash_report import build_crash_report, find_error_progress
 
 
 def error_list(request):
@@ -58,6 +61,8 @@ def error_detail_view(request, error_id):
             raise Http404(f"No recorded error with id {error_id}.")
         detail = error_detail(row, db_session, developer=developer)
         resolved = row.resolved
+        progress = find_error_progress(row, db_session)
+        log_progress_id = progress.id if progress is not None else None
     return render(
         request,
         "processing/error_detail.html",
@@ -66,8 +71,27 @@ def error_detail_view(request, error_id):
             "developer": developer,
             "error_id": error_id,
             "resolved": resolved,
+            "log_progress_id": log_progress_id,
         },
     )
+
+
+def download_crash_report(request, error_id):  # pylint: disable=unused-argument
+    """Build and stream a credential-scrubbed crash-report zip for an error."""
+
+    with start_db_session() as db_session:
+        if db_session.get(Error, error_id) is None:
+            raise Http404(f"No recorded error with id {error_id}.")
+
+    filename = f"crash_report_error_{error_id}.zip"
+    with tempfile.TemporaryDirectory() as work_dir:
+        report_path = build_crash_report(
+            error_id, os.path.join(work_dir, filename)
+        )
+        data = report_path.read_bytes()
+    response = HttpResponse(data, content_type="application/zip")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
 
 
 def toggle_error_resolved(request, error_id):

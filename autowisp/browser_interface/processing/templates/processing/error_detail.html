@@ -17,6 +17,13 @@ Error {{ error_id }}
         Back to Error Log
     </div>
 </a>
+{% if log_progress_id %}
+<a href="{% url 'processing:review' log_progress_id 'INFO' %}">
+    <div class="lcars-element button lcars-chestnut-rose-bg lcars-u-1-2">
+        View Log
+    </div>
+</a>
+{% endif %}
 {% endblock left_menu %}
 
 {% block header_bar_extra %}
@@ -46,6 +53,12 @@ Error {{ error_id }}
         {% if resolved %}Reopen error{% else %}Mark resolved{% endif %}
     </button>
 </form>
+<div class="lcars-bar horizontal spacer"></div>
+<a href="{% url 'processing:download_crash_report' error_id %}">
+    <div class="lcars-bar horizontal button lcars-u-2 lcars-husk-bg">
+        Download crash report
+    </div>
+</a>
 <div class="lcars-bar horizontal spacer"></div>
 <form method="post" style="margin: 0;"
       action="{% url 'processing:delete_error' error_id %}"

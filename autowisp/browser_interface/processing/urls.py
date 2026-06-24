@@ -116,4 +116,9 @@ urlpatterns = [
         views.delete_error_view,
         name="delete_error",
     ),
+    path(
+        "errors/<int:error_id>/crash_report",
+        views.download_crash_report,
+        name="download_crash_report",
+    ),
 ]
