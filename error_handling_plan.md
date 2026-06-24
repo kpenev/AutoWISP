@@ -1578,10 +1578,13 @@ page:
   detail/list** (joined on run + step + image/channel), so a user who
   sees a red cell is one click from the explanation. This is the
   primary discovery path.
-- **Log cross-link**: the existing `review` / `review_single` log pages
-  already show per-process logs; the error detail links to the matching
-  log (selected by the failure's `subprocess_id` / run / time), reusing
-  that machinery instead of duplicating it.
+- **Log cross-link** *(deferred to phase 6)*: the error detail should
+  link to the matching per-process log (the existing `review` /
+  `review_single` pages, selected by the failure's `subprocess_id` / run
+  / time). This needs the same "find the right log(s) for this error"
+  resolution that phase 6's crash-report bundler builds (run + step →
+  `ImageProcessingProgress`, plus the per-PID log files), so it is built
+  there and reused for both the zip and this link rather than duplicated.
 
 ### Request snapshot for BUI errors
 
@@ -1598,11 +1601,22 @@ Values are omitted (only keys) to avoid persisting user-entered secrets.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_render.py` | **New.** `error_summary`, `error_detail`, remediation lookup. |
-| `wisp-*` entry decorator, `run_pipeline.py` | Render via `error_render` on the way out; set exit code. |
-| `browser_interface/processing/views.py` (+ urls, templates) | **New** error list + detail views and templates. |
-| `browser_interface/processing/progress_view.py` (+ template) | Link failed status cells to the matching error. |
-| `browser_interface/.../middleware.py` | **New.** Capture request context + route `BUIError` through `persist_error`. |
+| `autowisp/error_render.py` | **New.** `error_summary`, `error_detail`, `format_detail_text`, `error_list_rows`, the open-error counts, remediation lookup. |
+| `autowisp/error_cli.py` | **New.** `report_error` (persist + render to stderr), `exit_code_for`, and the `cli_entry_point` decorator. `run_pipeline.main` reports via it. |
+| `browser_interface/processing/error_views.py` (+ urls, templates) | **New** error list + detail views (and the resolve/delete actions). |
+| `browser_interface/processing/progress_view.py` (+ template) | Per-step red-alert marker on the image-type cell; the Start Processing button reflects open errors (two-click confirm). |
+| `browser_interface/core/...` | Global "Errors (N)" badge via the context processor + base template. |
+| `browser_interface/error_capture_middleware.py` | **New.** Capture request context (keys only) + route view errors through `persist_error`. |
+
+### Status
+
+Phase 5 is functionally complete. Two items are intentionally carried
+elsewhere: the **log cross-link** (above) is a phase-6 deliverable, and a
+**component filter** on the list is a later nicety (run + step filters
+exist). The discovery surfaces ended up as the per-step grid marker, the
+global badge, and the start-processing gate (a two-click red button); a
+manual **resolve/reopen** state and a **delete** action were added on top
+of the original plan.
 
 ### Tests (Phase 5)
 
@@ -1673,9 +1687,9 @@ tested; nothing enters the zip unscrubbed.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/crash_report.py` | **New.** `build_crash_report()`, log selection, scrubber. |
+| `autowisp/crash_report.py` | **New.** `build_crash_report()`, a reusable log-selection helper (error → matching per-process logs), scrubber. |
 | `pyproject.toml` | Add the `wisp-crash-report` script. |
-| BUI error detail view | "Download crash report" action calling the same builder. |
+| BUI error detail view | "Download crash report" action calling the same builder, **and** a "View log" link to the matching `review`/`review_single` page (the phase-5 log cross-link), using the shared log-selection helper. |
 
 ### Tests (Phase 6)
 
@@ -1686,3 +1700,8 @@ tested; nothing enters the zip unscrubbed.
   every artifact in the zip.
 - A missing log / sidecar is recorded as a manifest gap, and the report
   still builds.
+- The shared log-selection helper resolves a step error to the matching
+  `ImageProcessingProgress` (run + step [+ image type]) so the detail
+  page's "View log" link targets the right log; an error with no
+  resolvable progress (pipeline/BUI) yields no link rather than a wrong
+  one.
