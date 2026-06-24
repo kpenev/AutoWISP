@@ -11,16 +11,29 @@ text artifact is passed through the scrubbing helpers here before it
 enters the report. Scrubbing is mandatory: nothing is written unscrubbed.
 """
 
+import logging
+import os
 import re
 
 from sqlalchemy import select, update
 
+from autowisp.database.interface import start_db_session
+from autowisp.database.image_processing import ImageProcessingManager
+
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import Configuration, Parameter
+from autowisp.database.data_model import (
+    Configuration,
+    Image,
+    ImageProcessingProgress,
+    Parameter,
+    Step,
+)
 
 # pylint: enable=no-name-in-module
 
 git_id = "$Id$"
+
+_logger = logging.getLogger(__name__)
 
 #: Replacement written in place of a redacted secret value.
 REDACTED = "***REDACTED***"  # pylint: disable=invalid-name
@@ -128,3 +141,104 @@ def scrub_config_values(db_session):
         .values(value=REDACTED)
     )
     return result.rowcount or 0
+
+
+# --- Locating the logs and processing record for an error. ------------
+
+
+def find_error_progress(error_row, db_session=None):
+    """Return the ``ImageProcessingProgress`` an error belongs to, or None.
+
+    Resolves a step error to its processing record via run + step (and the
+    image's type, when the error names an image), so the BUI can link the
+    error to the matching log-review page. A pipeline/BUI error -- or a
+    step with no recorded progress -- yields ``None`` rather than a wrong
+    match.
+
+    Args:
+        error_row:    The ``Error`` row.
+
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        ImageProcessingProgress or None
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return find_error_progress(error_row, own_session)
+
+    if error_row.pipeline_run_id is None or not error_row.step_name:
+        return None
+
+    # pylint: disable=no-member
+    step_id = db_session.scalar(
+        select(Step.id).where(Step.name == error_row.step_name)
+    )
+    if step_id is None:
+        return None
+
+    query = select(ImageProcessingProgress).where(
+        ImageProcessingProgress.run_id == error_row.pipeline_run_id,
+        ImageProcessingProgress.step_id == step_id,
+    )
+    if error_row.image_id is not None:
+        image_type_id = db_session.scalar(
+            select(Image.image_type_id).where(Image.id == error_row.image_id)
+        )
+        if image_type_id is not None:
+            query = query.where(
+                ImageProcessingProgress.image_type_id == image_type_id
+            )
+    return db_session.scalars(
+        query.order_by(ImageProcessingProgress.id.desc())
+    ).first()
+    # pylint: enable=no-member
+
+
+def select_error_logs(error_row, db_session=None):
+    """Return the per-process log files relevant to an error.
+
+    Reuses the pipeline's own log-locating machinery
+    (``ImageProcessingManager.find_processing_outputs``), so the
+    configured ``logging_fname`` / ``std_out_err_fname`` naming is honored
+    rather than assumed. Only the logs for the error's run and step are
+    returned (the main-process log/outerr and the run's worker logs), not
+    the whole log directory. Best-effort: returns the existing files it
+    finds, or an empty list.
+
+    Args:
+        error_row:    The ``Error`` row.
+
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        list[str]:    Absolute paths of the matching log files.
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return select_error_logs(error_row, own_session)
+
+    progress = find_error_progress(error_row, db_session)
+    if progress is None:
+        return []
+
+    try:
+        main_logs, worker_logs = ImageProcessingManager(
+            pipeline_run_id=None
+        ).find_processing_outputs(progress, db_session)
+    except Exception:  # pylint: disable=broad-except
+        _logger.debug(
+            "Could not locate logs for error %s",
+            getattr(error_row, "id", None),
+            exc_info=True,
+        )
+        return []
+
+    candidates = list(main_logs)
+    for entry in worker_logs:
+        candidates.extend(entry)
+    return sorted(
+        {path for path in candidates if path and os.path.exists(path)}
+    )

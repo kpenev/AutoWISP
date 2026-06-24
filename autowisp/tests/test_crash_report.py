@@ -2,20 +2,29 @@
 
 import tempfile
 import unittest
+from types import SimpleNamespace
 
 from sqlalchemy import select
 
 from autowisp.database.interface import set_project_home, start_db_session
 
 # pylint: disable=no-name-in-module
-from autowisp.database.data_model import Configuration, Parameter
+from autowisp.database.data_model import (
+    Configuration,
+    Image,
+    ImageProcessingProgress,
+    Parameter,
+    Step,
+)
 
 # pylint: enable=no-name-in-module
 from autowisp.crash_report import (
     REDACTED,
+    find_error_progress,
     scrub_config_values,
     scrub_mapping,
     scrub_text,
+    select_error_logs,
 )
 
 
@@ -148,6 +157,96 @@ class TestScrubConfigValues(unittest.TestCase):
             )
         self.assertEqual(values[gaia_param_id], REDACTED)
         self.assertEqual(values[gain_param_id], "1.0")
+
+
+class TestFindErrorProgress(unittest.TestCase):
+    """find_error_progress resolves a step error to its processing record."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        set_project_home(self._tmp.name)
+
+    def _add_progress(self, step_name, run_id, image_type_id):
+        # pylint: disable=not-callable
+        with start_db_session() as db_session:
+            step = db_session.scalar(select(Step).where(Step.name == step_name))
+            if step is None:
+                step = Step(name=step_name, description=step_name + " step")
+                db_session.add(step)
+                db_session.flush()
+            progress = ImageProcessingProgress(
+                run_id=run_id,
+                step_id=step.id,
+                image_type_id=image_type_id,
+                configuration_version=0,
+            )
+            db_session.add(progress)
+            db_session.flush()
+            return progress.id
+        # pylint: enable=not-callable
+
+    def test_resolves_by_run_and_step(self):
+        """An error's run + step pick out the matching progress."""
+
+        progress_id = self._add_progress("calibrate", run_id=7, image_type_id=3)
+        error = SimpleNamespace(
+            pipeline_run_id=7, step_name="calibrate", image_id=None
+        )
+        progress = find_error_progress(error)
+        self.assertIsNotNone(progress)
+        self.assertEqual(progress.id, progress_id)
+
+    def test_none_for_stepless_or_runless(self):
+        """A pipeline/BUI error (no step or run) resolves to nothing."""
+
+        self._add_progress("calibrate", run_id=7, image_type_id=3)
+        self.assertIsNone(
+            find_error_progress(
+                SimpleNamespace(
+                    pipeline_run_id=7, step_name=None, image_id=None
+                )
+            )
+        )
+        self.assertIsNone(
+            find_error_progress(
+                SimpleNamespace(
+                    pipeline_run_id=None, step_name="calibrate", image_id=None
+                )
+            )
+        )
+
+    def test_filters_by_image_type_when_image_known(self):
+        """When the error names an image, the image's type disambiguates."""
+
+        self._add_progress("calibrate", run_id=7, image_type_id=3)
+        self._add_progress("calibrate", run_id=7, image_type_id=5)
+        # pylint: disable=not-callable
+        with start_db_session() as db_session:
+            image = Image(
+                raw_fname="/data/raw/x.fits",
+                image_type_id=5,
+                observing_session_id=1,
+            )
+            db_session.add(image)
+            db_session.flush()
+            image_id = image.id
+        # pylint: enable=not-callable
+
+        progress = find_error_progress(
+            SimpleNamespace(
+                pipeline_run_id=7, step_name="calibrate", image_id=image_id
+            )
+        )
+        self.assertEqual(progress.image_type_id, 5)
+
+    def test_select_logs_empty_without_progress(self):
+        """A stepless error selects no logs (and does not raise)."""
+
+        error = SimpleNamespace(
+            pipeline_run_id=None, step_name=None, image_id=None
+        )
+        self.assertEqual(select_error_logs(error), [])
 
 
 if __name__ == "__main__":
