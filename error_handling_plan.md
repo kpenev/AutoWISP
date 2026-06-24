@@ -78,31 +78,31 @@ exactly one source of truth.
 
 ## Phase overview
 
-1. **[Define the exception hierarchy.](#phase-1--exception-hierarchy)**
-   ← *this document, current focus.*
-2. [Define a context-collection mechanism](#phase-2--context-collection)
+1. ✅ **[Exception hierarchy.](#phase-1--exception-hierarchy)**
+2. ✅ [Context-collection mechanism](#phase-2--context-collection)
    (decorators / context managers) so steps and the pipeline driver
    automatically populate the exception fields without each call site
    having to remember.
-3. [Define propagation across multiprocessing boundaries](#phase-3--propagation-across-process-boundaries)
+3. ✅ [Propagation across multiprocessing boundaries](#phase-3--propagation-across-process-boundaries)
    (worker stamps subprocess ID + host before re-raising; parent
    re-raises wrapped, preserving the original `__cause__`).
-4. [Define the persistence layer](#phase-4--persistence): an `Error`
+4. ✅ [Persistence layer](#phase-4--persistence): an `Error`
    table linked to `PipelineRun` + `Image` / `DRFile` / `Lightcurve` /
    `MasterFile` rows, plus a JSON blob for the structured ``details``.
-5. [Define the user-facing rendering](#phase-5--user-facing-rendering-bui--cli):
+5. ✅ [User-facing rendering](#phase-5--user-facing-rendering-bui--cli):
    BUI views and CLI formatter, both reading from the structured record
    (other channels such as an email/Slack notifier come later).
-6. Define a **[crash-report bundler](#phase-6--crash-report-bundler-early-notes)**:
+6. ✅ **[Crash-report bundler](#phase-6--crash-report-bundler-implemented)**:
    on demand, collect everything needed to debug a failure into a single
    zip the user can send to the maintainers — the `Error` row(s) +
    sidecar(s), the relevant per-process logs/stdout-stderr, the
-   configuration snapshot, the `code_version`, and environment/provenance
-   — with a scrubbing pass for credentials.
-7. Migrate existing call sites to raise the new exception types and
+   configuration snapshot, a scrubbed database copy, the `code_version`,
+   and environment/provenance — with a scrubbing pass for credentials.
+7. ⏳ Migrate existing call sites to raise the new exception types and
    delete the legacy ad-hoc classes. *(section pending)*
 
-Phases 2–7 will get their own sections in this file as we get to them.
+Phases 1–6 are implemented and have their own sections below; phase 7
+gets its section when we start it.
 
 ## Phase 1 — Exception hierarchy
 
@@ -1042,7 +1042,7 @@ fills the pipeline-run snapshot it has locally.
 | `autowisp/database/processing.py` | `ProcessingManager.__init__` looks up the `PipelineRun` row once and stores `pipeline_run_id` / `host` / `pipeline_started` / `code_version` (computed once here, not per-worker); `get_config` injects these into every per-step config so each worker rebuilds the snapshot. |
 | `autowisp/run_pipeline.py` | Set the run snapshot (`snapshot_row` via `set_pipeline_run`) right after creating the `PipelineRun` row; top-level handler in `main` fills `crashed`/run on any escaping `AutoWISPError` (body extracted to `_run_pipeline`). |
 | `autowisp/database/image_processing.py` | Per-batch dispatch split into `_process_batch` (scopes the step via `error_context(step_name=...)`) wrapping `_run_step` (`@capture_errors(component=Component.STEP)`), so the step name is still in scope when the inner capture stamps. |
-| each `processing_steps/*.py` `main()` | Decorate with `@capture_errors` / `@cli_entry_point` for the standalone path. **Deferred to phase 5**: capture-only stamping at the CLI top has no observable effect until the phase-5 renderer/handler exists, so the decoration lands together with `cli_entry_point`. |
+| each `processing_steps/*.py` `main()` | Decorate with `@capture_errors` / `@cli_entry_point` for the standalone path. **Deferred to phase 7**: `cli_entry_point` was built in phase 5, but applying it to the step `main()`s is part of the phase-7 call-site migration. |
 | Pool worker sites (`epd_correction.py`, `iterative_refit.py`, `apply_correction.py`, and others) | `worker_entry` is defined and unit-tested here; **adoption at the call sites is phase 3** (full inventory + the Process+Queue case in `solve_astrometry.py`). |
 
 ### Tests (Phase 2)
@@ -1476,6 +1476,10 @@ Because the heavy data is in files, retention is mostly filesystem work:
   and **dangling rows** (row, no file).
 - Optionally an opportunistic prune at pipeline startup so an unattended
   deployment does not grow unbounded.
+- **Project deletion** removes the sidecars too:
+  `delete_all_error_sidecars` unlinks exactly the files persistence wrote
+  (one per `Error` row), leaving any unrelated file under the `errors`
+  directory; `delete_projects` then prunes the emptied directory.
 
 ### Row/sidecar boundary
 
@@ -1578,13 +1582,12 @@ page:
   detail/list** (joined on run + step + image/channel), so a user who
   sees a red cell is one click from the explanation. This is the
   primary discovery path.
-- **Log cross-link** *(deferred to phase 6)*: the error detail should
-  link to the matching per-process log (the existing `review` /
-  `review_single` pages, selected by the failure's `subprocess_id` / run
-  / time). This needs the same "find the right log(s) for this error"
-  resolution that phase 6's crash-report bundler builds (run + step →
-  `ImageProcessingProgress`, plus the per-PID log files), so it is built
-  there and reused for both the zip and this link rather than duplicated.
+- **Log cross-link** *(delivered in phase 6)*: the error detail links to
+  the matching per-process log (the existing `review` / `review_single`
+  pages). It reuses the same "find the right log(s) for this error"
+  resolution the crash-report bundler builds (`find_error_progress`:
+  run + step → `ImageProcessingProgress`), so the zip and the "View Log"
+  link share one helper rather than duplicating it.
 
 ### Request snapshot for BUI errors
 
@@ -1610,10 +1613,9 @@ Values are omitted (only keys) to avoid persisting user-entered secrets.
 
 ### Status
 
-Phase 5 is functionally complete. Two items are intentionally carried
-elsewhere: the **log cross-link** (above) is a phase-6 deliverable, and a
-**component filter** on the list is a later nicety (run + step filters
-exist). The discovery surfaces ended up as the per-step grid marker, the
+Phase 5 is complete. Of the two items carried elsewhere, the **log
+cross-link** (above) was delivered in phase 6; a **component filter** on
+the list remains a later nicety (run + step filters exist). The discovery surfaces ended up as the per-step grid marker, the
 global badge, and the start-processing gate (a two-click red button); a
 manual **resolve/reopen** state and a **delete** action were added on top
 of the original plan.
@@ -1647,20 +1649,24 @@ button plus the "View log" cross-link (the deferred phase-5 item).
 
 ### Trigger
 
-- CLI: `wisp-crash-report <error_id> [--out report.zip]` (and
-  `--last` for the most recent error).
+- CLI: `wisp-crash-report <project_home> <error_id> [--out report.zip]
+  [--last] [--max-log-bytes N]` (`--last` targets the most recent error;
+  `--max-log-bytes` raises the per-log truncation cap for a more
+  thorough report).
 - BUI: a "Download crash report" button on an error's detail view.
 
-Both call one `build_crash_report(error_id, out_path)`.
+Both call one
+`build_crash_report(error_id, out_path, *, max_log_bytes=...)`.
 
 ### Contents
 
 Everything needed to reproduce/diagnose, gathered from sources the
 earlier phases already populate:
 
-- The `Error` row(s) — serialized to JSON — and their **sidecar**
-  file(s) (phase 4). For a `WorkerCrashedError`, include the whole
-  failed batch's errors, not just one.
+- The `Error` row — serialized to JSON — and its **sidecar** file
+  (phase 4). *(Refinement still open: for a `WorkerCrashedError`,
+  include the whole failed batch's errors, not just one. The current
+  builder bundles the single requested error.)*
 - The relevant **logs / stdout-stderr**: the per-process
   `{task}_{now}_{pid}.outerr` and `.log` files written by
   `setup_process_map` (`multiprocessing_util.py`), selected by the
