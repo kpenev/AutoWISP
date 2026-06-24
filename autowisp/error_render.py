@@ -8,7 +8,7 @@ projection of the stored record, never of a live exception.
 
 import logging
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from autowisp.database.interface import start_db_session
 
@@ -16,6 +16,7 @@ from autowisp.database.interface import start_db_session
 from autowisp.database.data_model import Error, Image, MasterFile, PipelineRun
 
 # pylint: enable=no-name-in-module
+from autowisp.exceptions import Component
 from autowisp.error_persistence import load_sidecar
 
 git_id = "$Id$"
@@ -229,12 +230,19 @@ def error_counts_by_step(db_session=None):
 def open_error_count_for_steps(step_names, db_session=None):
     """Return how many open errors would gate launching ``step_names``.
 
-    With an empty ``step_names`` (a full run), this is every open error;
-    otherwise it is the open errors recorded for those steps. Used by the
-    start-processing gate.
+    Counts open errors that bear on running the pipeline:
+
+    - every open **pipeline** error (an orchestration/config failure is
+      run-level, so it gates any launch until resolved), and
+    - open **step** errors for the steps about to run (all steps for a
+      full run, i.e. an empty ``step_names``).
+
+    Open **BUI** errors are excluded -- they are web-interface issues, not
+    a reason to hold back processing. Used by the start-processing gate.
 
     Args:
-        step_names(iterable):    Step names about to be run.
+        step_names(iterable):    Step names about to be run; empty means a
+            full run (every step).
 
         db_session:    Optional active session; one is opened if omitted.
 
@@ -245,10 +253,24 @@ def open_error_count_for_steps(step_names, db_session=None):
     if db_session is None:
         with start_db_session() as own_session:
             return open_error_count_for_steps(step_names, own_session)
-    if not step_names:
-        return error_count(db_session)
-    by_step = error_counts_by_step(db_session)
-    return sum(by_step.get(name, 0) for name in step_names)
+
+    # pylint: disable=not-callable,no-member
+    step_names = list(step_names)
+    relevant_step = Error.component == Component.STEP.value
+    if step_names:
+        relevant_step = relevant_step & Error.step_name.in_(step_names)
+
+    return (
+        db_session.scalar(
+            select(func.count())
+            .select_from(Error)
+            .where(
+                Error.resolved.is_(None),
+                or_(Error.component == Component.PIPELINE.value, relevant_step),
+            )
+        )
+        or 0
+    )
 
 
 def error_detail(error_row, db_session=None, *, developer=False):

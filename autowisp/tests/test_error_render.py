@@ -27,7 +27,7 @@ from autowisp.error_render import (
     format_detail_text,
     open_error_count_for_steps,
 )
-from autowisp.exceptions import PipelineError, StackToMasterError
+from autowisp.exceptions import PipelineError, StackToMasterError, ViewError
 from autowisp.tests.error_fixtures import make_find_stars_error
 
 
@@ -281,8 +281,8 @@ class TestErrorCounts(unittest.TestCase):
         self.assertEqual(rows[1]["id"], resolved_id)
         self.assertIsNotNone(rows[1]["resolved"])
 
-    def test_gate_count_for_selected_steps(self):
-        """The gate counts open errors for the selected steps only."""
+    def test_gate_scopes_step_errors_to_selected_steps(self):
+        """Step errors gate only their own step."""
 
         persist_error(make_find_stars_error())
         persist_error(make_find_stars_error())
@@ -290,23 +290,36 @@ class TestErrorCounts(unittest.TestCase):
             StackToMasterError("cannot stack", step_name="stack_to_master")
         )
 
-        # Only the find_stars errors gate a find_stars-only launch.
         self.assertEqual(open_error_count_for_steps(["find_stars"]), 2)
         self.assertEqual(
             open_error_count_for_steps(["find_stars", "stack_to_master"]), 3
         )
         self.assertEqual(open_error_count_for_steps(["calibrate"]), 0)
 
-    def test_gate_count_for_full_run_uses_all_open(self):
-        """An empty step list (full run) gates on every open error."""
+    def test_gate_always_includes_pipeline_errors(self):
+        """A pipeline error gates any launch, even unrelated steps."""
 
-        persist_error(make_find_stars_error())
         persist_error(PipelineError("orchestration broke"))
-        resolved_id = persist_error(make_find_stars_error())
-        self._resolve(resolved_id)
 
-        # Both open errors gate; the resolved one does not.
-        self.assertEqual(open_error_count_for_steps([]), 2)
+        # The stepless pipeline error gates regardless of the selection.
+        self.assertEqual(open_error_count_for_steps(["calibrate"]), 1)
+        self.assertEqual(open_error_count_for_steps(["find_stars"]), 1)
+        self.assertEqual(open_error_count_for_steps([]), 1)
+
+    def test_gate_excludes_bui_errors(self):
+        """BUI errors do not gate processing."""
+
+        persist_error(ViewError("a form blew up"))
+        self.assertEqual(open_error_count_for_steps([]), 0)
+        self.assertEqual(open_error_count_for_steps(["calibrate"]), 0)
+
+    def test_gate_excludes_resolved(self):
+        """Resolving an error removes it from the gate."""
+
+        pipeline_id = persist_error(PipelineError("orchestration broke"))
+        self.assertEqual(open_error_count_for_steps([]), 1)
+        self._resolve(pipeline_id)
+        self.assertEqual(open_error_count_for_steps([]), 0)
 
 
 if __name__ == "__main__":
