@@ -60,6 +60,11 @@ from autowisp.tests.test_error_cli import (
 from autowisp.tests.test_error_capture_middleware import (
     TestErrorCaptureMiddleware,
 )
+from autowisp.tests.test_crash_report import (
+    TestScrubText,
+    TestScrubMapping,
+    TestScrubConfigValues,
+)
 from autowisp.tests.test_full_pipeline import TestFullPipeline
 from autowisp.tests.test_exception_hierarchy import (
     TestExceptionHierarchy,

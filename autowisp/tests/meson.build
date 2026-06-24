@@ -6,6 +6,7 @@ py_src = [
   'h5_test_case.py',
   'test_calibrate.py',
   'test_catalog.py',
+  'test_crash_report.py',
   'test_create_lightcurves.py',
   'test_database_migration.py',
   'test_detrending_stat.py',

@@ -1660,6 +1660,9 @@ earlier phases already populate:
   failure's `pipeline_run_id` / `subprocess_id` / time window rather
   than dumping the whole log directory.
 - The **configuration snapshot** in effect for the run/step.
+- The **project database** — a *scrubbed copy* (the SQLite file copied
+  then scrubbed, or a dump for a server DB), since it is often the most
+  useful artifact for reproducing a failure.
 - **Provenance**: `code_version` (git hash), Python / OS / key package
   versions (`astrowisp`, `numpy`), hostname.
 - A short **`manifest.json`** describing what was collected and the
@@ -1667,12 +1670,19 @@ earlier phases already populate:
 
 ### Credential scrubbing (required)
 
-The config and logs can contain secrets — e.g. `gaia_user` /
-`gaia_password` are threaded through the process config
-(`multiprocessing_util.py`). The bundler runs a scrubbing pass over
-every text artifact before zipping, redacting known secret keys and
-anything matching credential-like patterns. This pass is mandatory and
-tested; nothing enters the zip unscrubbed.
+The config, logs, **and database** can contain secrets — e.g.
+`gaia_user` / `gaia_password` are threaded through the process config
+(`multiprocessing_util.py`) *and* stored as `Configuration` rows in the
+project database. The scrubbing pass is mandatory and tested; nothing
+enters the zip unscrubbed:
+
+- **Text artifacts** (logs, config snapshot): `scrub_text` /
+  `scrub_mapping` in `crash_report.py` redact values of any secret-named
+  key, plus anything matching credential-like patterns.
+- **The database**: a binary `.db` / SQL dump cannot be text-scrubbed
+  line-by-line, so `scrub_config_values` redacts the values row-by-row in
+  a *copy* of the DB (every `Configuration` whose parameter name names a
+  secret) before that copy enters the zip — never the live database.
 
 ### Constraints
 
