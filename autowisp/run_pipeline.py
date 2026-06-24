@@ -24,7 +24,7 @@ from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.error_cli import report_error
 from autowisp.miscellaneous import get_code_version_str
-from autowisp.exceptions import AutoWISPError
+from autowisp.exceptions import AutoWISPError, PipelineError
 from autowisp.file_utilities import find_fits_fnames
 
 
@@ -75,23 +75,42 @@ def parse_command_line():
 def main(config):
     """Set up the project and run the pipeline, recording any error.
 
-    The top-level handler attaches the pipeline-run snapshot (and, with
-    it, the ``crashed`` time) to any :class:`AutoWISPError` that has not
-    already picked it up deeper in the stack, then reports it via
-    :func:`report_error` -- recording it as a queryable ``Error`` row plus
-    sidecar and rendering a summary to stderr (which, for a detached run,
-    is ``run_pipeline.out``) -- and re-raises. Reporting is best-effort
-    and never masks the original error.
+    The top-level handler records *any* exception that escapes the run --
+    not just an :class:`AutoWISPError`. A plain exception from the
+    orchestration layer (e.g. a bad configuration expression) is wrapped
+    in a :class:`PipelineError` so it is still captured. The error is
+    stamped with the pipeline-run snapshot (and the ``crashed`` time) if
+    it lacks one, then reported via :func:`report_error` -- recording it
+    as a queryable ``Error`` row plus sidecar and rendering a summary to
+    stderr (which, for a detached run, is ``run_pipeline.out``) -- and
+    re-raised. Reporting is best-effort and never masks the original
+    error.
     """
 
     set_project_home(config.project_home)
     try:
         _run_pipeline(config)
     except AutoWISPError as exc:
-        if exc.pipeline_run is None:
-            exc.with_pipeline_run(get_error_context().pipeline_run)
-        report_error(exc)
+        _record_escaping_error(exc)
         raise
+    except Exception as exc:
+        # A non-AutoWISP exception (e.g. a NameError from a bad config
+        # expression) would otherwise crash the run unrecorded. Wrap it so
+        # it is captured like any other failure, preserving the original
+        # as the cause and its traceback for the sidecar.
+        wrapped = PipelineError(str(exc) or type(exc).__name__)
+        wrapped.__cause__ = exc
+        wrapped.__traceback__ = exc.__traceback__
+        _record_escaping_error(wrapped)
+        raise
+
+
+def _record_escaping_error(exc):
+    """Stamp the pipeline-run snapshot (if missing) and report ``exc``."""
+
+    if exc.pipeline_run is None:
+        exc.with_pipeline_run(get_error_context().pipeline_run)
+    report_error(exc)
 
 
 def _run_pipeline(config):

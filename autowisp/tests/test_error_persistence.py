@@ -181,6 +181,38 @@ class TestRunPipelineHandler(_PersistenceTestCase):
             "the escaping error was not persisted",
         )
 
+    def test_handler_records_plain_exception(self):
+        """A non-AutoWISP exception is recorded; the original re-raises.
+
+        Mirrors a real failure: a bad config expression raises a plain
+        NameError in the orchestration layer, outside any step's capture
+        boundary. The handler records it (wrapped as a PipelineError) but
+        re-raises the original so its true traceback reaches the log.
+        """
+
+        config = SimpleNamespace(project_home=self._tmp.name)
+        with mock.patch.object(
+            run_pipeline,
+            "_run_pipeline",
+            side_effect=NameError("name 'OBS_SESN' is not defined"),
+        ):
+            with self.assertRaises(NameError):
+                run_pipeline.main(config)
+
+        with start_db_session() as db_session:
+            rows = db_session.scalars(
+                select(Error).where(
+                    Error.component == "pipeline"  # pylint: disable=no-member
+                )
+            ).all()
+        recorded = [
+            row for row in rows if "OBS_SESN" in (row.user_message or "")
+        ]
+        self.assertTrue(
+            recorded, "the plain orchestration exception was not persisted"
+        )
+        self.assertEqual(recorded[0].exception_class, "PipelineError")
+
 
 class TestCleanupErrors(unittest.TestCase):
     """wisp-cleanup-errors prunes aged rows, orphan files, dangling rows.
