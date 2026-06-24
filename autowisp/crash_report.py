@@ -11,14 +11,19 @@ text artifact is passed through the scrubbing helpers here before it
 enters the report. Scrubbing is mandatory: nothing is written unscrubbed.
 """
 
+import importlib.metadata
 import logging
 import os
+import platform
 import re
+import socket
+from datetime import datetime, timezone
 
 from sqlalchemy import select, update
 
 from autowisp.database.interface import start_db_session
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.miscellaneous import get_code_version_str
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
@@ -242,3 +247,53 @@ def select_error_logs(error_row, db_session=None):
     return sorted(
         {path for path in candidates if path and os.path.exists(path)}
     )
+
+
+# --- Environment provenance. ------------------------------------------
+
+
+def _package_versions(names):
+    """Return ``{name: version}`` for the installed packages among ``names``.
+
+    Packages that are not installed are simply omitted; never raises.
+    """
+
+    versions = {}
+    for name in names:
+        try:
+            versions[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            continue
+    return versions
+
+
+def collect_provenance():
+    """Return environment provenance for a crash report.
+
+    Captures the machine and software building the report -- hostname, OS,
+    Python and key package versions, and the current code version. The
+    *failed run's* host and code version live on its ``PipelineRun`` row
+    and are added separately by the report builder.
+
+    Returns:
+        dict:    Provenance fields, all JSON-serializable.
+    """
+
+    return {
+        "report_generated": datetime.now(timezone.utc).isoformat(),
+        "hostname": socket.gethostname(),
+        "platform": platform.platform(),
+        "python_version": platform.python_version(),
+        "code_version": get_code_version_str(),
+        "packages": _package_versions(
+            (
+                "autowisp",
+                "astrowisp",
+                "numpy",
+                "scipy",
+                "pandas",
+                "sqlalchemy",
+                "astropy",
+            )
+        ),
+    }

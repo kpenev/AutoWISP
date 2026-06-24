@@ -1,5 +1,6 @@
 """Unit tests for the crash-report credential scrubber."""
 
+import json
 import tempfile
 import unittest
 from types import SimpleNamespace
@@ -20,6 +21,7 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 from autowisp.crash_report import (
     REDACTED,
+    collect_provenance,
     find_error_progress,
     scrub_config_values,
     scrub_mapping,
@@ -247,6 +249,37 @@ class TestFindErrorProgress(unittest.TestCase):
             pipeline_run_id=None, step_name=None, image_id=None
         )
         self.assertEqual(select_error_logs(error), [])
+
+
+class TestCollectProvenance(unittest.TestCase):
+    """collect_provenance captures the current environment, JSON-safe."""
+
+    def test_fields_present_and_serializable(self):
+        """The provenance dict has the expected fields and serializes."""
+
+        provenance = collect_provenance()
+        for key in (
+            "report_generated",
+            "hostname",
+            "platform",
+            "python_version",
+            "code_version",
+            "packages",
+        ):
+            self.assertIn(key, provenance)
+        # numpy is a hard dependency, so its version is always recorded.
+        self.assertIn("numpy", provenance["packages"])
+        self.assertIsInstance(provenance["packages"]["numpy"], str)
+        # Everything must be JSON-serializable for the manifest.
+        json.dumps(provenance)
+
+    def test_unknown_package_omitted(self):
+        """A package that is not installed is simply absent (no error)."""
+
+        provenance = collect_provenance()
+        self.assertNotIn(
+            "definitely-not-a-real-package", provenance["packages"]
+        )
 
 
 if __name__ == "__main__":
