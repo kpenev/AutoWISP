@@ -35,6 +35,7 @@ from .error_views import (
     error_list,
     error_detail_view,
     toggle_error_resolved,
+    delete_error_view,
 )
 
 # pylint: enable=unused-import

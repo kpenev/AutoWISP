@@ -9,38 +9,54 @@ AutoWISP Error {{ error_id }}
 Error {{ error_id }}
 {% endblock app_title %}
 
+{# Navigation lives in the side bar; view-state actions (toggle detail,
+   resolve, delete) live in the header bar below. #}
 {% block left_menu %}
 <a href="{% url 'processing:error_list' %}">
     <div class="lcars-element button lcars-chestnut-rose-bg lcars-u-1-2">
         Back to Error Log
     </div>
 </a>
-<form method="post"
+{% endblock left_menu %}
+
+{% block header_bar_extra %}
+<div class="lcars-bar horizontal spacer"></div>
+{% if developer %}
+<a href="{% url 'processing:error_detail' error_id %}">
+    <div class="lcars-bar horizontal button lcars-u-2 lcars-rust-bg">
+        Hide developer detail
+    </div>
+</a>
+{% else %}
+<a href="{% url 'processing:error_detail' error_id %}?developer=1">
+    <div class="lcars-bar horizontal button lcars-u-2 lcars-rust-bg">
+        Show developer detail
+    </div>
+</a>
+{% endif %}
+<div class="lcars-bar horizontal spacer"></div>
+<form method="post" style="margin: 0;"
       action="{% url 'processing:toggle_error_resolved' error_id %}">
     {% csrf_token %}
     <input type="hidden" name="next"
            value="{% url 'processing:error_detail' error_id %}{% if developer %}?developer=1{% endif %}">
     <button type="submit"
-            class="lcars-element button
-                   {% if resolved %}lcars-golden-tanoi-bg{% else %}lcars-husk-bg{% endif %}
-                   lcars-u-1-2">
-        {% if resolved %}Reopen Error{% else %}Mark Resolved{% endif %}
+            class="lcars-bar horizontal button lcars-u-2
+                   {% if resolved %}lcars-golden-tanoi-bg{% else %}lcars-rust-bg{% endif %}">
+        {% if resolved %}Reopen error{% else %}Mark resolved{% endif %}
     </button>
 </form>
-{% if developer %}
-<a href="{% url 'processing:error_detail' error_id %}">
-    <div class="lcars-element button lcars-husk-bg lcars-u-1-2">
-        Hide Developer Detail
-    </div>
-</a>
-{% else %}
-<a href="{% url 'processing:error_detail' error_id %}?developer=1">
-    <div class="lcars-element button lcars-husk-bg lcars-u-1-2">
-        Show Developer Detail
-    </div>
-</a>
-{% endif %}
-{% endblock left_menu %}
+<div class="lcars-bar horizontal spacer"></div>
+<form method="post" style="margin: 0;"
+      action="{% url 'processing:delete_error' error_id %}"
+      onsubmit="return confirm('Delete this error permanently?');">
+    {% csrf_token %}
+    <button type="submit"
+            class="lcars-bar horizontal button lcars-u-2 lcars-red-alert-bg">
+        Delete error
+    </button>
+</form>
+{% endblock header_bar_extra %}
 
 {% block main %}
 <div style="margin: 1rem;">

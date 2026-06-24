@@ -229,6 +229,33 @@ def load_sidecar(error_row):
         return None
 
 
+def delete_error(error_id, db_session=None):
+    """Delete an error record entirely: its row and its sidecar file.
+
+    A no-op if the row does not exist. Safe to call from a user action.
+
+    Args:
+        error_id(int):    The id of the error to delete.
+
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        bool:    True if a row was deleted, False if none was found.
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return delete_error(error_id, own_session)
+
+    row = db_session.get(Error, error_id)
+    if row is None:
+        return False
+    if row.sidecar_path:
+        _safe_unlink(os.path.join(get_project_home(), row.sidecar_path))
+    db_session.delete(row)
+    return True
+
+
 # --- Retention & cleanup. ---------------------------------------------
 
 

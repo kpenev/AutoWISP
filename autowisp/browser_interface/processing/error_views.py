@@ -12,6 +12,7 @@ from autowisp.database.data_model import Error
 
 # pylint: enable=no-name-in-module
 from autowisp.error_render import error_detail, error_list_rows
+from autowisp.error_persistence import delete_error
 
 
 def error_list(request):
@@ -87,3 +88,16 @@ def toggle_error_resolved(request, error_id):
             None if row.resolved is not None else datetime.now(timezone.utc)
         )
     return redirect(request.POST.get("next") or "processing:error_list")
+
+
+def delete_error_view(request, error_id):
+    """Delete an error record (row + sidecar), then return to the list.
+
+    Always returns to the list -- the detail page it may have come from no
+    longer exists.
+    """
+
+    if request.method != "POST":
+        raise Http404("Use POST to delete an error.")
+    delete_error(error_id)
+    return redirect("processing:error_list")

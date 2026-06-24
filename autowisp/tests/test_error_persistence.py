@@ -24,6 +24,7 @@ from autowisp.database.data_model import Error, Image, MasterFile, PipelineRun
 from autowisp.exceptions import FileKind, FindStarsError, RelatedFile
 from autowisp.error_persistence import (
     cleanup_errors,
+    delete_error,
     load_sidecar,
     parse_duration,
     persist_error,
@@ -152,6 +153,24 @@ class TestPersistError(_PersistenceTestCase):
         # Remove the sidecar behind the row.
         os.remove(os.path.join(self._tmp.name, row.sidecar_path))
         self.assertIsNone(load_sidecar(row))
+
+    def test_delete_removes_row_and_sidecar(self):
+        """delete_error removes both the row and its sidecar file."""
+
+        error_id = persist_error(make_find_stars_error())
+        row = self._get_error(error_id)
+        sidecar = os.path.join(self._tmp.name, row.sidecar_path)
+        self.assertTrue(os.path.exists(sidecar))
+
+        self.assertTrue(delete_error(error_id))
+
+        self.assertIsNone(self._get_error(error_id))
+        self.assertFalse(os.path.exists(sidecar))
+
+    def test_delete_missing_error_is_noop(self):
+        """Deleting a non-existent error returns False, does not raise."""
+
+        self.assertFalse(delete_error(999999))
 
 
 class TestRunPipelineHandler(_PersistenceTestCase):

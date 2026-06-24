@@ -23,35 +23,37 @@ Error Log{% if filtered_step %} — {{ filtered_step }}{% endif %}{% if filtered
     </thead>
     <tbody>
     {% for error in errors %}
-        <tr style="border-bottom: 3px dotted white;
+        <tr data-href="{% url 'processing:error_detail' error.id %}"
+            style="cursor: pointer; border-bottom: 3px dotted white;
                    {% if error.resolved %}opacity: 0.45;{% endif %}">
             <td style="white-space: nowrap;">
                 {{ error.created|date:"Y-m-d H:i:s"|default:"—" }}
             </td>
-            <td>
-                <a href="{% url 'processing:error_detail' error.id %}">
-                    <div class="lcars-element
-                                button
-                                rounded
-                                {% if error.resolved %}lcars-husk-bg{% else %}lcars-red-alert-bg{% endif %}"
-                         style="align-items: center; justify-content: left;">
-                        {{ error.step_name|default:error.component }}
-                    </div>
-                </a>
-            </td>
+            <td>{{ error.step_name|default:error.component }}</td>
             <td>{{ error.artifact|default:"—" }}</td>
             <td>{{ error.user_message }}</td>
-            <td style="white-space: nowrap;">
-                <form method="post"
-                      action="{% url 'processing:toggle_error_resolved' error.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit"
-                            class="lcars-element button rounded
-                                   {% if error.resolved %}lcars-golden-tanoi-bg{% else %}lcars-husk-bg{% endif %}">
-                        {% if error.resolved %}Reopen{% else %}Mark resolved{% endif %}
-                    </button>
-                </form>
+            <td class="aw-error-actions" style="white-space: nowrap;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <form method="post"
+                          action="{% url 'processing:toggle_error_resolved' error.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit"
+                                class="lcars-element button rounded
+                                       {% if error.resolved %}lcars-golden-tanoi-bg{% else %}lcars-husk-bg{% endif %}">
+                            {% if error.resolved %}Reopen{% else %}Mark resolved{% endif %}
+                        </button>
+                    </form>
+                    <form method="post"
+                          action="{% url 'processing:delete_error' error.id %}"
+                          onsubmit="return confirm('Delete this error permanently?');">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="lcars-element button rounded lcars-red-alert-bg">
+                            Delete
+                        </button>
+                    </form>
+                </div>
             </td>
         </tr>
     {% endfor %}
@@ -65,3 +67,7 @@ Error Log{% if filtered_step %} — {{ filtered_step }}{% endif %}{% if filtered
 </div>
 {% endif %}
 {% endblock main %}
+
+{% block scripts %}
+<script src="{% static 'processing/js/error_list.js' %}" defer></script>
+{% endblock scripts %}

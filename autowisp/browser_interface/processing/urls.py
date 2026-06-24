@@ -111,4 +111,9 @@ urlpatterns = [
         views.toggle_error_resolved,
         name="toggle_error_resolved",
     ),
+    path(
+        "errors/<int:error_id>/delete",
+        views.delete_error_view,
+        name="delete_error",
+    ),
 ]
