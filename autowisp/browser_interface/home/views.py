@@ -19,6 +19,7 @@ from autowisp.database.interface import (
     get_db_engine,
     DB_URL_FNAME,
 )
+from autowisp.error_persistence import delete_all_error_sidecars
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Configuration,
@@ -146,6 +147,10 @@ def delete_projects(request):
             delete_logs(project_home)
 
         set_project_home(project_home)
+        # The error sidecars are bound to the Error table dropped below, so
+        # remove them before the table is gone. prune_empty_directories
+        # (at the end) clears the emptied errors directories.
+        delete_all_error_sidecars()
         DataModelBase.metadata.drop_all(get_db_engine())
 
         for db_file in ("autowisp.db", DB_URL_FNAME):
@@ -153,8 +158,12 @@ def delete_projects(request):
             if os.path.exists(db_file_path):
                 _safe_remove(db_file_path, project_home)
 
-        if file_types:
-            prune_empty_directories(project_home)
+        # The project is being removed entirely (DB + error sidecars
+        # always go), so clear any directories left empty -- including the
+        # emptied errors directory -- regardless of which file types were
+        # selected. Only empty directories are removed, so kept data files
+        # keep their directories.
+        prune_empty_directories(project_home)
 
     projects.delete()
     request.session.flush()
@@ -296,9 +305,7 @@ def delete_image_products(
                     continue
                 if os.path.exists(product_fname):
                     _safe_remove(product_fname, project_home)
-                    logger.info(
-                        "Deleted %s file: %s", kind, product_fname
-                    )
+                    logger.info("Deleted %s file: %s", kind, product_fname)
 
 
 def _pattern_to_glob(pattern, known_values, project_home):
@@ -464,7 +471,9 @@ def find_missing_databases():
     for project in Project.objects.all():  # pylint: disable=no-member
         sqlite_path = os.path.join(project.path, "autowisp.db")
         url_file_path = os.path.join(project.path, DB_URL_FNAME)
-        if not os.path.isfile(sqlite_path) and not os.path.isfile(url_file_path):
+        if not os.path.isfile(sqlite_path) and not os.path.isfile(
+            url_file_path
+        ):
             missing.append(project)
     return missing
 

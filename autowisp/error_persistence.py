@@ -256,6 +256,35 @@ def delete_error(error_id, db_session=None):
     return True
 
 
+def delete_all_error_sidecars(db_session=None):
+    """Delete the sidecar file of every recorded error.
+
+    Used when a project is deleted: removes exactly the files error
+    persistence wrote (one per ``Error`` row), leaving any unrelated files
+    under the ``errors`` directory untouched. The emptied directories are
+    cleaned up by the caller's directory pruning.
+
+    Args:
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        None
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return delete_all_error_sidecars(own_session)
+
+    project_home = get_project_home()
+    for row in db_session.scalars(
+        select(Error).where(
+            Error.sidecar_path.isnot(None)  # pylint: disable=no-member
+        )
+    ).all():
+        _safe_unlink(os.path.join(project_home, row.sidecar_path))
+    return None
+
+
 # --- Retention & cleanup. ---------------------------------------------
 
 

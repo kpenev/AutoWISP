@@ -24,6 +24,7 @@ from autowisp.database.data_model import Error, Image, MasterFile, PipelineRun
 from autowisp.exceptions import FileKind, FindStarsError, RelatedFile
 from autowisp.error_persistence import (
     cleanup_errors,
+    delete_all_error_sidecars,
     delete_error,
     load_sidecar,
     parse_duration,
@@ -330,6 +331,33 @@ class TestCleanupErrors(unittest.TestCase):
             },
         )
         self.assertTrue(os.path.exists(sidecar))
+
+    def test_delete_all_sidecars_keeps_foreign_files(self):
+        """Project-deletion sidecar purge removes tracked files only.
+
+        Every recorded error's sidecar is removed, but an unrelated file
+        placed under the errors directory survives.
+        """
+
+        ids = [
+            persist_error(make_find_stars_error()),
+            persist_error(make_find_stars_error()),
+        ]
+        with start_db_session() as db_session:
+            sidecars = [
+                self._abs(db_session.get(Error, eid).sidecar_path)
+                for eid in ids
+            ]
+        # Drop an unrelated file into the errors tree.
+        foreign = self._abs(os.path.join("errors", "keep_me.txt"))
+        with open(foreign, "w", encoding="utf-8") as foreign_file:
+            foreign_file.write("not an error sidecar")
+
+        delete_all_error_sidecars()
+
+        for sidecar in sidecars:
+            self.assertFalse(os.path.exists(sidecar))
+        self.assertTrue(os.path.exists(foreign))
 
 
 class TestParseDuration(unittest.TestCase):
