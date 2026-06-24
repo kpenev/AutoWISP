@@ -12,7 +12,6 @@ import platformdirs
 
 from autowisp import run_pipeline
 from autowisp.database.interface import get_project_home
-from autowisp.error_render import open_error_count_for_steps
 
 # This module should collect all views
 # pylint: disable=unused-import
@@ -80,17 +79,6 @@ def start_processing(request):
         selected_steps,
         selected_step_imtypes,
     )
-
-    # Gate on open (unresolved) errors for the steps about to run, unless
-    # the user has explicitly chosen to start anyway.
-    if request.POST.get("acknowledge_errors") != "1":
-        open_errors = open_error_count_for_steps(selected_steps)
-        if open_errors:
-            request.session["error_gate"] = {
-                "count": open_errors,
-                "steps": list(request.POST.getlist("steps")),
-            }
-            return redirect("processing:progress")
 
     if selected_steps:
         cmd.extend(["--steps", *selected_steps])

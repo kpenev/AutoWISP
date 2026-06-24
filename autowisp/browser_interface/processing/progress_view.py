@@ -15,7 +15,10 @@ from autowisp.database.user_interface import (
     get_progress,
     list_channels,
 )
-from autowisp.error_render import error_counts_by_step
+from autowisp.error_render import (
+    error_counts_by_step,
+    open_error_count_for_steps,
+)
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -53,6 +56,9 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
         processing_sequence = get_processing_sequence(db_session)
 
         error_by_step = error_counts_by_step(db_session)
+        # Drives the colour of the Start Processing button: open pipeline +
+        # step errors (BUI errors excluded) mean "errors pending".
+        context["gate_error_count"] = open_error_count_for_steps([], db_session)
         context["progress"] = [
             [
                 step.name.split("_"),
@@ -127,9 +133,5 @@ def progress(request, await_start=-1):  # pylint: disable=too-many-locals
         selected_tokens = set(request.session["selected_step_tokens"])
 
     context["selected_tokens"] = selected_tokens
-
-    # One-shot start-processing gate prompt set by the start_processing
-    # view when the selected steps still have open errors.
-    context["error_gate"] = request.session.pop("error_gate", None)
 
     return render(request, "processing/progress.html", context)

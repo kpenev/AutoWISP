@@ -35,14 +35,24 @@ Processing Progress
 </div>
 {% endif %}
 {% else %}
-<!-- Submit Start Processing with selected steps -->
+<!-- Submit Start Processing with selected steps. When open processing
+     errors exist the button turns red and requires a second click to
+     start anyway (handled in progress.js). -->
 <button type="submit" form="steps-form"
-        class="lcars-element 
-               button 
-               lcars-melrose-bg
-               lcars-u-1-1"
-        id="tutorial-start-processing">
+        class="lcars-element
+               button
+               {% if gate_error_count %}lcars-red-alert-bg{% else %}lcars-melrose-bg{% endif %}
+               lcars-u-1-2"
+        id="tutorial-start-processing"
+        {% if gate_error_count %}
+        data-confirm-start="1"
+        data-confirm-text="Click again to start anyway"
+        {% endif %}>
+    {% if gate_error_count %}
+    {{ gate_error_count }} error{{ gate_error_count|pluralize }} pending — start?
+    {% else %}
     Start Processing
+    {% endif %}
 </button>
 {% endif %}
 
@@ -58,37 +68,6 @@ Processing Progress
 {% endblock left_menu %}
 
 {% block main %}
-
-{% if error_gate %}
-<div class="lcars-element lcars-red-alert-bg lcars-u-1"
-     style="margin: 1rem; padding: 1rem;">
-    <div style="margin-bottom: 0.75rem;">
-        {{ error_gate.count }} open error{{ error_gate.count|pluralize }}
-        recorded for the steps you selected. Resolve
-        {{ error_gate.count|pluralize:"it,them" }} first, or start anyway.
-    </div>
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="{% url 'processing:error_list' %}">
-            <div class="lcars-element button rounded lcars-husk-bg">
-                Review Errors
-            </div>
-        </a>
-        <form method="post"
-              action="{% url 'processing:start_processing' %}"
-              style="margin: 0;">
-            {% csrf_token %}
-            {% for token in error_gate.steps %}
-            <input type="hidden" name="steps" value="{{ token }}">
-            {% endfor %}
-            <input type="hidden" name="acknowledge_errors" value="1">
-            <button type="submit"
-                    class="lcars-element button rounded lcars-golden-tanoi-bg">
-                Start Anyway
-            </button>
-        </form>
-    </div>
-</div>
-{% endif %}
 
 <form id="steps-form" method="post" action="{% url 'processing:start_processing' %}">
     {% csrf_token %}

@@ -74,3 +74,25 @@
   document.addEventListener('DOMContentLoaded', setupRefresh);
   window.addEventListener('load', setupRefresh);
 })();
+
+//two-click confirm before starting over pending errors
+(function () {
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest('[data-confirm-start]');
+    if (!btn) return;
+    if (btn.dataset.armed === '1') return; //second click: let it submit
+    e.preventDefault();
+    btn.dataset.armed = '1';
+    if (btn.dataset.originalText === undefined) {
+      btn.dataset.originalText = btn.textContent.trim();
+    }
+    btn.textContent = btn.dataset.confirmText || 'Click again to confirm';
+    //disarm after a few seconds if not confirmed
+    setTimeout(function () {
+      if (btn.dataset.armed === '1') {
+        btn.dataset.armed = '0';
+        btn.textContent = btn.dataset.originalText;
+      }
+    }, 4000);
+  });
+})();
