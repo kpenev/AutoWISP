@@ -11,6 +11,7 @@ text artifact is passed through the scrubbing helpers here before it
 enters the report. Scrubbing is mandatory: nothing is written unscrubbed.
 """
 
+import argparse
 import importlib.metadata
 import json
 import logging
@@ -27,7 +28,11 @@ from pathlib import Path
 from sqlalchemy import create_engine, select, update
 from sqlalchemy.orm import Session
 
-from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.database.interface import (
+    start_db_session,
+    get_project_home,
+    set_project_home,
+)
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.error_persistence import load_sidecar
 from autowisp.exceptions import sanitize_for_json
@@ -510,3 +515,84 @@ def build_crash_report(
         )
 
     return out_path
+
+
+def latest_error_id(db_session=None):
+    """Return the id of the most recently recorded error, or None.
+
+    Args:
+        db_session:    Optional active session; one is opened if omitted.
+
+    Returns:
+        int or None
+    """
+
+    if db_session is None:
+        with start_db_session() as own_session:
+            return latest_error_id(own_session)
+    return db_session.scalar(
+        select(Error.id).order_by(  # pylint: disable=no-member
+            Error.id.desc()  # pylint: disable=no-member
+        )
+    )
+
+
+def crash_report_main():
+    """CLI entry point for ``wisp-crash-report``."""
+
+    parser = argparse.ArgumentParser(
+        prog="wisp-crash-report",
+        description=(
+            "Bundle a recorded error into a single, credential-scrubbed "
+            "zip (error record, sidecar, logs, a database copy, and "
+            "provenance) to share with the maintainers."
+        ),
+    )
+    parser.add_argument(
+        "project_home", help="Path to the project home directory."
+    )
+    parser.add_argument(
+        "error_id",
+        nargs="?",
+        type=int,
+        default=None,
+        help="The id of the error to report on (see the BUI error log). "
+        "Omit and pass --last for the most recent error.",
+    )
+    parser.add_argument(
+        "--last",
+        action="store_true",
+        help="Report on the most recently recorded error.",
+    )
+    parser.add_argument(
+        "--out",
+        default=None,
+        help="Output zip path (default: crash_report_error_<id>.zip).",
+    )
+    parser.add_argument(
+        "--max-log-bytes",
+        type=int,
+        default=512 * 1024,
+        help="Per-log size cap before head+tail truncation; raise for a "
+        "more thorough report (default: 524288).",
+    )
+    args = parser.parse_args()
+
+    set_project_home(args.project_home)
+
+    error_id = args.error_id
+    if args.last:
+        error_id = latest_error_id()
+        if error_id is None:
+            parser.error("no errors are recorded for this project")
+    if error_id is None:
+        parser.error("provide an error_id or use --last")
+
+    try:
+        out_path = build_crash_report(
+            error_id, args.out, max_log_bytes=args.max_log_bytes
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
+
+    print(f"Wrote crash report for error {error_id} to {out_path}")

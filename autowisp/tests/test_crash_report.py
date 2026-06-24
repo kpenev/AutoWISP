@@ -1,5 +1,7 @@
 """Unit tests for the crash-report builder and its scrubbing helpers."""
 
+import contextlib
+import io
 import json
 import os
 import sqlite3
@@ -7,6 +9,7 @@ import tempfile
 import unittest
 import zipfile
 from types import SimpleNamespace
+from unittest import mock
 
 from sqlalchemy import select
 
@@ -27,7 +30,9 @@ from autowisp.crash_report import (
     REDACTED,
     build_crash_report,
     collect_provenance,
+    crash_report_main,
     find_error_progress,
+    latest_error_id,
     scrub_config_values,
     scrub_mapping,
     scrub_text,
@@ -372,6 +377,67 @@ class TestBuildCrashReport(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             build_crash_report(999999, self._out)
+
+
+class TestCrashReportCli(unittest.TestCase):
+    """The wisp-crash-report CLI: latest-error lookup and the entry point."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        set_project_home(self._tmp.name)
+
+    def _run_cli(self, *args):
+        argv = ["wisp-crash-report", self._tmp.name, *args]
+        with mock.patch("sys.argv", argv):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                crash_report_main()
+        return out.getvalue()
+
+    def test_latest_error_id(self):
+        """latest_error_id returns the most recent error, None when empty."""
+
+        self.assertIsNone(latest_error_id())
+        first = persist_error(make_find_stars_error())
+        second = persist_error(make_find_stars_error())
+        self.assertEqual(latest_error_id(), max(first, second))
+
+    def test_cli_writes_report_for_id(self):
+        """Passing an id builds the report and prints where it went."""
+
+        error_id = persist_error(make_find_stars_error())
+        out_path = os.path.join(self._tmp.name, "report.zip")
+        output = self._run_cli(str(error_id), "--out", out_path)
+
+        self.assertTrue(os.path.exists(out_path))
+        self.assertIn(str(error_id), output)
+        with zipfile.ZipFile(out_path) as report:
+            self.assertIn("manifest.json", report.namelist())
+
+    def test_cli_last_resolves_most_recent(self):
+        """--last targets the most recently recorded error."""
+
+        persist_error(make_find_stars_error())
+        latest = persist_error(make_find_stars_error())
+        out_path = os.path.join(self._tmp.name, "last.zip")
+        output = self._run_cli("--last", "--out", out_path)
+
+        self.assertTrue(os.path.exists(out_path))
+        self.assertIn(str(latest), output)
+
+    def test_cli_errors_without_id_or_last(self):
+        """Omitting both an id and --last exits with an argparse error."""
+
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                self._run_cli()
+
+    def test_cli_last_with_no_errors_exits(self):
+        """--last with no recorded errors exits with an error."""
+
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                self._run_cli("--last")
 
 
 if __name__ == "__main__":
