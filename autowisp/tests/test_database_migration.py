@@ -58,6 +58,17 @@ class TestAdditiveMigrations(unittest.TestCase):
 
         self.assertIn("error", inspect(self.engine).get_table_names())
 
+    def test_adds_missing_resolved_to_old_error_table(self):
+        """An older ``error`` table (no ``resolved``) gains the column."""
+
+        with self.engine.begin() as conn:
+            conn.execute(text("CREATE TABLE error (id INTEGER PRIMARY KEY)"))
+        self.assertNotIn("resolved", self._columns("error"))
+
+        apply_additive_migrations(self.engine)
+
+        self.assertIn("resolved", self._columns("error"))
+
     def test_preexisting_rows_and_data_preserved(self):
         """Existing rows survive; the new column is NULL for them."""
 
