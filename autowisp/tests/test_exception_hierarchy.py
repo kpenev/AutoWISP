@@ -27,7 +27,13 @@ from autowisp.exceptions import (
     sanitize_for_json,
 )
 from autowisp.tests.error_fixtures import make_find_stars_error
-from autowisp.pipeline_exceptions import ConvergenceError, HDF5LayoutError
+from autowisp.exceptions import (
+    BadImageError,
+    ConvergenceError,
+    HDF5LayoutError,
+    ImageMismatchError,
+    OutsideImageError,
+)
 from autowisp.database.frozen_row import FrozenRow
 from autowisp.database.interface import snapshot_row
 
@@ -154,30 +160,51 @@ class TestExceptionHierarchy(unittest.TestCase):
 
 
 class TestMigratedExceptions(unittest.TestCase):
-    """Re-rooted legacy classes keep both lineages."""
+    """Folded legacy classes are pure AutoWISP exceptions (no stdlib mix-in).
 
-    def test_convergence_error_dual_lineage(self):
-        """``ConvergenceError`` is both AutoWISPError and RuntimeError."""
+    Phase 7 dropped the ``ValueError`` / ``RuntimeError`` / ``IndexError``
+    bases the legacy classes used to carry; these guard against one
+    creeping back.
+    """
+
+    def test_convergence_error_is_pure_step_error(self):
+        """``ConvergenceError`` is a StepError and not a ``RuntimeError``."""
 
         exc = ConvergenceError("did not converge")
         self.assertIsInstance(exc, AutoWISPError)
-        self.assertIsInstance(exc, RuntimeError)
+        self.assertNotIsInstance(exc, RuntimeError)
         self.assertEqual(exc.component, Component.STEP)
         self.assertEqual(str(exc), "did not converge")
 
-    def test_caught_as_runtime_error(self):
-        """Legacy ``except RuntimeError`` still catches it."""
+    def test_no_stdlib_mixins(self):
+        """None of the folded classes subclass a stdlib exception."""
 
-        with self.assertRaises(RuntimeError):
-            raise ConvergenceError("nope")
+        for cls, stdlib in (
+            (ConvergenceError, RuntimeError),
+            (HDF5LayoutError, RuntimeError),
+            (ImageMismatchError, ValueError),
+            (BadImageError, ValueError),
+            (OutsideImageError, IndexError),
+        ):
+            self.assertTrue(issubclass(cls, AutoWISPError))
+            self.assertFalse(
+                issubclass(cls, stdlib),
+                f"{cls.__name__} still subclasses {stdlib.__name__}",
+            )
 
     def test_hdf5_layout_error_is_pipeline(self):
-        """``HDF5LayoutError`` is a pipeline-component RuntimeError."""
+        """``HDF5LayoutError`` is a pipeline-component error."""
 
         exc = HDF5LayoutError("bad layout")
         self.assertIsInstance(exc, AutoWISPError)
-        self.assertIsInstance(exc, RuntimeError)
         self.assertEqual(exc.component, Component.PIPELINE)
+
+    def test_outside_image_error_specializes_calibration(self):
+        """``OutsideImageError`` is a CalibrationError (calibration-only)."""
+
+        from autowisp.exceptions import CalibrationError
+
+        self.assertTrue(issubclass(OutsideImageError, CalibrationError))
 
 
 class TestFrozenRow(unittest.TestCase):

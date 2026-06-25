@@ -6,7 +6,7 @@ import numpy
 import scipy.linalg
 from scipy.interpolate import splrep, BSpline
 
-from autowisp.pipeline_exceptions import ConvergenceError
+from autowisp.exceptions import ConvergenceError
 
 git_id = "$Id$"
 

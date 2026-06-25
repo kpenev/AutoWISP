@@ -21,6 +21,8 @@ from autowisp.error_context import (
     reraise_from_worker,
     forbid_nested_workers,
 )
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.exceptions import Component, WorkerCrashedError
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
@@ -1069,6 +1071,7 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

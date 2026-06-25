@@ -13,7 +13,7 @@ from autowisp.database.interface import set_project_home, start_db_session
 from autowisp.database.data_model import Error
 
 # pylint: enable=no-name-in-module
-from autowisp.exceptions import Component, PipelineError
+from autowisp.exceptions import Component, ConfigurationError, PipelineError
 from autowisp.error_cli import cli_entry_point, exit_code_for, report_error
 from autowisp.tests.error_fixtures import make_find_stars_error
 
@@ -112,6 +112,123 @@ class TestCliEntryPoint(_CliTestCase):
             return 42
 
         self.assertEqual(main(), 42)
+
+
+class TestStepEntryBoundaries(unittest.TestCase):
+    """Every pipeline-step main() is wrapped as a CLI error boundary."""
+
+    def test_all_step_mains_are_cli_entry_points(self):
+        """Each step that exposes a ``main()`` carries the CLI boundary.
+
+        Driven by :func:`autowisp.processing_steps.get_step_names` so a
+        newly-added step is checked automatically; steps without a CLI
+        ``main()`` (library-only steps) are skipped.
+        """
+
+        import importlib
+        from autowisp.processing_steps import get_step_names
+
+        checked = []
+        for name in get_step_names():
+            module = importlib.import_module(
+                "autowisp.processing_steps." + name
+            )
+            main = getattr(module, "main", None)
+            if main is None:
+                continue
+            checked.append(name)
+            self.assertEqual(
+                getattr(main, "__cli_entry_point__", None),
+                Component.STEP,
+                f"{name}.main() is not a Component.STEP CLI entry point",
+            )
+        self.assertTrue(checked, "no step main() functions discovered")
+
+
+class TestStepEntryEndToEnd(_CliTestCase):
+    """A real decorated step main() surfaces an escaping error."""
+
+    def test_calibrate_main_reports_and_exits(self):
+        """An error inside ``calibrate.main`` -> SystemExit with STEP code."""
+
+        from unittest import mock
+        from autowisp.processing_steps import calibrate as calibrate_step
+
+        with mock.patch.object(
+            calibrate_step,
+            "parse_command_line",
+            return_value={"raw_images": [], "calibrate_only_if": None},
+        ), mock.patch.object(
+            calibrate_step, "setup_process"
+        ), mock.patch.object(
+            calibrate_step, "find_fits_fnames", return_value=[]
+        ), mock.patch.object(
+            calibrate_step,
+            "calibrate",
+            side_effect=ValueError("calibration blew up"),
+        ):
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as ctx:
+                    calibrate_step.main()
+        self.assertEqual(ctx.exception.code, 2)  # Component.STEP
+
+
+class TestConfigParseErrors(unittest.TestCase):
+    """Stored-config parse errors are catchable, not an uncatchable exit.
+
+    The pipeline builds each step's config dict by feeding stored
+    configuration through the step's ``ManualStepArgumentParser`` (see
+    ``ProcessingManager.get_config``). A bad value there must raise a
+    recordable ``ConfigurationError`` rather than argparse's default
+    ``SystemExit``, which would silently end a detached run.
+    """
+
+    @staticmethod
+    def _parser():
+        from autowisp.processing_steps.manual_util import (
+            ManualStepArgumentParser,
+        )
+
+        parser = ManualStepArgumentParser(input_type="raw", description="t")
+        parser.add_argument(
+            "--tool", choices=["fistar", "hatphot"], help="tool"
+        )
+        return parser
+
+    def test_interactive_cli_still_exits(self):
+        """Outside config-parse mode, a bad value keeps argparse exit."""
+
+        parser = self._parser()
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                parser.parse_args(["--tool", "bogus"])
+
+    def test_config_mode_raises_configuration_error(self):
+        """In config-parse mode, a bad value raises ConfigurationError."""
+
+        from autowisp.processing_steps.manual_util import (
+            raise_config_parse_errors,
+        )
+
+        parser = self._parser()
+        with raise_config_parse_errors():
+            with self.assertRaises(ConfigurationError):
+                parser.parse_args(["--tool", "bogus"])
+
+    def test_mode_is_restored_after_context(self):
+        """Leaving the context reverts to argparse's exit behavior."""
+
+        from autowisp.processing_steps.manual_util import (
+            raise_config_parse_errors,
+        )
+
+        parser = self._parser()
+        with raise_config_parse_errors():
+            with self.assertRaises(ConfigurationError):
+                parser.parse_args(["--tool", "bogus"])
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                parser.parse_args(["--tool", "bogus"])
 
 
 if __name__ == "__main__":

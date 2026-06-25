@@ -18,7 +18,6 @@ py_src = [
   'miscellaneous.py',
   'multiprocessing_util.py',
   'piecewise_bicubic_psf_map.py',
-  'pipeline_exceptions.py',
   'processor.py',
   'run_pipeline.py',
   'source_finder.py',

@@ -9,6 +9,8 @@ import logging
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import run_pool
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -281,6 +283,7 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

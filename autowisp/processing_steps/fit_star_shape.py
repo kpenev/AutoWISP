@@ -16,6 +16,8 @@ from autowisp.fit_expression import (
 )
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import run_pool
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
@@ -927,6 +929,7 @@ def has_astrometry(image_fname, substitutions):
             return False
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step for fitting star shapes from the command line."""
 

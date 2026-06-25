@@ -22,6 +22,8 @@ from autowisp.processing_steps.fit_star_shape import add_image_options
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.error_context import run_pool
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.data_reduction.utils import (
     fill_aperture_photometry_input_tree,
     add_aperture_photometry,
@@ -237,6 +239,7 @@ def has_psf_model(image_fname, shapefit_version):
             return False
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

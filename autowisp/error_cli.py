@@ -136,6 +136,9 @@ def cli_entry_point(*, component):
                     exc.with_pipeline_run(get_error_context().pipeline_run)
                 sys.exit(report_error(exc, developer=_wants_traceback()))
 
+        # Marker so callers/tests can confirm a callable is a CLI error
+        # boundary (e.g. that every wisp-* step main() is decorated).
+        wrapper.__cli_entry_point__ = component
         return wrapper
 
     return decorate

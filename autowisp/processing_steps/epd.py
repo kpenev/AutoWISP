@@ -3,6 +3,8 @@
 """Apply EPD correction to lightcurves."""
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.light_curves.epd_correction import EPDCorrection
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
@@ -47,6 +49,7 @@ def epd(lc_collection, start_status, configuration, mark_progress):
     )
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

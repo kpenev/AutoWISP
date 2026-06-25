@@ -10,6 +10,8 @@ import string
 from django.views import View
 from django.shortcuts import render
 
+from autowisp.exceptions import ViewError
+
 
 class WalkFSView(View):
     """Base class allowing user to walk through the file system."""
@@ -129,7 +131,7 @@ class WalkFSView(View):
                 abs_search == self._root_dir[0]
                 or abs_search.startswith(self._root_dir[0] + os.sep)
             ):
-                raise PermissionError(
+                raise ViewError(
                     f"{search_dir!r} is outside root {self._root_dir[0]!r}"
                 )
 

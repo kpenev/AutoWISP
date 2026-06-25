@@ -8,6 +8,8 @@ from collections import namedtuple
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.fit_expression import (
@@ -380,6 +382,7 @@ def has_astrometry(dr_fname, substitutions):
             return False
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

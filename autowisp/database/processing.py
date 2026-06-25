@@ -9,7 +9,7 @@ from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import start_db_session, get_project_home
-from autowisp.exceptions import PipelineError
+from autowisp.exceptions import ConfigurationError, PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -20,6 +20,7 @@ from autowisp.database.user_interface import get_db_configuration
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp import processing_steps
+from autowisp.processing_steps.manual_util import raise_config_parse_errors
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -151,7 +152,10 @@ class ProcessingManager:
             ].items():
                 if required_expressions <= matched_expressions:
                     return value
-            raise ValueError(f"No viable configuration found for {param}")
+            raise ConfigurationError(
+                f"No applicable configuration value found for {param!r}; "
+                "check this step's configuration."
+            )
 
         if parameters is None:
             parameters = self.current_step
@@ -760,9 +764,14 @@ class ProcessingManager:
                 self._logger.debug(
                     "Wrote config file %s", repr(config_file.name)
                 )
-                config = getattr(
-                    processing_steps, db_step.name if db_step else step_name
-                ).parse_command_line(["-c", config_file.name])
+                # Parse stored configuration into the step's config dict.
+                # In this programmatic context a bad value must raise a
+                # recordable ConfigurationError, not print usage and
+                # sys.exit() into a detached run's redirected log.
+                with raise_config_parse_errors():
+                    config = getattr(
+                        processing_steps, db_step.name if db_step else step_name
+                    ).parse_command_line(["-c", config_file.name])
 
                 config["project_home"] = get_project_home()
                 config.update(self._error_context_keys)

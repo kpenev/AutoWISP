@@ -203,28 +203,6 @@ def error_context(*, step_name=None, related_files: Sequence = ()):
         _context.reset(token)
 
 
-# Maps a step name to its concrete StepError subclass, so an unknown
-# exception raised inside a step is wrapped in a type catch sites can be
-# specific about. Steps with no dedicated subclass fall back to
-# ``StepError`` (still carrying ``step_name``).
-_STEP_ERROR_BY_NAME = {
-    "calibrate": CalibrationError,
-    "stack_to_master": StackToMasterError,
-    "stack_to_master_flat": StackToMasterError,
-    "find_stars": FindStarsError,
-    "solve_astrometry": SolveAstrometryError,
-    "fit_star_shape": FitStarShapeError,
-    "measure_aperture_photometry": MeasurePhotometryError,
-    "fit_source_extracted_psf_map": FitPSFMapError,
-    "fit_magnitudes": FitMagnitudesError,
-    "create_lightcurves": CreateLightCurvesError,
-    "epd": EPDError,
-    "tfa": TFAError,
-    "generate_epd_statistics": DetrendingStatError,
-    "generate_tfa_statistics": DetrendingStatError,
-}
-
-
 def _stamp(exc: AutoWISPError) -> None:
     """Fill any unset context fields on ``exc`` from the ambient context.
 
@@ -265,10 +243,31 @@ def _wrap(exc: Exception, component: Component) -> AutoWISPError:
         AutoWISPError:    The wrapping exception (not yet stamped).
     """
 
+    # A step name's concrete StepError subclass, so an unknown exception
+    # raised inside a step is wrapped in a type catch sites can be specific
+    # about. Steps with no dedicated subclass fall back to ``StepError``
+    # (still carrying ``step_name``).
+    step_error_by_name = {
+        "calibrate": CalibrationError,
+        "stack_to_master": StackToMasterError,
+        "stack_to_master_flat": StackToMasterError,
+        "find_stars": FindStarsError,
+        "solve_astrometry": SolveAstrometryError,
+        "fit_star_shape": FitStarShapeError,
+        "measure_aperture_photometry": MeasurePhotometryError,
+        "fit_source_extracted_psf_map": FitPSFMapError,
+        "fit_magnitudes": FitMagnitudesError,
+        "create_lightcurves": CreateLightCurvesError,
+        "epd": EPDError,
+        "tfa": TFAError,
+        "generate_epd_statistics": DetrendingStatError,
+        "generate_tfa_statistics": DetrendingStatError,
+    }
+
     message = str(exc) or exc.__class__.__name__
     if component is Component.STEP:
         step_name = get_error_context().step_name
-        cls = _STEP_ERROR_BY_NAME.get(step_name, StepError)
+        cls = step_error_by_name.get(step_name, StepError)
         return cls(message, step_name=step_name)
     if component is Component.BUI:
         return ViewError(message)

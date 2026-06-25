@@ -34,6 +34,8 @@ from autowisp.database.data_model import ObservingSession, Target
 
 # pylint: enable=no-name-in-module
 
+from autowisp.exceptions import PipelineError
+
 _logger = logging.getLogger(__name__)
 
 
@@ -220,7 +222,7 @@ def get_or_create_observing_session(
                 result.target_id != target.id,
             ]
         ):
-            raise RuntimeError(
+            raise PipelineError(
                 "Mismatch between observing session and other header "
                 "information:\n\t"
                 + "\n\t".join(
@@ -236,7 +238,11 @@ def get_or_create_observing_session(
                             ("target", target),
                         ]
                     ]
-                )
+                ),
+                user_message=(
+                    "The image header does not match the observing session it "
+                    "was assigned to (camera/telescope/target/etc. disagree)."
+                ),
             )
 
         result.start_time_utc = min(result.start_time_utc, exposure_start)

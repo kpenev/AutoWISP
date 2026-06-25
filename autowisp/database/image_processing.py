@@ -16,7 +16,7 @@ from autowisp.multiprocessing_util import (
 )
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import start_db_session, get_project_home
-from autowisp.exceptions import Component, MasterSelectionError
+from autowisp.exceptions import Component, MasterSelectionError, PipelineError
 from autowisp.error_context import capture_errors, error_context
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
@@ -52,7 +52,7 @@ from autowisp.database.data_model.provenance import (
 # pylint: enable=no-name-in-module
 
 
-class NoMasterError(MasterSelectionError, ValueError):
+class NoMasterError(MasterSelectionError):
     """Raised when no suitable master can be found for a batch of frames."""
 
 
@@ -812,7 +812,7 @@ class ImageProcessingManager(ProcessingManager):
                     db_session.flush()
                     diag_type_id = new_type.id
                 else:
-                    raise ValueError(f"Unknown diagnostic type {diag_name!r}")
+                    raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
             db_session.add(
                 ImageDiagnostics(
                     image_id=finished_id["image_id"],
@@ -854,7 +854,7 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
             if diag_type_id is None:
-                raise ValueError(f"Unknown diagnostic type {diag_name!r}")
+                raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
 
             existing_id = db_session.scalar(
                 select(PhotometryDiagnostics.id).where(
@@ -1406,7 +1406,7 @@ class ImageProcessingManager(ProcessingManager):
                         self._current_processing.image_type_id,
                         "\n\t".join(f"{e[0]!r}: {e[1]!r}" for e in pending),
                     )
-                    raise RuntimeError("Finished non-pending image!")
+                    raise PipelineError("Finished non-pending image!")
 
                 self.pending[
                     (
@@ -1453,7 +1453,7 @@ class ImageProcessingManager(ProcessingManager):
         if step_input_type == "dr":
             return self._evaluated_expressions[image.id][channel_name]["dr"]
 
-        raise ValueError(f"Invalid step input type {step_input_type}")
+        raise PipelineError(f"Invalid step input type {step_input_type}")
 
     def set_pending(self, db_session, steps_imtypes=None, invert=False):
         """

@@ -20,6 +20,7 @@ from autowisp.database.interface import (
     DB_URL_FNAME,
 )
 from autowisp.error_persistence import delete_all_error_sidecars
+from autowisp.exceptions import ViewError
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     Configuration,
@@ -98,7 +99,7 @@ def _safe_remove(fpath, project_home):
         project_home(str):  Absolute path to the project home directory.
 
     Raises:
-        ValueError:  If *fpath* is not under *project_home*.
+        ViewError:  If *fpath* is not under *project_home*.
     """
 
     real_home = os.path.realpath(project_home)
@@ -106,7 +107,7 @@ def _safe_remove(fpath, project_home):
         fpath = os.path.join(real_home, fpath)
     real_fpath = os.path.realpath(fpath)
     if not real_fpath.startswith(real_home + os.sep):
-        raise ValueError(
+        raise ViewError(
             f"Refusing to delete {fpath!r}: not under project home "
             f"{project_home!r}"
         )

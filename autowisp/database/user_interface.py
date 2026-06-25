@@ -16,6 +16,7 @@ from sqlalchemy.orm import ColumnProperty
 
 from autowisp.database import defaults as database_defaults
 from autowisp.database.interface import start_db_session, set_project_home
+from autowisp.exceptions import ConfigurationError
 from autowisp.database.data_model import provenance
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
@@ -526,7 +527,7 @@ def _parse_json_config(json_config):
             for child in sub_tree["children"]:
                 walk_json(child, parameter, expression_ids + (condition_id,))
         else:
-            raise ValueError(
+            raise ConfigurationError(
                 f'Unexpected node type: {sub_tree["type"]} in JSON'
                 " configuration"
             )

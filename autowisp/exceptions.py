@@ -334,6 +334,14 @@ class CalibrationError(StepError):
     """Failure in the calibrate step."""
 
 
+class OutsideImageError(CalibrationError):
+    """Attempt to access image data outside the bounds of the image.
+
+    Raised only in the calibration path, so it specializes
+    :class:`CalibrationError` rather than the generic :class:`StepError`.
+    """
+
+
 class StackToMasterError(StepError):
     """Failure stacking calibration frames into a master."""
 
@@ -378,6 +386,28 @@ class DetrendingStatError(StepError):
     """Failure computing detrending statistics."""
 
 
+# --- Cross-cutting step "reason" exceptions. --------------------------
+#
+# These name *why* a step failed (a bad image, incompatible images, a
+# non-converging iteration) rather than *which* step. They are raised
+# from shared low-level modules (fits_utilities, image_utilities,
+# iterative_rejection_util, ...) reached by many steps, so they specialize
+# the generic StepError; the step identity is supplied separately by the
+# ``step_name`` the capture layer stamps from the ambient context.
+
+
+class ImageMismatchError(StepError):
+    """Attempt to combine incompatible images in some way."""
+
+
+class BadImageError(StepError):
+    """An image does not look like it is expected to."""
+
+
+class ConvergenceError(StepError):
+    """Some iterative procedure failed to converge."""
+
+
 # --- Pipeline-level exceptions. ---------------------------------------
 
 
@@ -387,6 +417,10 @@ class ConfigurationError(PipelineError):
 
 class DatabaseError(PipelineError):
     """Failure interacting with the pipeline database."""
+
+
+class HDF5LayoutError(PipelineError):
+    """Error caused by invalid specification of HDF5 layout."""
 
 
 class ResourceError(PipelineError):

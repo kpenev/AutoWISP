@@ -98,11 +98,18 @@ exactly one source of truth.
    sidecar(s), the relevant per-process logs/stdout-stderr, the
    configuration snapshot, a scrubbed database copy, the `code_version`,
    and environment/provenance — with a scrubbing pass for credentials.
-7. ⏳ Migrate existing call sites to raise the new exception types and
-   delete the legacy ad-hoc classes. *(section pending)*
+7. ⏳ [Migrate existing call sites](#phase-7--call-site-migration) to
+   raise the new exception types, apply the CLI error boundary to each
+   step `main()`, and fold the legacy ad-hoc classes into the hierarchy.
+   *(designed below; not yet implemented)*
+8. ⏳ [Deferred-site migration + BUI-specific raises](#phase-8--deferred-site-migration--bui-specific-raises):
+   retype the worthwhile subset of the Phase 7 "deferred" raise sites,
+   and introduce a few new exceptions raised specifically so the BUI can
+   handle them. *(section pending)*
 
-Phases 1–6 are implemented and have their own sections below; phase 7
-gets its section when we start it.
+Phases 1–6 are implemented and have their own sections below; phase 7 is
+designed below but not yet implemented; phase 8 gets its section when we
+start it.
 
 ## Phase 1 — Exception hierarchy
 
@@ -1728,3 +1735,346 @@ enters the zip unscrubbed:
   page's "View log" link targets the right log; an error with no
   resolvable progress (pipeline/BUI) yields no link rather than a wrong
   one.
+
+## Phase 7 — call-site migration
+
+Phases 1–6 built the machinery; nothing *forced* the rest of the code to
+use it. Phase 7 is the migration that makes the hierarchy the actual,
+exclusive way AutoWISP signals failure:
+
+1. **Apply the CLI error boundary** (`cli_entry_point`, built in phase 5)
+   to every standalone step `main()` — the one phase-2 deferral that was
+   explicitly parked for here (see the phase-2 "What changes" table).
+2. **Fold the legacy ad-hoc classes** into `autowisp/exceptions.py`,
+   dropping the stdlib-compat multiple inheritance and the separate
+   `pipeline_exceptions.py` module, and fix the handful of `except`
+   sites that relied on the stdlib bases.
+3. **Retype the high-value raise sites** so the error carries a precise
+   class, a jargon-free `user_message`, and `related_files` — without
+   churning every deep `raise` (auto-wrapping already covers those; see
+   below).
+
+### What "migration" does *not* mean: auto-wrapping is already in place
+
+A deliberate scoping point, because it shrinks phase 7 a lot.
+`@capture_errors(component=Component.STEP)` already wraps `_run_step`
+(`image_processing.py`), and phase 3's `run_pool` / `capture_for_queue`
+already wrap the worker callables. So **any** bare `ValueError` /
+`RuntimeError` / `KeyError` raised deep inside a step *already* surfaces
+as that step's concrete `StepError` subclass, stamped with `step_name`,
+the pipeline-run snapshot, `subprocess_id`, the ambient `related_files`,
+and the original traceback in `details["original_traceback"]` (with
+`__cause__` preserved). The standalone path gets the same once
+`cli_entry_point` is applied (item 1).
+
+Therefore phase 7 does **not** rewrite all ~119 raise sites. Converting a
+deep `raise ValueError(...)` to `raise SomeStepError(...)` is worthwhile
+*only* when it buys something the auto-wrapper cannot infer:
+
+- a **more specific class** than the step default (e.g. a convergence
+  failure inside `fit_magnitudes` that callers want to catch as
+  `ConvergenceError` rather than the generic `FitMagnitudesError`);
+- a **`user_message`** materially clearer than the technical message;
+- **`related_files`** the ambient context does not already carry; or
+- a site **outside** any capture boundary (orchestration code in
+  `run_pipeline.py` / `database/`, and BUI views), where there is no
+  auto-wrapper to lean on.
+
+Everything else is left to auto-wrapping. This keeps the diff focused on
+sites where an explicit type changes behaviour (a `catch` becomes
+possible) or the user-facing message, rather than mechanical churn.
+
+### Item 1 — apply `cli_entry_point` to step `main()`s
+
+Each `wisp-*` step entry in `pyproject.toml` points at a
+`processing_steps/<step>.py:main`. Today those `main()`s run
+`setup_process(task=...)` and call the step function directly, so an
+exception escapes as a raw traceback with no persisted `Error` row and no
+rendered summary. Decorating each with
+`@cli_entry_point(component=Component.STEP)` routes the escape through
+`capture_errors` → `report_error` (persist + stderr render + non-zero
+exit), exactly as the in-pipeline path already does via `_run_step`.
+
+Scope: the step modules with a `main()` wired to a `wisp-*` script —
+`calibrate`, `stack_to_master`, `stack_to_master_flat`, `find_stars`,
+`solve_astrometry`, `fit_star_shape`, `measure_aperture_photometry`,
+`fit_source_extracted_psf_map`, `fit_magnitudes`, `create_lightcurves`,
+`epd`, `tfa`, plus `generate_epd_statistics` / `generate_tfa_statistics`.
+
+Two wrinkles to handle during the migration:
+
+- **Component for the stat generators.** `generate_*_statistics` are
+  detrending-stat steps → `Component.STEP`. Anything that turns out to be
+  pure orchestration (no step semantics) takes `Component.PIPELINE`.
+- **Return value vs. exit code.** Several `main()`s `return 0` / `return
+  -1`. `cli_entry_point` only intervenes on an *exception* (it calls
+  `sys.exit(report_error(...))`); a normal return is passed through
+  untouched, so the existing `return 0` contract is preserved. Any
+  `main()` that signals failure with a *return value* rather than an
+  exception (e.g. `calibrate`'s `return -1`) should raise the appropriate
+  `StepError` instead, so the failure is actually recorded — otherwise
+  `cli_entry_point` never sees it.
+
+`run_pipeline.main` already has its own top-level handler (phase 2/5) and
+is **not** a `wisp-*` step entry, so it is left as-is.
+
+### Item 2 — fold the legacy classes into the hierarchy
+
+Phase 1 re-rooted the legacy classes but kept them dual-based on a stdlib
+exception (`BadImageError(StepError, ValueError)`, …) and in their old
+locations, "so existing `except ValueError/RuntimeError/IndexError`
+handlers keep catching them … until phase 7." Phase 7 removes that shim.
+
+Current legacy inventory and target:
+
+| Legacy class | Where defined now | Stdlib mix-in | Target |
+| ------------ | ----------------- | ------------- | ------ |
+| `OutsideImageError` | `pipeline_exceptions.py` | `IndexError` | `exceptions.py`, drop mix-in (a `CalibrationError`) |
+| `ImageMismatchError` | `pipeline_exceptions.py` | `ValueError` | `exceptions.py`, drop mix-in (a `StepError`) |
+| `BadImageError` | `pipeline_exceptions.py` | `ValueError` | `exceptions.py`, drop mix-in (a `StepError`) |
+| `ConvergenceError` | `pipeline_exceptions.py` | `RuntimeError` | `exceptions.py`, drop mix-in (a `StepError`) |
+| `HDF5LayoutError` | `pipeline_exceptions.py` | `RuntimeError` | `exceptions.py`, drop mix-in (a `PipelineError`) |
+| `NoMasterError` | `database/image_processing.py` | `ValueError` | keep where it is, drop the `ValueError` mix-in |
+| `ProcessingInProgress` | `database/processing.py` | — (already pure `PipelineError`) | leave as-is |
+| `MalformedResponse` | `astrometry/astrometry_net_client.py` | — (already pure `SolveAstrometryError`) | leave as-is |
+| `RequestError` | `astrometry/astrometry_net_client.py` | — (already pure `SolveAstrometryError`) | leave as-is |
+
+These classes are **not deleted** — they carry real domain meaning
+(`BadImageError`, `ImageMismatchError`, `ConvergenceError`,
+`OutsideImageError`, `HDF5LayoutError`). What is deleted is the *ad-hoc
+shape*: the stdlib multiple inheritance and the standalone
+`pipeline_exceptions.py` module. The five classes move into
+`exceptions.py` as first-class concrete subclasses next to the other
+domain exceptions; `pipeline_exceptions.py` is removed (or reduced to a
+thin re-export for one release if external code imports it — decided when
+we check for outside importers).
+
+**The mix-in audit (the only risk in item 2).** Dropping `ValueError` /
+`RuntimeError` / `IndexError` from these classes means any handler that
+caught the *stdlib* type in order to catch the *domain* error stops
+catching it. The `except (ValueError|RuntimeError|IndexError)` sites are
+enumerable (≈ a dozen, mostly in `catalog.py`, `lc_data_io.py`,
+`user_interface.py`, `magnitude_fitting/`, and some BUI views). The audit
+classifies each:
+
+- **Catches a genuine stdlib error** (e.g. `int(x)` raising `ValueError`,
+  a missing list index) → leave untouched; it never relied on the domain
+  class.
+- **Relied on the mix-in** to catch a re-rooted domain error → change it
+  to catch the domain class explicitly (e.g. `except ConvergenceError`),
+  which is strictly clearer.
+
+Each call site that *raises* a legacy class simply updates its import
+from `autowisp.pipeline_exceptions` to `autowisp.exceptions`
+(`calibrator.py`, `mask_utilities.py`, `fits_utilities.py`,
+`image_utilities.py`, `iterative_rejection_util.py`,
+`overscan_methods.py`, `hdf5_file.py`). Signatures are unchanged, so the
+raises themselves do not move.
+
+### Item 3 — retype the high-value sites
+
+Guided by the "does it buy something" test above. Concretely, the sites
+worth an explicit type are:
+
+- **Orchestration / `database/` raises** — these run *outside* any
+  `capture_errors` boundary, so a bare `raise ValueError`/`RuntimeError`
+  there would surface untyped. Convert to the matching `PipelineError`
+  subclass (`ConfigurationError`, `DatabaseError`,
+  `DependencyResolutionError`, `MasterSelectionError`,
+  `PhotrefBindingError`), attaching `related_files` / `details` where the
+  artifact is known.
+- **`run_pipeline.py`** config/argument validation → `ConfigurationError`
+  with a `user_message` aimed at the operator.
+- **BUI view raises** → the `BUIError` subclasses (`ViewError`,
+  `FormValidationError`, `ProjectStateError`); the phase-5 middleware
+  already persists these, but several views still raise stdlib types.
+- **A few step-internal sites** where a *narrower* class than the step
+  default is useful to catch — notably `ConvergenceError` from the
+  iterative fitters (`magnitude_fitting/`, `iterative_rejection_util.py`)
+  and `BadImageError` / `ImageMismatchError` from calibration, which some
+  callers branch on.
+
+Deep, single-use `raise ValueError("…")` lines inside a step that no one
+catches specifically are **left to auto-wrapping** — converting them adds
+churn without changing behaviour or the rendered message.
+
+### What changes, concretely
+
+| File | Change |
+| ---- | ------ |
+| `autowisp/exceptions.py` | Add the five folded domain classes (`OutsideImageError`, `ImageMismatchError`, `BadImageError`, `ConvergenceError`, `HDF5LayoutError`) as pure `StepError`/`PipelineError` subclasses (no stdlib mix-in). |
+| `autowisp/pipeline_exceptions.py` | Removed (or reduced to a deprecation-shim re-export, pending an outside-importer check). |
+| `autowisp/database/image_processing.py` | `NoMasterError` drops its `ValueError` mix-in. |
+| each `processing_steps/*.py` `main()` (the `wisp-*` entries) | Decorate with `@cli_entry_point(component=Component.STEP)`; convert failure-by-return-value (`return -1`) to a raised `StepError`. |
+| raise/​catch sites importing the legacy classes (`calibrator.py`, `mask_utilities.py`, `fits_utilities.py`, `image_utilities.py`, `iterative_rejection_util.py`, `overscan_methods.py`, `hdf5_file.py`) | Re-point imports to `autowisp.exceptions`. |
+| the audited `except (ValueError|RuntimeError|IndexError)` sites | Switch the ones that relied on a mix-in to catch the domain class; leave genuine-stdlib catches alone. |
+| orchestration / `database/` / `run_pipeline.py` / BUI view raises (high-value subset) | Convert to the matching `PipelineError` / `BUIError` subclass with `user_message` (+ `related_files`/`details` where known). |
+
+### Tests (Phase 7)
+
+- A `wisp-*` step `main()` that raises (or whose step function raises)
+  surfaces through `cli_entry_point`: an `Error` row + sidecar is
+  persisted, a summary is rendered to stderr, and the process exits with
+  the `Component.STEP` code — mirroring the existing
+  `test_error_cli.py` coverage but at a real step entry point.
+- The folded classes are importable from `autowisp.exceptions`, are
+  `AutoWISPError` subclasses with the right `component`, and are **not**
+  `ValueError`/`RuntimeError`/`IndexError` subclasses anymore (guards
+  against an accidental mix-in creeping back).
+- `tests/test_exception_hierarchy.py` is extended to cover the folded
+  classes (component set, pickling round-trip).
+- For each `except` site changed in the audit, a regression test (or an
+  existing test) confirms the domain error is still caught.
+- A raise in orchestration/`database`/BUI converted in item 3 surfaces as
+  the intended typed exception with its `user_message`.
+- A grep-style test (or a lint check) asserts `pipeline_exceptions` is no
+  longer imported anywhere except the deprecation shim, if one is kept.
+
+## Phase 8 — deferred-site migration + BUI-specific raises
+
+*(section pending — to be written when we start it)*
+
+Two strands:
+
+1. **Migrate the worthwhile deferred raise sites.** Phase 7 left the
+   bare-stdlib raises inside step / library code to auto-wrapping; the
+   catalogued backlog is the "Deferred raise sites" subsection below.
+   Phase 8 retypes the subset that actually benefits — a more specific
+   class callers can `except`, a clearer `user_message`, or explicit
+   `related_files` — rather than the whole list. Likely first candidates:
+   the catalog-coverage cluster (a dedicated `CatalogError`?), the
+   lightcurve-IO sites (with the LC as a `related_file`), and the broad
+   `raise Exception` in `lc_data_io.py:479`.
+
+2. **New BUI-specific raises.** Introduce a few new exceptions raised
+   precisely so the BUI can detect and handle them (distinct presentation
+   / recovery, not just the generic error surfacing from phase 5). The
+   exact set, their `Component`/parent, and the BUI handling are to be
+   designed here.
+
+### Deferred raise sites (Phase 7 backlog)
+
+These are the `raise <stdlib exception>` sites that Phase 7 **leaves to
+auto-wrapping** (see "What 'migration' does *not* mean" under Phase 7).
+All sit *inside* a step / library call graph, so when reached through the
+pipeline they are already wrapped by `@capture_errors` / `run_pool` /
+`capture_for_queue` into the right `StepError` subclass, stamped with
+`step_name`, the pipeline-run snapshot, `subprocess_id`, ambient
+`related_files`, and the original traceback.
+
+They are catalogued here because several **may be worth migrating** for a
+more precise class (so callers can `except` it), a clearer
+`user_message`, or explicit `related_files`. This list excludes the
+"high-value" sites Phase 7 migrates (orchestration / `database/` /
+`run_pipeline.py` / BUI), already-typed `AutoWISPError` raises, and the
+crash-report / error-persistence tooling. Suggested target classes are
+advisory — pick when actually migrating.
+
+#### Not actually an error (leave as-is)
+
+- `processing_steps/lc_detrending_argument_parser.py:25` — `raise
+  StopIteration`. Iterator protocol, not a failure. **Do not migrate.**
+- `light_curves/tfa_correction.py:1158` — `raise NotImplementedError`
+  ("Adding extra templates is not implemented yet."). Genuine
+  not-implemented marker; leave unless we want a typed `TFAError`.
+
+#### Catalog (`catalog.py`) — candidate: a `CatalogError` domain class, else `SolveAstrometryError`
+
+Mostly catalog-coverage / consistency validation reached from
+solve_astrometry / find_stars. A dedicated `CatalogError` would let
+callers catch catalog problems specifically.
+
+- `:803` `ValueError` — FOV requested for frames with no consistent pointing.
+- `:940` `RuntimeError` — FOV > 40 degrees not supported.
+- `:1068` `RuntimeError` — DR files to be covered by one catalog have different epochs.
+- `:1124` `RuntimeError` — catalog epoch mismatch vs. required.
+- `:1134` `RuntimeError` — catalog magnitude-expression mismatch.
+- `:1148` `RuntimeError` — catalog excludes sources brighter than required.
+- `:1159` `RuntimeError` — catalog excludes sources fainter than required.
+- `:1169` `RuntimeError` — catalog width less than required.
+- `:1177` `RuntimeError` — catalog height less than required.
+- `:1190` `RuntimeError` — catalog center RA too far from required.
+- `:1199` `RuntimeError` — catalog center Dec too far from required.
+
+#### HDF5 I/O (`hdf5_file.py`) — candidate: `HDF5LayoutError` (layout) / a DR-file IO error, with `related_files`
+
+Shared infra under almost every DR-touching step. Layout/config problems
+map to `HDF5LayoutError`; missing-dataset/attribute reads are closer to a
+DR-file IO error.
+
+- `:249` `KeyError` — dataset key not in configured file entries.
+- `:258` `KeyError` — dataset key does not identify a dataset/link.
+- `:268` `IOError` — required dataset does not exist in file.
+- `:294` `KeyError` — unrecognized element id.
+- `:370` `TypeError` — element exists but is of the wrong type.
+- `:613` `ValueError` — argument to `hdf5_class_string` is not an h5py class.
+- `:764` `IOError` — link already exists pointing elsewhere.
+- `:770` `IOError` — non-link object already exists at link path.
+- `:924` `IOError` — dump dataset not created though deletion requested.
+- `:959` `KeyError` — attribute key not in configured structure.
+- `:964` `KeyError` — attribute key not an attribute.
+- `:977` `IOError` — attribute requested from non-existent path.
+- `:985` `IOError` — attribute not defined for path.
+- `:1165` `IOError` — dataset already exists and overwrite not allowed.
+
+#### Lightcurve I/O — candidate: `CreateLightCurvesError` / a lightcurve-IO error, with `related_files` (the LC)
+
+- `light_curves/light_curve_file.py:115` `IOError` — (message var).
+- `light_curves/light_curve_file.py:172` `ValueError` — need ≥1 identifier to create LC file.
+- `light_curves/light_curve_file.py:285` `RuntimeError` — dataset shape mismatch within LC.
+- `light_curves/light_curve_file.py:509` `IOError` — failed to read LC dataset (length mismatch).
+- `light_curves/light_curve_file.py:554` `IOError` — LC length smaller than confirmed length.
+- `light_curves/light_curve_file.py:561` `IOError` — LC actual vs expected length mismatch.
+- `light_curves/light_curve_file.py:569` `IOError` — unexpected LC length resolution mode.
+- `light_curves/lc_data_io.py:479` `Exception` — wraps conversion error (chained). **Broad `Exception`; good migration candidate.**
+- `light_curves/lc_data_io.py:675` `IOError` — adding frame-independent dataset.
+- `light_curves/lc_data_io.py:1257` `IOError` — `prepare_for_writing()` not called.
+- `light_curves/lc_data_io.py:1369` `IOError` — while reading frame (chained).
+- `light_curves/lc_data_io.py:1410` `IOError` — while writing source (chained).
+- `light_curves/lc_data_slice.py:78` `TypeError` — unrecognized dtype.
+
+#### Astrometry (`astrometry/astrometry.py`) — candidate: `SolveAstrometryError`
+
+- `:762` `ValueError` — too few equations to solve for transformation coefficients.
+
+#### Calibration (`image_calibration/calibrator.py`) — candidate: `CalibrationError`
+
+(`BadImageError` / `ImageMismatchError` / `OutsideImageError` already typed here.)
+
+- `:244` `ValueError` — area has bad dimension (`area_name`/`direction`).
+- `:341` `ValueError` — invalid gain specified.
+- `:351` `ValueError` — invalid leak direction.
+- `:355` `ValueError` — malformatted list of leak directions (chained).
+
+#### Master photometric reference — candidate: `FitMagnitudesError` / `MasterSelectionError`
+
+- `magnitude_fitting/master_photref_collector_grcollect.py:610` `RuntimeError` — failed to generate master photref.
+- `magnitude_fitting/master_photref_collector_zarr.py:689` `RuntimeError` — failed to generate master photref.
+
+#### Source finding (`source_finder_util.py`) — candidate: `ConfigurationError` / `FindStarsError`
+
+- `:80` `KeyError` — unrecognized source-extraction tool.
+
+#### Step modules (`processing_steps/`)
+
+Step-internal sites. The step boundary already stamps the step name, so a
+migration here mainly buys a clearer `user_message` or a narrower class.
+
+- `add_images_to_db.py:77` `ValueError` — unrecognized image type → `ConfigurationError`.
+- `calibrate.py:57` `ValueError` — malformatted channel specification → `ConfigurationError`/`CalibrationError`.
+- `calibrate.py:132` `ValueError` — malformatted overscan specification (chained) → `ConfigurationError`/`CalibrationError`.
+- `fit_magnitudes.py:222` `ValueError` — master photref filename doesn't match format → `FitMagnitudesError`.
+- `fit_magnitudes.py:363` `RuntimeError` — cleanup of interrupted magfit failed (file should not exist) → `FitMagnitudesError`.
+- `fit_magnitudes.py:436` `ValueError` — inconsistent interrupted status values → `FitMagnitudesError`.
+- `fit_source_extracted_psf_map.py:264` `IOError` — matched sources lack full PSF parameter set → `FitPSFMapError`.
+- `fit_star_shape.py:602` `RuntimeError` — images in multi-image fit have inconsistent pointing → `FitStarShapeError`.
+- `solve_astrometry.py:452` `RuntimeError` — catalog-coverage loop appears infinite → `SolveAstrometryError`.
+- `stack_to_master_flat.py:493` `RuntimeError` — mismatched master filenames during cleanup → `StackToMasterError`.
+- `lc_detrending.py:31` `ValueError` — none of the lightcurves is for the target → `ConfigurationError`/detrending error.
+- `manual_util.py:626` `ValueError` — non-string default with no type specified → `ConfigurationError`.
+- `manual_util.py:650` `ValueError` — could not convert default value for DB → `ConfigurationError`.
+
+#### Other
+
+- `diagnostics/calibrate.py:88` `ValueError` — no observing session with the given label → `ConfigurationError`.
+- `bui_util.py:55` `RuntimeError` — requested FITS file does not exist. Reached from the BUI; candidate `ViewError`/`ResourceError` (or leave if only used as a helper).

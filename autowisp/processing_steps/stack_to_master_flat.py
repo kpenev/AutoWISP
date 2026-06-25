@@ -10,6 +10,8 @@ import numpy
 from scipy import ndimage
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.processing_steps.manual_util import ignore_progress
 from autowisp.processing_steps.stack_to_master import (
@@ -502,6 +504,7 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

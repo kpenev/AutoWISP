@@ -24,7 +24,7 @@ from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.error_cli import report_error
 from autowisp.miscellaneous import get_code_version_str
-from autowisp.exceptions import AutoWISPError, PipelineError
+from autowisp.exceptions import AutoWISPError, PipelineError, ResourceError
 from autowisp.file_utilities import find_fits_fnames
 
 
@@ -232,7 +232,11 @@ if __name__ == "__main__":
 
             pid = fork()
             if pid < 0:
-                raise RuntimeError("fork fail")
+                raise ResourceError(
+                    "Could not start the pipeline in the background: the "
+                    "operating system refused to create a new process "
+                    "(fork() failed)."
+                )
             if pid != 0:
                 sys.exit(0)
 
