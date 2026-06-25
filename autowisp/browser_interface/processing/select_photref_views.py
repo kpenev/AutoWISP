@@ -32,9 +32,12 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
 from .display_fits_util import update_fits_display
+from .streak_detection import OpenCVUnavailable, count_raw_streak_lines
 
 
-def get_photref_merit_info(photref_group, db_session, merit_function):
+def get_photref_merit_info(
+    photref_group, db_session, merit_function, streak_detected=None
+):
     """
     Return the diagnostics, ranking, and std for each photref_group image.
 
@@ -48,6 +51,9 @@ def get_photref_merit_info(photref_group, db_session, merit_function):
         merit_function(str):    Expression to evaluate for ranking images.
             May reference any diagnostic column as ``qnt_<name>`` (rank) or
             ``std_<name>`` (standard deviation).
+
+        streak_detected:    Optional list of 0/1 flags matching photref_group.
+            A value of 1 means streak detection found at least one line.
 
     Returns:
         pandas.DataFrame with one row per image/channel, columns for all
@@ -76,6 +82,10 @@ def get_photref_merit_info(photref_group, db_session, merit_function):
     for column in frame_quantities:
         merit_info["qnt_" + column] = merit_info[column].rank(pct=True)
 
+    if streak_detected is None:
+        streak_detected = [0] * len(merit_info)
+    merit_info["streak_detected"] = streak_detected
+
     eval_merit = Evaluator(merit_info)
     for column in frame_quantities:
         eval_merit.symtable["std_" + column] = merit_info[column].std()
@@ -93,7 +103,8 @@ def _get_missing_photref(request):
         result = compute_photref_candidates(processing, db_session)
 
     request.session["merit_function"] = (
-        "1.0 / ((1.0 - qnt_s_center)**2 + qnt_bg_center**2)"
+        "(1.0 / ((1.0 - qnt_s_center)**2 + qnt_bg_center**2)) "
+        "* (1.0 - 0.9 * streak_detected)"
     )
     request.session["demo"] = result["demo"]
     # Preserve the original "last entry wins" behavior: the outer loop in
@@ -107,6 +118,49 @@ def _get_missing_photref(request):
             "master_values": last["groups"],
         }
     request.session.modified = True
+
+
+def _get_streak_cache_key(fits_fname, dr_fname):
+    """Return a stable session key for streak detection results."""
+
+    return f"{fits_fname}|{dr_fname}"
+
+
+def _get_streak_count(request, fits_fname, dr_fname):
+    """Return cached raw streak count, or calculate and cache it."""
+
+    if "streak_info" not in request.session:
+        request.session["streak_info"] = {}
+
+    key = _get_streak_cache_key(fits_fname, dr_fname)
+    if key not in request.session["streak_info"]:
+        try:
+            request.session["streak_info"][key] = int(
+                count_raw_streak_lines(fits_fname, dr_fname)
+            )
+        except OpenCVUnavailable as exc:
+            print(
+                f"Skipping streak detection for {fits_fname}: {exc}"
+            )
+            request.session["streak_info"][key] = None
+        except Exception:  # pylint: disable=broad-except
+            print(
+                f"Streak detection failed for {fits_fname} using {dr_fname}."
+            )
+            request.session["streak_info"][key] = None
+    request.session.modified = True
+
+    return request.session["streak_info"][key]
+
+
+def _get_streak_flags(request, batch):
+    """Return 1 for batch entries with streak detections, 0 otherwise."""
+
+    result = []
+    for fits_fname, dr_fname, *_ in batch:
+        streak_count = _get_streak_count(request, fits_fname, dr_fname)
+        result.append(int(streak_count is not None and streak_count > 0))
+    return result
 
 
 def _get_merit_data(request, target_index):
@@ -126,6 +180,7 @@ def _get_merit_data(request, target_index):
                     photref_group,
                     db_session,
                     request.session["merit_function"],
+                    streak_detected=_get_streak_flags(request, batch),
                 )
                 .sort_values(by="merit", ascending=False)
                 .to_json()
@@ -263,7 +318,7 @@ def _create_merit_histograms(
     )
 
     for column in merit_data.columns:
-        if column.startswith("qnt_"):
+        if column.startswith("qnt_") or column == "streak_detected":
             continue
         fig, ax = pyplot.subplots()
         ax.hist(merit_data[column], bins="auto", linewidth=0, color="white")

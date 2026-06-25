@@ -9,6 +9,7 @@ py_src = [
   'progress_view.py',
   'select_photref_views.py',
   'select_raw_view.py',
+  'streak_detection.py',
   'tune_starfind_views.py',
   'urls.py',
   'views.py',
