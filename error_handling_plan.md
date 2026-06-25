@@ -98,18 +98,16 @@ exactly one source of truth.
    sidecar(s), the relevant per-process logs/stdout-stderr, the
    configuration snapshot, a scrubbed database copy, the `code_version`,
    and environment/provenance — with a scrubbing pass for credentials.
-7. ⏳ [Migrate existing call sites](#phase-7--call-site-migration) to
+7. ✅ [Migrate existing call sites](#phase-7--call-site-migration) to
    raise the new exception types, apply the CLI error boundary to each
    step `main()`, and fold the legacy ad-hoc classes into the hierarchy.
-   *(designed below; not yet implemented)*
 8. ⏳ [Deferred-site migration + BUI-specific raises](#phase-8--deferred-site-migration--bui-specific-raises):
    retype the worthwhile subset of the Phase 7 "deferred" raise sites,
    and introduce a few new exceptions raised specifically so the BUI can
    handle them. *(section pending)*
 
-Phases 1–6 are implemented and have their own sections below; phase 7 is
-designed below but not yet implemented; phase 8 gets its section when we
-start it.
+Phases 1–7 are implemented and have their own sections below; phase 8 gets
+its section when we start it.
 
 ## Phase 1 — Exception hierarchy
 
@@ -1903,7 +1901,7 @@ churn without changing behaviour or the rendered message.
 | File | Change |
 | ---- | ------ |
 | `autowisp/exceptions.py` | Add the five folded domain classes (`OutsideImageError`, `ImageMismatchError`, `BadImageError`, `ConvergenceError`, `HDF5LayoutError`) as pure `StepError`/`PipelineError` subclasses (no stdlib mix-in). |
-| `autowisp/pipeline_exceptions.py` | Removed (or reduced to a deprecation-shim re-export, pending an outside-importer check). |
+| `autowisp/pipeline_exceptions.py` | Removed outright (no deprecation shim -- the outside-importer check found only in-tree importers, all re-pointed to `autowisp.exceptions`). |
 | `autowisp/database/image_processing.py` | `NoMasterError` drops its `ValueError` mix-in. |
 | each `processing_steps/*.py` `main()` (the `wisp-*` entries) | Decorate with `@cli_entry_point(component=Component.STEP)`; convert failure-by-return-value (`return -1`) to a raised `StepError`. |
 | raise/​catch sites importing the legacy classes (`calibrator.py`, `mask_utilities.py`, `fits_utilities.py`, `image_utilities.py`, `iterative_rejection_util.py`, `overscan_methods.py`, `hdf5_file.py`) | Re-point imports to `autowisp.exceptions`. |
@@ -1928,7 +1926,49 @@ churn without changing behaviour or the rendered message.
 - A raise in orchestration/`database`/BUI converted in item 3 surfaces as
   the intended typed exception with its `user_message`.
 - A grep-style test (or a lint check) asserts `pipeline_exceptions` is no
-  longer imported anywhere except the deprecation shim, if one is kept.
+  longer imported anywhere.
+
+### Status
+
+Phase 7 is complete. All three items landed: the five legacy classes were
+folded into `autowisp/exceptions.py` as pure subclasses (`OutsideImageError`
+under `CalibrationError`; `ImageMismatchError` / `BadImageError` /
+`ConvergenceError` as cross-cutting `StepError`s; `HDF5LayoutError` under
+`PipelineError`), `NoMasterError` lost its `ValueError` base,
+`pipeline_exceptions.py` was deleted and all importers re-pointed; the
+mix-in audit found **no** handler relied on the stdlib bases, so no
+`except` site changed. `@cli_entry_point(component=Component.STEP)` is on
+all 14 step `main()`s, and the high-value orchestration / BUI raises were
+retyped. The deep, auto-wrapped `raise` sites were left for phase 8 (see
+the backlog below).
+
+Notes on what differed from / extended the plan:
+
+- **`get_step_names()`** was extracted in `processing_steps/__init__.py`
+  as the single source of truth for the step list, and the phase-7 test
+  drives the "every step `main()` is a CLI boundary" check from it (so a
+  newly-added step is checked automatically).
+- **`pipeline_exceptions.py` was removed outright** (no deprecation shim).
+
+Two follow-on fixes surfaced while exercising phase 7 through the BUI and
+were delivered alongside it:
+
+- **Stored-configuration parse errors are now recordable.** The pipeline
+  builds each step's config by feeding stored configuration through the
+  step's `ManualStepArgumentParser` (`ProcessingManager.get_config`); a
+  bad value made argparse `sys.exit()`, which (as a `BaseException`)
+  escaped `capture_errors` / `run_pipeline.main` and silently ended the
+  detached run with no `Error` row. The parser's `error()` now raises a
+  catchable `ConfigurationError` while parsing stored config (scoped by
+  `raise_config_parse_errors`), leaving interactive CLI parsing with
+  argparse's usual usage-and-exit.
+- **BUI errors stay in the BUI.** `ErrorCaptureMiddleware` previously
+  recorded the error then returned `None`, letting Django render its
+  technical exception page. It now records the error, queues a dismissible
+  LCARS banner (linking to the error-detail page), and redirects the user
+  back to where they were; `Http404` / `PermissionDenied` are passed
+  through unchanged. This supersedes the phase-5 middleware's "leave
+  Django's 500 untouched" behaviour.
 
 ## Phase 8 — deferred-site migration + BUI-specific raises
 
