@@ -43,6 +43,19 @@
                 {% block left_menu %}
                 {% endblock %}
 
+                {% block error_log_link %}
+                {% if error_count %}
+                <a href="{% url 'processing:error_list' %}">
+                    <div class="lcars-element
+                                button
+                                lcars-red-alert-bg
+                                lcars-u-1-1">
+                        Errors ({{ error_count }})
+                    </div>
+                </a>
+                {% endif %}
+                {% endblock error_log_link %}
+
                 {% block processing_link %}
                 <a href="{% url 'processing:progress' %}" id="tutorial-processing-status">
                     <div class="lcars-element 
@@ -117,6 +130,26 @@
             </div>
 
             <div id="container">
+                {% if messages %}
+                <div id="bui-messages">
+                    {% for message in messages %}
+                    <div class="bui-message {% if message.level_tag == 'error' %}lcars-red-alert-bg{% else %}lcars-golden-tanoi-bg{% endif %}">
+                        <span class="bui-message-text">{{ message }}</span>
+                        {% if message.extra_tags %}
+                        <a class="bui-message-link"
+                           href="{% url 'processing:error_detail' message.extra_tags %}">
+                            View details
+                        </a>
+                        {% endif %}
+                        <button type="button"
+                                class="bui-message-dismiss"
+                                onclick="this.closest('.bui-message').remove()">
+                            Dismiss
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% block main %}
                 {% endblock %}
             </div>

@@ -1,6 +1,8 @@
 """Collection of functions used by many processing steps."""
 
 import logging
+import threading
+from contextlib import contextmanager
 from sys import argv
 from os import path
 
@@ -10,10 +12,68 @@ from astropy.io import fits
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp.catalog import WISPGaia
+from autowisp.exceptions import ConfigurationError
+
+
+# When active (set via ``raise_config_parse_errors``),
+# ``ManualStepArgumentParser`` reports a bad value by raising
+# ``ConfigurationError`` instead of argparse's default "print usage to
+# stderr + sys.exit(2)". The pipeline turns stored configuration into a
+# step config dict by feeding it through the step's parser
+# (``ProcessingManager.get_config``); a bad value there must surface as a
+# recordable error rather than an uncatchable ``SystemExit`` that silently
+# ends a detached run.
+_config_parse_mode = threading.local()
+
+
+@contextmanager
+def raise_config_parse_errors():
+    """Make ``ManualStepArgumentParser`` raise on bad input, not exit.
+
+    Use around programmatic parsing of stored configuration, where there
+    is no interactive user to read an argparse usage message and the
+    process may be a detached pipeline run. A parse failure then becomes a
+    catchable, recordable
+    :class:`~autowisp.exceptions.ConfigurationError` instead of
+    ``SystemExit``. Nestable; restores the previous mode on exit.
+
+    Yields:
+        None
+    """
+
+    previous = getattr(_config_parse_mode, "active", False)
+    _config_parse_mode.active = True
+    try:
+        yield
+    finally:
+        _config_parse_mode.active = previous
 
 
 class ManualStepArgumentParser(ArgumentParser):
     """Incorporate boiler plate handling of command line arguments."""
+
+    def error(self, message):
+        """Report a parse error, honouring :func:`raise_config_parse_errors`.
+
+        argparse's default reports a bad value by printing usage to stderr
+        and calling ``sys.exit(2)``. During pipeline config generation that
+        ``SystemExit`` would escape the error-handling machinery (it is a
+        ``BaseException``, not caught by ``capture_errors`` /
+        ``run_pipeline.main``) and silently end a detached run, so there we
+        raise a recordable :class:`~autowisp.exceptions.ConfigurationError`
+        instead. Interactive CLI parsing keeps argparse's helpful
+        usage-and-exit behaviour.
+
+        Args:
+            message(str):    The argparse-formatted error description.
+
+        Returns:
+            None
+        """
+
+        if getattr(_config_parse_mode, "active", False):
+            raise ConfigurationError(f"Invalid configuration: {message}")
+        super().error(message)
 
     def _add_version_args(self, components):
         """Add arguments to select versions of the given components."""

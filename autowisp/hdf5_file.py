@@ -19,7 +19,7 @@ import h5py
 import numpy
 from astropy.io import fits
 
-from autowisp.pipeline_exceptions import HDF5LayoutError
+from autowisp.exceptions import HDF5LayoutError
 
 git_id = "$Id$"
 

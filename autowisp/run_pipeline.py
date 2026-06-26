@@ -14,12 +14,17 @@ from autowisp.database.interface import (
     start_db_session,
     set_project_home,
     get_project_home,
+    snapshot_row,
 )
 from autowisp.database.data_model import (  # pylint: disable=no-name-in-module
     PipelineRun,
 )
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
+from autowisp.error_context import get_error_context, set_pipeline_run
+from autowisp.error_cli import report_error
+from autowisp.miscellaneous import get_code_version_str
+from autowisp.exceptions import AutoWISPError, PipelineError, ResourceError
 from autowisp.file_utilities import find_fits_fnames
 
 
@@ -55,7 +60,8 @@ def parse_command_line():
         "--step-imtypes",
         nargs="+",
         default=[],
-        help="Fine-grained filter as step:imagetype pairs (e.g., calibrate:flat calibrate:science).",
+        help="Fine-grained filter as step:imagetype pairs "
+        "(e.g., calibrate:flat calibrate:science).",
     )
     parser.add_argument(
         "--detached",
@@ -67,15 +73,54 @@ def parse_command_line():
 
 
 def main(config):
-    """Avoid global variables."""
+    """Set up the project and run the pipeline, recording any error.
+
+    The top-level handler records *any* exception that escapes the run --
+    not just an :class:`AutoWISPError`. A plain exception from the
+    orchestration layer (e.g. a bad configuration expression) is wrapped
+    in a :class:`PipelineError` so it is still captured. The error is
+    stamped with the pipeline-run snapshot (and the ``crashed`` time) if
+    it lacks one, then reported via :func:`report_error` -- recording it
+    as a queryable ``Error`` row plus sidecar and rendering a summary to
+    stderr (which, for a detached run, is ``run_pipeline.out``) -- and
+    re-raised. Reporting is best-effort and never masks the original
+    error.
+    """
 
     set_project_home(config.project_home)
+    try:
+        _run_pipeline(config)
+    except AutoWISPError as exc:
+        _record_escaping_error(exc)
+        raise
+    except Exception as exc:
+        # A non-AutoWISP exception (e.g. a NameError from a bad config
+        # expression) would otherwise crash the run unrecorded. Wrap it so
+        # it is captured like any other failure, preserving the original
+        # as the cause and its traceback for the sidecar.
+        wrapped = PipelineError(str(exc) or type(exc).__name__)
+        wrapped.__cause__ = exc
+        wrapped.__traceback__ = exc.__traceback__
+        _record_escaping_error(wrapped)
+        raise
 
-    #old code
+
+def _record_escaping_error(exc):
+    """Stamp the pipeline-run snapshot (if missing) and report ``exc``."""
+
+    if exc.pipeline_run is None:
+        exc.with_pipeline_run(get_error_context().pipeline_run)
+    report_error(exc)
+
+
+def _run_pipeline(config):
+    """Create the pipeline run and drive image + lightcurve processing."""
+
+    # old code
     # db_fname = os.path.abspath(config.processing_database)
     # set_sqlite_database(db_fname)
 
-    #with start_db_session() as db_session:
+    # with start_db_session() as db_session:
     #    dummy_processing = ProcessingManager(None)
     #    dummy_config = dummy_processing.get_config(
     #        dummy_processing.get_matched_expressions(Evaluator()),
@@ -83,21 +128,29 @@ def main(config):
     #        step_name="add_images_to_db",
     #    )[0]
 
-    #dummy_config["task"] = "run_pipeline"
-    #dummy_config["parent_pid"] = ""
-    #dummy_config["processing_step"] = "none"
-    #dummy_config["image_type"] = "none"
+    # dummy_config["task"] = "run_pipeline"
+    # dummy_config["parent_pid"] = ""
+    # dummy_config["processing_step"] = "none"
+    # dummy_config["image_type"] = "none"
 
-    #setup_process_map(db_fname, dummy_config)
+    # setup_process_map(db_fname, dummy_config)
 
     with start_db_session() as db_session:
         pipeline_run = PipelineRun(
             host=getfqdn(),
             process_id=os.getpid(),
             started=sql.func.now(),  # pylint: disable=not-callable
+            code_version=get_code_version_str(),
         )
         db_session.add(pipeline_run)
-        db_session.commit()
+        # flush (not commit) assigns the id while keeping the transaction
+        # open, so snapshot_row can read every column -- including the
+        # server-evaluated ``started`` -- without tripping over a closed
+        # transaction. The begin() block commits the row on exit. The
+        # snapshot lets the error context carry the run even before the
+        # first setup_process call.
+        db_session.flush()
+        set_pipeline_run(snapshot_row(pipeline_run))
         pipeline_run = pipeline_run.id
 
     step_imtype_filter = None
@@ -114,7 +167,9 @@ def main(config):
             per_step.setdefault(step, set()).add(imt)
         if per_step:
             step_imtype_filter = per_step
-            logging.info("Applied step-image-type filter: %s", step_imtype_filter)
+            logging.info(
+                "Applied step-image-type filter: %s", step_imtype_filter
+            )
 
     processing = ImageProcessingManager(pipeline_run_id=pipeline_run)
 
@@ -177,7 +232,11 @@ if __name__ == "__main__":
 
             pid = fork()
             if pid < 0:
-                raise RuntimeError("fork fail")
+                raise ResourceError(
+                    "Could not start the pipeline in the background: the "
+                    "operating system refused to create a new process "
+                    "(fork() failed)."
+                )
             if pid != 0:
                 sys.exit(0)
 

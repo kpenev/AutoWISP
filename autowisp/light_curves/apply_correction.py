@@ -1,13 +1,12 @@
 """Unified interface to the detrending algorithms."""
 
-from multiprocessing import Pool
 import logging
 
 import numpy
 from scipy.optimize import minimize
 import pandas
 
-from autowisp.multiprocessing_util import setup_process_map
+from autowisp.error_context import run_pool
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -241,12 +240,14 @@ def apply_parallel_correction(
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
     else:
         get_db_engine().dispose()
-        with Pool(
-            num_parallel_processes,
-            initializer=setup_process_map,
-            initargs=(config,),
-        ) as correction_pool:
-            result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
+        result = numpy.concatenate(
+            run_pool(
+                correct,
+                lc_fnames,
+                config=config,
+                num_processes=num_parallel_processes,
+            )
+        )
 
     logger.info("Finished detrending.")
 

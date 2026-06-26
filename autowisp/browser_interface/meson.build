@@ -1,7 +1,8 @@
 py_src = [
-  '__init__.py', 
-  'manage.py', 
-  'set_project_middleware.py', 
+  '__init__.py',
+  'error_capture_middleware.py',
+  'manage.py',
+  'set_project_middleware.py',
   'start.py'
 ]
 

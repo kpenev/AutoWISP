@@ -16,6 +16,14 @@ from astropy.time import Time
 from astropy import units
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_context import (
+    capture_for_queue,
+    reraise_from_worker,
+    forbid_nested_workers,
+)
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
+from autowisp.exceptions import Component, WorkerCrashedError
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -680,10 +688,13 @@ def solve_image(  # pylint: disable=too-many-locals
                         fov_estimate / configuration["image_scale_factor"],
                         fov_estimate * configuration["image_scale_factor"],
                     ),
-                    "anet_indices": configuration["anet_indices"],
+                    "anet_indices": [
+                        fname.format_map(header)
+                        for fname in configuration["anet_indices"]
+                    ],
                     "anet_api_key": configuration["anet_api_key"],
-                    "x_cent": header['NAXIS1'] / 2,
-                    "y_cent": header['NAXIS2'] / 2,
+                    "x_cent": header["NAXIS1"] / 2,
+                    "y_cent": header["NAXIS2"] / 2,
                 },
                 header=header,
                 web_lock=web_lock,
@@ -817,14 +828,17 @@ def astrometry_process(  # pylint: disable=too-many-arguments
                 mark_end=mark_end,
                 **configuration,
             )
-        except Exception:  # pylint: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except
             _logger.error(
                 "Unexpected exception solving astrometry for %s:\n%s",
                 dr_fname,
                 format_exc(),
             )
             result_queue.put(
-                {"error": RuntimeError(format_exc()), "dr_fname": dr_fname}
+                {
+                    "error": capture_for_queue(exc, component=Component.STEP),
+                    "dr_fname": dr_fname,
+                }
             )
             return
         result_queue.put(result)
@@ -874,14 +888,26 @@ def manage_astrometry(
                 break
             except Exception:  # queue.Empty
                 if workers and not any(p.is_alive() for p in workers):
-                    raise RuntimeError(
+                    exitcodes = [p.exitcode for p in workers]
+                    # The empty-queue timeout is control flow, not the
+                    # cause; the cause is the workers dying -> ``from None``.
+                    raise WorkerCrashedError(
                         "All astrometry worker processes died unexpectedly "
-                        f"with {num_queued} task(s) still in flight."
-                    )
+                        f"with {num_queued} task(s) still in flight.",
+                        details={
+                            "exitcodes": exitcodes,
+                            "killed_by_signals": [
+                                -code
+                                for code in exitcodes
+                                if code is not None and code < 0
+                            ],
+                            "num_in_flight": num_queued,
+                        },
+                    ) from None
         num_queued -= 1
 
         if "error" in result:
-            raise result["error"]
+            reraise_from_worker(result["error"])
 
         if "raw_transformation" in result:
             if not result["saved"]:
@@ -957,6 +983,8 @@ def solve_astrometry(
             pending[reuse_key] = [dr_fname]
         else:
             pending[reuse_key].append(dr_fname)
+
+    forbid_nested_workers()
 
     task_queue = Queue()
     result_queue = Queue()
@@ -1043,6 +1071,7 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

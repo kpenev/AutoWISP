@@ -6,7 +6,7 @@ import logging
 from numpy import nan
 from astropy.io import fits
 
-from autowisp.pipeline_exceptions import BadImageError, ImageMismatchError
+from autowisp.exceptions import BadImageError, ImageMismatchError
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 _logger = logging.getLogger(__name__)

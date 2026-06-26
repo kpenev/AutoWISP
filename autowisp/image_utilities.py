@@ -14,7 +14,7 @@ from astrowisp.utils.file_utilities import (
     prepare_file_output,
     get_fname_pattern_substitutions,
 )
-from autowisp.pipeline_exceptions import BadImageError
+from autowisp.exceptions import BadImageError
 
 _logger = logging.getLogger(__name__)
 

@@ -16,6 +16,8 @@ from autowisp.multiprocessing_util import (
 )
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.exceptions import Component, MasterSelectionError, PipelineError
+from autowisp.error_context import capture_errors, error_context
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
@@ -50,7 +52,7 @@ from autowisp.database.data_model.provenance import (
 # pylint: enable=no-name-in-module
 
 
-class NoMasterError(ValueError):
+class NoMasterError(MasterSelectionError):
     """Raised when no suitable master can be found for a batch of frames."""
 
 
@@ -720,17 +722,28 @@ class ImageProcessingManager(ProcessingManager):
     ):
         """Run the current step for a batch of images given configuration."""
 
-        step_module = getattr(processing_steps, step_name)
+        # ``error_context`` (outer) scopes the step name so it is still
+        # active when ``_run_step``'s ``capture_errors`` stamps the
+        # exception on the way out -- the context manager's reset fires
+        # only after the inner ``except`` has run.
+        with error_context(step_name=step_name):
+            new_masters = self._run_step(batch, start_status, config, step_name)
 
-        new_masters = getattr(step_module, step_name)(
+        if new_masters:
+            self.add_masters(new_masters, step_name, image_type_name)
+
+    @capture_errors(component=Component.STEP)
+    def _run_step(self, batch, start_status, config, step_name):
+        """Invoke the step's entry function for a batch of images."""
+
+        step_module = getattr(processing_steps, step_name)
+        return getattr(step_module, step_name)(
             batch,
             start_status,
             config,
             self._start_processing,
             self._end_processing,
         )
-        if new_masters:
-            self.add_masters(new_masters, step_name, image_type_name)
 
     def _start_processing(self, input_fname, status=0):
         """
@@ -799,7 +812,7 @@ class ImageProcessingManager(ProcessingManager):
                     db_session.flush()
                     diag_type_id = new_type.id
                 else:
-                    raise ValueError(f"Unknown diagnostic type {diag_name!r}")
+                    raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
             db_session.add(
                 ImageDiagnostics(
                     image_id=finished_id["image_id"],
@@ -841,7 +854,7 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
             if diag_type_id is None:
-                raise ValueError(f"Unknown diagnostic type {diag_name!r}")
+                raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
 
             existing_id = db_session.scalar(
                 select(PhotometryDiagnostics.id).where(
@@ -1393,7 +1406,7 @@ class ImageProcessingManager(ProcessingManager):
                         self._current_processing.image_type_id,
                         "\n\t".join(f"{e[0]!r}: {e[1]!r}" for e in pending),
                     )
-                    raise RuntimeError("Finished non-pending image!")
+                    raise PipelineError("Finished non-pending image!")
 
                 self.pending[
                     (
@@ -1440,7 +1453,7 @@ class ImageProcessingManager(ProcessingManager):
         if step_input_type == "dr":
             return self._evaluated_expressions[image.id][channel_name]["dr"]
 
-        raise ValueError(f"Invalid step input type {step_input_type}")
+        raise PipelineError(f"Invalid step input type {step_input_type}")
 
     def set_pending(self, db_session, steps_imtypes=None, invert=False):
         """

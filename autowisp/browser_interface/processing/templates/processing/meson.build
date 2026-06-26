@@ -1,4 +1,6 @@
 src = [
+  'error_detail.html',
+  'error_list.html',
   'progress.html',
   'review.html',
   'review_single.html',

@@ -1,6 +1,7 @@
 py_src = [
   '__init__.py',
   'defaults.py',
+  'frozen_row.py',
   'hdf5_file_structure.py',
   'image_processing.py',
   'initialize_data_reduction_structure.py',

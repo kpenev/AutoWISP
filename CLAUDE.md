@@ -99,6 +99,9 @@ AstroWISP (`/home/kpenev/projects/git/AstroWISP/`) is the lower-level C++/Python
 
 ## Key Constraints
 
-- `numpy < 2` is required (pinned in dependencies)
-- Python >= 3.7, CI tests on 3.12
+- `numpy < 2` is required — forced by `astrowisp` (which pins `numpy<2`);
+  all other deps already support numpy 2
+- Python 3.11–3.12 only: 3.11 floor for `ProcessPoolExecutor`'s
+  `max_tasks_per_child` (used by `run_pool`), 3.12 ceiling because
+  `numpy<2`'s last release (1.26) has no 3.13 wheels. CI tests on 3.12
 - Cross-platform: Linux, macOS, Windows

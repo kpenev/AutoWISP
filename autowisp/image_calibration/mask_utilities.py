@@ -14,7 +14,7 @@ import numpy
 from astrowisp.hat_masks import parse_hat_mask, mask_flags
 
 from autowisp.fits_utilities import read_image_components
-from autowisp.pipeline_exceptions import ImageMismatchError
+from autowisp.exceptions import ImageMismatchError
 
 git_id = "$Id$"
 

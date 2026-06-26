@@ -58,3 +58,42 @@ html,body {
 }
 
 
+
+/* In-BUI error/notification banners (see ErrorCaptureMiddleware). Keeps a
+   failed action inside the BUI instead of Django's exception page. */
+#bui-messages {
+    margin-bottom: 8px;
+}
+.bui-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem 1.2rem;
+    margin-bottom: 4px;
+    color: #000;
+    font-weight: bold;
+    text-transform: none;
+}
+.bui-message-text {
+    flex: 1;
+}
+.bui-message-link {
+    color: #000;
+    font-weight: bold;
+    text-decoration: underline;
+    white-space: nowrap;
+}
+.bui-message-dismiss {
+    background: rgba(0, 0, 0, 0.25);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 0.2rem 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.bui-message-dismiss:hover {
+    background: rgba(0, 0, 0, 0.4);
+}

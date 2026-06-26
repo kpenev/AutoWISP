@@ -13,6 +13,8 @@ from astropy import units as astropy_units
 from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp import magnitude_fitting
 from autowisp.astrometry.transformation import (
     Transformation,
@@ -584,6 +586,7 @@ def _within_photref_range(
     return True
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from command line."""
 

@@ -15,6 +15,8 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 
+from autowisp.exceptions import ConfigurationError
+
 _default_paths = {
     "srcextract": {
         "root": "/SourceExtraction/Version%(srcextract_version)03d",
@@ -609,8 +611,9 @@ def _get_magfit_key_and_path(photometry_mode):
         )
         pipeline_key_start = "apphot." + pipeline_key_start
     else:
-        raise ValueError(
-            "Unrecognized photometry mode: " + repr(photometry_mode)
+        raise ConfigurationError(
+            f"Unrecognized photometry mode {photometry_mode!r} "
+            "(expected 'shapefit' or 'apphot')."
         )
     dset_path += "/" + "FittedMagnitudes/Version%(magfit_version)03d"
 

@@ -5,6 +5,8 @@
 from functools import partial
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
     LCDetrendingArgumentParser,
@@ -31,6 +33,7 @@ generate_epd_statistics = partial(
 )
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

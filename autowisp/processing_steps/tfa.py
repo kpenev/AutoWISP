@@ -3,6 +3,8 @@
 """Apply TFA correction to lightcurves."""
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.light_curves.tfa_correction import TFACorrection
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.file_utilities import find_lc_fnames
@@ -69,6 +71,7 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
     )
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

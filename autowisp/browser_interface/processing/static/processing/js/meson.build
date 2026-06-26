@@ -2,7 +2,8 @@ src = [
   'review_output.js',
   'select.photref.js',
   'tune.starfind.js',
-  'progress.js'
+  'progress.js',
+  'error_list.js'
 ]
 
 py.install_sources(

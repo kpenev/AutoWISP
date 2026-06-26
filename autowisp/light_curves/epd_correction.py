@@ -1,6 +1,5 @@
 """Define class for performing EPD correction on lightcurves."""
 
-from traceback import format_exc
 import logging
 from itertools import repeat
 
@@ -8,6 +7,7 @@ import numpy
 from numpy.lib import recfunctions
 
 from autowisp.evaluator import Evaluator
+from autowisp.exceptions import EPDError
 from autowisp.fit_expression import (
     Interface as FitTermsInterface,
     iterative_fit,
@@ -115,7 +115,7 @@ class EPDCorrection(Correction):
         fit_datasets,
         fit_weights=None,
         **iterative_fit_config,
-    ): # pylint: disable=too-many-arguments
+    ):  # pylint: disable=too-many-arguments
         """
         Configure the fitting.
 
@@ -398,29 +398,35 @@ class EPDCorrection(Correction):
                             result=result,
                             num_extra_predictors=num_extra_predictors,
                         )
-                    except:
-                        error_message = (
-                            "\n".join(
-                                [
-                                    f"EPD failed for {to_fit[0]!r} dataset of "
-                                    f"{lc_fname!r}"
-                                    f"Predictors:\n{predictors!r}"
-                                    f"fit_points:\n{fit_points!r}"
-                                    f"fit_weights:\n{to_fit[1]!r}"
-                                    f"fit_index: {fit_index:d}"
-                                    "num_extra_predictors: "
-                                    f"{num_extra_predictors:d}\n"
-                                ]
-                            )
-                            + format_exc()
+                    except Exception as exc:  # pylint: disable=broad-except
+                        # Full predictors/points/weights go to the log; the
+                        # exception carries only lightweight, picklable
+                        # diagnostics. As an EPDError it travels back from a
+                        # worker faithfully without a stringify workaround.
+                        self._logger.critical(
+                            "EPD failed for %r dataset of %r\n"
+                            "Predictors:\n%r\nfit_points:\n%r\n"
+                            "fit_weights:\n%r\nfit_index: %d\n"
+                            "num_extra_predictors: %d",
+                            to_fit[0],
+                            lc_fname,
+                            predictors,
+                            fit_points,
+                            to_fit[1],
+                            fit_index,
+                            num_extra_predictors,
+                            exc_info=True,
                         )
-                        self._logger.critical(error_message)
-
-                        # The point is to avoid pickling error when some
-                        # exceptions cannot travel back from Pool
-                        # pylint: disable=raise-missing-from
-                        raise RuntimeError(error_message)
-                        # pylint: enable=raise-missing-from
+                        raise EPDError(
+                            f"EPD failed for {to_fit[0]!r} dataset of "
+                            f"{lc_fname!r}",
+                            details={
+                                "lc_fname": lc_fname,
+                                "dataset": to_fit[0],
+                                "fit_index": fit_index,
+                                "num_extra_predictors": num_extra_predictors,
+                            },
+                        ) from exc
             else:
                 self._logger.info("No points to fit in %s", repr(lc_fname))
 

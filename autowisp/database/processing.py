@@ -9,6 +9,7 @@ from numpy import inf as infinity
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import start_db_session, get_project_home
+from autowisp.exceptions import ConfigurationError, PipelineError
 from autowisp.evaluator import Evaluator
 from autowisp.fits_utilities import get_primary_header
 from autowisp.image_calibration.fits_util import (
@@ -19,6 +20,7 @@ from autowisp.database.user_interface import get_db_configuration
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp import processing_steps
+from autowisp.processing_steps.manual_util import raise_config_parse_errors
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -33,22 +35,21 @@ from autowisp.database.data_model import (
     LightCurveProcessingProgress,
     MasterFile,
     MasterType,
+    PipelineRun,
     Step,
 )
 
 # pylint: enable=no-name-in-module
 
 
-class ProcessingInProgress(Exception):
+class ProcessingInProgress(PipelineError):
     """Raised when a particular step is running in a different process/host."""
 
     def __init__(self, pipeline_run):
         self.host = pipeline_run.host
         self.process_id = pipeline_run.process_id
         self.started = pipeline_run.started
-
-    def __str__(self):
-        return (
+        super().__init__(
             f"Processing pipeline is still running on {self.host!r} with "
             f"process id {self.process_id!r}, started {self.started}!"
         )
@@ -151,7 +152,10 @@ class ProcessingManager:
             ].items():
                 if required_expressions <= matched_expressions:
                     return value
-            raise ValueError(f"No viable configuration found for {param}")
+            raise ConfigurationError(
+                f"No applicable configuration value found for {param!r}; "
+                "check this step's configuration."
+            )
 
         if parameters is None:
             parameters = self.current_step
@@ -247,8 +251,13 @@ class ProcessingManager:
         return best_master_fname
 
     def _get_master(
-        self, master_type, image_values, image_eval, db_session,
-        *, ambiguous_ok=False,
+        self,
+        master_type,
+        image_values,
+        image_eval,
+        db_session,
+        *,
+        ambiguous_ok=False,
     ):
         """Return the master that should be used for the given image.
 
@@ -316,13 +325,20 @@ class ProcessingManager:
         self._logger.debug("Candidate Masters: %s", repr(candidates))
         if len(candidates) == 1:
             return candidates[0].filename
-        if ambiguous_ok and (not candidates or candidates[0].use_smallest is None):
+        if ambiguous_ok and (
+            not candidates or candidates[0].use_smallest is None
+        ):
             return None
         return self._get_best_master(candidates, image_eval)
 
     def _get_evaluated_entry(
-        self, evaluate, image_type_id, calib_config, db_session,
-        image_id=None, channel=None,
+        self,
+        evaluate,
+        image_type_id,
+        calib_config,
+        db_session,
+        image_id=None,
+        channel=None,
     ):
         """Return entry to add to self._evaluated_expressions."""
 
@@ -383,9 +399,7 @@ class ProcessingManager:
                         evaluated_expressions["values"],
                         evaluate,
                         db_session,
-                        ambiguous_ok=(
-                            master_type.name == "single_photref"
-                        ),
+                        ambiguous_ok=(master_type.name == "single_photref"),
                     )
                 )
 
@@ -486,8 +500,12 @@ class ProcessingManager:
             add_required_keywords(evaluate.symtable, calib_config, True)
 
             evaluated_expressions = self._get_evaluated_entry(
-                evaluate, image.image_type_id, calib_config, db_session,
-                image_id=image.id, channel=channel_name,
+                evaluate,
+                image.image_type_id,
+                calib_config,
+                db_session,
+                image_id=image.id,
+                channel=channel_name,
             )
 
             if all_channel["matched"] is None:
@@ -621,7 +639,21 @@ class ProcessingManager:
         self.pending = {}
         self._some_failed = False
         self._pipeline_run_id = pipeline_run_id
+        # Keys threaded into every per-step config so each worker process
+        # can rebuild the pipeline-run snapshot for error context (phase
+        # 2). All come straight from the run row -- which is the single
+        # source of truth for code_version (set once at run creation).
+        self._error_context_keys = {}
         with start_db_session() as db_session:
+            if pipeline_run_id is not None:
+                pipeline_run = db_session.get(PipelineRun, pipeline_run_id)
+                if pipeline_run is not None:
+                    self._error_context_keys = {
+                        "pipeline_run_id": pipeline_run_id,
+                        "host": pipeline_run.host,
+                        "pipeline_started": pipeline_run.started,
+                        "code_version": pipeline_run.code_version,
+                    }
             if version is None:
                 version = db_session.execute(
                     # False positivie
@@ -732,15 +764,19 @@ class ProcessingManager:
                 self._logger.debug(
                     "Wrote config file %s", repr(config_file.name)
                 )
-                config = getattr(
-                    processing_steps, db_step.name if db_step else step_name
-                ).parse_command_line(["-c", config_file.name])
+                # Parse stored configuration into the step's config dict.
+                # In this programmatic context a bad value must raise a
+                # recordable ConfigurationError, not print usage and
+                # sys.exit() into a detached run's redirected log.
+                with raise_config_parse_errors():
+                    config = getattr(
+                        processing_steps, db_step.name if db_step else step_name
+                    ).parse_command_line(["-c", config_file.name])
 
-                config['project_home'] = get_project_home()
+                config["project_home"] = get_project_home()
+                config.update(self._error_context_keys)
 
                 return (config, config_key)
-
-
 
     def set_pending(self, db_session):
         """
@@ -758,7 +794,6 @@ class ProcessingManager:
         raise RuntimeError(
             "Setting pending is not defined for ProcessingManager base class"
         )
-
 
     def add_masters(self, new_masters, step_name=None, image_type_name=None):
         """
@@ -892,9 +927,7 @@ class ProcessingManager:
     def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given steps (all if None)."""
 
-        raise RuntimeError(
-            "Calling instance of ProcessingManager base class!"
-        )
+        raise RuntimeError("Calling instance of ProcessingManager base class!")
 
     # pylint: enable=too-many-locals
     # pylint: enable=too-many-branches

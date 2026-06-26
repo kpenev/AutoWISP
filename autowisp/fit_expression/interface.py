@@ -59,11 +59,3 @@ class Interface:
         """Return an array of the term values for the given data."""
 
         return EvaluateTermsVisitor(*data).visit(self._tree)
-
-
-if __name__ == "__main__":
-    istream = InputStream("{x**2}")
-    from multiprocessing import Pool
-
-    with Pool(3) as p:
-        p.map(istream, [{"x": 1}, {"x": 2}, {"x": 3}])

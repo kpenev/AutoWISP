@@ -15,6 +15,10 @@ from autowisp.database.user_interface import (
     get_progress,
     list_channels,
 )
+from autowisp.error_render import (
+    error_counts_by_step,
+    open_error_count_for_steps,
+)
 
 # False positive
 # pylint: disable=no-name-in-module
@@ -27,7 +31,7 @@ from .log_views import datetime_fmt
 logger = logging.getLogger(__name__)
 
 
-def progress(request, await_start=-1):
+def progress(request, await_start=-1):  # pylint: disable=too-many-locals
     """Display the current processing progress."""
 
     print(f"Generating progress page with await start: {await_start}")
@@ -51,12 +55,17 @@ def progress(request, await_start=-1):
         }
         processing_sequence = get_processing_sequence(db_session)
 
+        error_by_step = error_counts_by_step(db_session)
+        # Drives the colour of the Start Processing button: open pipeline +
+        # step errors (BUI errors excluded) mean "errors pending".
+        context["gate_error_count"] = open_error_count_for_steps([], db_session)
         context["progress"] = [
             [
                 step.name.split("_"),
                 imtype.name,
                 [[0, 0, 0, []] for _ in context["channels"]],
                 [],
+                error_by_step.get(step.name, 0),
             ]
             for step, imtype in processing_sequence
         ]
@@ -118,11 +127,11 @@ def progress(request, await_start=-1):
                     sql.func.now()  # pylint: disable=not-callable
                 )
 
-    #Get selected steps from session if processing
+    # Get selected steps from session if processing
     selected_tokens = set()
-    if context["running"] and 'selected_step_tokens' in request.session:
-        selected_tokens = set(request.session['selected_step_tokens'])
-    
-    context['selected_tokens'] = selected_tokens
+    if context["running"] and "selected_step_tokens" in request.session:
+        selected_tokens = set(request.session["selected_step_tokens"])
+
+    context["selected_tokens"] = selected_tokens
 
     return render(request, "processing/progress.html", context)

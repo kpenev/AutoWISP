@@ -100,4 +100,25 @@ urlpatterns = [
         views.save_starfind_config,
         name="save_starfind_config",
     ),
+    path("errors/", views.error_list, name="error_list"),
+    path(
+        "errors/<int:error_id>/",
+        views.error_detail_view,
+        name="error_detail",
+    ),
+    path(
+        "errors/<int:error_id>/toggle_resolved",
+        views.toggle_error_resolved,
+        name="toggle_error_resolved",
+    ),
+    path(
+        "errors/<int:error_id>/delete",
+        views.delete_error_view,
+        name="delete_error",
+    ),
+    path(
+        "errors/<int:error_id>/crash_report",
+        views.download_crash_report,
+        name="download_crash_report",
+    ),
 ]

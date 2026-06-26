@@ -10,6 +10,8 @@ from argparse import _StoreAction
 from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_cli import cli_entry_point
+from autowisp.exceptions import Component
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.image_calibration import Calibrator, overscan_methods
 from autowisp.processing_steps.manual_util import (
@@ -331,6 +333,7 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
+@cli_entry_point(component=Component.STEP)
 def main():
     """Run the step from the command line."""
 

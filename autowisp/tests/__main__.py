@@ -38,7 +38,56 @@ from autowisp.tests.test_provenance_resolver import TestProvenanceResolver
 from autowisp.tests.test_parse_config_overwrites import (
     TestParseConfigOverwrites,
 )
+from autowisp.tests.test_database_migration import TestAdditiveMigrations
+from autowisp.tests.test_error_persistence import (
+    TestPersistError,
+    TestRunPipelineHandler,
+    TestCleanupErrors,
+    TestParseDuration,
+)
+from autowisp.tests.test_error_render import (
+    TestErrorSummary,
+    TestErrorDetail,
+    TestFormatDetailText,
+    TestErrorListRows,
+    TestErrorCounts,
+)
+from autowisp.tests.test_error_cli import (
+    TestExitCodeFor,
+    TestReportError,
+    TestCliEntryPoint,
+)
+from autowisp.tests.test_error_capture_middleware import (
+    TestErrorCaptureMiddleware,
+)
+from autowisp.tests.test_crash_report import (
+    TestScrubText,
+    TestScrubMapping,
+    TestScrubConfigValues,
+    TestFindErrorProgress,
+    TestCollectProvenance,
+    TestBuildCrashReport,
+    TestCrashReportCli,
+)
 from autowisp.tests.test_full_pipeline import TestFullPipeline
+from autowisp.tests.test_exception_hierarchy import (
+    TestExceptionHierarchy,
+    TestMigratedExceptions,
+    TestFrozenRow,
+    TestSnapshotRow,
+    TestToDetailDict,
+)
+from autowisp.tests.test_error_context import (
+    TestErrorContextDataclass,
+    TestFromConfig,
+    TestAmbientAccessors,
+    TestErrorContextManager,
+    TestCaptureErrors,
+    TestWorkerEntry,
+    TestPoolPropagation,
+    TestProcessQueuePropagation,
+    TestNestingGuard,
+)
 
 # pylint: enable=unused-import
 

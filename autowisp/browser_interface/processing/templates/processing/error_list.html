@@ -1,0 +1,73 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}
+AutoWISP Error Log
+{% endblock header_title %}
+
+{% block app_title %}
+Error Log{% if filtered_step %} — {{ filtered_step }}{% endif %}{% if filtered_run %} — Run {{ filtered_run }}{% endif %}
+{% endblock app_title %}
+
+{% block main %}
+{% if errors %}
+<table class="lcars-table standard-header">
+    <thead>
+        <tr>
+            <th>When</th>
+            <th>Step</th>
+            <th>Affected</th>
+            <th>Message</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for error in errors %}
+        <tr data-href="{% url 'processing:error_detail' error.id %}"
+            style="cursor: pointer; border-bottom: 3px dotted white;
+                   {% if error.resolved %}opacity: 0.45;{% endif %}">
+            <td style="white-space: nowrap;">
+                {{ error.created|date:"Y-m-d H:i:s"|default:"—" }}
+            </td>
+            <td>{{ error.step_name|default:error.component }}</td>
+            <td>{{ error.artifact|default:"—" }}</td>
+            <td>{{ error.user_message }}</td>
+            <td class="aw-error-actions" style="white-space: nowrap;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <form method="post"
+                          action="{% url 'processing:toggle_error_resolved' error.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit"
+                                class="lcars-element button rounded
+                                       {% if error.resolved %}lcars-golden-tanoi-bg{% else %}lcars-husk-bg{% endif %}">
+                            {% if error.resolved %}Reopen{% else %}Mark resolved{% endif %}
+                        </button>
+                    </form>
+                    <form method="post"
+                          action="{% url 'processing:delete_error' error.id %}"
+                          onsubmit="return confirm('Delete this error permanently?');">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="lcars-element button rounded lcars-red-alert-bg">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="lcars-golden-tanoi-bg"
+     style="box-sizing: border-box; margin: 1rem; padding: 1rem;
+            color: #000; font-weight: bold;">
+    No errors recorded. All processing clear.
+</div>
+{% endif %}
+{% endblock main %}
+
+{% block scripts %}
+<script src="{% static 'processing/js/error_list.js' %}" defer></script>
+{% endblock scripts %}
