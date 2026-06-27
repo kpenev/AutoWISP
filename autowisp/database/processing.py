@@ -406,7 +406,47 @@ class ProcessingManager:
         return evaluated_expressions
 
     @staticmethod
-    def _get_extra_header(db_image):
+    def _get_equipment_type_identifier(instrument, instrument_type_attr):
+        """Return a human-readable identifier for a provenance type."""
+
+        instrument_type = getattr(instrument, instrument_type_attr)
+        return " ".join(
+            str(part).strip()
+            for part in (
+                getattr(instrument_type, "make", ""),
+                getattr(instrument_type, "model", ""),
+                getattr(instrument_type, "version", ""),
+            )
+            if str(part).strip()
+        )
+
+    @classmethod
+    def _get_equipment_identifier(
+        cls, instrument, instrument_type_attr, type_instruments_attr
+    ):
+        """Return a stable identifier for a provenance instrument."""
+
+        serial_number = instrument.serial_number
+        instrument_type = getattr(instrument, instrument_type_attr)
+        type_identifier = cls._get_equipment_type_identifier(
+            instrument, instrument_type_attr
+        )
+        serial_is_placeholder = (
+            str(serial_number).strip().lower() in ("", "none", "null")
+        )
+        type_has_multiple_instruments = (
+            len(getattr(instrument_type, type_instruments_attr)) > 1
+        )
+        if type_identifier and serial_is_placeholder:
+            return type_identifier
+
+        if type_identifier and type_has_multiple_instruments:
+            return f"{type_identifier} SN {serial_number}"
+
+        return serial_number
+
+    @classmethod
+    def _get_extra_header(cls, db_image):
         """Return the kewyords to auto-add to FITS headers at calibration."""
 
         obs_session = db_image.observing_session
@@ -415,8 +455,18 @@ class ProcessingManager:
             "OBSSSNID": obs_session.label,
             "TARGETID": obs_session.target.name,
             "OBSERVER": obs_session.observer.name,
-            "CAMERAID": obs_session.camera.serial_number,
-            "TELSCPID": obs_session.telescope.serial_number,
+            "CAMERAID_DISPLAY": cls._get_equipment_type_identifier(
+                obs_session.camera, "camera_type"
+            ),
+            "TELSCPID_DISPLAY": cls._get_equipment_type_identifier(
+                obs_session.telescope, "telescope_type"
+            ),
+            "CAMERAID": cls._get_equipment_identifier(
+                obs_session.camera, "camera_type", "cameras"
+            ),
+            "TELSCPID": cls._get_equipment_identifier(
+                obs_session.telescope, "telescope_type", "telescopes"
+            ),
         }
 
     def get_matched_expressions(self, evaluate):
