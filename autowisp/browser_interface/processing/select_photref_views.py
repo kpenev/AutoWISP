@@ -353,12 +353,11 @@ def select_photref_image(request, *, target_index, recalculate=False):
         StringIO(request.session["merit_info"][str(target_index)])
     )
     batch = request.session["need_photref"]["master_values"][target_index][2]
-    fits_fname = batch[
-        # False positive
-        # pylint:disable=no-member
-        merit_data.index[image_index]
-        # pylint:enable=no-member
-    ][0]
+    # False positive
+    # pylint:disable=no-member
+    batch_index = merit_data.index[image_index]
+    # pylint:enable=no-member
+    fits_fname = batch[batch_index][0]
 
     max_photref_separation = 0.2
     try:
@@ -389,6 +388,10 @@ def select_photref_image(request, *, target_index, recalculate=False):
             merit_data, image_index, max_photref_separation
         ),
         "fits_fname": path.basename(fits_fname),
+        "merit_score": merit_data["merit"].iloc[image_index],
+        "streak_detected": int(
+            merit_data["streak_detected"].iloc[image_index]
+        ),
         "view_config": request.session.get("view_config", "undefined"),
     }
     context.update(request.session["fits_display"])
