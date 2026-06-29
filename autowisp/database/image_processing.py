@@ -799,35 +799,7 @@ class ImageProcessingManager(ProcessingManager):
                 )
             )
             if diag_type_id is None:
-                if diag_name in (
-                    "median_rb_ratio",
-                    "local_sky_gb_ratio",
-                    "local_sky_brightness_minmax_frac",
-                ):
-                    descriptions = {
-                        "median_rb_ratio": (
-                            "The ratio of the local star-suppressed median "
-                            "red sky level to the local star-suppressed "
-                            "median blue sky level"
-                        ),
-                        "local_sky_gb_ratio": (
-                            "The ratio of the local star-suppressed median "
-                            "green sky level to the local star-suppressed "
-                            "median blue sky level"
-                        ),
-                        "local_sky_brightness_minmax_frac": (
-                            "The fractional range of local star-suppressed "
-                            "sky brightness across image blocks"
-                        ),
-                    }
-                    new_type = DiagnosticType(
-                        name=diag_name,
-                        description=descriptions[diag_name],
-                    )
-                    db_session.add(new_type)
-                    db_session.flush()
-                    diag_type_id = new_type.id
-                elif diag_name.startswith("pixel_q"):
+                if diag_name.startswith("pixel_q"):
                     quantile_digits = diag_name[len("pixel_q") :]
                     new_type = DiagnosticType(
                         name=diag_name,

@@ -1,5 +1,6 @@
 """Views for displaying per-image diagnostics."""
 
+from collections import defaultdict
 from io import BytesIO
 import json
 import math
@@ -32,28 +33,228 @@ from autowisp.database.data_model import (
 
 # pylint: enable=no-name-in-module
 
-CLOUD_BRIGHTNESS_DIAGNOSTIC = "local_sky_brightness_minmax_frac"
-CLOUD_BRIGHTNESS_MINMAX_THRESHOLD = 0.0168
 CLOUD_FLAG_COLOR = "#f6b44b"
+CLOUD_MIN_CONTEXT_IMAGES = 5
+CLOUD_STAR_COUNT_MODERATE_DROP = 0.35
+CLOUD_STAR_COUNT_EXTREME_DROP = 0.75
+CLOUD_MATCHED_FRACTION_MODERATE_DROP = 0.03
+CLOUD_MATCHED_FRACTION_EXTREME_DROP = 0.08
+CLOUD_MAG_ZEROPT_MODERATE_DROP = 0.3
+CLOUD_MAG_ZEROPT_EXTREME_DROP = 1.0
+CLOUD_EXTREME_ABS_STAR_COUNT = 100.0
+CLOUD_COLOR_MIN_FRACTIONAL_SHIFT = 0.02
+CLOUD_SKY_MIN_FRACTIONAL_SHIFT = 0.03
+CLOUD_LOCAL_BRIGHTNESS_MIN_SHIFT = 0.01
+CLOUD_REGIONAL_BALANCE_ABS_MAX = 0.35
+CLOUD_REGIONAL_BALANCE_BASELINE_FRACTION = 0.55
+CLOUD_ROBUST_SIGMA = 4.0
+
+STAR_LOSS_DIAGNOSTICS = {
+    "num_extracted_src",
+    "matched_fraction",
+    "srcextract_mag_zeropt",
+}
+STAR_DISTRIBUTION_DIAGNOSTICS = {
+    "src_count_min_half_fraction",
+}
+SKY_CHANGE_DIAGNOSTICS = {
+    "median_rb_ratio",
+    "local_sky_gb_ratio",
+    "local_sky_brightness_minmax_frac",
+    "pixel_q5",
+}
+CLOUD_DIAGNOSTICS = (
+    STAR_LOSS_DIAGNOSTICS
+    | STAR_DISTRIBUTION_DIAGNOSTICS
+    | SKY_CHANGE_DIAGNOSTICS
+)
 
 
 def _get_cloud_detection(db_session):
-    """Return image ids whose saved local-sky metric is above threshold."""
+    """Return image ids with cloud-like star loss and sky/background changes."""
 
-    return {
-        int(image_id)
-        for image_id in db_session.scalars(
-            select(ImageDiagnostics.image_id)
-            .join(
-                DiagnosticType,
-                DiagnosticType.id == ImageDiagnostics.diagnostic_id,
-            )
-            .where(DiagnosticType.name == CLOUD_BRIGHTNESS_DIAGNOSTIC)
-            .where(
-                ImageDiagnostics.value >= CLOUD_BRIGHTNESS_MINMAX_THRESHOLD
-            )
+    rows = db_session.execute(
+        select(
+            ImageDiagnostics.image_id,
+            Image.observing_session_id,
+            DiagnosticType.name,
+            ImageDiagnostics.channel,
+            ImageDiagnostics.value,
         )
-    }
+        .join(Image, Image.id == ImageDiagnostics.image_id)
+        .join(
+            DiagnosticType,
+            DiagnosticType.id == ImageDiagnostics.diagnostic_id,
+        )
+        .where(DiagnosticType.name.in_(tuple(sorted(CLOUD_DIAGNOSTICS))))
+    )
+
+    by_session = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+    for image_id, session_id, diagnostic_name, channel, value in rows:
+        by_session[session_id][image_id][diagnostic_name][channel] = float(
+            value
+        )
+
+    cloudy_ids = set()
+    for images in by_session.values():
+        if len(images) < CLOUD_MIN_CONTEXT_IMAGES:
+            cloudy_ids.update(_get_extreme_absolute_star_loss(images))
+            continue
+
+        baselines = _get_cloud_session_baselines(images)
+        for image_id, diagnostics in images.items():
+            extreme_star_loss, moderate_star_loss = _get_star_loss_flags(
+                diagnostics, baselines
+            )
+            supporting_signal = (
+                _get_sky_change_flag(diagnostics, baselines)
+                or _get_regional_star_collapse_flag(diagnostics, baselines)
+            )
+            if extreme_star_loss or (moderate_star_loss and supporting_signal):
+                cloudy_ids.add(int(image_id))
+
+    return cloudy_ids
+
+
+def _get_extreme_absolute_star_loss(images):
+    """Flag only near-starless images when no session baseline is reliable."""
+
+    cloudy_ids = set()
+    for image_id, diagnostics in images.items():
+        star_counts = list(diagnostics.get("num_extracted_src", {}).values())
+        if star_counts and numpy.nanmedian(star_counts) <= (
+            CLOUD_EXTREME_ABS_STAR_COUNT
+        ):
+            cloudy_ids.add(int(image_id))
+    return cloudy_ids
+
+
+def _get_cloud_session_baselines(images):
+    """Return robust per-session diagnostic baselines grouped by channel."""
+
+    grouped = defaultdict(lambda: defaultdict(list))
+    for diagnostics in images.values():
+        for diagnostic_name, channel_values in diagnostics.items():
+            for channel, value in channel_values.items():
+                grouped[diagnostic_name][channel].append(value)
+
+    baselines = {}
+    for diagnostic_name, channel_values in grouped.items():
+        baselines[diagnostic_name] = {}
+        for channel, values in channel_values.items():
+            values = numpy.array(values, dtype=float)
+            if values.size < CLOUD_MIN_CONTEXT_IMAGES:
+                continue
+            center = float(numpy.nanmedian(values))
+            mad = float(numpy.nanmedian(numpy.abs(values - center)))
+            high = float(numpy.nanquantile(values, 0.8))
+            baselines[diagnostic_name][channel] = {
+                "center": center,
+                "mad": mad,
+                "high": high,
+            }
+    return baselines
+
+
+def _get_star_loss_flags(diagnostics, baselines):
+    """Return whether the image shows extreme or moderate star suppression."""
+
+    extreme = False
+    moderate = False
+
+    for channel, value in diagnostics.get("num_extracted_src", {}).items():
+        baseline = baselines.get("num_extracted_src", {}).get(channel)
+        if not baseline or baseline["high"] <= 0:
+            continue
+        fractional_drop = (baseline["high"] - value) / baseline["high"]
+        extreme |= fractional_drop >= CLOUD_STAR_COUNT_EXTREME_DROP
+        moderate |= fractional_drop >= CLOUD_STAR_COUNT_MODERATE_DROP
+
+    for channel, value in diagnostics.get("matched_fraction", {}).items():
+        baseline = baselines.get("matched_fraction", {}).get(channel)
+        if not baseline:
+            continue
+        drop = baseline["high"] - value
+        extreme |= drop >= CLOUD_MATCHED_FRACTION_EXTREME_DROP
+        moderate |= drop >= CLOUD_MATCHED_FRACTION_MODERATE_DROP
+
+    for channel, value in diagnostics.get("srcextract_mag_zeropt", {}).items():
+        baseline = baselines.get("srcextract_mag_zeropt", {}).get(channel)
+        if not baseline:
+            continue
+        drop = baseline["high"] - value
+        extreme |= drop >= CLOUD_MAG_ZEROPT_EXTREME_DROP
+        moderate |= drop >= CLOUD_MAG_ZEROPT_MODERATE_DROP
+
+    return extreme, moderate
+
+
+def _get_sky_change_flag(diagnostics, baselines):
+    """Return whether sky color or background is unusual for the session."""
+
+    for diagnostic_name in ("median_rb_ratio", "local_sky_gb_ratio"):
+        for channel, value in diagnostics.get(diagnostic_name, {}).items():
+            baseline = baselines.get(diagnostic_name, {}).get(channel)
+            if _is_unusual_fractional_shift(
+                value, baseline, CLOUD_COLOR_MIN_FRACTIONAL_SHIFT
+            ):
+                return True
+
+    for channel, value in diagnostics.get("pixel_q5", {}).items():
+        baseline = baselines.get("pixel_q5", {}).get(channel)
+        if _is_unusual_fractional_shift(
+            value, baseline, CLOUD_SKY_MIN_FRACTIONAL_SHIFT
+        ):
+            return True
+
+    for channel, value in diagnostics.get(
+        "local_sky_brightness_minmax_frac", {}
+    ).items():
+        baseline = baselines.get("local_sky_brightness_minmax_frac", {}).get(
+            channel
+        )
+        if not baseline:
+            continue
+        threshold = baseline["center"] + max(
+            CLOUD_LOCAL_BRIGHTNESS_MIN_SHIFT,
+            CLOUD_ROBUST_SIGMA * baseline["mad"],
+        )
+        if value >= threshold:
+            return True
+
+    return False
+
+
+def _get_regional_star_collapse_flag(diagnostics, baselines):
+    """Return whether extracted sources disappear from one image region."""
+
+    for channel, value in diagnostics.get(
+        "src_count_min_half_fraction", {}
+    ).items():
+        baseline = baselines.get("src_count_min_half_fraction", {}).get(
+            channel
+        )
+        if not baseline:
+            continue
+        threshold = min(
+            CLOUD_REGIONAL_BALANCE_ABS_MAX,
+            baseline["high"] * CLOUD_REGIONAL_BALANCE_BASELINE_FRACTION,
+        )
+        if value <= threshold:
+            return True
+    return False
+
+
+def _is_unusual_fractional_shift(value, baseline, minimum_fractional_shift):
+    """Return whether *value* differs enough from the session center."""
+
+    if not baseline or baseline["center"] == 0:
+        return False
+    threshold = abs(baseline["center"]) * max(
+        minimum_fractional_shift,
+        CLOUD_ROBUST_SIGMA * baseline["mad"] / abs(baseline["center"]),
+    )
+    return abs(value - baseline["center"]) >= threshold
 
 
 def get_available_diagnostic_series(diagnostic_name, db_session):
@@ -576,8 +777,8 @@ def display_image_diagnostics(request, diagnostic_name):
     if diagnostic_name == "quantiles":
         context["cloudy_note"] = (
             "Frames flagged as cloudy use the highlight color "
-            "(uses the saved local star-suppressed sky brightness range "
-            "across image blocks)."
+            "(uses saved diagnostics: strong star loss, or moderate star "
+            "loss plus unusual sky background/color or regional star loss)."
         )
         context["cloudy_color"] = CLOUD_FLAG_COLOR
     context["diagnostics_title"] = diagnostic_name

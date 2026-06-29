@@ -15,7 +15,7 @@ from autowisp.image_calibration.fits_util import (
     add_channel_keywords,
     create_result,
 )
-from autowisp.diagnostics.calibrate import get_local_sky_diagnostics
+from autowisp.diagnostics.sky import get_local_sky_diagnostics
 
 from autowisp.exceptions import OutsideImageError, ImageMismatchError
 from autowisp.processor import Processor
