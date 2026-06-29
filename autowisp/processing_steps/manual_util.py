@@ -8,6 +8,7 @@ from os import path
 
 import numpy
 from astropy.io import fits
+from astropy.utils import iers
 
 from configargparse import ArgumentParser, DefaultsFormatter
 
@@ -24,6 +25,33 @@ from autowisp.exceptions import ConfigurationError
 # recordable error rather than an uncatchable ``SystemExit`` that silently
 # ends a detached run.
 _config_parse_mode = threading.local()
+
+
+def parse_iers_max_age(value):
+    """Parse the ``--iers-auto-max-age`` value into what astropy expects.
+
+    Args:
+        value:    The command line value: a number of days, or one of
+            ``none``/``off``/``disable`` (case insensitive) to switch off the
+            staleness check.
+
+    Returns:
+        float or None:    The maximum age in days, or ``None`` to disable the
+            check (and hence the automatic IERS download) entirely. A
+            non-positive number is also treated as ``None``.
+    """
+
+    if value is None:
+        return None
+    if isinstance(value, str) and value.strip().lower() in (
+        "none",
+        "off",
+        "disable",
+        "disabled",
+    ):
+        return None
+    age = float(value)
+    return age if age > 0 else None
 
 
 @contextmanager
@@ -616,6 +644,17 @@ class ManualStepArgumentParser(ArgumentParser):
                 help="How to format date and time as part of filenames (e.g. "
                 "when creating output files for multiprocessing.",
             )
+            self.add_argument(
+                "--iers-auto-max-age",
+                type=parse_iers_max_age,
+                default=30.0,
+                help="Maximum age (in days) of the bundled/cached astropy IERS "
+                "table before astropy tries to download a fresh copy for time "
+                "transformations. Pass ``none`` (or a non-positive number) to "
+                "disable the staleness check entirely, so the existing table is "
+                "used without ever triggering a download. Useful when the IERS "
+                "download location is unreliable.",
+            )
         if add_catalog:
             self._add_catalog_args(add_catalog)
 
@@ -748,6 +787,9 @@ class ManualStepArgumentParser(ArgumentParser):
             logging.getLogger("sqlalchemy.engine").setLevel(logging_level)
         except AttributeError:
             pass
+
+        if hasattr(result, "iers_auto_max_age"):
+            iers.conf.auto_max_age = result.iers_auto_max_age
 
         if self._convert_to_dict:
             result = vars(result)
