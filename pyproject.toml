@@ -46,6 +46,7 @@ dependencies = [
     'astrowisp >= 1.5',
     'configargparse',
     'Django',
+    'GitPython',
     'h5py',
     'lxml',
     'matplotlib',
