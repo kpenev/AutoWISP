@@ -49,6 +49,7 @@ dependencies = [
     'h5py',
     'lxml',
     'matplotlib',
+    'meepmeep < 1',
     'numpy < 2',
     'pandas',
     'pillow',
