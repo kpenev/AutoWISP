@@ -9,6 +9,10 @@
   user-select: none;
 }
 
+.save-config-button {
+  background-color: green;
+}
+
 /* The actual popup */
 .popup .popuptext {
   visibility: hidden;
