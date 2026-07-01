@@ -282,6 +282,9 @@ class ComposeEditorApp:
         self.run_btn = tk.Button(button_frame, text="Run 'docker compose up'", command=self.run_docker)
         self.run_btn.grid(row=0, column=1, padx=6)
 
+        self.update_image_btn = tk.Button(button_frame, text="Update image", command=self.update_image)
+        self.update_image_btn.grid(row=0, column=2, padx=6)
+
         # Enforce storage selection at startup (Option A): disable everything except storage
         # and force the user to pick a storage folder before proceeding.
         self.disable_all_except_storage()
@@ -365,6 +368,23 @@ class ComposeEditorApp:
             mount.set_state("normal")
 
         self.run_btn.configure(state="normal")
+
+    def update_image(self):
+        try:
+            if not COMPOSE_PATH.exists():
+                messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
+                return
+
+            if not messagebox.askyesno(
+                "Update image",
+                "Stop and remove the wisp container, then pull the latest kpenev/wisp image?"
+            ):
+                return
+
+            cmd_str = "docker compose stop wisp && docker compose rm -f wisp && docker pull kpenev/wisp & exit"
+            subprocess.Popen(["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=PROJECT_ROOT)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to update Docker image: {e}")
 
 
     def apply(self):
