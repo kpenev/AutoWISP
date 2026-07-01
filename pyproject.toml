@@ -2,7 +2,9 @@
 
 [build-system]
 build-backend = 'mesonpy'
-requires = ['meson-python']
+# GitPython is needed at build time: _write_version.py records the git version
+# into autowisp/_version.py via get_code_version_str().
+requires = ['meson-python', 'GitPython']
 
 [project]
 name = 'autowisp'
@@ -46,7 +48,6 @@ dependencies = [
     'astrowisp >= 1.5',
     'configargparse',
     'Django',
-    'GitPython',
     'h5py',
     'lxml',
     'matplotlib',

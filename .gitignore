@@ -125,3 +125,6 @@ ENV/
 # Ignore database file
 autowisp/database/autowisp.db
 documentation/.DS_Store
+
+# Auto-generated at build time (autowisp/_write_version.py)
+autowisp/_version.py

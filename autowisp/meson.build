@@ -31,6 +31,18 @@ py.install_sources(
     pure: true,
 )
 
+# Record the git version at build time so installed copies (which are not git
+# repositories) can report it without needing git at run time. See
+# autowisp/_write_version.py and autowisp.miscellaneous.get_code_version_str.
+custom_target(
+    'autowisp-version',
+    output: '_version.py',
+    command: [py, files('_write_version.py'), '@SOURCE_ROOT@', '@OUTPUT@'],
+    build_by_default: true,
+    install: true,
+    install_dir: py.get_install_dir() / 'autowisp',
+)
+
 subdir('astrometry')
 subdir('browser_interface')
 subdir('data_reduction')
