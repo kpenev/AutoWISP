@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-import difflib
 import subprocess
 import threading
 import time
@@ -40,9 +39,28 @@ def _find_compose_path():
 
 COMPOSE_PATH = _find_compose_path()
 PROJECT_ROOT = COMPOSE_PATH.resolve().parent
+MOUNT_TARGETS = {
+    "storage": "/storage",
+    "tmp": "/tmp",
+    "bui": "/app_data/autowisp",
+    "anet_narrow": "/anet_indices/narrow",
+    "anet_wide": "/anet_indices/wide",
+}
+DEFAULT_LABELS = {
+    "storage": "Storage folder:",
+    "tmp": "Tmp folder:",
+    "bui": "BUI folder:",
+    "anet_narrow": "Anet narrow indices:",
+    "anet_wide": "Anet wide indices:",
+}
+
 
 def read_compose_text():
     return COMPOSE_PATH.read_text(encoding="utf-8")
+
+
+def target_matches(target_path, expected):
+    return target_path == expected or target_path.startswith(expected.rstrip("/") + "/")
 
 
 def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_narrow=None, new_anet_wide=None):
@@ -62,7 +80,7 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
             if s.startswith("target:"):
                 # extract the configured path after 'target:' and compare prefix
                 tgt_val = s.split("target:", 1)[1].strip()
-                if tgt_val == target or tgt_val.startswith(target.rstrip("/") + "/") or tgt_val.startswith(target + ""):
+                if target_matches(tgt_val, target):
 
                     # search backwards for a source: line and replace it
                     for j in range(i - 1, -1, -1):
@@ -72,15 +90,16 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
                             lines[j] = f"{indent}source: {new_path}"
                             return
 
-    replace_for_target("/storage", new_storage)
-    replace_for_target("/tmp", new_tmp)
-    # additional targets used in compose.yaml (only replace if value provided)
-    if new_bui:
-        replace_for_target("/app_data/autowisp", new_bui)
-    if new_anet_narrow:
-        replace_for_target("/anet_indices/narrow", new_anet_narrow)
-    if new_anet_wide:
-        replace_for_target("/anet_indices/wide", new_anet_wide)
+    replacements = {
+        "storage": new_storage,
+        "tmp": new_tmp,
+        "bui": new_bui,
+        "anet_narrow": new_anet_narrow,
+        "anet_wide": new_anet_wide,
+    }
+    for name, new_path in replacements.items():
+        if new_path:
+            replace_for_target(MOUNT_TARGETS[name], new_path)
     return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
 
 
@@ -94,7 +113,7 @@ def find_free_port(hostname="localhost"):
 def get_current_port():
     text = read_compose_text()
     lines = text.splitlines()
-    # Find first port mapping like "8089:8089" and return (host_port, container_port, quote_char)
+    # Find first port mapping like "8089:8089" and return the host port.
     m = None
     for line in lines:
         # strip leading/trailing spaces
@@ -125,23 +144,10 @@ def get_current_sources():
        storage_label, tmp_label, bui_label, anet_narrow_label, anet_wide_label)
     """
     text = read_compose_text()
-    storage = tmp = bui = anet_narrow = anet_wide = ""
-    storage_label = "Storage folder:"
-    tmp_label = "Tmp folder:"
-    bui_label = "BUI folder:"
-    anet_narrow_label = "Anet narrow indices:"
-    anet_wide_label = "Anet wide indices:"
-
     lines = text.splitlines()
+    values = {name: "" for name in MOUNT_TARGETS}
+    labels = DEFAULT_LABELS.copy()
     placeholder_re = re.compile(r"<([^>|]+)\|([^>]+)>")
-
-    targets = {
-        "/storage": ("storage", "storage_label"),
-        "/tmp": ("tmp", "tmp_label"),
-        "/app_data/autowisp": ("bui", "bui_label"),
-        "/anet_indices/narrow": ("anet_narrow", "anet_narrow_label"),
-        "/anet_indices/wide": ("anet_wide", "anet_wide_label"),
-    }
 
     for i, line in enumerate(lines):
         s = line.strip()
@@ -152,53 +158,25 @@ def get_current_sources():
                 continue
             target_path = parts[1].strip()
             # use prefix matching so targets like '/storage/<container name>' are matched
-            for key, (var_name, label_name) in targets.items():
-                if target_path == key or target_path.startswith(key.rstrip("/") + "/"):
+            for name, expected_target in MOUNT_TARGETS.items():
+                if target_matches(target_path, expected_target):
                     # find source above
                     for j in range(i - 1, -1, -1):
                         if lines[j].lstrip().startswith("source:"):
                             val = lines[j].split("source:", 1)[1].strip()
-                            # set the variable
-                            if var_name == "storage":
-                                storage = val
-                            elif var_name == "tmp":
-                                tmp = val
-                            elif var_name == "bui":
-                                bui = val
-                            elif var_name == "anet_narrow":
-                                anet_narrow = val
-                            elif var_name == "anet_wide":
-                                anet_wide = val
+                            values[name] = val
 
                             # extract description for label if present
                             m = placeholder_re.search(val)
                             if m:
                                 desc = m.group(2).strip()
                                 if desc:
-                                    text_label = desc if desc.endswith(":") else desc + ":"
-                                    if label_name == "storage_label":
-                                        storage_label = text_label
-                                    elif label_name == "tmp_label":
-                                        tmp_label = text_label
-                                    elif label_name == "bui_label":
-                                        bui_label = text_label
-                                    elif label_name == "anet_narrow_label":
-                                        anet_narrow_label = text_label
-                                    elif label_name == "anet_wide_label":
-                                        anet_wide_label = text_label
+                                    labels[name] = desc if desc.endswith(":") else desc + ":"
                             break
 
     return SimpleNamespace(
-        storage=storage,
-        tmp=tmp,
-        bui=bui,
-        anet_narrow=anet_narrow,
-        anet_wide=anet_wide,
-        storage_label=storage_label,
-        tmp_label=tmp_label,
-        bui_label=bui_label,
-        anet_narrow_label=anet_narrow_label,
-        anet_wide_label=anet_wide_label,
+        **values,
+        **{f"{name}_label": label for name, label in labels.items()},
     )
 
 
@@ -239,25 +217,15 @@ class ComposeEditorApp:
         root.title("AutoWISP Compose Editor")
 
         sources = get_current_sources()
-        storage = sources.storage
-        tmp = sources.tmp
-        bui = sources.bui
-        anet_narrow = sources.anet_narrow
-        anet_wide = sources.anet_wide
-        storage_label = sources.storage_label
-        tmp_label = sources.tmp_label
-        bui_label = sources.bui_label
-        anet_narrow_label = sources.anet_narrow_label
-        anet_wide_label = sources.anet_wide_label
-        host_port, container_port, quote = get_current_port()
+        host_port, _, _ = get_current_port()
 
         # Use labels extracted from the compose YAML placeholders when available
         mount_defs = [
-            ("storage", storage_label, storage, "Select storage folder", self.handle_storage_selected),
-            ("tmp", tmp_label, tmp, "Select tmp folder", None),
-            ("bui", bui_label, bui, "Select BUI folder", None),
-            ("anet_narrow", anet_narrow_label, anet_narrow, "Select anet narrow indices folder", None),
-            ("anet_wide", anet_wide_label, anet_wide, "Select anet wide indices folder", None),
+            ("storage", sources.storage_label, sources.storage, "Select storage folder", self.handle_storage_selected),
+            ("tmp", sources.tmp_label, sources.tmp, "Select tmp folder", None),
+            ("bui", sources.bui_label, sources.bui, "Select BUI folder", None),
+            ("anet_narrow", sources.anet_narrow_label, sources.anet_narrow, "Select anet narrow indices folder", None),
+            ("anet_wide", sources.anet_wide_label, sources.anet_wide, "Select anet wide indices folder", None),
         ]
         self.mounts = {}
         for row, (name, label_text, value, title, on_select) in enumerate(mount_defs):
@@ -269,9 +237,6 @@ class ComposeEditorApp:
             mount.entry.bind("<FocusOut>", self.handle_form_field_saved)
             mount.entry.bind("<Return>", self.handle_form_field_saved)
             self.mounts[name] = mount
-            setattr(self, f"{name}_var", mount.var)
-            setattr(self, f"{name}_entry", mount.entry)
-            setattr(self, f"{name}_browse_btn", mount.browse_btn)
 
         tk.Label(root, text="Port (host:container)").grid(row=5, column=0, sticky="w")
         self.port_var = tk.StringVar(value=host_port)
@@ -298,7 +263,7 @@ class ComposeEditorApp:
     def handle_storage_selected(self, p, show_info=False):
         """Common handler when a storage folder is selected.
 
-        - set storage_var
+        - set storage path
         - auto-fill tmp, bui, astrometry paths under storage
         - create those folders if they do not exist
         - enable the previously-disabled widgets
@@ -347,15 +312,19 @@ class ComposeEditorApp:
     def handle_form_field_saved(self, _event=None):
         self.save_compose_settings()
 
+    def mount_values(self):
+        return {name: mount.get() for name, mount in self.mounts.items()}
+
     def save_compose_settings(self):
         try:
+            values = self.mount_values()
             new_text = find_and_replace_sources(
                 read_compose_text(),
-                self.storage_var.get(),
-                self.tmp_var.get(),
-                new_bui=self.bui_var.get() if hasattr(self, 'bui_var') else None,
-                new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
-                new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
+                values["storage"],
+                values["tmp"],
+                new_bui=values["bui"],
+                new_anet_narrow=values["anet_narrow"],
+                new_anet_wide=values["anet_wide"],
             )
             new_text = find_and_replace_port(new_text, self.port_var.get())
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
@@ -400,46 +369,6 @@ class ComposeEditorApp:
             subprocess.Popen(["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=PROJECT_ROOT)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update Docker image: {e}")
-
-
-    def apply(self):
-        s = self.storage_var.get()
-        t = self.tmp_var.get()
-        p = self.port_var.get()
-        if not Path(s).exists():
-            messagebox.showerror("Error", f"Storage path does not exist: {s}")
-            return
-        if not Path(t).exists():
-            messagebox.showerror("Error", f"Tmp path does not exist: {t}")
-            return
-        # Defensive check: ensure BUI path exists too (should have been created at storage selection)
-        if hasattr(self, 'bui_var'):
-            bpath = self.bui_var.get()
-            if bpath and not Path(bpath).exists():
-                messagebox.showerror("Error", f"BUI path does not exist: {bpath}")
-                return
-        # show a final preview
-        new_text = find_and_replace_sources(
-            read_compose_text(),
-            s,
-            t,
-            new_bui=self.bui_var.get() if hasattr(self, 'bui_var') else None,
-            new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
-            new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
-        )
-        new_text = find_and_replace_port(new_text, p)
-        diff = list(difflib.unified_diff(read_compose_text().splitlines(keepends=True), new_text.splitlines(keepends=True), fromfile=str(COMPOSE_PATH), tofile=str(COMPOSE_PATH) + " (new)"))
-        if not diff:
-            messagebox.showinfo("No changes", "No changes to apply")
-            return
-        if not messagebox.askyesno("Confirm", "Apply changes to compose file?"):
-            return
-        try:
-            # write directly; user can use Reset to restore from git if needed
-            COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-            messagebox.showinfo("Success", "compose.yaml updated")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to apply changes: {e}")
 
     def enforce_storage_at_startup(self):
         """Decide startup behaviour based on whether compose.yaml still contains
@@ -513,7 +442,6 @@ class ComposeEditorApp:
 
             def _poll_and_open():
                 end_time = time.time() + timeout
-                first_wait = True
                 while time.time() < end_time:
                     try:
                         with urllib.request.urlopen(url, timeout=3) as resp:
@@ -529,9 +457,6 @@ class ComposeEditorApp:
                         # keep waiting
                         pass
 
-                    # Waiting status is intentionally not shown in the UI.
-                    if first_wait:
-                        first_wait = False
                     time.sleep(poll_interval)
 
                 # timed out
