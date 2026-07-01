@@ -261,10 +261,13 @@ class ComposeEditorApp:
         ]
         self.mounts = {}
         for row, (name, label_text, value, title, on_select) in enumerate(mount_defs):
-            callback = None
             if on_select:
                 callback = lambda p, fn=on_select: fn(p, show_info=True)
+            else:
+                callback = lambda p, mount_name=name: self.handle_mount_selected(mount_name, p)
             mount = MountPoint(root, row, label_text, value, title, on_select=callback)
+            mount.entry.bind("<FocusOut>", self.handle_form_field_saved)
+            mount.entry.bind("<Return>", self.handle_form_field_saved)
             self.mounts[name] = mount
             setattr(self, f"{name}_var", mount.var)
             setattr(self, f"{name}_entry", mount.entry)
@@ -274,6 +277,8 @@ class ComposeEditorApp:
         self.port_var = tk.StringVar(value=host_port)
         self.port_entry = tk.Entry(root, textvariable=self.port_var, width=20)
         self.port_entry.grid(row=5, column=1, sticky="w", padx=6, pady=6)
+        self.port_entry.bind("<FocusOut>", self.handle_form_field_saved)
+        self.port_entry.bind("<Return>", self.handle_form_field_saved)
 
         # Buttons: place inside a frame so layout is stable and won't disappear if window is resized
         button_frame = tk.Frame(root)
@@ -333,6 +338,16 @@ class ComposeEditorApp:
         if show_info:
             messagebox.showinfo("Storage selected", "Paths updated in the form and will be saved to compose.yaml.")
 
+        self.save_compose_settings()
+
+    def handle_mount_selected(self, name, path):
+        self.mounts[name].set(os.path.abspath(path))
+        self.save_compose_settings()
+
+    def handle_form_field_saved(self, _event=None):
+        self.save_compose_settings()
+
+    def save_compose_settings(self):
         try:
             new_text = find_and_replace_sources(
                 read_compose_text(),
@@ -342,12 +357,12 @@ class ComposeEditorApp:
                 new_anet_narrow=self.anet_narrow_var.get() if hasattr(self, 'anet_narrow_var') else None,
                 new_anet_wide=self.anet_wide_var.get() if hasattr(self, 'anet_wide_var') else None,
             )
-            # preserve port mappings as-is
             new_text = find_and_replace_port(new_text, self.port_var.get())
             COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-
+            return True
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save compose.yaml: {e}")
+            return False
 
     def disable_all_except_storage(self):
         """Disable all entries/browse buttons and action buttons except the storage row."""
@@ -473,13 +488,8 @@ class ComposeEditorApp:
                 messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
                 return
             
-            # Save the port configuration to compose.yaml before running docker
-            try:
-                current_text = read_compose_text()
-                new_text = find_and_replace_port(current_text, self.port_var.get())
-                COMPOSE_PATH.write_text(new_text, encoding="utf-8")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to save port configuration: {e}")
+            # Save the current form values to compose.yaml before running docker.
+            if not self.save_compose_settings():
                 return
             
             # Open a new cmd window in the current working directory and run
