@@ -60,11 +60,21 @@ def read_compose_text():
 
 
 def target_matches(target_path, expected):
-    return target_path == expected or target_path.startswith(expected.rstrip("/") + "/")
+    return target_path == expected or target_path.startswith(
+        expected.rstrip("/") + "/"
+    )
 
 
-def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_narrow=None, new_anet_wide=None):
-    # Work line-by-line to preserve formatting; find target: /storage and /tmp and replace the nearest source: above them
+def find_and_replace_sources(
+    text,
+    new_storage,
+    new_tmp,
+    new_bui=None,
+    new_anet_narrow=None,
+    new_anet_wide=None,
+):
+    # Work line-by-line to preserve formatting; find target:
+    # /storage and /tmp and replace the nearest source: above them
     lines = text.splitlines()
 
     def replace_for_target(target, new_path):
@@ -73,22 +83,17 @@ def find_and_replace_sources(text, new_storage, new_tmp, new_bui=None, new_anet_
         `target: /storage/<container name>` by using prefix matching instead of
         exact equality.
         """
-        # TODO: simplify this by proper usage of regular expressions
-        # find line index with target: {target} or target: {target}/...
+        target_re = re.compile(
+            rf"^\s*target:\s*{re.escape(target.rstrip('/'))}(?:/.*)?\s*$"
+        )
+        source_re = re.compile(r"^(\s*)source:")
         for i, line in enumerate(lines):
-            s = line.strip()
-            if s.startswith("target:"):
-                # extract the configured path after 'target:' and compare prefix
-                tgt_val = s.split("target:", 1)[1].strip()
-                if target_matches(tgt_val, target):
-
-                    # search backwards for a source: line and replace it
-                    for j in range(i - 1, -1, -1):
-                        if lines[j].lstrip().startswith("source:"):
-                            indent = lines[j][:len(lines[j]) - len(lines[j].lstrip())]
-                            # keep YAML style, don't escape backslashes
-                            lines[j] = f"{indent}source: {new_path}"
-                            return
+            if target_re.match(line):
+                for j in range(i - 1, -1, -1):
+                    source_match = source_re.match(lines[j])
+                    if source_match:
+                        lines[j] = f"{source_match.group(1)}source: {new_path}"
+                        return
 
     replacements = {
         "storage": new_storage,
@@ -124,7 +129,9 @@ def get_current_port():
             host = m.group(1)
             container = m.group(2)
             # determine if mapping used quotes
-            quote = '"' if '"' in s or '"' in line else ('\'' if "'" in s else '')
+            quote = (
+                '"' if '"' in s or '"' in line else ("'" if "'" in s else "")
+            )
             return host, container, quote
     # default: find a free port on the host
     free_port = find_free_port()
@@ -157,7 +164,8 @@ def get_current_sources():
             if len(parts) < 2:
                 continue
             target_path = parts[1].strip()
-            # use prefix matching so targets like '/storage/<container name>' are matched
+            # use prefix matching so targets like
+            # '/storage/<container name>' are matched
             for name, expected_target in MOUNT_TARGETS.items():
                 if target_matches(target_path, expected_target):
                     # find source above
@@ -171,7 +179,11 @@ def get_current_sources():
                             if m:
                                 desc = m.group(2).strip()
                                 if desc:
-                                    labels[name] = desc if desc.endswith(":") else desc + ":"
+                                    labels[name] = (
+                                        desc
+                                        if desc.endswith(":")
+                                        else desc + ":"
+                                    )
                             break
 
     return SimpleNamespace(
@@ -181,7 +193,16 @@ def get_current_sources():
 
 
 class MountPoint:
-    def __init__(self, root, row, label_text, initial_value, title, on_select=None, width=60):
+    def __init__(
+        self,
+        root,
+        row,
+        label_text,
+        initial_value,
+        title,
+        on_select=None,
+        width=60,
+    ):
         self.title = title
         self.on_select = on_select
         self.label = tk.Label(root, text=label_text)
@@ -203,7 +224,9 @@ class MountPoint:
         self.browse_btn.configure(state=state)
 
     def browse(self):
-        p = filedialog.askdirectory(initialdir=self.get() or os.getcwd(), title=self.title)
+        p = filedialog.askdirectory(
+            initialdir=self.get() or os.getcwd(), title=self.title
+        )
         if p:
             if self.on_select:
                 self.on_select(p)
@@ -221,42 +244,76 @@ class ComposeEditorApp:
 
         # Use labels extracted from the compose YAML placeholders when available
         mount_defs = [
-            ("storage", sources.storage_label, sources.storage, "Select storage folder", self.handle_storage_selected),
+            (
+                "storage",
+                sources.storage_label,
+                sources.storage,
+                "Select storage folder",
+                self.handle_storage_selected,
+            ),
             ("tmp", sources.tmp_label, sources.tmp, "Select tmp folder", None),
             ("bui", sources.bui_label, sources.bui, "Select BUI folder", None),
-            ("anet_narrow", sources.anet_narrow_label, sources.anet_narrow, "Select anet narrow indices folder", None),
-            ("anet_wide", sources.anet_wide_label, sources.anet_wide, "Select anet wide indices folder", None),
+            (
+                "anet_narrow",
+                sources.anet_narrow_label,
+                sources.anet_narrow,
+                "Select anet narrow indices folder",
+                None,
+            ),
+            (
+                "anet_wide",
+                sources.anet_wide_label,
+                sources.anet_wide,
+                "Select anet wide indices folder",
+                None,
+            ),
         ]
         self.mounts = {}
-        for row, (name, label_text, value, title, on_select) in enumerate(mount_defs):
+        for row, (name, label_text, value, title, on_select) in enumerate(
+            mount_defs
+        ):
             if on_select:
                 callback = lambda p, fn=on_select: fn(p, show_info=True)
             else:
-                callback = lambda p, mount_name=name: self.handle_mount_selected(mount_name, p)
-            mount = MountPoint(root, row, label_text, value, title, on_select=callback)
+                callback = (
+                    lambda p, mount_name=name: self.handle_mount_selected(
+                        mount_name, p
+                    )
+                )
+            mount = MountPoint(
+                root, row, label_text, value, title, on_select=callback
+            )
             mount.entry.bind("<FocusOut>", self.handle_form_field_saved)
             mount.entry.bind("<Return>", self.handle_form_field_saved)
             self.mounts[name] = mount
 
-        tk.Label(root, text="Port (host:container)").grid(row=5, column=0, sticky="w")
+        tk.Label(root, text="Port (host:container)").grid(
+            row=5, column=0, sticky="w"
+        )
         self.port_var = tk.StringVar(value=host_port)
         self.port_entry = tk.Entry(root, textvariable=self.port_var, width=20)
         self.port_entry.grid(row=5, column=1, sticky="w", padx=6, pady=6)
         self.port_entry.bind("<FocusOut>", self.handle_form_field_saved)
         self.port_entry.bind("<Return>", self.handle_form_field_saved)
 
-        # Buttons: place inside a frame so layout is stable and won't disappear if window is resized
+        # Buttons: place inside a frame so layout is stable and
+        # won't disappear if window is resized
         button_frame = tk.Frame(root)
         button_frame.grid(row=6, column=0, columnspan=3, pady=8)
 
-        self.run_btn = tk.Button(button_frame, text="Run 'docker compose up'", command=self.run_docker)
+        self.run_btn = tk.Button(
+            button_frame, text="Start AutoWISP", command=self.run_docker
+        )
         self.run_btn.grid(row=0, column=1, padx=6)
 
-        self.update_image_btn = tk.Button(button_frame, text="Update image", command=self.update_image)
+        self.update_image_btn = tk.Button(
+            button_frame, text="Check for Update", command=self.update_image
+        )
         self.update_image_btn.grid(row=0, column=2, padx=6)
 
-        # Enforce storage selection at startup (Option A): disable everything except storage
-        # and force the user to pick a storage folder before proceeding.
+        # Enforce storage selection at startup (Option A):
+        # disable everything except storage and force the user to
+        # pick a storage folder before proceeding.
         self.disable_all_except_storage()
         self.enforce_storage_at_startup()
 
@@ -293,7 +350,9 @@ class ComposeEditorApp:
             os.makedirs(anet_narrow, exist_ok=True)
             os.makedirs(anet_wide, exist_ok=True)
         except Exception as e:
-            messagebox.showwarning("Warning", f"Failed to create some directories: {e}")
+            messagebox.showwarning(
+                "Warning", f"Failed to create some directories: {e}"
+            )
 
         # enable UI now that storage is provided
         self.enable_all_widgets()
@@ -301,7 +360,10 @@ class ComposeEditorApp:
         # Inform the user and immediately persist the chosen paths to compose.yaml.
         # This writes changes as soon as the user selects folders.
         if show_info:
-            messagebox.showinfo("Storage selected", "Paths updated in the form and will be saved to compose.yaml.")
+            messagebox.showinfo(
+                "Storage selected",
+                "Paths updated in the form and will be saved to compose.yaml.",
+            )
 
         self.save_compose_settings()
 
@@ -334,7 +396,10 @@ class ComposeEditorApp:
             return False
 
     def disable_all_except_storage(self):
-        """Disable all entries/browse buttons and action buttons except the storage row."""
+        """
+            Disable all entries/browse buttons and action buttons
+            except the storage row.
+        """
         for name, mount in self.mounts.items():
             if name == "storage":
                 continue
@@ -356,17 +421,29 @@ class ComposeEditorApp:
     def update_image(self):
         try:
             if not COMPOSE_PATH.exists():
-                messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
+                messagebox.showerror(
+                    "Error", f"compose file not found: {COMPOSE_PATH}"
+                )
                 return
 
             if not messagebox.askyesno(
                 "Update image",
-                "Stop and remove the wisp container, then pull the latest kpenev/wisp image?"
+                (
+                    "Stop and remove the wisp container,"
+                    "then pull the latest kpenev/wisp image?"
+                ),
             ):
                 return
 
-            cmd_str = "docker compose stop wisp && docker compose rm -f wisp && docker pull kpenev/wisp & exit"
-            subprocess.Popen(["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=PROJECT_ROOT)
+            cmd_str = (
+                "docker compose stop wisp &&"
+                "docker compose rm -f wisp &&"
+                "docker pull kpenev/wisp & exit"
+            )
+            subprocess.Popen(
+                ["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str],
+                cwd=PROJECT_ROOT,
+            )
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update Docker image: {e}")
 
@@ -391,7 +468,11 @@ class ComposeEditorApp:
             # compose.yaml looks unmodified -> keep only storage enabled
             messagebox.showinfo(
                 "Welcome!",
-                "This compose.yaml looks uninitialized. Please select a storage folder first using the Storage Browse... button."
+                (
+                "This compose.yaml looks uninitialized."
+                "Please select a storage folder first using the"
+                "Storage Browse... button.",
+                )
             )
             # leave other widgets disabled (they were disabled already)
             return
@@ -400,7 +481,7 @@ class ComposeEditorApp:
             try:
                 messagebox.showinfo(
                     "Welcome",
-                    "compose.yaml already configured — you may change any paths now."
+                    "compose.yaml already configured — you may change any paths now.",
                 )
             except Exception:
                 pass
@@ -408,28 +489,22 @@ class ComposeEditorApp:
             return
 
     def run_docker(self):
-        # Run docker compose up. Previously this always ran in the AutoWISP/docker
-        # directory which prevented running the GUI + compose.yaml from arbitrary
-        # locations. Use the compose file path directly so the command can be
-        # executed from anywhere.
         try:
             if not COMPOSE_PATH.exists():
-                messagebox.showerror("Error", f"compose file not found: {COMPOSE_PATH}")
+                messagebox.showerror(
+                    "Error", f"compose file not found: {COMPOSE_PATH}"
+                )
                 return
-            
+
             # Save the current form values to compose.yaml before running docker.
             if not self.save_compose_settings():
                 return
-            
-            # Open a new cmd window in the current working directory and run
-            # 'docker compose up'. This is intentionally simple: it behaves
-            # like the user opened a terminal and ran 'docker compose up' in
-            # the folder where the GUI was started. Avoids fiddling with
-            # compose paths or -f arguments which previously caused quoting
-            # issues when using Windows 'start'.
+
             cwd = os.getcwd()
-            cmd_str = 'docker compose up'
-            subprocess.Popen(["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=cwd)
+            cmd_str = "docker compose up"
+            subprocess.Popen(
+                ["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=cwd
+            )
             # Poll the service URL and open the browser only when it responds
             try:
                 port = int(self.port_var.get())
@@ -437,7 +512,7 @@ class ComposeEditorApp:
                 port = 8089
 
             url = f"http://localhost:{port}/"
-            timeout = 180  # seconds
+            timeout = 600  # seconds
             poll_interval = 2  # seconds
 
             def _poll_and_open():
@@ -446,7 +521,9 @@ class ComposeEditorApp:
                     try:
                         with urllib.request.urlopen(url, timeout=3) as resp:
                             # getcode() works across Python versions
-                            code = getattr(resp, 'status', None) or resp.getcode()
+                            code = (
+                                getattr(resp, "status", None) or resp.getcode()
+                            )
                             if code and code < 400:
                                 try:
                                     webbrowser.open(url)
@@ -460,11 +537,23 @@ class ComposeEditorApp:
                     time.sleep(poll_interval)
 
                 # timed out
-                self.root.after(0, lambda u=url: messagebox.showwarning("Timeout", f"Timed out waiting for {u} to respond ({timeout}s)."))
+                self.root.after(
+                    0,
+                    lambda u=url: messagebox.showwarning(
+                        "Still starting",
+                        (
+                            f"Timed out waiting for {u} to respond ({timeout}s).\n"
+                            "Docker may still be starting;"
+                            "open the URL manually when it is ready."
+                        )
+                    ),
+                )
 
             threading.Thread(target=_poll_and_open, daemon=True).start()
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to start docker compose: {e}")
+            messagebox.showerror(
+                "Error", f"Failed to start docker compose: {e}"
+            )
 
 
 def find_and_replace_port(text, new_host_port):
@@ -479,20 +568,22 @@ def find_and_replace_port(text, new_host_port):
             container = m.group(3)
             quote2 = m.group(4)
             q = quote1 or quote2 or '"'
-            lines[i] = line.replace(m.group(0), f'{q}{new_host_port}:{container}{q}')
+            lines[i] = line.replace(
+                m.group(0), f"{q}{new_host_port}:{container}{q}"
+            )
             return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
-    
+
     # No port mapping found; add ports section after shm_size line
     for i, line in enumerate(lines):
-        if 'shm_size:' in line:
+        if "shm_size:" in line:
             indent = len(line) - len(line.lstrip())
             port_lines = [
-                ' ' * indent + 'ports:',
-                ' ' * (indent + 2) + f'- "{new_host_port}:8089"'
+                " " * indent + "ports:",
+                " " * (indent + 2) + f'- "{new_host_port}:8089"',
             ]
-            lines = lines[:i+1] + port_lines + lines[i+1:]
+            lines = lines[: i + 1] + port_lines + lines[i + 1 :]
             return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
-    
+
     return text
 
 
@@ -505,7 +596,7 @@ def main():
     # If the compose editor closed itself because the user cancelled storage
     # selection at startup, exit the program
     try:
-        if not getattr(app, 'root', None):
+        if not getattr(app, "root", None):
             return
     except Exception:
         pass
@@ -514,4 +605,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
