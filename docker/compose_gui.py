@@ -503,7 +503,7 @@ class ComposeEditorApp:
             cwd = os.getcwd()
             cmd_str = "docker compose up"
             subprocess.Popen(
-                ["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str], cwd=cwd
+                ["cmd.exe", "/c", "start", "", "/min", "cmd", "/k", cmd_str], cwd=cwd
             )
             # Poll the service URL and open the browser only when it responds
             try:
@@ -526,9 +526,9 @@ class ComposeEditorApp:
                             )
                             if code and code < 400:
                                 try:
-                                    webbrowser.open(url)
+                                    os.startfile(url)
                                 except Exception:
-                                    pass
+                                    webbrowser.open(url)
                                 return
                     except Exception:
                         # keep waiting
