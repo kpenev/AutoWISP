@@ -173,7 +173,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         for column_name, column_data in iter_data():
             if column_name in ascii_columns or column_data.dtype.kind in "SUO":
-                column_data = column_data.astype("string_")
+                column_data = column_data.astype("S")
             if parse_ids and column_name == "ID":
                 id_data = self.parse_hat_source_id(column_data)
                 for id_part in ["prefix", "field", "source"]:

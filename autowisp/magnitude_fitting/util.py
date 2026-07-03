@@ -39,7 +39,7 @@ def _init_magfit_sources(source_data):
                     (
                         colname,
                         (
-                            "string_"
+                            "S"
                             if source_data[colname].dtype.kind == "O"
                             else source_data[colname].dtype
                         ),

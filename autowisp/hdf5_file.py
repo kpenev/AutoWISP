@@ -461,6 +461,12 @@ class HDF5File(ABC, h5py.File):
         if result == "manual":
             return None
 
+        # ``numpy.string_`` was removed in NumPy 2.0 in favor of the identical
+        # ``numpy.bytes_``. Databases created before the migration still store
+        # the legacy token, so normalize it before eval to keep them working.
+        if result == "numpy.string_":
+            result = "numpy.bytes_"
+
         # Used only on input defined by us.
         # pylint: disable=eval-used
         result = eval(result)
@@ -688,7 +694,7 @@ class HDF5File(ABC, h5py.File):
                 )
             assert if_exists == "overwrite"
 
-        if isinstance(attribute_value, (str, bytes, numpy.string_)):
+        if isinstance(attribute_value, (str, bytes, numpy.bytes_)):
             parent.attrs.create(
                 attribute_name,
                 (
@@ -1080,7 +1086,7 @@ class HDF5File(ABC, h5py.File):
 
         if (
             data.dtype.kind == "S"
-            or data.dtype in [numpy.string_, numpy.bytes_]
+            or data.dtype in [numpy.bytes_]
         ) and (
             (
                 expected_dtype is not None
@@ -1200,7 +1206,7 @@ class HDF5File(ABC, h5py.File):
             creation_args["maxshape"] = (None,) + shape_tail
 
         if (
-            creation_args.get("dtype", dtype) == numpy.string_
+            creation_args.get("dtype", dtype) == numpy.bytes_
             or dtype.kind == "S"
         ):
             assert creation_args.get("dtype", numpy.bytes_) == numpy.bytes_

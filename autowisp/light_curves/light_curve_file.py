@@ -259,7 +259,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             """The type to use for the given column in the result."""
 
             result = self.get_dtype(dset_key)
-            if result == numpy.string_:
+            if result == numpy.bytes_:
                 return numpy.dtype("O")
             return result
 
@@ -474,7 +474,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 return numpy.nan
             if dtype_str == "numpy.int32":
                 return numpy.iinfo(numpy.int32).min
-            if dtype_str == "numpy.string_":
+            if dtype_str in ("numpy.string_", "numpy.bytes_"):
                 return ""
             if dtype_str == "numpy.uint":
                 return numpy.iinfo(numpy.uint).max

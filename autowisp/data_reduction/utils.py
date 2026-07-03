@@ -57,7 +57,7 @@ key_io_tree_to_dr = {
 }
 
 _dtype_dr_to_io_tree = {
-    numpy.string_: str,
+    numpy.bytes_: str,
     numpy.uint: c_uint,
     numpy.uint8: c_ubyte,
     numpy.int32: c_int,

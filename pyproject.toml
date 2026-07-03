@@ -45,14 +45,19 @@ dependencies = [
     'asteval',
     'astropy',
     'astroquery',
-    'astrowisp >= 1.5',
+    'astrowisp >= 2.0.1',
     'configargparse',
     'Django',
     'h5py',
     'lxml',
     'matplotlib',
+    # meepmeep is transitive-only (via pytransit); we never import it. Pin <1
+    # because pytransit's numpy-1-compatible releases (<=2.6.18) fail to import
+    # against meepmeep>=1. This caps pytransit at 2.7.1, the newest release that
+    # works under both numpy 1 and numpy 2. Drop the pin (and let pytransit
+    # pull meepmeep>=1 / pytransit 2.8+) only if numpy-1 support is abandoned.
     'meepmeep < 1',
-    'numpy < 2',
+    'numpy >= 1.21',
     'pandas',
     'pillow',
     'platformdirs',
@@ -70,9 +75,11 @@ description = 'Pipeline for extracting photometry from wide-field night sky imag
 readme = 'README.md'
 
 # 3.11 floor: ProcessPoolExecutor(max_tasks_per_child=...) used by run_pool
-# needs CPython >= 3.11. 3.12 ceiling: astrowisp pins numpy<2, whose last
-# release (1.26) has no wheels for 3.13+. Lift both once astrowisp supports
-# numpy 2 (see error_handling_plan / AstroWISP migration).
+# needs CPython >= 3.11. 3.12 ceiling retained for now only out of caution: the
+# old numpy<2 barrier is gone (astrowisp 2.0, numpy 2, scipy, h5py all ship
+# cp313 AND cp314 wheels; pytransit/meepmeep are pure-Python py3-none-any). The
+# ceiling can be lifted straight to the current max Python (3.14) once the
+# remaining pure-Python deps (rechunker, zarr) are verified on 3.13/3.14.
 requires-python = '>=3.11,<3.13'
 
 dynamic = ['version']
