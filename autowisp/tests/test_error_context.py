@@ -272,7 +272,8 @@ class TestErrorContextManager(_ContextTestCase):
                 ctx = get_error_context()
                 self.assertEqual(ctx.step_name, "inner")
                 self.assertEqual(
-                    [rf.path for rf in ctx.related_files], ["/a", "/b"]
+                    [rf.path.as_posix() for rf in ctx.related_files],
+                    ["/a", "/b"],
                 )
             # Back to the outer scope.
             self.assertEqual(get_error_context().step_name, "outer")

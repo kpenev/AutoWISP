@@ -1085,7 +1085,9 @@ class TFACorrection(Correction):
                 downdated_qrp = scipy.linalg.qr_delete(
                     self._template_qrp[fit_index][0],
                     self._template_qrp[fit_index][1],
-                    int(permutted_index),
+                    # [0] first: NumPy 2.4 errors on int() of a 1-element
+                    # (non-0-d) array, which numpy.where(...)[0] returns.
+                    int(permutted_index[0]),
                     which="col",
                 )
                 self._logger.debug("Downdated QRP: %s", repr(downdated_qrp))

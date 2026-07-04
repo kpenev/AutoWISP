@@ -42,7 +42,7 @@ _default_paths = {
 # float() the numpy scalar before repr: NumPy 2 (NEP 51) reprs a numpy scalar
 # as "np.float32(...)", which is not parseable by the float() applied when this
 # stored string is read back.
-_default_nonfinite = repr(float(numpy.finfo("f4").min) / 2)
+_default_nonfinite = repr(numpy.finfo("f4").min.item() / 2)
 
 
 def _get_source_extraction_attributes():
