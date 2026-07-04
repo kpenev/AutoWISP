@@ -20,7 +20,6 @@ import logging
 import os
 import re
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
 from sqlalchemy import select, update
 
@@ -63,8 +62,9 @@ def _resolve_artifact_fks(related_files, db_session):
     """
 
     # as_posix() so matching against the DB's forward-slash paths works on
-    # Windows too (str() would emit backslashes).
-    paths = [Path(related.path).as_posix() for related in related_files]
+    # Windows too (str() would emit backslashes). RelatedFile coerces path to
+    # a Path in its constructor, so this is safe.
+    paths = [related.path.as_posix() for related in related_files]
     if not paths:
         return None, None
     # pylint: disable=no-member

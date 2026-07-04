@@ -282,6 +282,22 @@ class TestSnapshotRow(unittest.TestCase):
 class TestToDetailDict(unittest.TestCase):
     """``to_detail_dict`` + ``sanitize_for_json`` (the sidecar payload)."""
 
+    def test_related_file_str_path_coerced(self):
+        """A ``str`` related-file path is coerced to Path, serialized POSIX.
+
+        Regression: ``to_detail_dict`` used ``related.path.as_posix()``,
+        which crashed when ``path`` was passed as a plain string.
+        """
+
+        related = RelatedFile(FileKind.RAW_IMAGE, "/data/raw/img.fits", "input")
+        self.assertIsInstance(related.path, Path)
+        exc = make_find_stars_error()
+        exc.related_files = (related,)
+        self.assertEqual(
+            exc.to_detail_dict()["related_files"][0]["path"],
+            "/data/raw/img.fits",
+        )
+
     def test_detail_dict_fields(self):
         """The payload carries the non-column fields, related files in full.
 

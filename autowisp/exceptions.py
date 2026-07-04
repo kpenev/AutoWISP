@@ -123,6 +123,13 @@ class RelatedFile:
     path: Path
     role: str = ""
 
+    def __post_init__(self):
+        """Coerce ``path`` to a ``Path`` so call sites never see a raw str."""
+
+        if not isinstance(self.path, Path):
+            # frozen dataclass -> bypass the assignment guard.
+            object.__setattr__(self, "path", Path(self.path))
+
 
 def _rebuild_autowisp_error(cls, args, state):
     """Reconstruct an :class:`AutoWISPError` subclass for unpickling.
@@ -285,7 +292,7 @@ class AutoWISPError(Exception):
             "related_files": [
                 {
                     "kind": related.kind.value,
-                    "path": Path(related.path).as_posix(),
+                    "path": related.path.as_posix(),
                     "role": related.role,
                 }
                 for related in self.related_files
