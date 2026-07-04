@@ -68,7 +68,9 @@ def sanitize_for_json(obj, max_inline_array_size=64):
     if isinstance(obj, numpy.generic):
         return obj.item()
     if isinstance(obj, Path):
-        return str(obj)
+        # as_posix() so the serialized path is stable across platforms
+        # (str() would emit backslashes on Windows).
+        return obj.as_posix()
     if isinstance(obj, datetime):
         return obj.isoformat()
     if isinstance(obj, (set, frozenset)):
@@ -120,6 +122,13 @@ class RelatedFile:
     kind: FileKind
     path: Path
     role: str = ""
+
+    def __post_init__(self):
+        """Coerce ``path`` to a ``Path`` so call sites never see a raw str."""
+
+        if not isinstance(self.path, Path):
+            # frozen dataclass -> bypass the assignment guard.
+            object.__setattr__(self, "path", Path(self.path))
 
 
 def _rebuild_autowisp_error(cls, args, state):
@@ -283,7 +292,7 @@ class AutoWISPError(Exception):
             "related_files": [
                 {
                     "kind": related.kind.value,
-                    "path": str(related.path),
+                    "path": related.path.as_posix(),
                     "role": related.role,
                 }
                 for related in self.related_files

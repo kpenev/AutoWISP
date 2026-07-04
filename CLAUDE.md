@@ -99,9 +99,15 @@ AstroWISP (`/home/kpenev/projects/git/AstroWISP/`) is the lower-level C++/Python
 
 ## Key Constraints
 
-- `numpy < 2` is required — forced by `astrowisp` (which pins `numpy<2`);
-  all other deps already support numpy 2
-- Python 3.11–3.12 only: 3.11 floor for `ProcessPoolExecutor`'s
-  `max_tasks_per_child` (used by `run_pool`), 3.12 ceiling because
-  `numpy<2`'s last release (1.26) has no 3.13 wheels. CI tests on 3.12
-- Cross-platform: Linux, macOS, Windows
+- Both **NumPy 1 and NumPy 2** are supported (`numpy >= 1.21`), via
+  `astrowisp >= 2.0.1` which is compatible with both. Note NumPy **2.4** made
+  `float()`/`int()` of a 1-element array a hard error (2.3 only warned) — use
+  `.item()` / explicit indexing, and validate under the numpy the CI installs
+  (2.4.x), not an older one.
+- Python **3.11+**: 3.11 floor for `ProcessPoolExecutor`'s
+  `max_tasks_per_child` (used by `run_pool`); no upper ceiling. CI runs a grid
+  of numpy 1/2 × {Linux, Windows, macOS-arm, macOS-intel} × Python 3.11–3.14
+  (numpy 1 excluded on 3.13/3.14, which have no numpy-1.26 wheels).
+- Cross-platform: Linux, macOS, Windows. Windows-specific gotchas: `numpy.uint`/
+  `numpy.int_` are 32-bit there (use `numpy.uint64` for source IDs), and
+  serialize paths with `Path.as_posix()`.

@@ -816,7 +816,7 @@ class Calibrator(Processor):
             for quantile in diagnostic_quantiles:
                 diag_name = "pixel_q" + str(quantile).split(".")[1]
                 channel_diags.append(
-                    (diag_name, float(numpy.quantile(good_pixels, quantile)))
+                    (diag_name, numpy.quantile(good_pixels, quantile).item())
                 )
             diagnostics[channel_name] = channel_diags
 

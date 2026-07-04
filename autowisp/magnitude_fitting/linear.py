@@ -36,11 +36,11 @@ class LinearMagnitudeFit(MagnitudeFit):
             center_predictors = self.fit_terms(center_star).flatten()
 
             corrections = [
-                float(numpy.dot(gr["coefficients"], center_predictors))
+                numpy.dot(gr["coefficients"], center_predictors).item()
                 for gr in phot_fit_results
                 if gr["coefficients"] is not None
             ]
-            return float(numpy.nanmedian(corrections)) if corrections else None
+            return numpy.nanmedian(corrections).item() if corrections else None
         except Exception:  # pylint: disable=broad-except
             return None
 

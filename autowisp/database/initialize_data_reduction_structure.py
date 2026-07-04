@@ -39,7 +39,10 @@ _default_paths = {
     "subpixmap": "/SubPixelMap/Version%(subpixmap_version)03d",
 }
 
-_default_nonfinite = repr(numpy.finfo("f4").min / 2)
+# float() the numpy scalar before repr: NumPy 2 (NEP 51) reprs a numpy scalar
+# as "np.float32(...)", which is not parseable by the float() applied when this
+# stored string is read back.
+_default_nonfinite = repr(numpy.finfo("f4").min.item() / 2)
 
 
 def _get_source_extraction_attributes():
@@ -54,7 +57,7 @@ def _get_source_extraction_attributes():
             pipeline_key="srcextract.fistar.cmdline",
             parent=_default_paths["srcextract"]["root"],
             name="FiStarCommandLine",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The command line with which fistar was invoked.",
         ),
         HDF5Attribute(
@@ -68,7 +71,7 @@ def _get_source_extraction_attributes():
             pipeline_key="srcextract.psf_map.cfg.terms",
             parent=map_parent,
             name="Terms",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An expression expanding to the terms to include when "
             "smoothing the fistar PSF parameters.",
         ),
@@ -76,7 +79,7 @@ def _get_source_extraction_attributes():
             pipeline_key="srcextract.psf_map.cfg.weights",
             parent=map_parent,
             name="Weights",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An expression that evaluates to the weight for each "
             "source in the smoothing fit.",
         ),
@@ -84,7 +87,7 @@ def _get_source_extraction_attributes():
             pipeline_key="srcextract.psf_map.cfg.error_avg",
             parent=map_parent,
             name="ErrorAveraging",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="How are the residuals after the fit averaged to "
             "detect outlier sources?",
         ),
@@ -128,7 +131,7 @@ def _get_source_extraction_attributes():
             pipeline_key="srcextract.software_versions",
             parent=_default_paths["srcextract"]["root"],
             name="SoftwareVersions",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An Nx2 array of strings consisting of "
             "software elements and their versions used for source "
             "extraction.",
@@ -137,7 +140,7 @@ def _get_source_extraction_attributes():
             pipeline_key="srcextract.psf_map.software_versions",
             parent=_default_paths["srcextract"]["root"],
             name="SoftwareVersions",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An Nx2 array of strings consisting of "
             "software elements and their versions used for source "
             "extraction.",
@@ -196,7 +199,7 @@ def _get_catalogue_attributes():
             pipeline_key=pipeline_key_start + "name",
             parent=parent,
             name="Name",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The catalogue to query.",
         ),
         HDF5Attribute(
@@ -211,7 +214,7 @@ def _get_catalogue_attributes():
             pipeline_key=pipeline_key_start + "filter",
             parent=parent,
             name="Filter",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="Any filtering applied to the catalogue sources, in "
             "addition to the field selection and brightness range, before "
             "using them.",
@@ -260,7 +263,7 @@ def _get_skytoframe_attributes():
             pipeline_key="skytoframe.software_versions",
             parent=parent,
             name="SoftwareVersions",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An Nx2 array of strings consisting of "
             "software elements and their versions used for deriving the sky to "
             "frame transformation.",
@@ -269,7 +272,7 @@ def _get_skytoframe_attributes():
             pipeline_key="skytoframe.cfg.srcextract_filter",
             parent=parent,
             name="ExtractedSourcesFilter",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="Any filtering applied to the extracted sources before "
             "using them to derive the pre-projected to frame transformation.",
         ),
@@ -277,7 +280,7 @@ def _get_skytoframe_attributes():
             pipeline_key="skytoframe.cfg.sky_preprojection",
             parent=parent,
             name="SkyPreProjection",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The pre-projection aronud the central coordinates used"
             " for the sources when deriving the pre-shrunk sky to frame "
             "transformation ('arc', 'tan', ...).",
@@ -303,7 +306,7 @@ def _get_skytoframe_attributes():
             pipeline_key="skytoframe.cfg.weights_expression",
             parent=parent,
             name="WeightsExpression",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An expression involving catalogue and/or source "
             "extraction columns for the weights to use for various sources "
             "when deriving the pre-projected to frame transformation.",
@@ -339,7 +342,7 @@ def _get_skytoframe_attributes():
             pipeline_key="skytoframe.type",
             parent=parent + _default_paths["skytoframe"]["coefficients"],
             name="Type",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The type of transformation describing the "
             "pre-projected to frame transformation.",
         ),
@@ -347,7 +350,7 @@ def _get_skytoframe_attributes():
             pipeline_key="skytoframe.terms",
             parent=parent + _default_paths["skytoframe"]["coefficients"],
             name="Terms",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The terms in the pre-projected to frame "
             "transformation.",
         ),
@@ -517,7 +520,7 @@ def _get_background_attributes():
             pipeline_key="bg.cfg.model",
             parent=_default_paths["background"],
             name="Model",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="How was the backgroun modelled.",
         ),
         HDF5Attribute(
@@ -532,7 +535,7 @@ def _get_background_attributes():
             pipeline_key="bg.sofware_versions",
             parent=_default_paths["background"],
             name="SoftwareVersions",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An Nx2 array of strings consisting of "
             "software elements and their versions used for estimating the "
             "backgrund for each source.",
@@ -668,7 +671,7 @@ def _get_magfit_attributes(photometry_mode):
             pipeline_key=pipeline_key_start + "single_photref",
             parent=dset_path,
             name="SinglePhotometricReference",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The name of the DR file used as single photometric "
             "reference to initiate magnitude fitting iterations.",
         ),
@@ -676,7 +679,7 @@ def _get_magfit_attributes(photometry_mode):
             pipeline_key=pipeline_key_start + "correction_type",
             parent=dset_path,
             name="CorrectionType",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The type of function being fitted for now the "
             "supported types are: linear (nonlinear and spline in the future).",
         ),
@@ -684,7 +687,7 @@ def _get_magfit_attributes(photometry_mode):
             pipeline_key=pipeline_key_start + "correction",
             parent=dset_path,
             name="CorrectionExpression",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The actual parametric expression for the magnitude "
             "correction.",
         ),
@@ -692,7 +695,7 @@ def _get_magfit_attributes(photometry_mode):
             pipeline_key=pipeline_key_start + "require",
             parent=dset_path,
             name="SourceFilter",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="Any condition imposed on the sources used to derive "
             "the correction function parameters.",
         ),
@@ -739,7 +742,7 @@ def _get_magfit_attributes(photometry_mode):
             pipeline_key=pipeline_key_start + "error_avg",
             parent=dset_path,
             name="ErrorAveraging",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="How to calculate the scale for rejecting sources.",
         ),
         HDF5Attribute(
@@ -824,14 +827,14 @@ def _get_shapefit_attributes():
                 pipeline_key="shapefit.cfg.psf.model",
                 parent=parent_path,
                 name="Model",
-                dtype="numpy.string_",
+                dtype="numpy.bytes_",
                 description="The model used to represent the PSF/PRF.",
             ),
             HDF5Attribute(
                 pipeline_key="shapefit.cfg.psf.terms",
                 parent=parent_path,
                 name="Terms",
-                dtype="numpy.string_",
+                dtype="numpy.bytes_",
                 description="The terms the PSF/PRF is allowed to depend "
                 "on. See AstroWISP documentation for full description.",
             ),
@@ -1013,7 +1016,7 @@ def _get_shapefit_attributes():
                 pipeline_key="shapefit.sofware_versions",
                 parent=parent_path,
                 name="SoftwareVersions",
-                dtype="numpy.string_",
+                dtype="numpy.bytes_",
                 description="An Nx2 array of strings consisting of "
                 "software elements and their versions usef during PSF/PRF"
                 " fitting.",
@@ -1135,7 +1138,7 @@ def _get_apphot_attributes():
             pipeline_key="apphot.sofware_versions",
             parent=root_path,
             name="SoftwareVersions",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="An Nx2 array of strings consisting of "
             "software elements and their versions used for aperture "
             "photometry.",
@@ -1244,7 +1247,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.camera.serial",
             parent=parent,
             name="CameraSerialNumber",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The serial number of the camera used to acquire "
             "the image.",
         ),
@@ -1252,7 +1255,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.camera.make",
             parent=parent,
             name="CameraMake",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The manufacturer of the camera used to acquire "
             "the image.",
         ),
@@ -1260,7 +1263,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.camera.model",
             parent=parent,
             name="CameraModel",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The model name of the camera used to acquire "
             "the image.",
         ),
@@ -1268,7 +1271,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.mount.serial",
             parent=parent,
             name="MountSerialNumber",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The serial number of the mount used to track "
             "the target.",
         ),
@@ -1276,7 +1279,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.mount.make",
             parent=parent,
             name="MountMake",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The manufacturer of the mount used to track "
             "the target.",
         ),
@@ -1284,7 +1287,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.mount.model",
             parent=parent,
             name="MountModel",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The model name of the mount used to track "
             "the target.",
         ),
@@ -1292,7 +1295,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.telescope.serial",
             parent=parent,
             name="TelescopeSerialNumber",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The serial number of the telescope through which "
             "the image was taken.",
         ),
@@ -1300,7 +1303,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.telescope.make",
             parent=parent,
             name="TelescopeMake",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The manufacturer of the telescope through which "
             "the image was taken.",
         ),
@@ -1308,7 +1311,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.telescope.model",
             parent=parent,
             name="TelescopeModel",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The model name of the telescope through which "
             "the image was taken.",
         ),
@@ -1340,7 +1343,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.observer.name",
             parent=parent,
             name="ObserverName",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="Name of the observer or organisation responsible "
             "for acquiring the image.",
         ),
@@ -1348,7 +1351,7 @@ def _get_provenance_attributes():
             pipeline_key="provenance.cfg.target.name",
             parent=parent,
             name="TargetName",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The name of the target field being observed.",
         ),
         HDF5Attribute(
@@ -1377,7 +1380,7 @@ def _get_attributes():
                 pipeline_key="repack",
                 parent="/",
                 name="Repack",
-                dtype="numpy.string_",
+                dtype="numpy.bytes_",
                 description="A list of the datasets deleted from the file since"
                 " the last re-packing. If not empty, indicates that the file "
                 "size can be decreased by re-packing.",

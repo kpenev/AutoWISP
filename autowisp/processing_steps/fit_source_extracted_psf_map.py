@@ -159,9 +159,7 @@ def _collect_psf_map_diagnostics(
     """
 
     try:
-        center_source = (
-            matched_sources.median(numeric_only=True).to_frame().T
-        )
+        center_source = matched_sources.median(numeric_only=True).to_frame().T
         center_source["x"] = header["NAXIS1"] / 2
         center_source["y"] = header["NAXIS2"] / 2
         center_predictors = get_predictors_and_weights(
@@ -173,24 +171,20 @@ def _collect_psf_map_diagnostics(
             param_lower = param_name.lower()
             if param_lower not in ("s", "d", "k"):
                 continue
-            center_value = float(
-                numpy.dot(
-                    fit_results["coefficients"][param_name],
-                    center_predictors,
-                )
-            )
+            center_value = numpy.dot(
+                fit_results["coefficients"][param_name],
+                center_predictors,
+            ).item()
             diagnostics.append((f"{param_lower}_center", center_value))
             diagnostics.append(
                 (
                     f"{param_lower}_map_residual",
-                    float(numpy.sqrt(fit_results["fit_res2"][param_name])),
+                    numpy.sqrt(fit_results["fit_res2"][param_name]).item(),
                 )
             )
         return diagnostics
     except Exception:
-        _logger.error(
-            "Failed to compute PSF map diagnostics", exc_info=True
-        )
+        _logger.error("Failed to compute PSF map diagnostics", exc_info=True)
         return []
 
 
@@ -387,9 +381,7 @@ def main():
     """Run the step from the command line."""
 
     configuration = parse_command_line()
-    setup_process(
-        task="main", **configuration
-    )
+    setup_process(task="main", **configuration)
 
     dr_substitutions = get_dr_substitutions(configuration)
     fit_source_extracted_psf_map(

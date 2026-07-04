@@ -3,7 +3,7 @@
 
 """Utilities for querying catalogs for astrometry."""
 
-from os import path, makedirs
+from os import path, makedirs, environ
 import logging
 from hashlib import md5
 from contextlib import nullcontext
@@ -445,6 +445,13 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
         **query_kwargs:    Arguments passed directly to
             `gaia.query_brightness_limited()`.
     """
+
+    if environ.get("AUTOWISP_NO_LIVE_CATALOG"):
+        raise RuntimeError(
+            "Live Gaia query disabled via AUTOWISP_NO_LIVE_CATALOG, but catalog "
+            f"{fname!r} is missing and would require a query. Its cached FITS "
+            "fixture is absent or its checksum did not match."
+        )
 
     write_query_to_file(
         gaia.query_brightness_limited(**query_kwargs),

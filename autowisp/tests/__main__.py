@@ -133,8 +133,9 @@ def _parse_test_args(argv):
     parser.add_argument(
         "failed_test_dir",
         help=(
-            "Directory to which the processing directory of a failed "
-            "test is copied for post-mortem inspection."
+            "Directory under which each failed test's processing directory "
+            "is copied (into a ``<Class>_<method>`` subdirectory) for "
+            "post-mortem inspection. All failures in a run are kept."
         ),
     )
     parser.add_argument(
@@ -189,7 +190,45 @@ def _parse_test_args(argv):
             "the current working directory if no value is given."
         ),
     )
+    parser.add_argument(
+        "--exclude",
+        nargs="*",
+        default=[],
+        metavar="TestClass",
+        help=(
+            "Test case class names to skip. Since unittest ``-k`` has no "
+            "negation, the runner expands this into ``-k`` selectors for every "
+            "other test class, so e.g. ``--exclude TestCatalog "
+            "TestFullPipeline`` runs everything but those two. Used by CI to "
+            "run a subset per grid cell."
+        ),
+    )
     return parser.parse_known_args(argv)
+
+
+def _exclude_to_selectors(exclude):
+    """Return ``-k`` args selecting every harness test class except ``exclude``.
+
+    ``unittest -k`` cannot express "everything but X", so enumerate the wanted
+    classes instead. The runnable classes are the ``unittest.TestCase``
+    subclasses imported into this module (the same ones the harness runs).
+    """
+
+    known = {
+        name
+        for name, obj in globals().items()
+        if isinstance(obj, type)
+        and issubclass(obj, unittest.TestCase)
+        and name.startswith("Test")
+    }
+    unknown = set(exclude) - known
+    if unknown:
+        print(f"WARNING: --exclude names not found: {sorted(unknown)}")
+
+    selectors = []
+    for name in sorted(known - set(exclude)):
+        selectors += ["-k", name]
+    return selectors
 
 
 def _open_test_stream(test_log):
@@ -218,6 +257,9 @@ def main():
     """Parse CLI args, prepare the test data dir, and run the suite."""
 
     args, unittest_argv = _parse_test_args(sys.argv[1:])
+
+    if args.exclude:
+        unittest_argv = _exclude_to_selectors(args.exclude) + unittest_argv
 
     print("Starting tests")
     if args.data_dir is not None:

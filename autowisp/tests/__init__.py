@@ -24,6 +24,12 @@ class AutoWISPTestCase(FloatTestCase):
     successful_test = False
     _logger = logging.getLogger(__name__)
 
+    # Stage the cached Gaia catalog FITS (``test_data/MASTERS/Gaia``) into the
+    # processing directory in setUp so steps that call ``ensure_catalog`` reuse
+    # them instead of hitting the live Gaia archive. Catalog tests, which are
+    # meant to exercise the live query, set this False.
+    stage_catalog_cache = True
+
     # Header keys whose presence and value must NOT be required to
     # match between the two files:
     #
@@ -178,6 +184,15 @@ class AutoWISPTestCase(FloatTestCase):
             f"Test directory {self.test_directory} does not exist!",
         )
         makedirs(self.processing_directory, exist_ok=False)
+        gaia_cache = path.join(self.test_directory, "MASTERS", "Gaia")
+        if self.stage_catalog_cache and path.isdir(gaia_cache):
+            makedirs(
+                path.join(self.processing_directory, "MASTERS"), exist_ok=True
+            )
+            copytree(
+                gaia_cache,
+                path.join(self.processing_directory, "MASTERS", "Gaia"),
+            )
         copy(
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
@@ -197,9 +212,16 @@ class AutoWISPTestCase(FloatTestCase):
 
         print(f"Tearing down processing in {self.processing_directory!r}")
         if not self.successful_test:
-            if path.exists(self.failed_test_directory):
-                rmtree(self.failed_test_directory, ignore_errors=False)
-            copytree(self.processing_directory, self.failed_test_directory)
+            # Preserve every failed test in its own subdirectory (keyed by
+            # class + method) so a run with several failures keeps all of them
+            # for post-mortem, rather than each failure overwriting the last.
+            destination = path.join(
+                self.failed_test_directory,
+                f"{type(self).__name__}_{self._testMethodName}",
+            )
+            if path.exists(destination):
+                rmtree(destination, ignore_errors=False)
+            copytree(self.processing_directory, destination)
         if self.preserve_processing_dir is not None:
             destination = path.join(
                 self.preserve_processing_dir,

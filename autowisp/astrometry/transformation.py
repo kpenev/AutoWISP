@@ -171,7 +171,9 @@ class Transformation:
             terms = self.evaluate_terms(source_properties)
             return numpy.array(
                 [
-                    float(coef.dot(terms)) - target
+                    # .item() not float(): NumPy 2.4 errors on float() of a
+                    # 1-element (non-0-d) array, which coef.dot(terms) can be.
+                    coef.dot(terms).item() - target
                     for coef, target in zip(self._coefficients, [x, y])
                 ]
             )
@@ -251,7 +253,7 @@ def compute_diagonal_fov(transformation, header):
                     )
                 ).to_value(astropy_units.deg)
             )
-    return float(numpy.mean(corner_seps))
+    return numpy.mean(corner_seps).item()
 
 
 def parse_command_line():

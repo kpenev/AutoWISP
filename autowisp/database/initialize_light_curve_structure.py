@@ -31,7 +31,10 @@ _default_paths = {
     "sky_position": "/SkyPosition",
 }
 
-_default_nonfinite = repr(numpy.finfo("f4").min / 2)
+# float() the numpy scalar before repr: NumPy 2 (NEP 51) reprs a numpy scalar
+# as "np.float32(...)", which is not parseable by the float() applied when this
+# stored string is read back.
+_default_nonfinite = repr(numpy.finfo("f4").min.item() / 2)
 
 
 def _get_structure_version_id(db_session, product="data_reduction"):
@@ -59,7 +62,7 @@ def _get_source_extraction_datasets():
             HDF5DataSet(
                 pipeline_key=psf_map_key_start + "software_versions",
                 abspath=config_path_start + "SoftwareVersions",
-                dtype="numpy.string_",
+                dtype="numpy.bytes_",
                 description="An Nx2 array of strings consisting of software "
                 "elements and their versions used for source extraction.",
             )
@@ -97,7 +100,7 @@ def _get_catalogue_attributes():
             pipeline_key=key_start + "name",
             parent=parent,
             name="Catalogue",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The catalogue from which this source information was "
             "queried.",
         ),
@@ -105,7 +108,7 @@ def _get_catalogue_attributes():
             pipeline_key=key_start + "epoch",
             parent=parent,
             name="CatalogueEpoch",
-            dtype="numpy.string_",
+            dtype="numpy.bytes_",
             description="The epoch (JD) up to which catalogue positions were "
             "corrected.",
         ),
@@ -138,7 +141,7 @@ def _get_frame_datasets():
             (
                 "RAWFNAME",
                 "RawFileName",
-                "numpy.string_",
+                "numpy.bytes_",
                 None,
                 "The filename of the RAW image that contributed this "
                 "datapoint in the light curve.",
@@ -176,7 +179,7 @@ def _get_frame_datasets():
             (
                 "CLRCHNL",
                 "ColorChannel",
-                "numpy.string_",
+                "numpy.bytes_",
                 None,
                 "The color of the channel contributing this datapoint.",
             ),
@@ -567,7 +570,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                 HDF5DataSet(
                     pipeline_key=config_key_prefix + "error_avg",
                     abspath=(cfg_path + "ErrorAveraging"),
-                    dtype="numpy.string_",
+                    dtype="numpy.bytes_",
                     compression="gzip",
                     compression_options="9",
                     description="How to calculate the scale "
@@ -624,7 +627,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "variables",
                         abspath=(cfg_path + "Variables"),
-                        dtype="numpy.string_",
+                        dtype="numpy.bytes_",
                         compression="gzip",
                         compression_options="9",
                         description="The list of variables and "
@@ -634,7 +637,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "fit_terms",
                         abspath=(cfg_path + "CorrectionExpression"),
-                        dtype="numpy.string_",
+                        dtype="numpy.bytes_",
                         compression="gzip",
                         compression_options="9",
                         description="The expression that "
@@ -644,7 +647,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "fit_filter",
                         abspath=(cfg_path + "Filter"),
-                        dtype="numpy.string_",
+                        dtype="numpy.bytes_",
                         compression="gzip",
                         compression_options="9",
                         description="Filtering applied to "
@@ -654,7 +657,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     HDF5DataSet(
                         pipeline_key=config_key_prefix + "fit_weights",
                         abspath=(cfg_path + "WeightsExpression"),
-                        dtype="numpy.string_",
+                        dtype="numpy.bytes_",
                         compression="gzip",
                         compression_options="9",
                         description=(
@@ -781,7 +784,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                     HDF5DataSet(
                         pipeline_key=(config_key_prefix + "variables"),
                         abspath=(cfg_path + "PointsFilterVariables"),
-                        dtype="numpy.string_",
+                        dtype="numpy.bytes_",
                         compression="gzip",
                         compression_options="9",
                         description="The variables to use for "
@@ -795,7 +798,7 @@ def _get_detrended_datasets(magfit_datasets, mode="epd"):
                             config_key_prefix + "fit_points_filter_expression"
                         ),
                         abspath=(cfg_path + "PointsFilterExpression"),
-                        dtype="numpy.string_",
+                        dtype="numpy.bytes_",
                         compression="gzip",
                         compression_options="9",
                         description="The expression defining "
