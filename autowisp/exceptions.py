@@ -285,7 +285,7 @@ class AutoWISPError(Exception):
             "related_files": [
                 {
                     "kind": related.kind.value,
-                    "path": related.path.as_posix(),
+                    "path": Path(related.path).as_posix(),
                     "role": related.role,
                 }
                 for related in self.related_files
