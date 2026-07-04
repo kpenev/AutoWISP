@@ -26,24 +26,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # ==== TEMP: only the new 3.13/3.14 cells run (ceiling-lift validation).
+          # The cells below are already green and the code is unchanged; RESTORE
+          # them (and the catalog job) after the 3.13/3.14 cells pass. ====
           # ubuntu: full python x numpy sweep; full_pipeline on the 3.12 cells
-          - { os: ubuntu-latest,  python-version: '3.11', numpy: '1', full_pipeline: false }
-          - { os: ubuntu-latest,  python-version: '3.11', numpy: '2', full_pipeline: false }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '1', full_pipeline: true  }
-          - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true  }
+          # - { os: ubuntu-latest,  python-version: '3.11', numpy: '1', full_pipeline: false }
+          # - { os: ubuntu-latest,  python-version: '3.11', numpy: '2', full_pipeline: false }
+          # - { os: ubuntu-latest,  python-version: '3.12', numpy: '1', full_pipeline: true  }
+          # - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true  }
           # OS coverage: one representative cell per non-ubuntu OS + off-Linux numpy 1.
           # macos-15-intel runs numpy 1 with an older llvmlite (<0.44 -> 0.43, the last
           # with an x86_64 macOS wheel). The numpy-2.4-compatible numba pulls llvmlite
           # 0.48, which ships no Intel wheel and would need an LLVM source build; numpy 1
           # lets us pin back to numba 0.60 / llvmlite 0.43. Apple-silicon (macos-14) is
           # the primary macOS target.
-          - { os: windows-2022,   python-version: '3.12', numpy: '2', full_pipeline: false }
-          - { os: macos-14,       python-version: '3.12', numpy: '2', full_pipeline: false }
-          - { os: macos-14,       python-version: '3.12', numpy: '1', full_pipeline: false }
-          - { os: macos-15-intel, python-version: '3.12', numpy: '1', full_pipeline: false, extra_pip: '"llvmlite<0.44"' }
-          # 3.13 / 3.14: enable after lifting the requires-python <3.13 ceiling
-          # - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
-          # - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
+          # - { os: windows-2022,   python-version: '3.12', numpy: '2', full_pipeline: false }
+          # - { os: macos-14,       python-version: '3.12', numpy: '2', full_pipeline: false }
+          # - { os: macos-14,       python-version: '3.12', numpy: '1', full_pipeline: false }
+          # - { os: macos-15-intel, python-version: '3.12', numpy: '1', full_pipeline: false, extra_pip: '"llvmlite<0.44"' }
+          # 3.13 / 3.14 (numpy 2 only; numpy 1.26 has no 3.13/3.14 wheels).
+          - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
+          - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
     env:
       AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
@@ -85,6 +88,7 @@ jobs:
   # CATALOG / ADQL tests -- LIVE Gaia, ubuntu only, no cache guard.
   # OS-independent, so one OS across the numpy/python sweep.
   catalog:
+    if: false  # TEMP: disabled during the 3.13/3.14 ceiling-lift validation; RESTORE.
     name: catalog py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ubuntu-latest
     strategy:

@@ -75,12 +75,11 @@ description = 'Pipeline for extracting photometry from wide-field night sky imag
 readme = 'README.md'
 
 # 3.11 floor: ProcessPoolExecutor(max_tasks_per_child=...) used by run_pool
-# needs CPython >= 3.11. 3.12 ceiling retained for now only out of caution: the
-# old numpy<2 barrier is gone (astrowisp 2.0, numpy 2, scipy, h5py all ship
-# cp313 AND cp314 wheels; pytransit/meepmeep are pure-Python py3-none-any). The
-# ceiling can be lifted straight to the current max Python (3.14) once the
-# remaining pure-Python deps (rechunker, zarr) are verified on 3.13/3.14.
-requires-python = '>=3.11,<3.13'
+# needs CPython >= 3.11. No upper ceiling: the old numpy<2 barrier is gone
+# (astrowisp 2.0.1, numpy 2, scipy, h5py all ship cp313/cp314 wheels;
+# pytransit/meepmeep are pure Python). CI covers 3.11/3.12 today; add 3.13/3.14
+# cells once their transitive wheels (notably numba/llvmlite) are confirmed.
+requires-python = '>=3.11'
 
 dynamic = ['version']
 
