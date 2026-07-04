@@ -27,7 +27,9 @@ def _init_magfit_sources(source_data):
 
     dtype = []
     if "source_id" not in source_data:
-        dtype.append(("source_id", numpy.uint, 3))
+        # uint64, not the platform-dependent numpy.uint (32-bit on Windows):
+        # the middle component holds the full Gaia source id (~60 bits).
+        dtype.append(("source_id", numpy.uint64, 3))
 
     num_phot = 0
     found_magfit_iterations = set()

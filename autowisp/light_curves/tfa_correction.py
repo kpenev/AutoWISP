@@ -1069,7 +1069,9 @@ class TFACorrection(Correction):
                     break
             self._logger.debug("Exclude template: %s", repr(exclude_template))
             if exclude_template.any():
-                exclude_template_index = int(numpy.nonzero(exclude_template)[0])
+                exclude_template_index = int(
+                    numpy.nonzero(exclude_template)[0][0]
+                )
                 permutted_index = numpy.where(
                     self._template_qrp[fit_index][2] == exclude_template_index
                 )[0]

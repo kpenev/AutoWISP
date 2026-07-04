@@ -62,7 +62,15 @@ def _add_catalog_info(
                 result = numpy.empty(
                     len(lc_fnames),
                     dtype=[
-                        ("ID", numpy.dtype(type(cat_source_id))),
+                        # uint64 for integer IDs (a Gaia source id needs 64
+                        # bits; numpy.dtype(int) is only 32-bit on Windows);
+                        # string/bytes IDs keep their own dtype.
+                        (
+                            "ID",
+                            numpy.uint64
+                            if isinstance(cat_source_id, (int, numpy.integer))
+                            else numpy.dtype(type(cat_source_id)),
+                        ),
                         ("mag", float),
                         ("xi", float),
                         ("eta", float),
