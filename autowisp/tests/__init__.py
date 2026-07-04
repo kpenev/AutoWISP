@@ -212,9 +212,16 @@ class AutoWISPTestCase(FloatTestCase):
 
         print(f"Tearing down processing in {self.processing_directory!r}")
         if not self.successful_test:
-            if path.exists(self.failed_test_directory):
-                rmtree(self.failed_test_directory, ignore_errors=False)
-            copytree(self.processing_directory, self.failed_test_directory)
+            # Preserve every failed test in its own subdirectory (keyed by
+            # class + method) so a run with several failures keeps all of them
+            # for post-mortem, rather than each failure overwriting the last.
+            destination = path.join(
+                self.failed_test_directory,
+                f"{type(self).__name__}_{self._testMethodName}",
+            )
+            if path.exists(destination):
+                rmtree(destination, ignore_errors=False)
+            copytree(self.processing_directory, destination)
         if self.preserve_processing_dir is not None:
             destination = path.join(
                 self.preserve_processing_dir,

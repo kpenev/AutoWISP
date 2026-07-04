@@ -133,8 +133,9 @@ def _parse_test_args(argv):
     parser.add_argument(
         "failed_test_dir",
         help=(
-            "Directory to which the processing directory of a failed "
-            "test is copied for post-mortem inspection."
+            "Directory under which each failed test's processing directory "
+            "is copied (into a ``<Class>_<method>`` subdirectory) for "
+            "post-mortem inspection. All failures in a run are kept."
         ),
     )
     parser.add_argument(
