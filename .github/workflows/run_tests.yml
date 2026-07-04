@@ -31,11 +31,16 @@ jobs:
           - { os: ubuntu-latest,  python-version: '3.11', numpy: '2', full_pipeline: false }
           - { os: ubuntu-latest,  python-version: '3.12', numpy: '1', full_pipeline: true  }
           - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true  }
-          # OS coverage: one representative cell per non-ubuntu OS + one off-Linux numpy 1
+          # OS coverage: one representative cell per non-ubuntu OS + off-Linux numpy 1.
+          # macos-15-intel runs numpy 1 with an older llvmlite (<0.44 -> 0.43, the last
+          # with an x86_64 macOS wheel). The numpy-2.4-compatible numba pulls llvmlite
+          # 0.48, which ships no Intel wheel and would need an LLVM source build; numpy 1
+          # lets us pin back to numba 0.60 / llvmlite 0.43. Apple-silicon (macos-14) is
+          # the primary macOS target.
           - { os: windows-2022,   python-version: '3.12', numpy: '2', full_pipeline: false }
           - { os: macos-14,       python-version: '3.12', numpy: '2', full_pipeline: false }
           - { os: macos-14,       python-version: '3.12', numpy: '1', full_pipeline: false }
-          - { os: macos-15-intel, python-version: '3.12', numpy: '2', full_pipeline: false }
+          - { os: macos-15-intel, python-version: '3.12', numpy: '1', full_pipeline: false, extra_pip: '"llvmlite<0.44"' }
           # 3.13 / 3.14: enable after lifting the requires-python <3.13 ceiling
           # - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
           # - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
@@ -50,8 +55,11 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .
-          python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}"
+          # Resolve numpy together with autowisp's deps (not as a post-install
+          # downgrade) so pip picks a numpy-1-compatible astropy etc. on the
+          # numpy-1 cells rather than leaving numpy-2-only versions in place.
+          # matrix.extra_pip adds per-cell constraints (Intel mac pins llvmlite).
+          python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}" ${{ matrix.extra_pip }} .
           python -c "from importlib.metadata import version; print('numpy', version('numpy'), '| astrowisp', version('astrowisp'))"
       - name: Run tests
         shell: bash
@@ -93,8 +101,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          python -m pip install .
-          python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}"
+          python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}" .
       - name: Run catalog tests (live Gaia)
         run: python -m autowisp.tests failed_test --test-log test-output.txt -v -k TestCatalog
       - name: Upload failed-test artifacts
