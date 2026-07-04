@@ -1,49 +1,119 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# AutoWISP test grid: OS x Python x numpy{1,2}, mirroring AstroWISP's coverage.
+# See numpy2_plan.md ("CI test grid") for the rationale and the decisions this
+# encodes (L-shaped matrix, offline catalogs, full_pipeline on ubuntu np1/np2).
+#
+# AutoWISP is pure Python (no compiled extension), so a cell is just:
+#   pip install .  ->  force the target numpy  ->  run a subset of the suite.
+name: Tests
 
-name: Test pipeline steps
-
+# Manual only, like AstroWISP -- the full grid is expensive, so dispatch it for
+# release validation. (A lightweight auto PR-smoke track is a possible follow-up.)
 on: workflow_dispatch
-# on:
-#   push:
-#     branches: [ "master" ]
-#   pull_request:
-#     branches: [ "master" ]
 
 permissions:
   contents: read
 
 jobs:
-  tests:
+  # Pipeline + logic tests. Catalog queries are served from the cached fixtures
+  # that AutoWISPTestCase.setUp stages into the processing dir; the
+  # AUTOWISP_NO_LIVE_CATALOG guard turns any *uncovered* query into a loud,
+  # offline failure instead of a flaky network call. TestCatalog (live Gaia) is
+  # excluded here and runs in its own job.
+  pipeline:
+    name: ${{ matrix.os }} py${{ matrix.python-version }} np${{ matrix.numpy }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2022, macos-14]
+        include:
+          # ================================================================
+          # WINDOWS SPIKE: only this cell runs. Windows pipeline viability is
+          # unverified (open-file locking on HDF5, rmtree cleanup, MAX_PATH --
+          # see numpy2_plan.md). Once it passes, UNCOMMENT the rest of the grid
+          # below AND the `catalog` job to enable the full L-shaped matrix.
+          # ================================================================
+          - { os: windows-2022, python-version: '3.12', numpy: '2', full_pipeline: false }
 
-
+          # --- ubuntu: full python x numpy sweep; full_pipeline on the 3.12 cells ---
+          # - { os: ubuntu-latest,  python-version: '3.11', numpy: '1', full_pipeline: false }
+          # - { os: ubuntu-latest,  python-version: '3.11', numpy: '2', full_pipeline: false }
+          # - { os: ubuntu-latest,  python-version: '3.12', numpy: '1', full_pipeline: true  }
+          # - { os: ubuntu-latest,  python-version: '3.12', numpy: '2', full_pipeline: true  }
+          # --- OS coverage: one representative cell per non-ubuntu OS + one off-Linux numpy 1 ---
+          # - { os: macos-14,       python-version: '3.12', numpy: '2', full_pipeline: false }
+          # - { os: macos-14,       python-version: '3.12', numpy: '1', full_pipeline: false }
+          # - { os: macos-15-intel, python-version: '3.12', numpy: '2', full_pipeline: false }
+          # --- 3.13 / 3.14: enable after lifting the requires-python <3.13 ceiling ---
+          # - { os: ubuntu-latest,  python-version: '3.13', numpy: '2', full_pipeline: false }
+          # - { os: ubuntu-latest,  python-version: '3.14', numpy: '2', full_pipeline: false }
+    env:
+      AUTOWISP_NO_LIVE_CATALOG: '1'
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.12"
-    - name: Install AutoWISP
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade pylint
-        pip install .
-    #- name: Lint with pylint
-    #  run: |
-    #    pylint --exit-zero .
-    - name: Run tests
-      run: |
-        python3 -m autowisp.tests failed_test -v -v -v -v
-    - name: Upload failed test
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: failed-test-${{ matrix.os }}
-        path: failed_test
-        if-no-files-found: ignore
-        retention-days: 1
-        overwrite: true
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install AutoWISP + numpy ${{ matrix.numpy }}
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+          python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}"
+          python -c "import numpy, astrowisp; print('numpy', numpy.__version__, '| astrowisp', astrowisp.__version__)"
+      - name: Run tests
+        shell: bash
+        run: |
+          # Exclude the live-Gaia catalog tests everywhere; also exclude the
+          # expensive full-pipeline integration test unless this cell opts in.
+          EXCLUDE="TestCatalog"
+          if [ "${{ matrix.full_pipeline }}" != "true" ]; then
+            EXCLUDE="$EXCLUDE TestFullPipeline"
+          fi
+          python -m autowisp.tests failed_test --test-log test-output.txt -v --exclude $EXCLUDE
+      - name: Upload failed-test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-${{ matrix.os }}-py${{ matrix.python-version }}-np${{ matrix.numpy }}
+          path: |
+            failed_test
+            test-output.txt
+          if-no-files-found: ignore
+          retention-days: 3
+
+  # ==================================================================
+  # CATALOG / ADQL tests -- LIVE Gaia, ubuntu only, no cache guard.
+  # OS-independent, so one OS across the numpy/python sweep. Commented
+  # out during the Windows spike; uncomment with the grid above.
+  # ==================================================================
+  # catalog:
+  #   name: catalog py${{ matrix.python-version }} np${{ matrix.numpy }}
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ['3.11', '3.12']
+  #       numpy: ['1', '2']
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Install AutoWISP + numpy ${{ matrix.numpy }}
+  #       shell: bash
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         python -m pip install .
+  #         python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}"
+  #     - name: Run catalog tests (live Gaia)
+  #       run: python -m autowisp.tests failed_test --test-log test-output.txt -v -k TestCatalog
+  #     - name: Upload failed-test artifacts
+  #       if: failure()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: failed-catalog-py${{ matrix.python-version }}-np${{ matrix.numpy }}
+  #         path: |
+  #           failed_test
+  #           test-output.txt
+  #         if-no-files-found: ignore
+  #         retention-days: 3

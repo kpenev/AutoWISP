@@ -13,6 +13,11 @@ from autowisp.tests.fits_test_case import FITSTestCase
 class TestCatalog(FITSTestCase):
     """Compare catalog queries to expected results."""
 
+    # These tests exercise the live Gaia query itself, so do NOT stage the
+    # cached catalogs (which would make ensure_catalog reuse them). CI selects
+    # or excludes this class with unittest's -k, so no skip logic is needed.
+    stage_catalog_cache = False
+
     def _test_single_query(self, expected_fname):
         """Query a catalog per the header in given name and compare results."""
 

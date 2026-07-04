@@ -24,6 +24,12 @@ class AutoWISPTestCase(FloatTestCase):
     successful_test = False
     _logger = logging.getLogger(__name__)
 
+    # Stage the cached Gaia catalog FITS (``test_data/MASTERS/Gaia``) into the
+    # processing directory in setUp so steps that call ``ensure_catalog`` reuse
+    # them instead of hitting the live Gaia archive. Catalog tests, which are
+    # meant to exercise the live query, set this False.
+    stage_catalog_cache = True
+
     # Header keys whose presence and value must NOT be required to
     # match between the two files:
     #
@@ -178,6 +184,15 @@ class AutoWISPTestCase(FloatTestCase):
             f"Test directory {self.test_directory} does not exist!",
         )
         makedirs(self.processing_directory, exist_ok=False)
+        gaia_cache = path.join(self.test_directory, "MASTERS", "Gaia")
+        if self.stage_catalog_cache and path.isdir(gaia_cache):
+            makedirs(
+                path.join(self.processing_directory, "MASTERS"), exist_ok=True
+            )
+            copytree(
+                gaia_cache,
+                path.join(self.processing_directory, "MASTERS", "Gaia"),
+            )
         copy(
             path.join(self.test_directory, "test.cfg"),
             path.join(self.processing_directory, "test.cfg"),
