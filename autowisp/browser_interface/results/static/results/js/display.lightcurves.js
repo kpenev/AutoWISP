@@ -980,28 +980,33 @@ document.addEventListener("DOMContentLoaded", () =>
 observeInput("star-id", "savedStarId");
 
 /**
-* Replace occurrences of `{mode}.{from}.` in a string with `{mode}.{to}.`.
-* @param {string} str - The string to modify.
-* @param {string} from - Mode to replace.
-* @param {string} to - Mode to insert.
-* @returns {string} Updated string.
-*/
-function switchModeInString(str, from, to) {
-    return str.replace(new RegExp(`\\{mode\\}\\.${from}\\.`, "g"), `{mode}.${to}.`);
+ * Return the minimize expression for a detrending mode.
+ * @param {string} mode - Mode to set ("magfit", "epd", or "tfa").
+ * @returns {string} Minimize expression.
+ */
+function getMinimizeExpression(mode) {
+    return `nanmedian(abs({mode}.${mode}.magnitude - nanmedian({mode}.${mode}.magnitude)))`;
+}
+
+/**
+ * Return the magnitude expression for a detrending mode.
+ * @param {string} mode - Mode to set ("magfit", "epd", or "tfa").
+ * @returns {string} Magnitude expression.
+ */
+function getMagnitudeExpression(mode) {
+    return `{mode}.${mode}.magnitude - nanmedian({mode}.${mode}.magnitude)`;
 }
 
 
 
 /**
  * Set the minimize expression mode and persist to localStorage.
- * @param {string} mode - Mode to set ("magfit" or "tfa").
+ * @param {string} mode - Mode to set ("magfit", "epd", or "tfa").
  */
 function setMinimizeMode(mode) {
     const input = document.getElementById("minimize");
     if (!input) return;
-    const current = input.value;
-    if (current.includes(`{mode}.${mode}.`)) return;
-    input.value = switchModeInString(current, mode === "magfit" ? "tfa" : "magfit", mode);
+    input.value = getMinimizeExpression(mode);
     localStorage.setItem("persistedMinimize", input.value);
 }
 
@@ -1009,7 +1014,7 @@ function setMinimizeMode(mode) {
 
 /**
  * Set the magnitude expression mode in the LC expressions table and persist.
- * @param {string} mode - Mode to set ("magfit" or "tfa").
+ * @param {string} mode - Mode to set ("magfit", "epd", or "tfa").
  */
 function setMagnitudeMode(mode) {
     const table = document.getElementById("lc-expressions");
@@ -1018,9 +1023,7 @@ function setMagnitudeMode(mode) {
         const nameInput = row.querySelector("input[id^='lc-expression-key']");
         const valueInput = row.querySelector("input[id^='lc-expression-value']");
         if (nameInput?.value.trim() === "magnitude" && valueInput) {
-            const current = valueInput.value;
-            if (current.includes(`{mode}.${mode}.`)) return;
-            valueInput.value = switchModeInString(current, mode === "magfit" ? "tfa" : "magfit", mode);
+            valueInput.value = getMagnitudeExpression(mode);
             localStorage.setItem("persistedMagnitude", valueInput.value);
         }
     }
@@ -1052,15 +1055,17 @@ function restorePersistedConfig() {
 
 
 /**
- * Attach click handlers for magfit/tfa mode buttons and restore persisted config.
+ * Attach click handlers for magfit/epd/tfa mode buttons and restore persisted config.
  */
 
 function setupMagfitTfaButtons() {
     restorePersistedConfig();
     const buttons = {
         "btn-magfit-minimize": () => setMinimizeMode("magfit"),
+        "btn-epd-minimize": () => setMinimizeMode("epd"),
         "btn-tfa-minimize": () => setMinimizeMode("tfa"),
         "btn-magfit-magnitude": () => setMagnitudeMode("magfit"),
+        "btn-epd-magnitude": () => setMagnitudeMode("epd"),
         "btn-tfa-magnitude": () => setMagnitudeMode("tfa")
     };
     for (const [id, handler] of Object.entries(buttons)) {
@@ -1083,7 +1088,7 @@ function patchShowConfig() {
         const origShowConfig = window.showConfig;
         window.showConfig = function (url, parentId, onSuccess) {
             origShowConfig(url, parentId, () => {
-                // Re-bind magfit/tfa handlers whenever config HTML is (re)loaded
+                // Re-bind magfit/epd/tfa handlers whenever config HTML is (re)loaded
                 if (typeof onSuccess === "function") onSuccess();
             });
         };
@@ -1201,7 +1206,7 @@ function updateFigure() {
     xhr.send(JSON.stringify(updateFigure.getParam()));
 }
 
-// Delegated click handlers so magfit/tfa buttons work even when inserted dynamically
+// Delegated click handlers so magfit/epd/tfa buttons work even when inserted dynamically
 document.addEventListener("click", function (e) {
     const btn = e.target.closest && e.target.closest("button");
     if (!btn) return;
@@ -1209,11 +1214,17 @@ document.addEventListener("click", function (e) {
         case "btn-magfit-minimize":
             if (typeof setMinimizeMode === "function") setMinimizeMode("magfit");
             break;
+        case "btn-epd-minimize":
+            if (typeof setMinimizeMode === "function") setMinimizeMode("epd");
+            break;
         case "btn-tfa-minimize":
             if (typeof setMinimizeMode === "function") setMinimizeMode("tfa");
             break;
         case "btn-magfit-magnitude":
             if (typeof setMagnitudeMode === "function") setMagnitudeMode("magfit");
+            break;
+        case "btn-epd-magnitude":
+            if (typeof setMagnitudeMode === "function") setMagnitudeMode("epd");
             break;
         case "btn-tfa-magnitude":
             if (typeof setMagnitudeMode === "function") setMagnitudeMode("tfa");
