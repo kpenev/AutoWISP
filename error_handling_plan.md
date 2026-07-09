@@ -105,9 +105,15 @@ exactly one source of truth.
    retype the worthwhile subset of the Phase 7 "deferred" raise sites,
    and introduce a few new exceptions raised specifically so the BUI can
    handle them. *(section pending)*
+9. ⏳ [Silent-worker-death diagnostics + crash-report completeness](#phase-9--silent-worker-death-diagnostics--crash-report-completeness):
+   close the gaps a real `WorkerCrashedError` crash report exposed — the
+   step link that log-collection depends on, lightcurve-step log
+   selection, the specific culprit input, a native/OS-level cause for the
+   death, and run-time (not report-time) provenance.
 
-Phases 1–7 are implemented and have their own sections below; phase 8 gets
-its section when we start it.
+Phases 1–7 are implemented and have their own sections below; phases 8–9
+get their sections when we start them (phase 9's is written below,
+motivated by a real crash report).
 
 ## Phase 1 — Exception hierarchy
 
@@ -2118,3 +2124,281 @@ migration here mainly buys a clearer `user_message` or a narrower class.
 
 - `diagnostics/calibrate.py:88` `ValueError` — no observing session with the given label → `ConfigurationError`.
 - `bui_util.py:55` `RuntimeError` — requested FITS file does not exist. Reached from the BUI; candidate `ViewError`/`ResourceError` (or leave if only used as a helper).
+
+## Phase 9 — silent-worker-death diagnostics + crash-report completeness
+
+Phases 3 and 6 built the machinery to catch a silent worker death
+(`WorkerCrashedError`) and to bundle a shareable crash report. A *real*
+crash report — a BUI-generated `crash_report_error_4.zip` for a
+`WorkerCrashedError` during `tfa` — put that machinery to the test and
+exposed a set of gaps that, together, made the report say little beyond
+"the pool crashed." Phase 9 closes them. Every item here is motivated by
+what that report did and did not yield.
+
+### Evidence: what the real report proved and what it lost
+
+The failure: on an Intel-mac / conda-forge **numpy 1.26.4 / CPython
+3.13** host (a combination outside the CI matrix — no numpy-1.26 wheels
+for cp313), a `tfa` worker died with `BrokenProcessPool` and no
+worker-reported error, i.e. a hard death (native segfault or an OS kill /
+macOS jetsam), 1718 lightcurves in flight.
+
+What was *still* recoverable — but only by hand-querying the bundled
+`autowisp.db` — was genuinely useful: `light_curve_processing_progress`
+pinned the death to **~25 s into `tfa` on the 3rd of 4 photometric
+references** (EPD + epd-statistics complete for all four, `tfa` complete
+for photref 2, dead early into photref 3), i.e. in the parallel
+`apply_correction` load/template-build phase, not deep in the fit. That
+the report *contained* this but did not *surface* it is itself a finding.
+
+What was lost — the two artifacts a silent death needs most:
+
+- **The worker log** — `manifest.json` recorded the single gap
+  `logs: "no matching logs found"`. Not bad luck: log-collection
+  **cannot** succeed for this error class (items 1–2 below).
+- **The culprit input** — the sidecar carried only `num_inputs: 1718`
+  and the first-20 `inputs_sample`, which for a silent death names
+  nothing (item 3).
+- **The nature of the death** — `BrokenProcessPool` alone does not
+  distinguish SIGKILL (OOM/jetsam) from SIGSEGV (native crash); items
+  4–6 add that.
+
+### Item 1 — a `WorkerCrashedError` must carry its queryable step link
+
+**Root cause of "no matching logs found."** `select_error_logs` →
+`find_error_progress` (`crash_report.py`) bails immediately on
+`not error_row.step_name`, and for this error the `step_name` column is
+empty. Yet the step name *is* known at crash time: `_worker_crashed`
+(`error_context.py`) uses `get_error_context().step_name` to *build the
+message* ("...died during step 'tfa'...") — it just never lands in a
+queryable field. The reason is that `_stamp` copies the ambient
+`step_name` only for a `StepError` (`isinstance(exc, StepError)`), and
+`WorkerCrashedError` is a `PipelineError`.
+
+A worker death *is* a step failure from the operator's point of view, so:
+
+- `_worker_crashed` sets a `step_name` attribute on the synthesised
+  `WorkerCrashedError` from `ctx.step_name` (it already reads it for the
+  message), and also stores it in `details["step_name"]` as a belt-and-
+  braces copy for the sidecar.
+- **No persistence change is needed:** the phase-4 write already does
+  `step_name=getattr(exc, "step_name", None)` (`error_persistence.py`),
+  so the column populates for *any* error that carries the attribute —
+  `WorkerCrashedError` simply never set one. The only reason the column
+  was empty is that `_worker_crashed` did not assign it.
+- `component` stays `pipeline` (the *parent* synthesised it) — only the
+  step link is added; this does not reclassify the error.
+
+This one-line assignment restores the DB link the whole log-collection
+path depends on. (It is the necessary condition; item 2 is the sufficient
+one.)
+
+### Item 2 — log selection must cover lightcurve steps
+
+Even with item 1, logs for `tfa` would still not be found:
+`find_error_progress` / `select_error_logs` query **`ImageProcessingProgress`**
+and call **`ImageProcessingManager.find_processing_outputs`**. But the LC
+steps (`create_lightcurves`, `epd`, `generate_epd_statistics`, `tfa`,
+`detrending_stat`) record progress in `light_curve_processing_progress`
+and are driven by `LightCurveProcessingManager`, which has **no**
+`find_processing_outputs`. So an LC-step error can never resolve to a
+progress row or its logs — a second, independent cause of the empty
+`logs` gap.
+
+The fix is *not* a second, parallel implementation.
+`ImageProcessingManager.find_processing_outputs` is already almost
+entirely generic: it reads only `progress.run.process_id`,
+`progress.step.name`, `progress.image_type.name`, and
+`self._processing_config`, then globs the per-process
+`logging_fname` / `std_out_err_fname`. Crucially, the LC manager writes
+its logs through the *same* naming scheme — `_prepare_processing` calls
+`setup_process(processing_step=step_name, image_type=self._current_image_type, ...)`
+(`lightcurve_processing.py`), i.e. keyed on **step + image type** exactly
+like image processing. So the method already works for LC logs; it just
+hard-codes two image-only assumptions. **Promote it to the base
+`ProcessingManager`** and abstract only those two:
+
+1. **Which progress table the int→row resolution queries.** The
+   `isinstance(processing_progress, ImageProcessingProgress)` /
+   `select(ImageProcessingProgress).filter_by(id=...)` becomes a
+   subclass-supplied progress model — a `_progress_model` class attribute
+   (`ImageProcessingProgress` on the image manager,
+   `LightCurveProcessingProgress` on the LC one). The base already
+   branches on exactly this pair in `_create_current_processing`, so the
+   precedent and the imports are in place.
+2. **How to get the `image_type` name for a progress row.** Image
+   progress exposes `.image_type` directly; LC progress carries
+   `single_photref_id` instead. A tiny overridable hook —
+   `_progress_image_type(progress, db_session)` — returns
+   `progress.image_type.name` on the image manager, and on the LC manager
+   derives it from the single photref the same way the manager already
+   does at run time when it sets `self._current_image_type` (resolve the
+   sphotref's source `Image` → `ImageType`). *(Check whether the cheaper
+   `MasterType.maker_image_type_id` link on the photref is equivalent; if
+   so the hook is a one-liner with no DR read. It must reproduce the
+   exact string used in the log name, so verify before relying on it.)*
+
+Everything else in `find_processing_outputs` — the `run.process_id`
+glob key, the `step.name`, the two `get_log_outerr_filenames` calls, the
+`self._processing_config` spread, the main-vs-worker split — is shared
+unchanged.
+
+Then the two crash-report entry points stop being image-only:
+
+- `find_error_progress` resolves the step's progress by trying the LC
+  progress table and the image progress table for the run+step and taking
+  whichever has a row (no hard-coded step-name list; robust to new
+  steps). Pipeline/BUI errors with no step still yield `None`.
+- `select_error_logs` instantiates the matching manager subclass for the
+  resolved progress kind and calls the now-inherited
+  `find_processing_outputs`.
+
+This also fixes the BUI error-detail "View log" cross-link for LC-step
+errors, which is broken today for the same root cause.
+
+### Item 3 — name the input that killed the worker
+
+`run_pool`'s eager path is `list(executor.map(wrapped, items))`
+(`error_context.py`). `map` discards the item↔future association, so on a
+`BrokenProcessPool` the parent cannot say *which* item was in flight —
+hence the useless first-20 sample of 1718. The streaming path
+(`_stream_as_completed`) already submits per-item and could name the
+culprit, but the eager path (which `tfa`/`apply_correction` uses) cannot.
+
+- Rework the eager path to `submit` each item and keep a `{future: item}`
+  map (the pattern `_stream_as_completed` already uses), preserving input
+  order for the returned list. On `BrokenProcessPool`, the still-pending
+  / running futures identify the in-flight item(s); `_worker_crashed`
+  records them as `details["crashed_inputs"]` instead of a blind head
+  sample.
+- Complementary, cheap, and robust to the executor recycling workers: an
+  optional per-item **heartbeat** — the wrapped worker writes a single
+  "starting `<item>`" line to its own log before calling the callable, so
+  the last line before a hard death names the culprit even when the
+  future bookkeeping is ambiguous. Gated behind the same log the report
+  now collects (items 1–2).
+
+### Item 4 — `faulthandler` in every worker for a native traceback
+
+A segfault produces no Python exception — which is exactly why the death
+is "silent." `faulthandler` turns it into a native stack dump.
+
+- `setup_process_map` (`multiprocessing_util.py`) calls
+  `faulthandler.enable(file=<the worker's redirected stderr>)` during
+  bootstrap, so a SIGSEGV/SIGABRT/SIGFPE dumps a C-level traceback into
+  the per-process `.outerr` file — the file items 1–2 make collectable.
+- Also register a fault handler on a signal (e.g. `SIGUSR1`, POSIX only)
+  so a *hung* — not crashed — worker can be prodded to dump where it is
+  stuck; ties into the phase-3 "no nested workers" resource story.
+- No-op on platforms/streams where `faulthandler` can't attach; never
+  fails bootstrap.
+
+### Item 5 — record the OS-level cause of the death
+
+Phase 3 already reads `process.exitcode` for Scheme B (negative →
+killed by signal `-exitcode`) but Scheme A (`ProcessPoolExecutor`) hides
+the dead worker behind `BrokenProcessPool`, so the report cannot tell
+SIGKILL (OOM / macOS jetsam) from SIGSEGV (native crash) — the single
+most diagnostic bit for this failure.
+
+- On catching `BrokenProcessPool`, best-effort scan the executor's live
+  worker processes for a terminated one and record its `exitcode` /
+  decoded signal name into `details` (`pool_error_signal`). This reaches
+  into executor internals (`_processes`), so it is strictly best-effort
+  and guarded — a `None` when the API shifts, never a secondary failure.
+- Normalise the Scheme-A and Scheme-B representations so a report reads
+  the same `details["exit_signal"]` regardless of transport.
+
+### Item 6 — a resource snapshot to confirm/deny OOM
+
+Given macOS jetsam and `tfa`'s large in-memory template matrix over 1718
+lightcurves, "was it memory?" is the first question and the report
+currently cannot answer it.
+
+- `_worker_crashed` records a resource snapshot into `details`:
+  `num_parallel_processes`, system total/available RAM (via `psutil` if
+  present, else `os.sysconf` / platform fallbacks, best-effort), and the
+  parent's peak RSS. A dead worker's own peak RSS is gone, but the
+  parent's and the system pressure at crash time are strong signal.
+- `collect_provenance` gains the same machine-resource fields so a report
+  built later still shows the box's memory ceiling.
+
+### Item 7 — provenance of the *failed run*, not the report builder
+
+`provenance.json` describes the machine that **built** the report
+(`socket.gethostname()`, live `platform`, live `importlib.metadata`
+versions) — in the real report `Shashanks-MacBook-Pro.local`, while the
+run's own `run_host` was `1.0.0.127.in-addr.arpa`. If a report is built
+later, or on a different box, the platform/package versions are simply
+wrong for the failure.
+
+- Persist the run's environment at run start — platform string, Python
+  version, and the key package versions — onto `PipelineRun` (a
+  `run_environment` JSON column) or a per-run provenance sidecar, filled
+  in `run_pipeline.main` where the row is created.
+- `build_crash_report` prefers the *stored run* provenance for the
+  failing run and clearly labels the report-builder's live environment as
+  separate ("report host" vs. "run host"), so the two are never
+  conflated.
+
+### Item 8 — make the report self-contained for the failing step
+
+The bundled DB copy holds the resolved configuration, but reading it
+means opening SQLite; the sidecar should stand alone.
+
+- Include the resolved configuration for the failing run/step in the
+  sidecar `details` (scrubbed via the existing `scrub_mapping`), so
+  `num_parallel_processes`, `max_tasks_per_child`, and the step's
+  parameters are visible without the DB.
+- Resolve the two open phase-6 refinements while here: for a
+  `WorkerCrashedError`, bundle the whole failed batch's error rows +
+  sidecars (not just the one requested), and surface the
+  `light_curve_processing_progress` timeline (which step/photref started
+  and did not finish) directly in the report — the datum that, in the
+  real case, was recoverable only by hand-querying the DB.
+
+### What changes, concretely
+
+| File | Change |
+| ---- | ------ |
+| `autowisp/error_context.py` | `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs`, `exit_signal`, and the resource snapshot in `details`; the eager `run_pool` path switches from `executor.map` to `submit` + `{future: item}` (item 3) and best-effort reads the dead worker's exitcode (item 5); optional per-item heartbeat in `worker_entry`. |
+| `autowisp/exceptions.py` | `WorkerCrashedError` gains an optional `step_name` slot (still `component = PIPELINE`); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
+| `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
+| `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
+| `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
+| `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time) (item 2). |
+| `autowisp/crash_report.py` | `find_error_progress` resolves against either progress table and `select_error_logs` instantiates the matching manager (item 2); `collect_provenance` adds machine-resource fields and prefers stored run provenance (item 7); sidecar gains the resolved step config + the progress timeline, and a `WorkerCrashedError` report bundles the whole batch (item 8). |
+| `autowisp/run_pipeline.py` | Capture the run environment onto `PipelineRun` at creation (item 7). |
+| `PipelineRun` model + migration | `run_environment` (JSON) column (item 7). |
+
+### Tests (Phase 9)
+
+- A synthesised `WorkerCrashedError` (via `_worker_crashed` with an
+  ambient step context) carries `step_name`, and the phase-4 write
+  populates the `error.step_name` column — regression test for the exact
+  "no matching logs found" cause.
+- `find_error_progress` / `select_error_logs` resolve an **LC-step**
+  error (e.g. `tfa`) to its `light_curve_processing_progress` row and its
+  logs; an image-step error still resolves via `ImageProcessingProgress`;
+  a pipeline/BUI error still yields none.
+- A worker that hard-exits (`os._exit`) mid-`map` → the parent's
+  `WorkerCrashedError` names the specific in-flight item in
+  `details["crashed_inputs"]`, not a blind head sample, and preserves
+  result order for the survivors on a clean run.
+- With `faulthandler` enabled in the worker bootstrap, a forced fault in
+  a test worker writes a native traceback to its redirected stderr file.
+- `build_crash_report` for a `WorkerCrashedError` includes the resolved
+  step config, the progress timeline, the resource snapshot, and (when
+  present) `exit_signal` — and, for the batch, every sibling error, not
+  just the requested one.
+- Provenance distinguishes run host/versions from report host/versions
+  when they differ.
+
+### Suggested sequencing
+
+Items **1 + 2** are the highest-value, lowest-risk pair — together they
+are the difference between a report with logs and one without — and
+should land first. **3** (culprit input) and **4** (native traceback)
+are the next tier: they turn "died silently" into "died on *this* file,
+*here*." **5–8** are enrichment that make the report self-explaining
+without a maintainer hand-querying the DB, and can follow independently.
