@@ -562,6 +562,38 @@ class TestPoolPropagation(_ContextTestCase):
         self.assertEqual(exc.details["num_inputs"], 2)
         self.assertIn("pool_error", exc.details)
 
+    def test_worker_crashed_carries_step_name(self):
+        """The synthesised WorkerCrashedError records the ambient step.
+
+        Regression for the "no matching logs found" crash-report gap: the
+        step name must reach the queryable ``step_name`` attribute (which
+        the persistence layer writes to ``error.step_name`` and
+        crash-report log-collection resolves the run/step logs from), not
+        only the free-text message. The parent stamps it from its ambient
+        context -- in the pipeline it is inside
+        ``error_context(step_name=...)`` when it launches the pool.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        [1, 2],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+        exc = ctx.exception
+        # The attribute persistence reads (getattr(exc, "step_name", ...)):
+        self.assertEqual(exc.step_name, "tfa")
+        # And the belt-and-braces copy that reaches the sidecar:
+        self.assertEqual(exc.details["step_name"], "tfa")
+        # A worker death is a step failure, not an orchestration failure:
+        self.assertEqual(exc.component, Component.STEP)
+
 
 class TestProcessQueuePropagation(_ContextTestCase):
     """Process + Queue workers return stamped errors over a queue."""

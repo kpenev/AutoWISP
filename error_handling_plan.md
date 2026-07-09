@@ -538,10 +538,18 @@ class ResourceError(PipelineError): ...        # disk / memory / CPU
 class MasterSelectionError(PipelineError): ...
 class PhotrefBindingError(PipelineError): ...
 class DependencyResolutionError(PipelineError): ...
-class WorkerCrashedError(PipelineError):
+```
+
+The worker-death wrapper is a `StepError`, not a pipeline error — the
+failure is in the algorithm running inside a step (see phase 9, item 1);
+the parent only synthesises and reports it:
+
+```python
+class WorkerCrashedError(StepError):
     """Re-raise wrapper used when a multiprocessing worker dies in a
     way that does not preserve the original exception (segfault,
-    OOM-killer)."""
+    OOM-killer). A single generic StepError: the parent has the ambient
+    step *name* but not the failing step's exception type."""
 ```
 
 BUI-level exceptions:
@@ -1217,9 +1225,9 @@ Segfault, OOM-killer, `os._exit` — nothing gets pickled or queued.
   on `concurrent.futures.ProcessPoolExecutor`, which raises
   `BrokenProcessPool` when a worker dies. `run_pool` catches that (and
   any other non-`AutoWISPError`) and synthesises a `WorkerCrashedError`
-  (component `PIPELINE`) carrying what the *parent* knows — step, the
-  inputs in flight (`num_inputs` + a sample), pipeline-run context — plus
-  the underlying `pool_error`.
+  (a `StepError` — component `step`; see phase 9, item 1) carrying what
+  the *parent* knows — step, the inputs in flight (`num_inputs` + a
+  sample), pipeline-run context — plus the underlying `pool_error`.
 
 - **Scheme B:** `manage_astrometry` *already* detects this
   (`not any(p.is_alive())`) and raised a bare `RuntimeError`. Phase 3
@@ -2173,25 +2181,36 @@ empty. Yet the step name *is* known at crash time: `_worker_crashed`
 message* ("...died during step 'tfa'...") — it just never lands in a
 queryable field. The reason is that `_stamp` copies the ambient
 `step_name` only for a `StepError` (`isinstance(exc, StepError)`), and
-`WorkerCrashedError` is a `PipelineError`.
+`WorkerCrashedError` was a `PipelineError`.
 
-A worker death *is* a step failure from the operator's point of view, so:
+**Fix: reclassify `WorkerCrashedError` as a `StepError`** (component
+`step`). Although the *parent* synthesises it — the worker cannot describe
+its own death — the failure is in the algorithm running *inside* a step,
+and the error belongs to that step; the parent merely reports it.
+Reclassifying is both more accurate and mechanically cleaner:
 
-- `_worker_crashed` sets a `step_name` attribute on the synthesised
-  `WorkerCrashedError` from `ctx.step_name` (it already reads it for the
-  message), and also stores it in `details["step_name"]` as a belt-and-
-  braces copy for the sidecar.
+- It inherits the `StepError` `step_name` slot and is **auto-stamped by
+  the existing `_stamp` machinery**. That covers *both* worker-death
+  sites for free: the `run_pool` synthesis (`_worker_crashed`) *and* the
+  Scheme-B `manage_astrometry` raise (`solve_astrometry.py`), which
+  previously constructed a bare `WorkerCrashedError` with no step.
+- `_worker_crashed` additionally passes `step_name=ctx.step_name`
+  explicitly (the message already computes it) and stores it in
+  `details["step_name"]` as a belt-and-braces copy for the sidecar.
 - **No persistence change is needed:** the phase-4 write already does
   `step_name=getattr(exc, "step_name", None)` (`error_persistence.py`),
-  so the column populates for *any* error that carries the attribute —
-  `WorkerCrashedError` simply never set one. The only reason the column
-  was empty is that `_worker_crashed` did not assign it.
-- `component` stays `pipeline` (the *parent* synthesised it) — only the
-  step link is added; this does not reclassify the error.
+  so the column populates for any error carrying the attribute —
+  `WorkerCrashedError` simply never set one.
+- It stays a *single generic* class (not one of the per-stage
+  `StepError` subclasses) because the parent has only the ambient step
+  *name*, not the failing step's exception type.
+- Bonus: `open_error_count_for_steps` (`error_render.py`) counts a
+  `step`-component error as relevant only to launches whose steps include
+  its `step_name`; as a former `PipelineError` a worker crash was flagged
+  as relevant to *every* launch. Reclassifying scopes it correctly.
 
-This one-line assignment restores the DB link the whole log-collection
-path depends on. (It is the necessary condition; item 2 is the sufficient
-one.)
+This restores the DB link the whole log-collection path depends on. (It
+is the necessary condition; item 2 is the sufficient one.)
 
 ### Item 2 — log selection must cover lightcurve steps
 
@@ -2362,7 +2381,7 @@ means opening SQLite; the sidecar should stand alone.
 | File | Change |
 | ---- | ------ |
 | `autowisp/error_context.py` | `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs`, `exit_signal`, and the resource snapshot in `details`; the eager `run_pool` path switches from `executor.map` to `submit` + `{future: item}` (item 3) and best-effort reads the dead worker's exitcode (item 5); optional per-item heartbeat in `worker_entry`. |
-| `autowisp/exceptions.py` | `WorkerCrashedError` gains an optional `step_name` slot (still `component = PIPELINE`); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
+| `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
 | `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
 | `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
@@ -2374,9 +2393,12 @@ means opening SQLite; the sidecar should stand alone.
 ### Tests (Phase 9)
 
 - A synthesised `WorkerCrashedError` (via `_worker_crashed` with an
-  ambient step context) carries `step_name`, and the phase-4 write
-  populates the `error.step_name` column — regression test for the exact
-  "no matching logs found" cause.
+  ambient step context) is a `step`-component error carrying `step_name`,
+  and the phase-4 write populates the `error.step_name` column —
+  regression test for the exact "no matching logs found" cause.
+  *(Implemented: `test_worker_crashed_carries_step_name` in
+  `test_error_context.py`; `test_worker_crashed_persists_step_name` in
+  `test_error_persistence.py`.)*
 - `find_error_progress` / `select_error_logs` resolve an **LC-step**
   error (e.g. `tfa`) to its `light_curve_processing_progress` row and its
   logs; an image-step error still resolves via `ImageProcessingProgress`;

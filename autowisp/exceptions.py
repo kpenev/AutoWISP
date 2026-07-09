@@ -427,6 +427,24 @@ class ConvergenceError(StepError):
     """Some iterative procedure failed to converge."""
 
 
+class WorkerCrashedError(StepError):
+    """A multiprocessing worker died without preserving its exception.
+
+    Re-raise wrapper used when a worker dies in a way that does not
+    propagate the original exception (segfault, OOM-killer, ``os._exit``).
+
+    A :class:`StepError` (component ``step``): although the *parent*
+    synthesises it -- the worker cannot describe its own death -- the
+    failure is in the algorithm running inside a step, and the error
+    belongs to that step. It is a single generic class rather than one of
+    the per-stage subclasses because the parent has only the ambient step
+    *name*, not the failing step's exception type. That ``step_name`` --
+    stamped from the ambient context like any other ``StepError`` -- is
+    what lets crash-report log-collection resolve the run/step whose logs
+    to gather (see :func:`autowisp.error_context._worker_crashed`).
+    """
+
+
 # --- Pipeline-level exceptions. ---------------------------------------
 
 
@@ -456,14 +474,6 @@ class PhotrefBindingError(PipelineError):
 
 class DependencyResolutionError(PipelineError):
     """Failure resolving processing-step dependencies."""
-
-
-class WorkerCrashedError(PipelineError):
-    """A multiprocessing worker died without preserving its exception.
-
-    Re-raise wrapper used when a worker dies in a way that does not
-    propagate the original exception (segfault, OOM-killer, ``os._exit``).
-    """
 
 
 # --- BUI-level exceptions. --------------------------------------------

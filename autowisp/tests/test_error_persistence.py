@@ -22,6 +22,7 @@ from autowisp.database.data_model import Error, Image, MasterFile, PipelineRun
 
 # pylint: enable=no-name-in-module
 from autowisp.exceptions import FileKind, FindStarsError, RelatedFile
+from autowisp.error_context import _worker_crashed, error_context
 from autowisp.error_persistence import (
     cleanup_errors,
     delete_all_error_sidecars,
@@ -82,6 +83,29 @@ class TestPersistError(_PersistenceTestCase):
             "subprocess_id",
         ):
             self.assertNotIn(inline, sidecar)
+
+    def test_worker_crashed_persists_step_name(self):
+        """A synthesised worker-death error lands its step on the row.
+
+        End-to-end regression for the crash-report "no matching logs
+        found" gap: a ``WorkerCrashedError`` is synthesised by the parent
+        (so it is not a per-stage ``StepError`` subclass), but it must
+        still persist ``step_name`` into the queryable column -- that is
+        what crash-report log-collection resolves the run/step logs from.
+        It is a ``step``-component error because the failure is in the
+        algorithm running inside the step.
+        """
+
+        with error_context(step_name="tfa"):
+            exc = _worker_crashed(
+                ["/lc/a.h5", "/lc/b.h5"],
+                RuntimeError("A process in the process pool was terminated"),
+            )
+
+        row = self._get_error(persist_error(exc))
+        self.assertEqual(row.step_name, "tfa")
+        self.assertEqual(row.component, "step")
+        self.assertEqual(row.exception_class, "WorkerCrashedError")
 
     def test_artifact_fks_resolved_from_related_files(self):
         """A related file matching a known image/master sets the FK."""

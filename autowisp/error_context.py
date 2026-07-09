@@ -477,8 +477,14 @@ def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
     ctx = get_error_context()
     err = WorkerCrashedError(
         f"A worker process died during step {ctx.step_name!r} without "
-        f"reporting an error ({exc!r})."
+        f"reporting an error ({exc!r}).",
+        step_name=ctx.step_name,
     )
+    # ``step_name`` also goes in ``details`` so it survives into the
+    # sidecar even if the queryable column is ever dropped; the attribute
+    # above is what the persistence layer writes to ``error.step_name``,
+    # which crash-report log-collection resolves the run/step logs from.
+    err.details["step_name"] = ctx.step_name
     err.details["pool_error"] = repr(exc)
     try:
         items_list = list(items)
