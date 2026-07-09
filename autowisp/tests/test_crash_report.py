@@ -21,6 +21,7 @@ from autowisp.database.data_model import (
     Error,
     Image,
     ImageProcessingProgress,
+    LightCurveProcessingProgress,
     Parameter,
     Step,
 )
@@ -200,6 +201,25 @@ class TestFindErrorProgress(unittest.TestCase):
             return progress.id
         # pylint: enable=not-callable
 
+    def _add_lc_progress(self, step_name, run_id):
+        # pylint: disable=not-callable
+        with start_db_session() as db_session:
+            step = db_session.scalar(select(Step).where(Step.name == step_name))
+            if step is None:
+                step = Step(name=step_name, description=step_name + " step")
+                db_session.add(step)
+                db_session.flush()
+            progress = LightCurveProcessingProgress(
+                run_id=run_id,
+                step_id=step.id,
+                single_photref_id=None,
+                configuration_version=0,
+            )
+            db_session.add(progress)
+            db_session.flush()
+            return progress.id
+        # pylint: enable=not-callable
+
     def test_resolves_by_run_and_step(self):
         """An error's run + step pick out the matching progress."""
 
@@ -209,6 +229,23 @@ class TestFindErrorProgress(unittest.TestCase):
         )
         progress = find_error_progress(error)
         self.assertIsNotNone(progress)
+        self.assertEqual(progress.id, progress_id)
+
+    def test_resolves_lightcurve_step(self):
+        """A lightcurve-step error resolves via the LC progress table.
+
+        Regression for the crash-report gap where LC steps (tfa/epd/...)
+        recorded in ``light_curve_processing_progress`` -- a different
+        table than image steps -- could never resolve, so their logs were
+        never collected.
+        """
+
+        progress_id = self._add_lc_progress("tfa", run_id=7)
+        error = SimpleNamespace(
+            pipeline_run_id=7, step_name="tfa", image_id=None
+        )
+        progress = find_error_progress(error)
+        self.assertIsInstance(progress, LightCurveProcessingProgress)
         self.assertEqual(progress.id, progress_id)
 
     def test_none_for_stepless_or_runless(self):

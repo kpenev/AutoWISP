@@ -2275,6 +2275,20 @@ Then the two crash-report entry points stop being image-only:
 This also fixes the BUI error-detail "View log" cross-link for LC-step
 errors, which is broken today for the same root cause.
 
+**Implemented.** `find_processing_outputs` and the `_progress_image_type`
+hook live on the base `ProcessingManager`; the two managers set
+`_progress_model` and their `_progress_image_type`; `crash_report`
+dispatches across both progress tables and instantiates the matching
+manager. The LC `_progress_image_type` uses the DR-read derivation (the
+`MasterType.maker_image_type_id` shortcut was left unverified, so not
+relied on). One extra change the design did not anticipate:
+`LightCurveProcessingManager.__init__` unconditionally ran `set_pending`
+(which opens every pending photref's DR file), so a review-only
+`pipeline_run_id=None` instance — how `crash_report` and the BUI use it —
+must skip it; guarded on `self._pipeline_run_id is not None`
+(`ImageProcessingManager` already had no such scan). Regression:
+`test_resolves_lightcurve_step` in `test_crash_report.py`.
+
 ### Item 3 — name the input that killed the worker
 
 `run_pool`'s eager path is `list(executor.map(wrapped, items))`
@@ -2385,7 +2399,7 @@ means opening SQLite; the sidecar should stand alone.
 | `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
 | `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
-| `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time) (item 2). |
+| `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time); skip `set_pending` when `pipeline_run_id is None` so a review-only manager is cheap (item 2). |
 | `autowisp/crash_report.py` | `find_error_progress` resolves against either progress table and `select_error_logs` instantiates the matching manager (item 2); `collect_provenance` adds machine-resource fields and prefers stored run provenance (item 7); sidecar gains the resolved step config + the progress timeline, and a `WorkerCrashedError` report bundles the whole batch (item 8). |
 | `autowisp/run_pipeline.py` | Capture the run environment onto `PipelineRun` at creation (item 7). |
 | `PipelineRun` model + migration | `run_environment` (JSON) column (item 7). |
@@ -2402,7 +2416,9 @@ means opening SQLite; the sidecar should stand alone.
 - `find_error_progress` / `select_error_logs` resolve an **LC-step**
   error (e.g. `tfa`) to its `light_curve_processing_progress` row and its
   logs; an image-step error still resolves via `ImageProcessingProgress`;
-  a pipeline/BUI error still yields none.
+  a pipeline/BUI error still yields none. *(Implemented:
+  `test_resolves_lightcurve_step` in `test_crash_report.py`; image-step
+  and stepless cases already covered there.)*
 - A worker that hard-exits (`os._exit`) mid-`map` → the parent's
   `WorkerCrashedError` names the specific in-flight item in
   `details["crashed_inputs"]`, not a blind head sample, and preserves

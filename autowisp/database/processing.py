@@ -7,7 +7,10 @@ from tempfile import TemporaryDirectory
 from sqlalchemy import sql, select
 from numpy import inf as infinity
 
-from autowisp.multiprocessing_util import setup_process
+from autowisp.multiprocessing_util import (
+    setup_process,
+    get_log_outerr_filenames,
+)
 from autowisp.database.interface import start_db_session, get_project_home
 from autowisp.exceptions import ConfigurationError, PipelineError
 from autowisp.evaluator import Evaluator
@@ -557,6 +560,99 @@ class ProcessingManager:
         return self._evaluated_expressions[image_id][channel]["masters"][
             master_type_name
         ]
+
+    #: The processing-progress ORM class this manager records in. Set by
+    #: each concrete subclass so the shared log-locating machinery below
+    #: knows which table a progress id refers to.
+    _progress_model = None
+
+    def _progress_image_type(self, processing_progress, db_session):
+        """Return the ``image_type`` name in a progress row's log names.
+
+        The per-process log filenames are keyed on ``processing_step`` and
+        ``image_type`` (see ``setup_process``). Image processing has the
+        image type on the progress row directly; lightcurve processing
+        derives it from the single photometric reference. Subclasses
+        supply the mapping.
+
+        Args:
+            processing_progress:    A row of :attr:`_progress_model`.
+
+            db_session:    Active session for any lookups.
+
+        Returns:
+            str:    The image-type name used when the logs were written.
+        """
+
+        raise NotImplementedError
+
+    def find_processing_outputs(self, processing_progress, db_session=None):
+        """Return all logging and output filenames for given processing ID.
+
+        Works for both image and lightcurve processing: everything but the
+        progress table (:attr:`_progress_model`) and the image-type lookup
+        (:meth:`_progress_image_type`) is shared, and both managers write
+        their logs through the same ``processing_step`` + ``image_type``
+        naming.
+
+        Args:
+            processing_progress:    Either a :attr:`_progress_model` row or
+                its integer id.
+
+            db_session:    Optional active session; one is opened if
+                omitted.
+
+        Returns:
+            tuple:    ``(main_fnames, worker_fnames)`` as produced by
+                ``get_log_outerr_filenames``.
+        """
+
+        if db_session is None:
+            # False positivie
+            # pylint: disable=redefined-argument-from-local
+            with start_db_session() as db_session:
+                # pylint: enable=redefined-argument-from-local
+                return self.find_processing_outputs(
+                    processing_progress, db_session
+                )
+
+        # _progress_model is None only on the base class, which is never
+        # used directly; every concrete manager sets it to its ORM class.
+        # pylint: disable=isinstance-second-argument-not-valid-type
+        if not isinstance(processing_progress, self._progress_model):
+            # pylint: enable=isinstance-second-argument-not-valid-type
+            return self.find_processing_outputs(
+                db_session.scalar(
+                    select(self._progress_model).filter_by(
+                        id=processing_progress
+                    )
+                ),
+                db_session,
+            )
+
+        image_type = self._progress_image_type(processing_progress, db_session)
+        main_fnames = get_log_outerr_filenames(
+            existing_pid=processing_progress.run.process_id,
+            task="*",
+            parent_pid="",
+            processing_step=processing_progress.step.name,
+            image_type=image_type,
+            **self._processing_config,
+        )
+        logging.info("Main fnames: %s", repr(main_fnames))
+        assert len(main_fnames[0]) == len(main_fnames[1]) == 1
+
+        return (
+            tuple(fname[0] for fname in main_fnames),
+            get_log_outerr_filenames(
+                existing_pid="*",
+                task="*",
+                parent_pid=processing_progress.run.process_id,
+                processing_step=processing_progress.step.name,
+                image_type=image_type,
+                **self._processing_config,
+            ),
+        )
 
     def _create_current_processing(self, step, target, db_session):
         """Add a new ProcessingProgress at start of given step."""

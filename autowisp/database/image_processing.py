@@ -10,10 +10,7 @@ from sqlalchemy import sql, select, update, and_, or_
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
 
-from autowisp.multiprocessing_util import (
-    setup_process,
-    get_log_outerr_filenames,
-)
+from autowisp.multiprocessing_util import setup_process
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import start_db_session, get_project_home
 from autowisp.exceptions import Component, MasterSelectionError, PipelineError
@@ -812,7 +809,9 @@ class ImageProcessingManager(ProcessingManager):
                     db_session.flush()
                     diag_type_id = new_type.id
                 else:
-                    raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
+                    raise PipelineError(
+                        f"Unknown diagnostic type {diag_name!r}"
+                    )
             db_session.add(
                 ImageDiagnostics(
                     image_id=finished_id["image_id"],
@@ -1261,7 +1260,7 @@ class ImageProcessingManager(ProcessingManager):
                 == ConditionExpression.id,
             )
             .where(
-                Condition.id # pylint: disable=no-member
+                Condition.id  # pylint: disable=no-member
                 == photref_type.condition_id
             )
             .order_by(ConditionExpression.id)
@@ -1693,50 +1692,14 @@ class ImageProcessingManager(ProcessingManager):
             result.append((batch, match_expressions.ref_master_values))
         return result
 
-    def find_processing_outputs(self, processing_progress, db_session=None):
-        """Return all logging and output filenames for given processing ID."""
+    #: Image processing records progress here; drives the shared
+    #: ``find_processing_outputs`` in the base class.
+    _progress_model = ImageProcessingProgress
 
-        if db_session is None:
-            # False positivie
-            # pylint: disable=redefined-argument-from-local
-            with start_db_session() as db_session:
-                # pylint: enable=redefined-argument-from-local
-                return self.find_processing_outputs(
-                    processing_progress, db_session
-                )
+    def _progress_image_type(self, processing_progress, db_session):
+        """The image type is carried directly on an image progress row."""
 
-        if not isinstance(processing_progress, ImageProcessingProgress):
-            return self.find_processing_outputs(
-                db_session.scalar(
-                    select(ImageProcessingProgress).filter_by(
-                        id=processing_progress
-                    )
-                ),
-                db_session,
-            )
-
-        main_fnames = get_log_outerr_filenames(
-            existing_pid=processing_progress.run.process_id,
-            task="*",
-            parent_pid="",
-            processing_step=processing_progress.step.name,
-            image_type=processing_progress.image_type.name,
-            **self._processing_config,
-        )
-        logging.info("Main fnames: %s", repr(main_fnames))
-        assert len(main_fnames[0]) == len(main_fnames[1]) == 1
-
-        return (
-            tuple(fname[0] for fname in main_fnames),
-            get_log_outerr_filenames(
-                existing_pid="*",
-                task="*",
-                parent_pid=processing_progress.run.process_id,
-                processing_step=processing_progress.step.name,
-                image_type=processing_progress.image_type.name,
-                **self._processing_config,
-            ),
-        )
+        return processing_progress.image_type.name
 
     def __call__(self, limit_to_steps=None, step_imtype_filter=None):
         """Perform all the processing for the given steps (all if None)."""
@@ -1779,8 +1742,8 @@ class ImageProcessingManager(ProcessingManager):
                     f"{key!r}: {len(val)}" for key, val in self.pending.items()
                 ),
             )
-            
-            #If filtered or not ready, stop processing here
+
+            # If filtered or not ready, stop processing here
             if processing_batches is None:
                 continue
 
