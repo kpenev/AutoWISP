@@ -8,6 +8,7 @@ temporary directory. Each test starts from a clean ambient context (reset
 in ``setUp``).
 """
 
+import glob
 import os
 import pickle
 import tempfile
@@ -72,6 +73,25 @@ def _hard_exit_worker(_):
     """Module-level Pool worker that hard-exits without an exception."""
 
     os._exit(7)  # pylint: disable=protected-access
+
+
+def _segfault_worker(_):
+    """Module-level Pool worker that crashes with a real SIGSEGV.
+
+    Used to prove ``faulthandler`` (armed in ``setup_process_map``) dumps a
+    native traceback into the worker's own redirected log before it dies.
+    """
+
+    try:
+        import resource  # pylint: disable=import-outside-toplevel
+
+        # No core file, so a CI box is not littered with them.
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except Exception:  # pylint: disable=broad-except
+        pass
+    import ctypes  # pylint: disable=import-outside-toplevel
+
+    ctypes.string_at(0)  # dereference NULL -> SIGSEGV
 
 
 def _nested_run_pool_worker(item):
@@ -445,6 +465,40 @@ class TestWorkerEntry(_ContextTestCase):
 
         self.assertEqual(worker_entry(lambda: 7, Component.STEP)(), 7)
 
+    def test_inflight_map_tracks_then_clears_item(self):
+        """The item is in the in-flight map while running, gone after.
+
+        (A plain dict stands in for the ``Manager().dict()`` proxy; the
+        write/clear logic is the same.)
+        """
+
+        tracker = {}
+        seen = {}
+
+        def fn(item):
+            seen["during"] = dict(tracker)  # snapshot while executing
+            return item * 2
+
+        result = worker_entry(fn, Component.STEP, tracker)(21)
+
+        self.assertEqual(result, 42)
+        self.assertEqual(seen["during"], {os.getpid(): repr(21)})
+        self.assertEqual(dict(tracker), {})  # cleared on return
+
+    def test_inflight_map_cleared_on_error(self):
+        """A failing task still clears its in-flight entry."""
+
+        tracker = {}
+
+        def boom(_):
+            raise ValueError("boom")
+
+        with error_context(step_name="find_stars"):
+            with self.assertRaises(FindStarsError):
+                worker_entry(boom, Component.STEP, tracker)(7)
+
+        self.assertEqual(dict(tracker), {})
+
     def test_subprocess_id_not_overwritten_by_later_stamp(self):
         """An already-stamped subprocess_id survives a second boundary.
 
@@ -593,6 +647,69 @@ class TestPoolPropagation(_ContextTestCase):
         self.assertEqual(exc.details["step_name"], "tfa")
         # A worker death is a step failure, not an orchestration failure:
         self.assertEqual(exc.component, Component.STEP)
+
+    def test_worker_crashed_names_inflight_input(self):
+        """A silent death records the in-flight item(s), not a head sample.
+
+        The wrapped worker writes its item into the shared in-flight map
+        before running; a hard ``os._exit`` leaves it there, so
+        ``_worker_crashed`` can name the culprit in
+        ``details["crashed_inputs"]`` (bounded by the worker count).
+        """
+
+        items = ["/lc/AAA.h5", "/lc/BBB.h5"]
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        items,
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+        crashed = ctx.exception.details.get("crashed_inputs")
+        self.assertTrue(crashed, "expected a non-empty crashed_inputs")
+        self.assertTrue(set(crashed) <= {repr(item) for item in items})
+
+    def test_faulthandler_dumps_native_traceback(self):
+        """A segfaulting worker leaves a native dump in its own log.
+
+        Proves the ``faulthandler`` armed in ``setup_process_map`` turns an
+        otherwise-silent SIGSEGV into a collectable C-level traceback --
+        which is what distinguishes the faulted worker from the innocents
+        the executor merely terminates.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError):
+                    run_pool(
+                        _segfault_worker,
+                        ["/lc/AAA.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+            # Worker logs live under a parent-pid subdirectory.
+            logs = glob.glob(
+                os.path.join(project_home, "**", "*.outerr"), recursive=True
+            )
+            blobs = [
+                open(path, encoding="utf-8", errors="replace").read()
+                for path in logs
+            ]
+        self.assertTrue(
+            any(
+                "Fatal Python error" in b or "Current thread" in b
+                for b in blobs
+            ),
+            "no faulthandler native dump found in any worker log",
+        )
 
 
 class TestProcessQueuePropagation(_ContextTestCase):

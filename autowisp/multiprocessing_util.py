@@ -3,8 +3,10 @@
 import os
 import os.path
 from datetime import datetime
+import faulthandler
 import logging
 import re
+import signal
 from glob import glob
 import sys
 
@@ -84,6 +86,42 @@ def get_log_outerr_filenames(existing_pid=False, **config):
     return result
 
 
+def _enable_faulthandler(stream):
+    """Point ``faulthandler`` at ``stream`` so a fatal signal self-reports.
+
+    A segfault / abort / FPE produces no Python exception, so a worker
+    that dies of one is "silent" and -- because the pool executor collapses
+    every pending future to the same ``BrokenProcessPool`` and discards
+    which worker died -- otherwise unattributable. With ``faulthandler``
+    enabled against the worker's redirected stderr, the *faulting* worker
+    dumps a native traceback into its own log before dying; workers the
+    executor merely ``terminate()``s (``SIGTERM``) dump nothing, so the log
+    carrying a dump singles out the culprit. Also arms ``SIGUSR1`` (POSIX)
+    so a *hung* worker can be prodded to dump where it is stuck.
+
+    Best-effort: silently does nothing where it cannot attach (e.g. a
+    captured stderr with no real ``fileno``); never fails bootstrap.
+
+    Args:
+        stream:    The (already redirected) stderr file object to dump to.
+
+    Returns:
+        None
+    """
+
+    try:
+        faulthandler.enable(file=stream, all_threads=True)
+    except (AttributeError, ValueError, OSError, RuntimeError):
+        return  # e.g. stream has no real fileno -- nothing we can do
+    if hasattr(signal, "SIGUSR1"):
+        try:
+            faulthandler.register(
+                signal.SIGUSR1, file=stream, all_threads=True, chain=True
+            )
+        except (AttributeError, ValueError, OSError, RuntimeError):
+            pass
+
+
 def setup_process_map(config):
     """
     Logging and I/O setup for the current processes.
@@ -134,7 +172,7 @@ def setup_process_map(config):
     app_data_dir = platformdirs.user_data_dir("autowisp")
     logging_fname, std_out_err_fname = get_log_outerr_filenames(**config)
 
-    if os.path.exists(app_data_dir): # allow running on GitHub Actions
+    if os.path.exists(app_data_dir):  # allow running on GitHub Actions
         with open(
             os.path.join(app_data_dir, "setup_process.outerr"),
             "a",
@@ -173,6 +211,11 @@ def setup_process_map(config):
             std_out_err_fname, "w", encoding="utf-8", buffering=1
         )
         sys.stderr = sys.stdout
+
+    # After the redirect, so a fatal-signal dump lands in the process's own
+    # (collectable) log rather than a lost stderr. Enabled unconditionally
+    # -- for a non-redirected process it dumps to the inherited stderr.
+    _enable_faulthandler(sys.stderr)
 
     ensure_directory(logging_fname)
     logging_config = {

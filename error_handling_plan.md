@@ -2313,15 +2313,19 @@ shared queue themselves, and the parent is only notified when one
 *finishes*, never when one *starts*. We record it ourselves.
 
 - **A shared in-flight map.** A `multiprocessing.Manager().dict()` is
-  created in `run_pool`, threaded into every worker through the existing
-  `setup_process_map` `initargs` (alongside the config), and stashed in
-  the ambient context. `_WorkerEntry.__call__` writes
-  `shared[os.getpid()] = item` immediately before invoking the wrapped
-  callable and clears it (`pop(os.getpid(), None)`) immediately after. At
-  any instant the non-empty entries are exactly the items being executed.
-- On `BrokenProcessPool`, `_worker_crashed` reads the map and records its
-  values as `details["crashed_inputs"]` — a candidate set bounded by
-  `num_processes`, not a blind slice of the inputs.
+  created in `run_pool` and **carried to each worker on the pickled
+  `_WorkerEntry` wrapper itself** — the executor already pickles the
+  wrapper for every call item, and a `Manager` proxy pickles/reconnects
+  across that boundary, so no `config`/`initargs` plumbing or ambient-
+  context field is needed. `_WorkerEntry.__call__` writes
+  `self.inflight[os.getpid()] = repr(item)` immediately before invoking
+  the wrapped callable and clears it (`pop(pid, None)`) in a `finally`.
+  At any instant the non-empty entries are exactly the items executing; a
+  hard `os._exit` skips the `finally`, leaving the culprit behind.
+- On `BrokenProcessPool`, `_worker_crashed(items, exc, inflight)` reads
+  the map's values into `details["crashed_inputs"]` — a candidate set
+  bounded by `num_processes`, not a blind slice of the inputs. The
+  `Manager` is shut down in a `finally` in `run_pool`, so nothing leaks.
 - A `Manager().dict()` (server process, one small IPC per task start/end)
   is chosen over a `multiprocessing.Array` in shared memory because the
   Array holds only C scalars (so it would store item *indices*, not the
@@ -2330,6 +2334,14 @@ shared queue themselves, and the parent is only notified when one
   claimed via an atomic counter in the initializer. The per-task IPC is
   negligible against `tfa`/`epd` task cost; revisit only if a hot,
   tiny-task site ever adopts `run_pool`.
+
+**Implemented.** `_WorkerEntry`/`worker_entry` gained an optional
+`inflight` proxy; `run_pool` owns the `Manager` and passes the map to both
+the wrapper and `_worker_crashed`. Verified end-to-end: a hard-exiting
+worker leaves its item in the map (`crashed_inputs`), and the proxy write
+survives the death. Tests: `test_inflight_map_tracks_then_clears_item`,
+`test_inflight_map_cleared_on_error`, `test_worker_crashed_names_inflight_input`
+in `test_error_context.py`.
 
 **Honest scope: this yields a *candidate set*, not the unique culprit.**
 When worker D segfaults on item X, the executor force-`terminate()`s the
@@ -2370,6 +2382,13 @@ native stack dump in its own log.
   `faulthandler` either — that death stays attributable only to Item 3's
   candidate set plus Item 5's exit-signal; a `SIGKILL` with no native dump
   is itself the tell that it was a kill, not a crash.)
+
+**Implemented** as `_enable_faulthandler(sys.stderr)` in
+`setup_process_map`, called right after the stderr redirect (and armed for
+`SIGUSR1` on POSIX). Verified end-to-end: a real `SIGSEGV` in a `run_pool`
+worker writes a "Fatal Python error" native traceback into that worker's
+collected `.outerr`. Test: `test_faulthandler_dumps_native_traceback` in
+`test_error_context.py`.
 
 ### Item 5 — record the OS-level cause of the death
 
@@ -2439,9 +2458,9 @@ means opening SQLite; the sidecar should stand alone.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and threads it into the workers via `setup_process_map` `initargs`; `_WorkerEntry.__call__` writes/clears `shared[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), `exit_signal`, and the resource snapshot in `details` (items 3, 5); best-effort reads the dead worker's exitcode (item 5). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
-| `autowisp/multiprocessing_util.py` | `setup_process_map` accepts the in-flight map from `initargs` and stashes it in context (item 3); enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
+| `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
 | `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
 | `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time); skip `set_pending` when `pipeline_run_id is None` so a review-only manager is cheap (item 2). |
@@ -2465,16 +2484,20 @@ means opening SQLite; the sidecar should stand alone.
   `test_resolves_lightcurve_step` in `test_crash_report.py`; image-step
   and stepless cases already covered there.)*
 - `_WorkerEntry` writes the current item into the shared in-flight map
-  while the callable runs and clears it on return, so a normal `run_pool`
-  finishes with an empty map.
+  while the callable runs and clears it on return (and on error), so a
+  normal `run_pool` finishes with an empty map. *(Implemented:
+  `test_inflight_map_tracks_then_clears_item`,
+  `test_inflight_map_cleared_on_error`.)*
 - A worker that hard-exits (`os._exit`) mid-task → the parent's
   `WorkerCrashedError` records the still-in-flight item(s) in
   `details["crashed_inputs"]` (a set bounded by `num_processes`), not a
-  blind head sample, and the clean-run survivors still return in order.
-- With `faulthandler` enabled in the worker bootstrap, a forced fault in
+  blind head sample. *(Implemented:
+  `test_worker_crashed_names_inflight_input`.)*
+- With `faulthandler` enabled in the worker bootstrap, a real `SIGSEGV` in
   a test worker writes a native traceback to its redirected stderr file
   (the log items 1–2 collect), so the faulted worker is distinguishable
-  from executor-terminated innocents.
+  from executor-terminated innocents. *(Implemented:
+  `test_faulthandler_dumps_native_traceback`.)*
 - `build_crash_report` for a `WorkerCrashedError` includes the resolved
   step config, the progress timeline, the resource snapshot, and (when
   present) `exit_signal` — and, for the batch, every sibling error, not
@@ -2487,8 +2510,7 @@ means opening SQLite; the sidecar should stand alone.
 Items **1 + 2** are the highest-value, lowest-risk pair — together they
 are the difference between a report with logs and one without — and are
 **done**. **3** (in-flight map → candidate set) and **4** (native
-self-report → the one culprit within it) are the next tier and are
-**coupled**: land them together, since Item 3 narrows and Item 4 isolates,
-and neither alone gets you to "died on *this* file, *here*." **5–8** are
-enrichment that make the report self-explaining without a maintainer
-hand-querying the DB, and can follow independently.
+self-report → the one culprit within it) are **coupled** — Item 3 narrows,
+Item 4 isolates — and are now **done** together. **5–8** are enrichment
+that make the report self-explaining without a maintainer hand-querying
+the DB, and can follow independently.

@@ -22,6 +22,7 @@ import socket
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
+from multiprocessing import Manager
 from traceback import format_exc
 from typing import Optional, Sequence
 
@@ -352,23 +353,46 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
     :func:`_stamp_worker_error`) and re-raised, letting the Pool pickle it
     back to the parent.
 
+    While the wrapped callable runs, the item is recorded in the shared
+    in-flight map (``{pid: repr(item)}``) and cleared on return. The
+    executor never records which worker is running which item -- workers
+    self-pull, the parent only hears back on *completion*, and a broken
+    pool collapses every pending future to the same ``BrokenProcessPool``
+    -- so this map is the only place the culprit input of a silent death
+    can be recovered from. A hard ``os._exit`` (segfault/OOM) skips the
+    ``finally``, leaving the culprit item behind, which is exactly the
+    case we need it for. The map rides on the wrapper: the executor
+    already pickles ``_WorkerEntry`` to each worker, and a
+    ``Manager().dict()`` proxy pickles/reconnects across that boundary, so
+    no separate plumbing is needed.
+
     This is a class, not a closure, because ``Pool.map`` pickles the
     mapped callable to send it to the worker (under both ``fork`` and
     ``spawn``); a closure is not picklable, whereas an instance holding a
     picklable ``func`` (e.g. a ``functools.partial`` of a module-level
-    function) and an enum ``component`` is.
+    function), an enum ``component``, and a picklable proxy is.
 
     Attributes:
         func(Callable):    The wrapped per-item worker callable.
 
         component(Component):    Component for wrapping unknown errors.
+
+        inflight(DictProxy or None):    Shared ``{pid: repr(item)}`` map,
+            or ``None`` to disable tracking (non-``run_pool`` callers).
     """
 
-    def __init__(self, func, component: Component):
+    def __init__(self, func, component: Component, inflight=None):
         self.func = func
         self.component = component
+        self.inflight = inflight
 
     def __call__(self, *args, **kwargs):
+        pid = os.getpid()
+        if self.inflight is not None:
+            try:
+                self.inflight[pid] = repr(args[0]) if args else repr(kwargs)
+            except Exception:  # pylint: disable=broad-except
+                pass  # tracking is best-effort; never fail a task over it
         try:
             return self.func(*args, **kwargs)
         except Exception as exc:  # pylint: disable=broad-except
@@ -376,9 +400,15 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
             if stamped is exc:
                 raise
             raise stamped from exc
+        finally:
+            if self.inflight is not None:
+                try:
+                    self.inflight.pop(pid, None)
+                except Exception:  # pylint: disable=broad-except
+                    pass
 
 
-def worker_entry(func, component: Component):
+def worker_entry(func, component: Component, inflight=None):
     """Wrap a Pool worker callable so errors come back picklable + stamped.
 
     Args:
@@ -389,11 +419,14 @@ def worker_entry(func, component: Component):
         component(Component):    Component to assign when wrapping an
             unknown exception.
 
+        inflight(DictProxy or None):    Shared in-flight map (see
+            :class:`_WorkerEntry`); ``None`` disables tracking.
+
     Returns:
         _WorkerEntry:    A picklable callable suitable to hand to a Pool.
     """
 
-    return _WorkerEntry(func, component)
+    return _WorkerEntry(func, component, inflight)
 
 
 def capture_for_queue(exc: Exception, *, component: Component) -> AutoWISPError:
@@ -457,7 +490,9 @@ def forbid_nested_workers() -> None:
         )
 
 
-def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
+def _worker_crashed(
+    items, exc: Exception, inflight=None
+) -> "WorkerCrashedError":
     """Synthesise the parent-side error for a worker that died silently.
 
     Used when a worker dies without producing an error object (segfault,
@@ -469,6 +504,12 @@ def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
         items:    The work items that were in flight.
 
         exc(Exception):    The error the pool surfaced for the death.
+
+        inflight(DictProxy or None):    The shared ``{pid: repr(item)}``
+            in-flight map (see :class:`_WorkerEntry`). Its values are the
+            items being executed at the moment of death -- the culprit
+            plus any innocents the executor force-terminated, a set
+            bounded by the worker count. ``None`` if tracking was off.
 
     Returns:
         WorkerCrashedError:    Stamped with the ambient context.
@@ -486,6 +527,13 @@ def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
     # which crash-report log-collection resolves the run/step logs from.
     err.details["step_name"] = ctx.step_name
     err.details["pool_error"] = repr(exc)
+    if inflight is not None:
+        try:
+            crashed_inputs = list(inflight.values())
+            if crashed_inputs:
+                err.details["crashed_inputs"] = crashed_inputs
+        except Exception:  # pylint: disable=broad-except
+            pass
     try:
         items_list = list(items)
         err.details["num_inputs"] = len(items_list)
@@ -587,7 +635,6 @@ def run_pool(
     # pylint: enable=import-outside-toplevel
 
     config["parent_pid"] = os.getpid()
-    wrapped = worker_entry(worker, component)
     executor_kwargs = {
         "max_workers": num_processes,
         "initializer": setup_process_map,
@@ -596,13 +643,23 @@ def run_pool(
     if max_tasks_per_child is not None:
         executor_kwargs["max_tasks_per_child"] = max_tasks_per_child
 
+    # The in-flight map lets a silent worker death name its culprit
+    # input(s). It lives on a Manager server process, and the proxy rides
+    # to each worker on the pickled ``worker_entry`` wrapper; the Manager
+    # is torn down when the pool is done, so nothing leaks.
+    manager = Manager()
     try:
-        with ProcessPoolExecutor(**executor_kwargs) as executor:
-            if stream_consumer is None:
-                return list(executor.map(wrapped, items))
-            stream_consumer(_stream_as_completed(executor, wrapped, items))
-            return None
-    except AutoWISPError:
-        raise
-    except Exception as exc:  # pylint: disable=broad-except
-        raise _worker_crashed(items, exc) from exc
+        inflight = manager.dict()
+        wrapped = worker_entry(worker, component, inflight)
+        try:
+            with ProcessPoolExecutor(**executor_kwargs) as executor:
+                if stream_consumer is None:
+                    return list(executor.map(wrapped, items))
+                stream_consumer(_stream_as_completed(executor, wrapped, items))
+                return None
+        except AutoWISPError:
+            raise
+        except Exception as exc:  # pylint: disable=broad-except
+            raise _worker_crashed(items, exc, inflight) from exc
+    finally:
+        manager.shutdown()
