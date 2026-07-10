@@ -2318,14 +2318,16 @@ shared queue themselves, and the parent is only notified when one
   wrapper for every call item, and a `Manager` proxy pickles/reconnects
   across that boundary, so no `config`/`initargs` plumbing or ambient-
   context field is needed. `_WorkerEntry.__call__` writes
-  `self.inflight[os.getpid()] = repr(item)` immediately before invoking
-  the wrapped callable and clears it (`pop(pid, None)`) in a `finally`.
-  At any instant the non-empty entries are exactly the items executing; a
-  hard `os._exit` skips the `finally`, leaving the culprit behind.
-- On `BrokenProcessPool`, `_worker_crashed(items, exc, inflight)` reads
-  the map's values into `details["crashed_inputs"]` — a candidate set
-  bounded by `num_processes`, not a blind slice of the inputs. The
-  `Manager` is shut down in a `finally` in `run_pool`, so nothing leaks.
+  `self.inflight[os.getpid()] = item` (the raw item, so Item 9 can rebuild
+  its related file) immediately before invoking the wrapped callable and
+  clears it (`pop(pid, None)`) in a `finally`. At any instant the
+  non-empty entries are exactly the items executing; a hard `os._exit`
+  skips the `finally`, leaving the culprit behind.
+- On `BrokenProcessPool`, `_worker_crashed(items, exc, inflight, ...)`
+  reads the map's values into `details["crashed_inputs"]` (as
+  `repr(item)`) — a candidate set bounded by `num_processes`, not a blind
+  slice of the inputs. The `Manager` is shut down in a `finally` in
+  `run_pool`, so nothing leaks.
 - A `Manager().dict()` (server process, one small IPC per task start/end)
   is chosen over a `multiprocessing.Array` in shared memory because the
   Array holds only C scalars (so it would store item *indices*, not the
@@ -2509,6 +2511,22 @@ Sequence within the item: land the **lightcurve path
 the path the real crash hit and the smallest end-to-end slice — then the
 remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
 
+**Implemented (first slice).** `run_pool`/`worker_entry`/`_WorkerEntry`
+gained an optional `related_file` (a `FileKind` or an `item -> RelatedFile`
+callable, resolved by `_resolve_related_files`); `_WorkerEntry.__call__`
+scopes `error_context(related_files=...)` around the call so the stamping
+`except` (inside the scope) copies the file onto the error before it
+pickles back. `apply_correction` passes `FileKind.LIGHTCURVE`;
+`_worker_crashed` promotes the in-flight items to `related_files`. Note
+`_resolve_artifact_fks` only FK-links images/masters — LC (and DR /
+calibrated) files have no row, so they surface by path in the rendered
+related-files list rather than as an FK. Remaining: the other four
+`run_pool` sites and the main-process/Scheme-B per-item scoping. Tests:
+`test_resolve_related_files_from_kind_and_callable`,
+`test_resolve_related_files_is_total`,
+`test_worker_error_carries_related_file`,
+`test_worker_crashed_promotes_related_files` in `test_error_context.py`.
+
 ### What changes, concretely
 
 | File | Change |
@@ -2562,10 +2580,13 @@ remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
 - Provenance distinguishes run host/versions from report host/versions
   when they differ.
 - A `run_pool` worker that raises for a given item produces an error
-  carrying that item as a `related_file` of the call site's `FileKind`,
-  and `_resolve_artifact_fks` sets the matching artifact FK on the row; a
+  carrying that item as a `related_file` of the call site's `FileKind`
+  (and `_resolve_artifact_fks` sets the FK for an image/master item); a
   `WorkerCrashedError` likewise carries the in-flight item(s) as
-  `related_files` (item 9).
+  `related_files` (item 9). *(Implemented for the lightcurve path:
+  `test_worker_error_carries_related_file`,
+  `test_worker_crashed_promotes_related_files`, plus
+  `_resolve_related_files` unit tests.)*
 
 ### Suggested sequencing
 

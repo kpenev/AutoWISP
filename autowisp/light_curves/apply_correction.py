@@ -7,6 +7,7 @@ from scipy.optimize import minimize
 import pandas
 
 from autowisp.error_context import run_pool
+from autowisp.exceptions import FileKind
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -246,6 +247,7 @@ def apply_parallel_correction(
                 lc_fnames,
                 config=config,
                 num_processes=num_parallel_processes,
+                related_file=FileKind.LIGHTCURVE,
             )
         )
 

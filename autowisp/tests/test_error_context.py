@@ -18,6 +18,7 @@ from multiprocessing import Process, Queue
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     ErrorContext,
+    _resolve_related_files,
     capture_errors,
     capture_for_queue,
     error_context,
@@ -482,7 +483,7 @@ class TestWorkerEntry(_ContextTestCase):
         result = worker_entry(fn, Component.STEP, tracker)(21)
 
         self.assertEqual(result, 42)
-        self.assertEqual(seen["during"], {os.getpid(): repr(21)})
+        self.assertEqual(seen["during"], {os.getpid(): 21})
         self.assertEqual(dict(tracker), {})  # cleared on return
 
     def test_inflight_map_cleared_on_error(self):
@@ -498,6 +499,29 @@ class TestWorkerEntry(_ContextTestCase):
                 worker_entry(boom, Component.STEP, tracker)(7)
 
         self.assertEqual(dict(tracker), {})
+
+    def test_resolve_related_files_from_kind_and_callable(self):
+        """A FileKind wraps a path item; a callable is used as given."""
+
+        (rf,) = _resolve_related_files(FileKind.LIGHTCURVE, "/lc/x.h5")
+        self.assertEqual(rf.kind, FileKind.LIGHTCURVE)
+        self.assertEqual(rf.path.as_posix(), "/lc/x.h5")
+        self.assertEqual(rf.role, "input")
+
+        made = _dr_file("/data/y.h5")
+        self.assertEqual(
+            _resolve_related_files(lambda item: made, "anything"), (made,)
+        )
+
+    def test_resolve_related_files_is_total(self):
+        """No classifier, no item, or a bad classifier -> empty, no raise."""
+
+        self.assertEqual(_resolve_related_files(None, "/lc/x.h5"), ())
+        self.assertEqual(_resolve_related_files(FileKind.LIGHTCURVE, None), ())
+        # A FileKind on a non-path item (Path(42) raises) degrades to empty.
+        self.assertEqual(_resolve_related_files(FileKind.LIGHTCURVE, 42), ())
+        # A classifier that raises degrades to empty.
+        self.assertEqual(_resolve_related_files(lambda _: 1 / 0, "x"), ())
 
     def test_subprocess_id_not_overwritten_by_later_stamp(self):
         """An already-stamped subprocess_id survives a second boundary.
@@ -709,6 +733,57 @@ class TestPoolPropagation(_ContextTestCase):
                 for b in blobs
             ),
             "no faulthandler native dump found in any worker log",
+        )
+
+    def test_worker_error_carries_related_file(self):
+        """A worker error carries the item it was processing as a file.
+
+        The ``related_file`` classifier scopes the item as the ambient
+        related file inside the worker, so an error raised for it (here a
+        ``FindStarsError``) crosses back carrying that file -- the datum a
+        config-vs-file-content failure most needs.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with self.assertRaises(FindStarsError) as ctx:
+                run_pool(
+                    _raise_find_stars_error,
+                    ["/lc/AAA.h5"],
+                    config=_pool_config(project_home, run_id=77),
+                    num_processes=1,
+                    related_file=FileKind.LIGHTCURVE,
+                )
+
+        related = ctx.exception.related_files
+        self.assertEqual(len(related), 1)
+        self.assertEqual(related[0].kind, FileKind.LIGHTCURVE)
+        self.assertEqual(related[0].path.as_posix(), "/lc/AAA.h5")
+
+    def test_worker_crashed_promotes_related_files(self):
+        """A silent death promotes the in-flight item to a related file.
+
+        So a ``WorkerCrashedError`` links straight to the offending file
+        (rendered / FK-resolved), not only a ``details`` string.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        ["/lc/AAA.h5", "/lc/BBB.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                        related_file=FileKind.LIGHTCURVE,
+                    )
+
+        related = ctx.exception.related_files
+        self.assertTrue(related)
+        self.assertTrue(all(r.kind == FileKind.LIGHTCURVE for r in related))
+        self.assertTrue(
+            {r.path.as_posix() for r in related} <= {"/lc/AAA.h5", "/lc/BBB.h5"}
         )
 
 
