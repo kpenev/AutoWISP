@@ -2480,16 +2480,17 @@ error, crash or not.
 classifier** (the items are heterogeneous — LC paths, DR paths, image
 records, image *sets* — so the generic wrapper cannot classify them):
 
-- **`run_pool` gains an optional `related_file`**: either a `FileKind`
-  (for plain path-string items) or a small ``item -> RelatedFile | None``
-  callable (for `fit_star_shape`'s image sets). `_WorkerEntry.__call__`
-  wraps the call in `error_context(related_files=[...])` for that item, so
-  **any** error the worker raises — including a deep config-vs-file
-  mismatch — carries the file, is FK-resolved to the real row, and shows
-  in the error detail. The five call sites each pass their kind:
-  `apply_correction` → `LIGHTCURVE`, `iterative_refit` → `DR_FILE`,
-  `measure_aperture_photometry` / `find_stars` / `fit_star_shape` → the
-  image/DR they map over.
+- **`run_pool` gains an optional `related_files` classifier**: either a
+  `FileKind` (for plain path-string items) or a picklable callable
+  ``item -> RelatedFile | Iterable[RelatedFile] | None`` (module-level or a
+  `functools.partial`, since it rides the pickled wrapper to the workers).
+  `_WorkerEntry.__call__` wraps the call in
+  `error_context(related_files=[...])` for that item, so **any** error the
+  worker raises — including a deep config-vs-file mismatch — carries the
+  file, is FK-resolved to the real row, and shows in the error detail. The
+  five call sites each pass their kind: `apply_correction` → `LIGHTCURVE`,
+  `iterative_refit` → `DR_FILE`, `measure_aperture_photometry` /
+  `find_stars` / `fit_star_shape` → the image/DR they map over.
 - **The crash case falls out** (the ask that motivated this): the
   in-flight item *is* the related file, so a `WorkerCrashedError` links
   straight to the offending lightcurve. `_worker_crashed` also promotes
@@ -2515,15 +2516,14 @@ usually *about*, and they are known at dispatch time:
 
 These are **batch-constant** (the LC/magfit manager processes one single
 photref at a time; the masters come from the step's resolved config), not
-per-item, so they are best supplied *once* rather than recomputed per
-item. Two ways to carry them, both riding the same wrapper as the per-item
-classifier:
-
-- Give `run_pool` a fixed `related_files=[...]` list (the auxiliary files)
-  that `_WorkerEntry` prepends to the per-item classifier's output, so
-  every worker error in the batch carries item **+** auxiliaries; or
-- let the per-item classifier return several entries (item + auxiliaries)
-  when that reads more naturally.
+per-item. Rather than a second `run_pool` argument, they are folded into
+the *same* `related_files` classifier: the call site binds the auxiliary
+files into a picklable `functools.partial` of a module-level function that
+returns ``[item_file, *auxiliaries]``. One argument, and both the
+normal-error scope and the crash promotion (which already run every
+in-flight item through the classifier) pick up the auxiliaries for free;
+`_worker_crashed` dedups so a shared auxiliary (e.g. the single photref)
+appears once, not once per crashed input.
 
 The step builds them from what it already holds: the sphotref /
 master-photref / stat filenames and the master bias/dark/flat paths in its
@@ -2548,28 +2548,38 @@ Sequence within the item: land the **lightcurve path
 the path the real crash hit and the smallest end-to-end slice — then the
 remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
 
-**Implemented (first slice).** `run_pool`/`worker_entry`/`_WorkerEntry`
-gained an optional `related_file` (a `FileKind` or an `item -> RelatedFile`
+**Implemented (LC path + its single photref).**
+`run_pool`/`worker_entry`/`_WorkerEntry` gained an optional `related_files`
+classifier (a `FileKind` or an ``item -> RelatedFile | Iterable | None``
 callable, resolved by `_resolve_related_files`); `_WorkerEntry.__call__`
 scopes `error_context(related_files=...)` around the call so the stamping
-`except` (inside the scope) copies the file onto the error before it
-pickles back. `apply_correction` passes `FileKind.LIGHTCURVE`;
-`_worker_crashed` promotes the in-flight items to `related_files`. Note
+`except` (inside the scope) copies the files onto the error before it
+pickles back. `apply_correction` passes
+`partial(_detrending_related_files, single_photref_dr_fname=...)`, which
+returns the light curve **and** the single photometric reference; a plain
+`FileKind` still works for the item-only case. `_worker_crashed` promotes
+the in-flight items through the same classifier (deduping shared
+auxiliaries) so a silent death carries both files too. Note
 `_resolve_artifact_fks` only FK-links images/masters — LC (and DR /
 calibrated) files have no row, so they surface by path in the rendered
-related-files list rather than as an FK. Remaining: the other four
-`run_pool` sites and the main-process/Scheme-B per-item scoping. Tests:
-`test_resolve_related_files_from_kind_and_callable`,
+related-files list rather than as an FK (the photref *is* a `MasterFile`,
+so it FK-resolves). Remaining: the auxiliaries for the other steps
+(`calibrate` masters, `fit_magnitudes`/stat photref) and the other four
+`run_pool` sites + main-process/Scheme-B per-item scoping. Tests (in
+`test_error_context.py`): `test_resolve_related_files_from_kind_and_callable`,
 `test_resolve_related_files_is_total`,
+`test_resolve_related_files_callable_returning_many`,
 `test_worker_error_carries_related_file`,
-`test_worker_crashed_promotes_related_files` in `test_error_context.py`.
+`test_worker_error_carries_reference_files`,
+`test_worker_crashed_promotes_related_files`,
+`test_worker_crashed_dedups_shared_related_file`.
 
 ### What changes, concretely
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). `run_pool`/`worker_entry` gain an optional `related_file` classifier and `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item; `_worker_crashed` promotes the in-flight items to `related_files` (item 9). **Still to do (item 9 auxiliary files):** a fixed `related_files=` param on `run_pool` that `_WorkerEntry` prepends to the per-item output. |
-| run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) | Pass the per-call-site `related_file` kind/classifier, and the batch-constant auxiliary files (single photref for the LC/magfit paths) via the fixed `related_files` list (item 9). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). |
+| run_pool call sites (`apply_correction.py` ✓, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) | Pass the per-call-site `related_files` classifier — a `FileKind` for item-only sites, or a `partial` of a module-level function that returns the item plus the batch-constant auxiliaries (e.g. `apply_correction`'s `_detrending_related_files` → LC + single photref) (item 9). |
 | manager dispatch + `solve_astrometry.py` (+ `calibrate`, `create_lightcurves`, statistics generators) | Scope `error_context(related_files=...)` at the main-process/Scheme-B per-item point using the already-computed filename **plus the step's auxiliary inputs** (masters for `calibrate`, single photref for the LC/stat steps) (item 9). |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
 | `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |

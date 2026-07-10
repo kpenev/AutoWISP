@@ -347,10 +347,10 @@ def _stamp_worker_error(exc: Exception, component: Component) -> AutoWISPError:
     return stamped
 
 
-def _resolve_related_files(related_file, item):
+def _resolve_related_files(related_files, item):
     """Build the :class:`RelatedFile`\\ s for a work item, best-effort.
 
-    ``related_file`` is the call site's classifier for the items it maps
+    ``related_files`` is the call site's classifier for the items it maps
     over -- either a :class:`FileKind` (the item is a path) or a callable
     ``item -> RelatedFile | Iterable[RelatedFile] | None`` (for items that
     are not a bare path, e.g. an image set). Never raises: a classifier
@@ -358,7 +358,7 @@ def _resolve_related_files(related_file, item):
     handling is never itself a source of errors.
 
     Args:
-        related_file(FileKind, Callable, or None):    The classifier, or
+        related_files(FileKind, Callable, or None):    The classifier, or
             ``None`` to attach nothing.
 
         item:    The work item handed to the worker.
@@ -367,12 +367,12 @@ def _resolve_related_files(related_file, item):
         tuple:    Zero or more :class:`RelatedFile` entries.
     """
 
-    if related_file is None or item is None:
+    if related_files is None or item is None:
         return ()
     try:
-        if isinstance(related_file, FileKind):
-            return (RelatedFile(related_file, item, role="input"),)
-        result = related_file(item)
+        if isinstance(related_files, FileKind):
+            return (RelatedFile(related_files, item, role="input"),)
+        result = related_files(item)
     except Exception:  # pylint: disable=broad-except
         return ()
     if result is None:
@@ -405,7 +405,7 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
       ``finally``, leaving the culprit behind, which is exactly the case
       we need it for.
     - **Related-file context.** The item is scoped as the ambient
-      ``related_files`` (via ``related_file``, the call site's classifier),
+      ``related_files`` (via ``related_files``, the call site's classifier),
       so *any* error the callable raises -- e.g. a config-vs-file-content
       mismatch deep inside the step -- carries the file it was about, which
       then FK-resolves / renders in the error record.
@@ -428,17 +428,17 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
         inflight(DictProxy or None):    Shared ``{pid: item}`` map, or
             ``None`` to disable tracking (non-``run_pool`` callers).
 
-        related_file(FileKind, Callable, or None):    Classifier turning
+        related_files(FileKind, Callable, or None):    Classifier turning
             the item into related file(s); see :func:`_resolve_related_files`.
     """
 
     def __init__(
-        self, func, component: Component, inflight=None, related_file=None
+        self, func, component: Component, inflight=None, related_files=None
     ):
         self.func = func
         self.component = component
         self.inflight = inflight
-        self.related_file = related_file
+        self.related_files = related_files
 
     def __call__(self, *args, **kwargs):
         item = args[0] if args else None
@@ -453,7 +453,7 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
             # ``_stamp`` copies the item onto the error before it is pickled
             # back (the parent's context no longer has it).
             with error_context(
-                related_files=_resolve_related_files(self.related_file, item)
+                related_files=_resolve_related_files(self.related_files, item)
             ):
                 try:
                     return self.func(*args, **kwargs)
@@ -470,7 +470,7 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
                     pass
 
 
-def worker_entry(func, component: Component, inflight=None, related_file=None):
+def worker_entry(func, component: Component, inflight=None, related_files=None):
     """Wrap a Pool worker callable so errors come back picklable + stamped.
 
     Args:
@@ -484,14 +484,14 @@ def worker_entry(func, component: Component, inflight=None, related_file=None):
         inflight(DictProxy or None):    Shared in-flight map (see
             :class:`_WorkerEntry`); ``None`` disables tracking.
 
-        related_file(FileKind, Callable, or None):    Per-item related-file
+        related_files(FileKind, Callable, or None):    Per-item related-file
             classifier (see :func:`_resolve_related_files`).
 
     Returns:
         _WorkerEntry:    A picklable callable suitable to hand to a Pool.
     """
 
-    return _WorkerEntry(func, component, inflight, related_file)
+    return _WorkerEntry(func, component, inflight, related_files)
 
 
 def capture_for_queue(exc: Exception, *, component: Component) -> AutoWISPError:
@@ -556,7 +556,7 @@ def forbid_nested_workers() -> None:
 
 
 def _worker_crashed(
-    items, exc: Exception, inflight=None, related_file=None
+    items, exc: Exception, inflight=None, related_files=None
 ) -> "WorkerCrashedError":
     """Synthesise the parent-side error for a worker that died silently.
 
@@ -576,7 +576,7 @@ def _worker_crashed(
             plus any innocents the executor force-terminated, a set
             bounded by the worker count. ``None`` if tracking was off.
 
-        related_file(FileKind, Callable, or None):    The call site's
+        related_files(FileKind, Callable, or None):    The call site's
             related-file classifier, used to promote the in-flight items
             to structured ``related_files`` on the error (so a crash links
             straight to the offending file, not just a ``details`` string).
@@ -606,11 +606,15 @@ def _worker_crashed(
             err.details["crashed_inputs"] = [repr(i) for i in in_flight]
             # Promote to structured related files so the crash links to the
             # actual artifact (rendered / FK-resolved), not just a string.
+            # ``dict.fromkeys`` dedups (keeping order) so a batch-constant
+            # file the classifier returns for every item -- e.g. the single
+            # photref -- appears once, not once per crashed input.
             related = []
             for crashed_item in in_flight:
                 related.extend(
-                    _resolve_related_files(related_file, crashed_item)
+                    _resolve_related_files(related_files, crashed_item)
                 )
+            related = list(dict.fromkeys(related))
             if related:
                 err.related_files = tuple(related)
     try:
@@ -661,7 +665,7 @@ def run_pool(
     component: Component = Component.STEP,
     max_tasks_per_child=None,
     stream_consumer=None,
-    related_file=None,
+    related_files=None,
 ):
     """Map ``worker`` over ``items`` in a process pool, stamping errors.
 
@@ -701,7 +705,7 @@ def run_pool(
             the pool block) instead of returning a materialised, ordered
             result list.
 
-        related_file(FileKind, Callable, or None):    Classifier that turns
+        related_files(FileKind, Callable, or None):    Classifier that turns
             each item into the file it is about (a :class:`FileKind` when
             items are paths, else an ``item -> RelatedFile`` callable), so
             errors -- including a silent worker death -- carry the artifact
@@ -736,7 +740,7 @@ def run_pool(
     manager = Manager()
     try:
         inflight = manager.dict()
-        wrapped = worker_entry(worker, component, inflight, related_file)
+        wrapped = worker_entry(worker, component, inflight, related_files)
         try:
             with ProcessPoolExecutor(**executor_kwargs) as executor:
                 if stream_consumer is None:
@@ -746,6 +750,6 @@ def run_pool(
         except AutoWISPError:
             raise
         except Exception as exc:  # pylint: disable=broad-except
-            raise _worker_crashed(items, exc, inflight, related_file) from exc
+            raise _worker_crashed(items, exc, inflight, related_files) from exc
     finally:
         manager.shutdown()

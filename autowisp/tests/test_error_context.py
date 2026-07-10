@@ -19,6 +19,7 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     ErrorContext,
     _resolve_related_files,
+    _worker_crashed,
     capture_errors,
     capture_for_queue,
     error_context,
@@ -52,6 +53,21 @@ def _dr_file(path="/tmp/x.h5", role="input"):
     """A small RelatedFile for related-files assertions."""
 
     return RelatedFile(FileKind.DR_FILE, path, role=role)
+
+
+def _lc_with_reference(item):
+    """A ``related_files`` classifier: the item plus a batch-constant ref.
+
+    Module-level (so it is picklable to workers) and returns *multiple*
+    files -- the per-item lightcurve and the single photometric reference
+    the whole batch shares -- exactly the shape the detrending call site
+    builds via ``functools.partial``.
+    """
+
+    return [
+        RelatedFile(FileKind.LIGHTCURVE, item, role="input"),
+        RelatedFile(FileKind.DR_FILE, "/dr/ref.h5", role="single_photref"),
+    ]
 
 
 def _raise_find_stars_error(item):
@@ -513,6 +529,16 @@ class TestWorkerEntry(_ContextTestCase):
             _resolve_related_files(lambda item: made, "anything"), (made,)
         )
 
+    def test_resolve_related_files_callable_returning_many(self):
+        """A classifier may return several files (item + batch constants)."""
+
+        result = _resolve_related_files(_lc_with_reference, "/lc/x.h5")
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].kind, FileKind.LIGHTCURVE)
+        self.assertEqual(result[0].path.as_posix(), "/lc/x.h5")
+        self.assertEqual(result[1].kind, FileKind.DR_FILE)
+        self.assertEqual(result[1].path.as_posix(), "/dr/ref.h5")
+
     def test_resolve_related_files_is_total(self):
         """No classifier, no item, or a bad classifier -> empty, no raise."""
 
@@ -738,7 +764,7 @@ class TestPoolPropagation(_ContextTestCase):
     def test_worker_error_carries_related_file(self):
         """A worker error carries the item it was processing as a file.
 
-        The ``related_file`` classifier scopes the item as the ambient
+        The ``related_files`` classifier scopes the item as the ambient
         related file inside the worker, so an error raised for it (here a
         ``FindStarsError``) crosses back carrying that file -- the datum a
         config-vs-file-content failure most needs.
@@ -751,7 +777,7 @@ class TestPoolPropagation(_ContextTestCase):
                     ["/lc/AAA.h5"],
                     config=_pool_config(project_home, run_id=77),
                     num_processes=1,
-                    related_file=FileKind.LIGHTCURVE,
+                    related_files=FileKind.LIGHTCURVE,
                 )
 
         related = ctx.exception.related_files
@@ -776,7 +802,7 @@ class TestPoolPropagation(_ContextTestCase):
                             project_home, run_id=55, step="tfa"
                         ),
                         num_processes=1,
-                        related_file=FileKind.LIGHTCURVE,
+                        related_files=FileKind.LIGHTCURVE,
                     )
 
         related = ctx.exception.related_files
@@ -785,6 +811,50 @@ class TestPoolPropagation(_ContextTestCase):
         self.assertTrue(
             {r.path.as_posix() for r in related} <= {"/lc/AAA.h5", "/lc/BBB.h5"}
         )
+
+    def test_worker_error_carries_reference_files(self):
+        """A multi-file classifier attaches item *and* batch constants.
+
+        Mirrors the detrending call site: the classifier returns the light
+        curve plus the single photometric reference, so an error carries
+        both.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with self.assertRaises(FindStarsError) as ctx:
+                run_pool(
+                    _raise_find_stars_error,
+                    ["/lc/AAA.h5"],
+                    config=_pool_config(project_home, run_id=77),
+                    num_processes=1,
+                    related_files=_lc_with_reference,
+                )
+
+        got = {(r.kind, r.path.as_posix()) for r in ctx.exception.related_files}
+        self.assertIn((FileKind.LIGHTCURVE, "/lc/AAA.h5"), got)
+        self.assertIn((FileKind.DR_FILE, "/dr/ref.h5"), got)
+
+    def test_worker_crashed_dedups_shared_related_file(self):
+        """A batch-constant file appears once across many in-flight items.
+
+        Two workers in flight against the same reference -> the reference
+        is promoted once, not once per crashed input.
+        """
+
+        inflight = {111: "/lc/A.h5", 222: "/lc/B.h5"}
+        with error_context(step_name="tfa"):
+            err = _worker_crashed(
+                ["/lc/A.h5", "/lc/B.h5"],
+                RuntimeError("pool broke"),
+                inflight,
+                _lc_with_reference,
+            )
+
+        pairs = [(r.kind, r.path.as_posix()) for r in err.related_files]
+        self.assertIn((FileKind.LIGHTCURVE, "/lc/A.h5"), pairs)
+        self.assertIn((FileKind.LIGHTCURVE, "/lc/B.h5"), pairs)
+        # The shared single photref, returned for both items, is deduped:
+        self.assertEqual(pairs.count((FileKind.DR_FILE, "/dr/ref.h5")), 1)
 
 
 class TestProcessQueuePropagation(_ContextTestCase):

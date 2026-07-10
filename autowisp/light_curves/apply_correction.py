@@ -1,13 +1,14 @@
 """Unified interface to the detrending algorithms."""
 
 import logging
+from functools import partial
 
 import numpy
 from scipy.optimize import minimize
 import pandas
 
 from autowisp.error_context import run_pool
-from autowisp.exceptions import FileKind
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -211,6 +212,37 @@ def recalculate_correction_statistics(
     return result
 
 
+def _detrending_related_files(lc_fname, single_photref_dr_fname=None):
+    """Related files for a detrending work item: the LC + its photref.
+
+    Module-level (so a ``partial`` of it is picklable to the workers) and
+    passed as the ``run_pool`` ``related_files`` classifier, so any error --
+    a config-vs-LC mismatch or a silent crash -- carries both the light
+    curve being corrected and the single photometric reference the whole
+    batch is detrended against.
+
+    Args:
+        lc_fname(str):    The light curve work item.
+
+        single_photref_dr_fname(str or None):    The batch's single
+            photometric reference DR file, if configured.
+
+    Returns:
+        list:    The :class:`RelatedFile` entries for this item.
+    """
+
+    related = [RelatedFile(FileKind.LIGHTCURVE, lc_fname, role="input")]
+    if single_photref_dr_fname:
+        related.append(
+            RelatedFile(
+                FileKind.DR_FILE,
+                single_photref_dr_fname,
+                role="single_photref",
+            )
+        )
+    return related
+
+
 def apply_parallel_correction(
     lc_fnames, correct, num_parallel_processes, **config
 ):
@@ -247,7 +279,12 @@ def apply_parallel_correction(
                 lc_fnames,
                 config=config,
                 num_processes=num_parallel_processes,
-                related_file=FileKind.LIGHTCURVE,
+                related_files=partial(
+                    _detrending_related_files,
+                    single_photref_dr_fname=config.get(
+                        "single_photref_dr_fname"
+                    ),
+                ),
             )
         )
 
