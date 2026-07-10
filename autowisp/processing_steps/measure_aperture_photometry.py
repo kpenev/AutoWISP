@@ -23,7 +23,7 @@ from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.error_context import run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.exceptions import Component, FileKind
 from autowisp.data_reduction.utils import (
     fill_aperture_photometry_input_tree,
     add_aperture_photometry,
@@ -190,6 +190,7 @@ def measure_aperture_photometry(
                 configuration["num_parallel_processes"], len(image_collection)
             ),
             max_tasks_per_child=1,
+            related_files=FileKind.CALIBRATED_IMAGE,
         )
 
 
@@ -247,7 +248,6 @@ def main():
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
     setup_process_map(cmdline_config)
-
 
     del cmdline_config["task"]
     measure_aperture_photometry(

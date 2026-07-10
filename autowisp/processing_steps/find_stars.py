@@ -10,7 +10,7 @@ import logging
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component, NoSourcesFoundError
+from autowisp.exceptions import Component, FileKind, NoSourcesFoundError
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -270,6 +270,7 @@ def find_stars(
             image_collection,
             config=configuration,
             num_processes=configuration["num_parallel_processes"],
+            related_files=FileKind.CALIBRATED_IMAGE,
         )
 
 

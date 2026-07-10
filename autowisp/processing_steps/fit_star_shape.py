@@ -17,7 +17,7 @@ from autowisp.fit_expression import (
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.evaluator import Evaluator
@@ -540,9 +540,7 @@ class SourceListCreator:
             len(in_frame),
         )
         fit_sources = self._sources[in_frame]
-        _logger.debug(
-            "Fit source columns: %s", repr(self._sources.columns)
-        )
+        _logger.debug("Fit source columns: %s", repr(self._sources.columns))
         grouping = grouping[in_frame]
 
         number_fit_groups = grouping.max() + 1
@@ -550,18 +548,14 @@ class SourceListCreator:
         if self.remove_group_id is not None:
             number_fit_groups = sorted(range(number_fit_groups))
             for remove_group_id in self.remove_group_id:
-                _logger.debug(
-                    "Removing group_id: %s", repr(remove_group_id)
-                )
+                _logger.debug("Removing group_id: %s", repr(remove_group_id))
                 del number_fit_groups[remove_group_id]
             result = [
                 pandas.DataFrame(fit_sources, copy=True)
                 for group_id in number_fit_groups
             ]
             for group_id in number_fit_groups:
-                _logger.debug(
-                    "Group %s:\n%s", group_id, repr(result[group_id])
-                )
+                _logger.debug("Group %s:\n%s", group_id, repr(result[group_id]))
                 # This is more readable
                 # pylint:disable=superfluous-parens
                 result[group_id]["enabled"] = grouping == group_id
@@ -573,9 +567,7 @@ class SourceListCreator:
                 for group_id in range(number_fit_groups)
             ]
             for group_id in range(number_fit_groups):
-                _logger.debug(
-                    "Group %s:\n%s", group_id, repr(result[group_id])
-                )
+                _logger.debug("Group %s:\n%s", group_id, repr(result[group_id]))
 
                 # This is more readable
                 # pylint:disable=superfluous-parens
@@ -675,6 +667,7 @@ def get_shape_fitter_config(configuration):
 
     return result
 
+
 def get_center_background(  # pylint: disable=too-many-arguments
     dr_file,
     header,
@@ -731,7 +724,18 @@ def get_center_background(  # pylint: disable=too-many-arguments
     return coef[0], numpy.sqrt(square_residual)
 
 
+def _frame_set_related_files(frame_filenames):
+    """``related_files`` classifier for a simultaneous-fit frame set.
 
+    The work item is a *list* of calibrated frames fit together, so an
+    error scopes every frame in the set (module-level so it is picklable
+    to the workers).
+    """
+
+    return [
+        RelatedFile(FileKind.CALIBRATED_IMAGE, fname, role="input")
+        for fname in frame_filenames
+    ]
 
 
 def fit_frame_set(
@@ -891,6 +895,7 @@ def fit_star_shape(
                 config=configuration,
                 num_processes=configuration["num_parallel_processes"],
                 max_tasks_per_child=1,
+                related_files=_frame_set_related_files,
             )
 
 

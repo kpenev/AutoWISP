@@ -7,6 +7,7 @@ import numpy
 from astropy.io import fits
 
 from autowisp.error_context import run_pool
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import (
@@ -32,6 +33,29 @@ def _get_common_header(fit_dr_filenames):
             )
             first = False
     return result
+
+
+def _magfit_related_files(dr_fname, single_photref=None, master_photref=None):
+    """``related_files`` classifier for a magnitude-fit work item.
+
+    The item is the DR file being fit; the batch is fit against the single
+    photometric reference (and, once it exists, the master photometric
+    reference). Module-level so a ``partial`` binding the references is
+    picklable to the workers.
+    """
+
+    related = [RelatedFile(FileKind.DR_FILE, dr_fname, role="input")]
+    if single_photref:
+        related.append(
+            RelatedFile(FileKind.DR_FILE, single_photref, role="single_photref")
+        )
+    if master_photref:
+        related.append(
+            RelatedFile(
+                FileKind.MASTER_PHOTREF, master_photref, role="master_photref"
+            )
+        )
+    return related
 
 
 # Could not come up with a sensible way to simplify
@@ -77,6 +101,13 @@ def single_iteration(
                 None
                 if magfit_stat_collector is None
                 else magfit_stat_collector.add_input
+            ),
+            related_files=partial(
+                _magfit_related_files,
+                single_photref=getattr(
+                    configuration, "single_photref_dr_fname", None
+                ),
+                master_photref=configuration.master_photref_fname,
             ),
         )
     elif magfit_stat_collector is None:

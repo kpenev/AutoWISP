@@ -18,12 +18,17 @@ from astropy import units
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     capture_for_queue,
+    error_context,
     reraise_from_worker,
     forbid_nested_workers,
 )
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
-from autowisp.exceptions import Component, WorkerCrashedError
+from autowisp.exceptions import (
+    Component,
+    FileKind,
+    RelatedFile,
+    WorkerCrashedError,
+)
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -820,29 +825,38 @@ def astrometry_process(  # pylint: disable=too-many-arguments
     setup_process(task="solve", **configuration)
     _logger.info("Starting astrometry solving process.")
     for dr_fname, transformation_estimate in iter(task_queue.get, "STOP"):
-        try:
-            result = solve_image(
-                dr_fname,
-                transformation_estimate,
-                web_lock=web_lock,
-                mark_start=mark_start,
-                mark_end=mark_end,
-                **configuration,
-            )
-        except Exception as exc:  # pylint: disable=broad-except
-            _logger.error(
-                "Unexpected exception solving astrometry for %s:\n%s",
-                dr_fname,
-                format_exc(),
-            )
-            result_queue.put(
-                {
-                    "error": capture_for_queue(exc, component=Component.STEP),
-                    "dr_fname": dr_fname,
-                }
-            )
-            return
-        result_queue.put(result)
+        # Scope the DR file so a queued error carries the frame it is about
+        # (``capture_for_queue`` stamps the ambient related files).
+        with error_context(
+            related_files=[
+                RelatedFile(FileKind.DR_FILE, dr_fname, role="input")
+            ]
+        ):
+            try:
+                result = solve_image(
+                    dr_fname,
+                    transformation_estimate,
+                    web_lock=web_lock,
+                    mark_start=mark_start,
+                    mark_end=mark_end,
+                    **configuration,
+                )
+            except Exception as exc:  # pylint: disable=broad-except
+                _logger.error(
+                    "Unexpected exception solving astrometry for %s:\n%s",
+                    dr_fname,
+                    format_exc(),
+                )
+                result_queue.put(
+                    {
+                        "error": capture_for_queue(
+                            exc, component=Component.STEP
+                        ),
+                        "dr_fname": dr_fname,
+                    }
+                )
+                return
+            result_queue.put(result)
     _logger.debug("Astrometry solving process finished.")
 
 

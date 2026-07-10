@@ -11,7 +11,8 @@ from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.error_context import error_context
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.image_calibration import Calibrator, overscan_methods
 from autowisp.processing_steps.manual_util import (
@@ -292,6 +293,31 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
+def _calibration_related_files(image_fname, configuration):
+    """The raw image plus every master applied to it (channel by channel).
+
+    The raw image FK-resolves to its ``Image`` row and the masters to their
+    ``MasterFile`` rows, so a calibration failure -- often a mismatch
+    between a master and the frame -- links straight to both.
+    """
+
+    related = [RelatedFile(FileKind.RAW_IMAGE, image_fname, role="input")]
+    for key, kind in (
+        ("master_bias", FileKind.MASTER_BIAS),
+        ("master_dark", FileKind.MASTER_DARK),
+        ("master_flat", FileKind.MASTER_FLAT),
+    ):
+        spec = configuration.get(key)
+        if not spec:
+            continue
+        # Channel-dependent: ``{channel: fname}`` (or a bare filename).
+        fnames = spec.values() if isinstance(spec, dict) else [spec]
+        related.extend(
+            RelatedFile(kind, fname, role=key) for fname in fnames if fname
+        )
+    return related
+
+
 def calibrate(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
@@ -303,9 +329,12 @@ def calibrate(
     calibrate_image = Calibrator(**configuration)
     for image_fname in image_collection:
         _logger.debug("Calibrating: %s", repr(image_fname))
-        mark_start(image_fname)
-        channel_diagnostics = calibrate_image(image_fname)
-        mark_end(image_fname, diagnostics=channel_diagnostics)
+        with error_context(
+            related_files=_calibration_related_files(image_fname, configuration)
+        ):
+            mark_start(image_fname)
+            channel_diagnostics = calibrate_image(image_fname)
+            mark_end(image_fname, diagnostics=channel_diagnostics)
 
 
 def cleanup_interrupted(interrupted, configuration):

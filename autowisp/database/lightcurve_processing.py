@@ -8,6 +8,8 @@ from sqlalchemy import select, and_, literal, update, sql, delete
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_context import error_context
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -571,9 +573,22 @@ class LightCurveProcessingManager(ProcessingManager):
                 )
 
                 step_module = getattr(processing_steps, step_name)
-                new_masters = getattr(step_module, step_name)(
-                    lc_fnames, 0, configuration, self._mark_progress
-                )
+                # Scope the single photometric reference for the whole step
+                # (create_lightcurves / epd / tfa / the statistics
+                # generators) so any main-process error links to it; the
+                # parallel workers additionally scope each light curve.
+                with error_context(
+                    related_files=[
+                        RelatedFile(
+                            FileKind.DR_FILE,
+                            single_photref_fname,
+                            role="single_photref",
+                        )
+                    ]
+                ):
+                    new_masters = getattr(step_module, step_name)(
+                        lc_fnames, 0, configuration, self._mark_progress
+                    )
                 with start_db_session() as db_session:
                     # False positive
                     # pylint: disable=not-callable
