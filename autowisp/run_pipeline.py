@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-from socket import getfqdn
 from traceback import format_exc
 
 from configargparse import ArgumentParser, DefaultsFormatter, SUPPRESS
@@ -24,7 +23,12 @@ from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_context import get_error_context, set_pipeline_run
 from autowisp.error_cli import report_error
 from autowisp.miscellaneous import get_code_version_str
-from autowisp.exceptions import AutoWISPError, PipelineError, ResourceError
+from autowisp.exceptions import (
+    AutoWISPError,
+    PipelineError,
+    ResourceError,
+    get_hostname,
+)
 from autowisp.file_utilities import find_fits_fnames
 
 
@@ -137,7 +141,7 @@ def _run_pipeline(config):
 
     with start_db_session() as db_session:
         pipeline_run = PipelineRun(
-            host=getfqdn(),
+            host=get_hostname(),
             process_id=os.getpid(),
             started=sql.func.now(),  # pylint: disable=not-callable
             code_version=get_code_version_str(),

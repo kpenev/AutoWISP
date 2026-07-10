@@ -12,7 +12,10 @@ This module imports only :class:`FrozenRow` from the database package
 SQLAlchemy dependency.
 """
 
+import importlib.metadata
 import os
+import platform
+import socket
 import traceback as traceback_module
 from datetime import datetime, timezone
 from dataclasses import dataclass
@@ -79,6 +82,115 @@ def sanitize_for_json(obj, max_inline_array_size=64):
         return repr(obj)
     except Exception:  # pylint: disable=broad-except
         return "<unrepresentable>"
+
+
+# --- Environment / resource provenance. -------------------------------
+# These live here (the leaf error module, alongside ``sanitize_for_json``)
+# because every layer that records or bundles an error needs them --
+# ``error_context`` (crashed-worker resources), ``error_persistence``
+# (crash-time environment in the sidecar), ``crash_report`` (report-time
+# provenance), and ``run_pipeline`` (the run host) -- and all already
+# import this module, so this is the one cycle-free home.
+
+
+def get_hostname():
+    """This machine's name, recorded consistently across the pipeline.
+
+    A single source so the *run* host (``PipelineRun.host``) and the
+    *report* host (:func:`autowisp.crash_report.collect_provenance`) agree
+    -- otherwise ``socket.getfqdn()`` in one place and
+    ``socket.gethostname()`` in another make one box look like two.
+    ``gethostname`` is preferred: it is fast and returns the clean local
+    name rather than a reverse-DNS ``*.in-addr.arpa`` form on a
+    loopback-only host.
+    """
+
+    return socket.gethostname()
+
+
+def collect_environment(
+    packages=(
+        "autowisp",
+        "astrowisp",
+        "numpy",
+        "scipy",
+        "pandas",
+        "sqlalchemy",
+        "astropy",
+    ),
+):
+    """Platform + key package versions of the *current* process.
+
+    Recorded into the error sidecar at crash time (by
+    ``error_persistence``) so a report reflects the environment that
+    actually produced the failure -- immune to the report being built
+    later, after packages were upgraded. Report-time provenance records the
+    same shape for the machine building the report, so comparing the two
+    reveals drift. Never raises.
+
+    Args:
+        packages(iterable):    Distribution names whose versions to record
+            (the runtime stack whose combination determines whether a crash
+            reproduces); those not installed are omitted.
+
+    Returns:
+        dict:    ``platform`` / ``python_version`` / ``packages``.
+    """
+
+    versions = {}
+    for name in packages:
+        try:
+            versions[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            continue
+        except Exception:  # pylint: disable=broad-except
+            continue
+    try:
+        plat = platform.platform()
+        python_version = platform.python_version()
+    except Exception:  # pylint: disable=broad-except
+        plat = python_version = None
+    return {
+        "platform": plat,
+        "python_version": python_version,
+        "packages": versions,
+    }
+
+
+def collect_resource_snapshot():
+    """Best-effort machine-memory snapshot (bytes), for diagnosing OOM.
+
+    System memory pressure is the tell for an OOM / macOS-jetsam kill: a
+    ``SIGKILL`` with no native traceback plus a nearly-full machine points
+    at memory, not a crash. The dead worker's own peak RSS is gone by the
+    time the parent looks, but the machine's RAM ceiling and the parent's
+    RSS are strong signal. Cross-OS via ``psutil`` (a hard dependency).
+
+    Never raises -- a failure yields a partial or empty dict rather than
+    turning the recording of one error into a second error.
+
+    Returns:
+        dict:    Any of ``ram_total`` / ``ram_available`` (bytes),
+            ``ram_percent_used`` (percent), ``process_rss`` (bytes).
+    """
+
+    snapshot = {}
+    try:
+        import psutil  # pylint: disable=import-outside-toplevel
+    except Exception:  # pylint: disable=broad-except
+        return snapshot
+    try:
+        virtual_memory = psutil.virtual_memory()
+        snapshot["ram_total"] = int(virtual_memory.total)
+        snapshot["ram_available"] = int(virtual_memory.available)
+        snapshot["ram_percent_used"] = float(virtual_memory.percent)
+    except Exception:  # pylint: disable=broad-except
+        pass
+    try:
+        snapshot["process_rss"] = int(psutil.Process().memory_info().rss)
+    except Exception:  # pylint: disable=broad-except
+        pass
+    return snapshot
 
 
 class Component(str, Enum):

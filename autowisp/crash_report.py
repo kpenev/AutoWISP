@@ -12,14 +12,11 @@ enters the report. Scrubbing is mandatory: nothing is written unscrubbed.
 """
 
 import argparse
-import importlib.metadata
 import json
 import logging
 import os
-import platform
 import re
 import shutil
-import socket
 import tempfile
 import zipfile
 from datetime import datetime, timezone
@@ -36,11 +33,13 @@ from autowisp.database.interface import (
 from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_persistence import load_sidecar
-from autowisp.exceptions import sanitize_for_json
-from autowisp.miscellaneous import (
+from autowisp.exceptions import (
+    collect_environment,
     collect_resource_snapshot,
-    get_code_version_str,
+    get_hostname,
+    sanitize_for_json,
 )
+from autowisp.miscellaneous import get_code_version_str
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
@@ -293,30 +292,18 @@ def select_error_logs(error_row, db_session=None):
 # --- Environment provenance. ------------------------------------------
 
 
-def _package_versions(names):
-    """Return ``{name: version}`` for the installed packages among ``names``.
-
-    Packages that are not installed are simply omitted; never raises.
-    """
-
-    versions = {}
-    for name in names:
-        try:
-            versions[name] = importlib.metadata.version(name)
-        except importlib.metadata.PackageNotFoundError:
-            continue
-    return versions
-
-
 def collect_provenance():
     """Return environment provenance for a crash report.
 
-    Captures the machine and software building the report -- hostname, OS,
-    Python and key package versions, the current code version, and the
-    machine's memory (the box's RAM ceiling, for judging an OOM death even
-    when the report is built later). The *failed run's* host and code
-    version live on its ``PipelineRun`` row and are added separately by the
-    report builder.
+    Captures the machine and software *building the report* -- hostname,
+    OS, Python and key package versions, code version, and the machine's
+    memory (the box's RAM ceiling, for judging an OOM death). Uses the same
+    ``get_hostname`` / ``collect_environment`` / ``collect_resource_snapshot``
+    helpers the crash-time capture uses, so the report-time environment is
+    directly comparable with the *crash-time* environment recorded in the
+    sidecar -- a difference between the two is the tell that packages were
+    upgraded (or the box changed) between the failure and the report. The
+    failed run's own host / code version live on its ``PipelineRun`` row.
 
     Returns:
         dict:    Provenance fields, all JSON-serializable.
@@ -324,22 +311,10 @@ def collect_provenance():
 
     return {
         "report_generated": datetime.now(timezone.utc).isoformat(),
-        "hostname": socket.gethostname(),
-        "platform": platform.platform(),
-        "python_version": platform.python_version(),
+        "hostname": get_hostname(),
         "code_version": get_code_version_str(),
         "resources": collect_resource_snapshot(),
-        "packages": _package_versions(
-            (
-                "autowisp",
-                "astrowisp",
-                "numpy",
-                "scipy",
-                "pandas",
-                "sqlalchemy",
-                "astropy",
-            )
-        ),
+        **collect_environment(),
     }
 
 

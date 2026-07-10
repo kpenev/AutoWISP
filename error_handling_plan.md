@@ -2456,23 +2456,48 @@ the system-available figure is the more directly diagnostic number.)
 Tests: `TestResourceSnapshot` (fields + the psutil-missing degradation),
 `test_worker_crashed_records_resources`, and the provenance test.
 
-### Item 7 — provenance of the *failed run*, not the report builder
+### Item 7 — crash-time provenance (scope reduced)
 
-`provenance.json` describes the machine that **built** the report
-(`socket.gethostname()`, live `platform`, live `importlib.metadata`
-versions) — in the real report `Shashanks-MacBook-Pro.local`, while the
-run's own `run_host` was `1.0.0.127.in-addr.arpa`. If a report is built
-later, or on a different box, the platform/package versions are simply
-wrong for the failure.
+The plan originally framed this as "the report may be built on a
+*different machine* than the run" — but that premise is essentially
+**false**. To build a report you need the project home (DB + sidecars +
+logs), which lives on the machine that ran the pipeline; the BUI shares
+that DB. So the report builder is virtually always the same box.
 
-- Persist the run's environment at run start — platform string, Python
-  version, and the key package versions — onto `PipelineRun` (a
-  `run_environment` JSON column) or a per-run provenance sidecar, filled
-  in `run_pipeline.main` where the row is created.
-- `build_crash_report` prefers the *stored run* provenance for the
-  failing run and clearly labels the report-builder's live environment as
-  separate ("report host" vs. "run host"), so the two are never
-  conflated.
+The apparent "two hosts" in the real report were **one machine reported
+two ways**: `PipelineRun.host` used `socket.getfqdn()` (→
+`1.0.0.127.in-addr.arpa` on a loopback-only laptop) while
+`collect_provenance` used `socket.gethostname()` (→
+`Shashanks-MacBook-Pro.local`). A recording inconsistency, not a second
+machine.
+
+That leaves one *real* concern — **time, not place**: the environment on
+that one box can change *between* the crash and building the report (the
+user upgrades numpy / astrowisp, then downloads the report, and
+`collect_provenance`'s live `importlib.metadata` now shows the *fixed*
+versions, hiding the fragile combo that actually crashed). So the reduced
+scope, with the `PipelineRun` migration dropped:
+
+- **Host consistency.** A single `get_hostname()` helper (using
+  `gethostname`, the clean name) used by *both* `run_pipeline` (for
+  `PipelineRun.host`) and `collect_provenance`, so the run host and report
+  host agree instead of looking like two boxes.
+- **Crash-time environment in the sidecar.** `collect_environment()`
+  (platform + key package versions) is captured by `error_persistence`
+  *at record time, in the process that hit the error* — the correct
+  crash-time versions, no migration. `collect_provenance` records the same
+  shape for the report builder, so the two are directly comparable and a
+  difference is the tell that packages drifted between failure and report.
+
+**Implemented.** `get_hostname` / `collect_environment` (and, moved for
+cohesion, `collect_resource_snapshot` from item 6) live in `exceptions.py`
+— the leaf error module (home of `sanitize_for_json`) that
+`error_context`, `error_persistence`, `crash_report`, and `run_pipeline`
+all import cycle-free. `run_pipeline` records `host=get_hostname()`;
+`error_persistence._write_sidecar` adds `detail["environment"]`;
+`collect_provenance` reuses the shared helpers. Tests: the sidecar
+`environment` capture (`test_error_persistence`), `collect_environment`'s
+package filtering (`test_crash_report`), and the existing provenance test.
 
 ### Item 8 — make the report self-contained for the failing step
 
@@ -2634,9 +2659,10 @@ multi-file and dedup cases) in `test_error_context.py`.
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
 | `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
 | `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time); skip `set_pending` when `pipeline_run_id is None` so a review-only manager is cheap (item 2). |
-| `autowisp/crash_report.py` | `find_error_progress` resolves against either progress table and `select_error_logs` instantiates the matching manager (item 2); `collect_provenance` adds machine-resource fields and prefers stored run provenance (item 7); sidecar gains the resolved step config + the progress timeline, and a `WorkerCrashedError` report bundles the whole batch (item 8). |
-| `autowisp/run_pipeline.py` | Capture the run environment onto `PipelineRun` at creation (item 7). |
-| `PipelineRun` model + migration | `run_environment` (JSON) column (item 7). |
+| `autowisp/crash_report.py` | `find_error_progress` resolves against either progress table and `select_error_logs` instantiates the matching manager (item 2); `collect_provenance` records `resources` + reuses the shared `get_hostname`/`collect_environment` helpers (items 6, 7); sidecar gains the resolved step config + the progress timeline, and a `WorkerCrashedError` report bundles the whole batch (item 8). |
+| `autowisp/exceptions.py` | New leaf provenance helpers `get_hostname` / `collect_environment` / `collect_resource_snapshot`, imported cycle-free by every layer (items 6, 7). |
+| `autowisp/error_persistence.py` | `_write_sidecar` records `detail["environment"]` (crash-time, in the failing process) (item 7). |
+| `autowisp/run_pipeline.py` | `PipelineRun.host = get_hostname()` (was `getfqdn()`), so the run host matches the report host (item 7). |
 
 ### Tests (Phase 9)
 
@@ -2693,7 +2719,11 @@ Item 4 isolates — and are now **done** together. **5–8** are enrichment
 that make the report self-explaining without a maintainer hand-querying
 the DB, and can follow independently; **5** (OS-level exit signal) and
 **6** (memory snapshot) are **done** — together with items 4 (native dump)
-they triangulate OOM vs. crash. **9** (populate `related_files`)
+they triangulate OOM vs. crash. **7** (crash-time provenance) is **done**
+at reduced scope (the "different machine" premise was a `getfqdn` vs.
+`gethostname` artifact, so the `PipelineRun` migration was dropped in
+favour of host-consistency + crash-time env in the sidecar). **8** remains.
+**9** (populate `related_files`)
 stands somewhat apart — it improves *every* error, not just crashes — and
 is now **done at all sites** (every `run_pool` call site, `calibrate`, the
 lightcurve steps via the manager dispatch, and Scheme-B

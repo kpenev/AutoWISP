@@ -28,14 +28,12 @@ from traceback import format_exc
 from typing import Optional, Sequence
 
 from autowisp.database.frozen_row import FrozenRow
-from autowisp.miscellaneous import (
-    collect_resource_snapshot,
-    get_code_version_str,
-)
+from autowisp.miscellaneous import get_code_version_str
 from autowisp.exceptions import (
     AutoWISPError,
     CalibrationError,
     Component,
+    collect_resource_snapshot,
     CreateLightCurvesError,
     DetrendingStatError,
     EPDError,

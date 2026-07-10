@@ -17,7 +17,6 @@ from multiprocessing import Process, Queue
 from unittest import mock
 
 import autowisp.error_context as ecmod
-from autowisp.miscellaneous import collect_resource_snapshot
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     ErrorContext,
@@ -47,6 +46,7 @@ from autowisp.exceptions import (
     StepError,
     ViewError,
     WorkerCrashedError,
+    collect_resource_snapshot,
 )
 from autowisp.processing_steps.solve_astrometry import manage_astrometry
 from autowisp.database.frozen_row import FrozenRow

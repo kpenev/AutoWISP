@@ -39,6 +39,7 @@ from autowisp.crash_report import (
     scrub_text,
     select_error_logs,
 )
+from autowisp.exceptions import collect_environment
 from autowisp.error_persistence import persist_error
 from autowisp.tests.error_fixtures import make_find_stars_error
 
@@ -332,6 +333,19 @@ class TestCollectProvenance(unittest.TestCase):
         self.assertNotIn(
             "definitely-not-a-real-package", provenance["packages"]
         )
+
+
+class TestCollectEnvironment(unittest.TestCase):
+    """collect_environment records platform + requested package versions."""
+
+    def test_fields_and_requested_packages(self):
+        """Only the requested (installed) packages are reported."""
+
+        env = collect_environment(packages=("numpy", "not-a-real-pkg-xyz"))
+        self.assertIn("platform", env)
+        self.assertIn("python_version", env)
+        self.assertIn("numpy", env["packages"])
+        self.assertNotIn("not-a-real-pkg-xyz", env["packages"])
 
 
 class TestBuildCrashReport(unittest.TestCase):

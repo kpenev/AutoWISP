@@ -75,6 +75,11 @@ class TestPersistError(_PersistenceTestCase):
         self.assertEqual(sidecar["details"], {"brightness_quantile": 0.999})
         self.assertEqual(len(sidecar["related_files"]), 2)
         self.assertIn("traceback", sidecar)
+        # ... including the crash-time environment (captured here, in the
+        # process that recorded the error -- immune to later upgrades).
+        self.assertIn("environment", sidecar)
+        self.assertIn("numpy", sidecar["environment"]["packages"])
+        self.assertIn("platform", sidecar["environment"])
         # ... and the inline fields are NOT duplicated into it.
         for inline in (
             "component",
