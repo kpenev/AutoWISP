@@ -2454,11 +2454,68 @@ means opening SQLite; the sidecar should stand alone.
   and did not finish) directly in the report — the datum that, in the
   real case, was recoverable only by hand-querying the DB.
 
+### Item 9 — populate `related_files` (finish the deferred Phase-2 scoping)
+
+`related_files` is plumbed end to end but **never fed**: the
+`ErrorContext.related_files` field, the `error_context(related_files=...)`
+manager, the `_stamp` copy onto the exception, the sidecar serialization,
+the artifact-FK resolution (`_resolve_artifact_fks` → `image_id` / `dr` /
+`lightcurve` / `master`), and the BUI render all exist, but **no
+production code ever constructs a `RelatedFile` or passes one to
+`error_context()`** (only tests do). The manager scopes
+`error_context(step_name=...)` in `_process_batch` and nothing else. So
+every persisted error carries `related_files = ()`, and the FK-resolution
+and render run on an empty list. This is the half of the Phase-2 per-image
+dispatch scoping that was deferred and never done.
+
+The point is not cosmetic: many failures are a mismatch between the
+configuration and a *specific file's* contents (FITS header keywords vs.
+config, a DR/LC layout, a wrong master), so the file being processed is
+the single most useful thing to attach — and today it is absent from every
+error, crash or not.
+
+**The natural home is the per-item boundary, driven by a per-call-site
+classifier** (the items are heterogeneous — LC paths, DR paths, image
+records, image *sets* — so the generic wrapper cannot classify them):
+
+- **`run_pool` gains an optional `related_file`**: either a `FileKind`
+  (for plain path-string items) or a small ``item -> RelatedFile | None``
+  callable (for `fit_star_shape`'s image sets). `_WorkerEntry.__call__`
+  wraps the call in `error_context(related_files=[...])` for that item, so
+  **any** error the worker raises — including a deep config-vs-file
+  mismatch — carries the file, is FK-resolved to the real row, and shows
+  in the error detail. The five call sites each pass their kind:
+  `apply_correction` → `LIGHTCURVE`, `iterative_refit` → `DR_FILE`,
+  `measure_aperture_photometry` / `find_stars` / `fit_star_shape` → the
+  image/DR they map over.
+- **The crash case falls out** (the ask that motivated this): the
+  in-flight item *is* the related file, so a `WorkerCrashedError` links
+  straight to the offending lightcurve. `_worker_crashed` also promotes
+  the in-flight items (Item 3's map) to `related_files`, not just
+  `details["crashed_inputs"]`, so a reviewer never has to dig for it. This
+  unifies with Item 3: the same `item` the in-flight map records is the
+  one scoped as a related file.
+- **Main-process / Scheme-B paths** scope the same way at their per-item
+  point using the filename they already compute (`get_step_input` in the
+  manager dispatch; the `dr_fname` in `solve_astrometry`'s worker) — the
+  literal deferred Phase-2 line.
+
+`FileKind` reuse: the existing enum already has `LIGHTCURVE`, `DR_FILE`,
+`CALIBRATED_IMAGE`, `RAW_IMAGE`, the master kinds, etc., so no new kinds
+are needed; the call site picks the right one.
+
+Sequence within the item: land the **lightcurve path
+(`apply_correction`) + the `_worker_crashed` promotion** first — that is
+the path the real crash hit and the smallest end-to-end slice — then the
+remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
+
 ### What changes, concretely
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). `run_pool`/`worker_entry` gain an optional `related_file` classifier and `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item; `_worker_crashed` promotes the in-flight items to `related_files` (item 9). |
+| run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) | Pass the per-call-site `related_file` kind/classifier (item 9). |
+| manager dispatch + `solve_astrometry.py` | Scope `error_context(related_files=...)` at the main-process/Scheme-B per-item point using the already-computed filename (item 9). |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
 | `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
@@ -2504,6 +2561,11 @@ means opening SQLite; the sidecar should stand alone.
   just the requested one.
 - Provenance distinguishes run host/versions from report host/versions
   when they differ.
+- A `run_pool` worker that raises for a given item produces an error
+  carrying that item as a `related_file` of the call site's `FileKind`,
+  and `_resolve_artifact_fks` sets the matching artifact FK on the row; a
+  `WorkerCrashedError` likewise carries the in-flight item(s) as
+  `related_files` (item 9).
 
 ### Suggested sequencing
 
@@ -2513,4 +2575,8 @@ are the difference between a report with logs and one without — and are
 self-report → the one culprit within it) are **coupled** — Item 3 narrows,
 Item 4 isolates — and are now **done** together. **5–8** are enrichment
 that make the report self-explaining without a maintainer hand-querying
-the DB, and can follow independently.
+the DB, and can follow independently. **9** (populate `related_files`)
+stands somewhat apart — it improves *every* error, not just crashes — and
+should start with the lightcurve `run_pool` path plus the crash-input
+promotion (the slice the real failure exercised) before the other call
+sites.
