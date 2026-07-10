@@ -2502,9 +2502,46 @@ records, image *sets* — so the generic wrapper cannot classify them):
   manager dispatch; the `dr_fname` in `solve_astrometry`'s worker) — the
   literal deferred Phase-2 line.
 
-`FileKind` reuse: the existing enum already has `LIGHTCURVE`, `DR_FILE`,
-`CALIBRATED_IMAGE`, `RAW_IMAGE`, the master kinds, etc., so no new kinds
-are needed; the call site picks the right one.
+**More than the per-item file: per-step auxiliary inputs.** The item being
+mapped over is not the only file a failure implicates — several steps also
+consume auxiliary inputs that are exactly what a config-vs-file mismatch is
+usually *about*, and they are known at dispatch time:
+
+| step | auxiliary related files (beyond the item) |
+| ---- | ---------------------------------------- |
+| `calibrate` | the master bias / dark / flat applied (whichever exist) |
+| `fit_magnitudes` | the single photometric reference being processed (and, when in play, the master photref and the stat reference) |
+| `create_lightcurves`, `epd`, `tfa`, `generate_epd_statistics`, `generate_tfa_statistics` | the single photometric reference |
+
+These are **batch-constant** (the LC/magfit manager processes one single
+photref at a time; the masters come from the step's resolved config), not
+per-item, so they are best supplied *once* rather than recomputed per
+item. Two ways to carry them, both riding the same wrapper as the per-item
+classifier:
+
+- Give `run_pool` a fixed `related_files=[...]` list (the auxiliary files)
+  that `_WorkerEntry` prepends to the per-item classifier's output, so
+  every worker error in the batch carries item **+** auxiliaries; or
+- let the per-item classifier return several entries (item + auxiliaries)
+  when that reads more naturally.
+
+The step builds them from what it already holds: the sphotref /
+master-photref / stat filenames and the master bias/dark/flat paths in its
+config. Main-process steps that do not use `run_pool` (`calibrate`,
+`create_lightcurves`, the two statistics generators) attach them in their
+dispatch scope alongside the per-item file.
+
+`FileKind`: the enum already covers the item kinds (`LIGHTCURVE`,
+`DR_FILE`, `CALIBRATED_IMAGE`, `RAW_IMAGE`) and the masters
+(`MASTER_BIAS` / `MASTER_DARK` / `MASTER_FLAT` / `MASTER_PHOTREF`); the
+single photref is a `MasterFile` row, so `DR_FILE` (or a new
+``SINGLE_PHOTREF`` kind, if the single-vs-master distinction is worth
+surfacing) suffices. Note the masters and the photref are `MasterFile`
+rows, so they FK-resolve via `MasterFile.filename` — but
+`_resolve_artifact_fks` returns a *single* `master_file_id`, so with
+several masters attached only the first becomes an FK while all appear by
+path in the rendered list; broadening that to multiple master FKs is a
+separate, optional follow-up.
 
 Sequence within the item: land the **lightcurve path
 (`apply_correction`) + the `_worker_crashed` promotion** first — that is
@@ -2531,9 +2568,9 @@ related-files list rather than as an FK. Remaining: the other four
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). `run_pool`/`worker_entry` gain an optional `related_file` classifier and `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item; `_worker_crashed` promotes the in-flight items to `related_files` (item 9). |
-| run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) | Pass the per-call-site `related_file` kind/classifier (item 9). |
-| manager dispatch + `solve_astrometry.py` | Scope `error_context(related_files=...)` at the main-process/Scheme-B per-item point using the already-computed filename (item 9). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). `run_pool`/`worker_entry` gain an optional `related_file` classifier and `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item; `_worker_crashed` promotes the in-flight items to `related_files` (item 9). **Still to do (item 9 auxiliary files):** a fixed `related_files=` param on `run_pool` that `_WorkerEntry` prepends to the per-item output. |
+| run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) | Pass the per-call-site `related_file` kind/classifier, and the batch-constant auxiliary files (single photref for the LC/magfit paths) via the fixed `related_files` list (item 9). |
+| manager dispatch + `solve_astrometry.py` (+ `calibrate`, `create_lightcurves`, statistics generators) | Scope `error_context(related_files=...)` at the main-process/Scheme-B per-item point using the already-computed filename **plus the step's auxiliary inputs** (masters for `calibrate`, single photref for the LC/stat steps) (item 9). |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
 | `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
