@@ -2289,42 +2289,87 @@ must skip it; guarded on `self._pipeline_run_id is not None`
 (`ImageProcessingManager` already had no such scan). Regression:
 `test_resolves_lightcurve_step` in `test_crash_report.py`.
 
-### Item 3 — name the input that killed the worker
+### Item 3 — track what each worker is processing (a shared in-flight map)
 
-`run_pool`'s eager path is `list(executor.map(wrapped, items))`
-(`error_context.py`). `map` discards the item↔future association, so on a
-`BrokenProcessPool` the parent cannot say *which* item was in flight —
-hence the useless first-20 sample of 1718. The streaming path
-(`_stream_as_completed`) already submits per-item and could name the
-culprit, but the eager path (which `tfa`/`apply_correction` uses) cannot.
+The parent must be able to say *which* inputs were in flight when a worker
+died — the sidecar today has only `num_inputs: 1718` and a blind first-20
+sample. The obvious fix (switch the eager `list(executor.map(...))` to
+`submit` + a `{future: item}` map) does **not** actually work, because of
+two hard limits in `concurrent.futures.process`:
 
-- Rework the eager path to `submit` each item and keep a `{future: item}`
-  map (the pattern `_stream_as_completed` already uses), preserving input
-  order for the returned list. On `BrokenProcessPool`, the still-pending
-  / running futures identify the in-flight item(s); `_worker_crashed`
-  records them as `details["crashed_inputs"]` instead of a blind head
-  sample.
-- Complementary, cheap, and robust to the executor recycling workers: an
-  optional per-item **heartbeat** — the wrapped worker writes a single
-  "starting `<item>`" line to its own log before calling the callable, so
-  the last line before a hard death names the culprit even when the
-  future bookkeeping is ambiguous. Gated behind the same log the report
-  now collects (items 1–2).
+- On a broken pool, `_terminate_broken` sets the *same*
+  `BrokenProcessPool` on **every** entry of `pending_work_items`
+  (`process.py`, the `for work_id, work_item in ...: set_exception(bpe)`
+  loop) — there is no per-future distinction between the culprit and the
+  merely-pending.
+- `executor.map` submits *all* items upfront, so for an early crash (the
+  real `tfa` case died ~25 s in) almost nothing has completed and the
+  "not done" set is ≈ the whole input. `submit` + `{future: item}` would
+  hand back ~1718 candidates — no better than the head sample.
 
-### Item 4 — `faulthandler` in every worker for a native traceback
+So the association we need — *which worker is running which item right
+now* — does not exist anywhere in the executor: workers pull items off a
+shared queue themselves, and the parent is only notified when one
+*finishes*, never when one *starts*. We record it ourselves.
+
+- **A shared in-flight map.** A `multiprocessing.Manager().dict()` is
+  created in `run_pool`, threaded into every worker through the existing
+  `setup_process_map` `initargs` (alongside the config), and stashed in
+  the ambient context. `_WorkerEntry.__call__` writes
+  `shared[os.getpid()] = item` immediately before invoking the wrapped
+  callable and clears it (`pop(os.getpid(), None)`) immediately after. At
+  any instant the non-empty entries are exactly the items being executed.
+- On `BrokenProcessPool`, `_worker_crashed` reads the map and records its
+  values as `details["crashed_inputs"]` — a candidate set bounded by
+  `num_processes`, not a blind slice of the inputs.
+- A `Manager().dict()` (server process, one small IPC per task start/end)
+  is chosen over a `multiprocessing.Array` in shared memory because the
+  Array holds only C scalars (so it would store item *indices*, not the
+  items) and, worse, there is no stable ``0..N-1`` worker index to key it
+  by — the executor never numbers its workers, so a slot would have to be
+  claimed via an atomic counter in the initializer. The per-task IPC is
+  negligible against `tfa`/`epd` task cost; revisit only if a hot,
+  tiny-task site ever adopts `run_pool`.
+
+**Honest scope: this yields a *candidate set*, not the unique culprit.**
+When worker D segfaults on item X, the executor force-`terminate()`s the
+still-busy innocents B and C mid-item too (all their futures get the same
+`BrokenProcessPool`), so the map shows `{B:Y, C:Z, D:X}` — the guilty item
+plus up to `num_processes-1` innocents, with nothing to mark which is
+which. The executor even discards *which* worker died: it waits on all
+worker sentinels together (`mp.connection.wait(readers + worker_sentinels)`
+in `wait_result_broken_or_wakeup`) but never inspects which sentinel
+fired, then terminates the rest — erasing the liveness difference. Pinning
+the culprit *within* this set is Item 4's job.
+
+### Item 4 — `faulthandler` in every worker (the culprit's self-report)
 
 A segfault produces no Python exception — which is exactly why the death
-is "silent." `faulthandler` turns it into a native stack dump.
+is "silent" — and, per Item 3, the parent cannot attribute the death to a
+specific worker. The fix is to make the dying worker **incriminate
+itself** before it goes: `faulthandler` turns its fatal signal into a
+native stack dump in its own log.
 
 - `setup_process_map` (`multiprocessing_util.py`) calls
   `faulthandler.enable(file=<the worker's redirected stderr>)` during
   bootstrap, so a SIGSEGV/SIGABRT/SIGFPE dumps a C-level traceback into
   the per-process `.outerr` file — the file items 1–2 make collectable.
+- **This is what isolates the culprit within Item 3's candidate set.**
+  The worker that actually faulted (D) dumps a native traceback into *its*
+  log; the innocents (B, C) receive a clean `SIGTERM` from the executor's
+  `terminate()` and dump nothing. So the collected log carrying a
+  faulthandler stack identifies the guilty worker, and Item 3's in-flight
+  entry for that same pid names the guilty item — together, the unique
+  ``(worker, item, native stack)``. Neither item alone suffices: Item 3
+  narrows to ≤ `num_processes`, Item 4 singles out one within it.
 - Also register a fault handler on a signal (e.g. `SIGUSR1`, POSIX only)
   so a *hung* — not crashed — worker can be prodded to dump where it is
   stuck; ties into the phase-3 "no nested workers" resource story.
 - No-op on platforms/streams where `faulthandler` can't attach; never
-  fails bootstrap.
+  fails bootstrap. (An OOM/jetsam `SIGKILL` cannot be caught by
+  `faulthandler` either — that death stays attributable only to Item 3's
+  candidate set plus Item 5's exit-signal; a `SIGKILL` with no native dump
+  is itself the tell that it was a kill, not a crash.)
 
 ### Item 5 — record the OS-level cause of the death
 
@@ -2394,9 +2439,9 @@ means opening SQLite; the sidecar should stand alone.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs`, `exit_signal`, and the resource snapshot in `details`; the eager `run_pool` path switches from `executor.map` to `submit` + `{future: item}` (item 3) and best-effort reads the dead worker's exitcode (item 5); optional per-item heartbeat in `worker_entry`. |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and threads it into the workers via `setup_process_map` `initargs`; `_WorkerEntry.__call__` writes/clears `shared[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), `exit_signal`, and the resource snapshot in `details` (items 3, 5); best-effort reads the dead worker's exitcode (item 5). |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
-| `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
+| `autowisp/multiprocessing_util.py` | `setup_process_map` accepts the in-flight map from `initargs` and stashes it in context (item 3); enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
 | `autowisp/database/image_processing.py` | Drop the now-inherited `find_processing_outputs`; set `_progress_model = ImageProcessingProgress` and `_progress_image_type` → `progress.image_type.name` (item 2). |
 | `autowisp/database/lightcurve_processing.py` | Set `_progress_model = LightCurveProcessingProgress` and `_progress_image_type` deriving the type from the single photref (as `_current_image_type` is set at run time); skip `set_pending` when `pipeline_run_id is None` so a review-only manager is cheap (item 2). |
@@ -2419,12 +2464,17 @@ means opening SQLite; the sidecar should stand alone.
   a pipeline/BUI error still yields none. *(Implemented:
   `test_resolves_lightcurve_step` in `test_crash_report.py`; image-step
   and stepless cases already covered there.)*
-- A worker that hard-exits (`os._exit`) mid-`map` → the parent's
-  `WorkerCrashedError` names the specific in-flight item in
-  `details["crashed_inputs"]`, not a blind head sample, and preserves
-  result order for the survivors on a clean run.
+- `_WorkerEntry` writes the current item into the shared in-flight map
+  while the callable runs and clears it on return, so a normal `run_pool`
+  finishes with an empty map.
+- A worker that hard-exits (`os._exit`) mid-task → the parent's
+  `WorkerCrashedError` records the still-in-flight item(s) in
+  `details["crashed_inputs"]` (a set bounded by `num_processes`), not a
+  blind head sample, and the clean-run survivors still return in order.
 - With `faulthandler` enabled in the worker bootstrap, a forced fault in
-  a test worker writes a native traceback to its redirected stderr file.
+  a test worker writes a native traceback to its redirected stderr file
+  (the log items 1–2 collect), so the faulted worker is distinguishable
+  from executor-terminated innocents.
 - `build_crash_report` for a `WorkerCrashedError` includes the resolved
   step config, the progress timeline, the resource snapshot, and (when
   present) `exit_signal` — and, for the batch, every sibling error, not
@@ -2435,8 +2485,10 @@ means opening SQLite; the sidecar should stand alone.
 ### Suggested sequencing
 
 Items **1 + 2** are the highest-value, lowest-risk pair — together they
-are the difference between a report with logs and one without — and
-should land first. **3** (culprit input) and **4** (native traceback)
-are the next tier: they turn "died silently" into "died on *this* file,
-*here*." **5–8** are enrichment that make the report self-explaining
-without a maintainer hand-querying the DB, and can follow independently.
+are the difference between a report with logs and one without — and are
+**done**. **3** (in-flight map → candidate set) and **4** (native
+self-report → the one culprit within it) are the next tier and are
+**coupled**: land them together, since Item 3 narrows and Item 4 isolates,
+and neither alone gets you to "died on *this* file, *here*." **5–8** are
+enrichment that make the report self-explaining without a maintainer
+hand-querying the DB, and can follow independently.
