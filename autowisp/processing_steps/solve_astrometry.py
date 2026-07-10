@@ -18,6 +18,7 @@ from astropy import units
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     capture_for_queue,
+    decode_exit_signals,
     error_context,
     reraise_from_worker,
     forbid_nested_workers,
@@ -903,19 +904,18 @@ def manage_astrometry(
                 break
             except Exception:  # queue.Empty
                 if workers and not any(p.is_alive() for p in workers):
-                    exitcodes = [p.exitcode for p in workers]
                     # The empty-queue timeout is control flow, not the
                     # cause; the cause is the workers dying -> ``from None``.
+                    # ``exit_signal`` matches the Scheme-A representation so a
+                    # crash report reads it the same way (SIGKILL/OOM vs. a
+                    # native crash, portably decoded).
                     raise WorkerCrashedError(
                         "All astrometry worker processes died unexpectedly "
                         f"with {num_queued} task(s) still in flight.",
                         details={
-                            "exitcodes": exitcodes,
-                            "killed_by_signals": [
-                                -code
-                                for code in exitcodes
-                                if code is not None and code < 0
-                            ],
+                            "exit_signal": decode_exit_signals(
+                                p.exitcode for p in workers
+                            ),
                             "num_in_flight": num_queued,
                         },
                     ) from None

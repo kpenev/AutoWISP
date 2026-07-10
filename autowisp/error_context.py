@@ -18,6 +18,7 @@ on.
 import contextvars
 import functools
 import os
+import signal
 import socket
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
@@ -555,8 +556,107 @@ def forbid_nested_workers() -> None:
         )
 
 
+def _signal_name(signum):
+    """POSIX signal name for a number (e.g. 9 -> ``"SIGKILL"``), or None."""
+
+    try:
+        return signal.Signals(signum).name
+    except (ValueError, AttributeError):
+        return None
+
+
+def _exit_signal_entry(code):
+    """Decode one process exit code into a portable death descriptor.
+
+    ``None`` (still running) and ``0`` (clean) yield ``None``. The meaning
+    of a non-zero code is OS-specific, so decode accordingly:
+
+    - **POSIX**: a *negative* code is a kill by signal ``-code`` (``SIGKILL``
+      -> OOM / macOS jetsam, ``SIGSEGV`` -> native crash), whose name is
+      added; a positive code is a plain ``exit(code)``.
+    - **Windows**: there are no POSIX signals -- the code is a process /
+      NTSTATUS exit status (e.g. ``0xC0000005`` = access violation), so its
+      conventional hex form is added for abnormal values rather than being
+      (mis)read as a signal.
+
+    Never raises.
+
+    Args:
+        code(int or None):    A ``multiprocessing.Process.exitcode``.
+
+    Returns:
+        dict or None:    ``{"exitcode": code[, "signal"|"status": ...]}``.
+    """
+
+    if code in (None, 0):
+        return None
+    entry = {"exitcode": code}
+    try:
+        if os.name == "posix":
+            if code < 0:
+                entry["signal"] = _signal_name(-code)
+        elif code < 0 or code > 0xFFFF:
+            # Windows crash/NTSTATUS codes read best in hex.
+            entry["status"] = f"0x{code & 0xFFFFFFFF:08X}"
+    except Exception:  # pylint: disable=broad-except
+        pass
+    return entry
+
+
+def decode_exit_signals(exitcodes):
+    """Decode a collection of process exit codes (best-effort, portable).
+
+    Returns one :func:`_exit_signal_entry` per *abnormal* exit (dropping
+    ``None`` = still running and ``0`` = clean), so an empty list means no
+    abnormal termination was observed. Shared by both parallel schemes so a
+    crash report reads the same ``details["exit_signal"]`` regardless of
+    transport. Never raises.
+
+    Args:
+        exitcodes(iterable):    ``Process.exitcode`` values.
+
+    Returns:
+        list[dict]:    The decoded abnormal exits.
+    """
+
+    result = []
+    try:
+        for code in exitcodes:
+            entry = _exit_signal_entry(code)
+            if entry is not None:
+                result.append(entry)
+    except Exception:  # pylint: disable=broad-except
+        pass
+    return result
+
+
+def _pool_exit_signals(executor):
+    """Decode a broken pool's worker exit codes (best-effort, private API).
+
+    ``ProcessPoolExecutor`` hides a worker death behind
+    ``BrokenProcessPool`` and clears its process table on shutdown, so this
+    must be read at the moment of the break (see :func:`run_pool`). Reaches
+    into the executor's private ``_processes``; returns ``[]`` if the
+    attribute is absent or anything goes wrong.
+
+    Args:
+        executor(ProcessPoolExecutor):    The broken executor.
+
+    Returns:
+        list[dict]:    Decoded abnormal worker exits.
+    """
+
+    try:
+        processes = getattr(executor, "_processes", None) or {}
+        return decode_exit_signals(
+            proc.exitcode for proc in list(processes.values())
+        )
+    except Exception:  # pylint: disable=broad-except
+        return []
+
+
 def _worker_crashed(
-    items, exc: Exception, inflight=None, related_files=None
+    items, exc: Exception, inflight=None, related_files=None, exit_signal=None
 ) -> "WorkerCrashedError":
     """Synthesise the parent-side error for a worker that died silently.
 
@@ -581,6 +681,10 @@ def _worker_crashed(
             to structured ``related_files`` on the error (so a crash links
             straight to the offending file, not just a ``details`` string).
 
+        exit_signal(list or None):    Decoded OS-level exit info for the
+            dead worker(s) (see :func:`decode_exit_signals`) -- the tell
+            for SIGKILL/OOM vs. a native crash. Recorded when non-empty.
+
     Returns:
         WorkerCrashedError:    Stamped with the ambient context.
     """
@@ -597,6 +701,8 @@ def _worker_crashed(
     # which crash-report log-collection resolves the run/step logs from.
     err.details["step_name"] = ctx.step_name
     err.details["pool_error"] = repr(exc)
+    if exit_signal:
+        err.details["exit_signal"] = exit_signal
     if inflight is not None:
         try:
             in_flight = list(inflight.values())
@@ -741,15 +847,25 @@ def run_pool(
     try:
         inflight = manager.dict()
         wrapped = worker_entry(worker, component, inflight, related_files)
-        try:
-            with ProcessPoolExecutor(**executor_kwargs) as executor:
+        with ProcessPoolExecutor(**executor_kwargs) as executor:
+            try:
                 if stream_consumer is None:
                     return list(executor.map(wrapped, items))
                 stream_consumer(_stream_as_completed(executor, wrapped, items))
                 return None
-        except AutoWISPError:
-            raise
-        except Exception as exc:  # pylint: disable=broad-except
-            raise _worker_crashed(items, exc, inflight, related_files) from exc
+            except AutoWISPError:
+                raise
+            except Exception as exc:  # pylint: disable=broad-except
+                # Synthesise *inside* the ``with`` so the dead worker's OS
+                # exit code is still readable -- ``ProcessPoolExecutor``
+                # clears its process table on shutdown, which the enclosing
+                # ``with`` triggers on the way out.
+                raise _worker_crashed(
+                    items,
+                    exc,
+                    inflight,
+                    related_files,
+                    _pool_exit_signals(executor),
+                ) from exc
     finally:
         manager.shutdown()

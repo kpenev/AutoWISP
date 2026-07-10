@@ -2400,13 +2400,31 @@ the dead worker behind `BrokenProcessPool`, so the report cannot tell
 SIGKILL (OOM / macOS jetsam) from SIGSEGV (native crash) — the single
 most diagnostic bit for this failure.
 
-- On catching `BrokenProcessPool`, best-effort scan the executor's live
+- On catching `BrokenProcessPool`, best-effort scan the executor's
   worker processes for a terminated one and record its `exitcode` /
-  decoded signal name into `details` (`pool_error_signal`). This reaches
-  into executor internals (`_processes`), so it is strictly best-effort
-  and guarded — a `None` when the API shifts, never a secondary failure.
+  decoded signal name. This reaches into executor internals (`_processes`),
+  so it is strictly best-effort and guarded — an empty list when the API
+  shifts, never a secondary failure.
 - Normalise the Scheme-A and Scheme-B representations so a report reads
   the same `details["exit_signal"]` regardless of transport.
+
+**Implemented.** `decode_exit_signals(exitcodes)` turns a collection of
+`Process.exitcode` values into a portable, structured list — one
+`{"exitcode", ...}` entry per *abnormal* exit (dropping `None` = running
+and `0` = clean). Decoding is **OS-aware**, which was the subtle part: on
+POSIX a negative code is a kill by signal `-code` (so `SIGKILL` →
+OOM/jetsam, `SIGSEGV` → native crash, decoded to the name); on **Windows**
+there are no POSIX signals — a negative/large code is an NTSTATUS crash
+status (e.g. `0xC0000005` access violation), so it is reported in hex
+rather than mis-read as a signal. Scheme A: `run_pool` synthesises the
+error *inside* the `with` (the executor clears `_processes` on shutdown)
+and passes `_pool_exit_signals(executor)` — verified end-to-end that a
+segfault → `SIGSEGV`, a `SIGKILL` → `SIGKILL`, a `os._exit(7)` → a plain
+code. Scheme B: `solve_astrometry` now records the same
+`details["exit_signal"]` via `decode_exit_signals`. Tests:
+`TestExitSignalDecode` (POSIX + mocked-Windows branches, and the
+running/clean drop) and `test_worker_crashed_records_exit_signal` (POSIX
+segfault e2e), plus the updated Scheme-B `test_all_workers_dead_...`.
 
 ### Item 6 — a resource snapshot to confirm/deny OOM
 
@@ -2588,7 +2606,7 @@ multi-file and dedup cases) in `test_error_context.py`.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError` and records `crashed_inputs` (from the map), and — still to do — `exit_signal` and the resource snapshot in `details` (items 3, 5). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). Still to do: the resource snapshot in `details` (item 6). |
 | run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) ✓ | Each passes its `related_files` classifier — a `FileKind` for item-only sites, or a `partial`/module function returning the item plus batch-constant auxiliaries (item 9, done). |
 | `calibrate.py` ✓ | Scopes `_calibration_related_files` (raw image + master bias/dark/flat) around each image (item 9, done). |
 | `lightcurve_processing.py` (`LightCurveProcessingManager.__call__`) ✓ | Scopes the single photref for the whole LC step, covering `create_lightcurves` / `epd` / `tfa` / the statistics generators (item 9, done). |
@@ -2656,7 +2674,8 @@ are the difference between a report with logs and one without — and are
 self-report → the one culprit within it) are **coupled** — Item 3 narrows,
 Item 4 isolates — and are now **done** together. **5–8** are enrichment
 that make the report self-explaining without a maintainer hand-querying
-the DB, and can follow independently. **9** (populate `related_files`)
+the DB, and can follow independently; **5** (OS-level exit signal) is
+**done**. **9** (populate `related_files`)
 stands somewhat apart — it improves *every* error, not just crashes — and
 is now **done at all sites** (every `run_pool` call site, `calibrate`, the
 lightcurve steps via the manager dispatch, and Scheme-B

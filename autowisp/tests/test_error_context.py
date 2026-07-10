@@ -14,7 +14,9 @@ import pickle
 import tempfile
 import unittest
 from multiprocessing import Process, Queue
+from unittest import mock
 
+import autowisp.error_context as ecmod
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     ErrorContext,
@@ -761,6 +763,33 @@ class TestPoolPropagation(_ContextTestCase):
             "no faulthandler native dump found in any worker log",
         )
 
+    @unittest.skipUnless(
+        os.name == "posix", "signal decoding is POSIX-only (see item 5)"
+    )
+    def test_worker_crashed_records_exit_signal(self):
+        """A native crash records the decoded killing signal.
+
+        The tell for OOM/jetsam (``SIGKILL``) vs. a native crash
+        (``SIGSEGV``); here a segfault is expected to surface as
+        ``SIGSEGV``. (On Windows the code is an NTSTATUS, not a signal --
+        that path is covered by ``TestExitSignalDecode``.)
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _segfault_worker,
+                        ["/lc/AAA.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+        entries = ctx.exception.details.get("exit_signal", [])
+        self.assertIn("SIGSEGV", [entry.get("signal") for entry in entries])
+
     def test_worker_error_carries_related_file(self):
         """A worker error carries the item it was processing as a file.
 
@@ -905,8 +934,9 @@ class TestProcessQueuePropagation(_ContextTestCase):
 
         ``manage_astrometry`` polls ``is_alive()`` while waiting on the
         result queue; when every worker has died without queuing a result
-        it raises a ``WorkerCrashedError`` recording the OS exit codes,
-        instead of blocking forever.
+        it raises a ``WorkerCrashedError`` recording the OS exit codes
+        (normalised to the same ``exit_signal`` shape as Scheme A), instead
+        of blocking forever.
         """
 
         worker = Process(target=_instant_exit)
@@ -925,8 +955,48 @@ class TestProcessQueuePropagation(_ContextTestCase):
             )
 
         exc = ctx.exception
-        self.assertEqual(exc.details["exitcodes"], [7])
+        # os._exit(7) -> a plain exit code (positive), no signal decoded.
+        self.assertEqual(exc.details["exit_signal"], [{"exitcode": 7}])
         self.assertEqual(exc.details["num_in_flight"], 1)
+
+
+class TestExitSignalDecode(unittest.TestCase):
+    """decode_exit_signals is portable and drops clean/running exits."""
+
+    def test_drops_running_and_clean(self):
+        """``None`` (running) and ``0`` (clean) contribute nothing."""
+
+        self.assertEqual(ecmod.decode_exit_signals([None, 0]), [])
+
+    def test_posix_signals_and_plain_codes(self):
+        """POSIX: negative codes decode to their signal; positive don't."""
+
+        with mock.patch.object(ecmod.os, "name", "posix"):
+            self.assertEqual(
+                ecmod.decode_exit_signals([7, -9, -11]),
+                [
+                    {"exitcode": 7},
+                    {"exitcode": -9, "signal": "SIGKILL"},
+                    {"exitcode": -11, "signal": "SIGSEGV"},
+                ],
+            )
+
+    def test_windows_status_not_signal(self):
+        """Windows: an abnormal code is an NTSTATUS, never a POSIX signal.
+
+        Both the unsigned and signed spellings of an access violation map
+        to the conventional hex status; a plain small code stays bare.
+        """
+
+        with mock.patch.object(ecmod.os, "name", "nt"):
+            self.assertEqual(
+                ecmod.decode_exit_signals([0xC0000005, -1073741819, 1]),
+                [
+                    {"exitcode": 0xC0000005, "status": "0xC0000005"},
+                    {"exitcode": -1073741819, "status": "0xC0000005"},
+                    {"exitcode": 1},
+                ],
+            )
 
 
 class TestNestingGuard(_ContextTestCase):
