@@ -37,7 +37,10 @@ from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_persistence import load_sidecar
 from autowisp.exceptions import sanitize_for_json
-from autowisp.miscellaneous import get_code_version_str
+from autowisp.miscellaneous import (
+    collect_resource_snapshot,
+    get_code_version_str,
+)
 
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
@@ -309,9 +312,11 @@ def collect_provenance():
     """Return environment provenance for a crash report.
 
     Captures the machine and software building the report -- hostname, OS,
-    Python and key package versions, and the current code version. The
-    *failed run's* host and code version live on its ``PipelineRun`` row
-    and are added separately by the report builder.
+    Python and key package versions, the current code version, and the
+    machine's memory (the box's RAM ceiling, for judging an OOM death even
+    when the report is built later). The *failed run's* host and code
+    version live on its ``PipelineRun`` row and are added separately by the
+    report builder.
 
     Returns:
         dict:    Provenance fields, all JSON-serializable.
@@ -323,6 +328,7 @@ def collect_provenance():
         "platform": platform.platform(),
         "python_version": platform.python_version(),
         "code_version": get_code_version_str(),
+        "resources": collect_resource_snapshot(),
         "packages": _package_versions(
             (
                 "autowisp",

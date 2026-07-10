@@ -59,3 +59,41 @@ def get_code_version_str():
     if repository.is_dirty():
         return head_sha + ":dirty"
     return head_sha
+
+
+def collect_resource_snapshot():
+    """Best-effort machine-memory snapshot (bytes), for diagnosing OOM.
+
+    System memory pressure is the tell for an OOM / macOS-jetsam kill: a
+    ``SIGKILL`` with no native traceback plus a nearly-full machine points
+    at memory, not a crash. The dead worker's own peak RSS is gone by the
+    time the parent looks, but the machine's RAM ceiling and the parent's
+    RSS are strong signal. Cross-OS via ``psutil`` (a hard dependency).
+
+    Never raises -- a failure yields a partial or empty dict rather than
+    turning the recording of one error into a second error.
+
+    Returns:
+        dict:    Any of ``ram_total`` / ``ram_available`` (bytes),
+            ``ram_percent_used`` (percent), ``process_rss`` (bytes).
+    """
+
+    snapshot = {}
+    try:
+        # Local import: keep this leaf module importable even if the
+        # optional runtime were ever stripped down.
+        import psutil  # pylint: disable=import-outside-toplevel
+    except Exception:  # pylint: disable=broad-except
+        return snapshot
+    try:
+        virtual_memory = psutil.virtual_memory()
+        snapshot["ram_total"] = int(virtual_memory.total)
+        snapshot["ram_available"] = int(virtual_memory.available)
+        snapshot["ram_percent_used"] = float(virtual_memory.percent)
+    except Exception:  # pylint: disable=broad-except
+        pass
+    try:
+        snapshot["process_rss"] = int(psutil.Process().memory_info().rss)
+    except Exception:  # pylint: disable=broad-except
+        pass
+    return snapshot

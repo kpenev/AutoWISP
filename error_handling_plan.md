@@ -2440,6 +2440,22 @@ currently cannot answer it.
 - `collect_provenance` gains the same machine-resource fields so a report
   built later still shows the box's memory ceiling.
 
+**Implemented.** `collect_resource_snapshot()` (in `miscellaneous.py`, the
+leaf both `error_context` and `crash_report` already import) returns
+`ram_total` / `ram_available` (bytes), `ram_percent_used`, and the
+process `process_rss` via `psutil` (a hard dependency, so cross-OS without
+the sysconf fallbacks) — best-effort, never raising (empty dict if it
+can't). `_worker_crashed` records it as `details["resources"]` together
+with `num_processes` (N workers vs. total RAM is the OOM tell, paired with
+item 5's `SIGKILL` and item 4's *absent* native dump).
+`collect_provenance` adds the same snapshot so a report built later still
+shows the box's RAM ceiling. (Peak RSS was dropped in favour of current
+RSS + system available: `ru_maxrss` units differ by platform — KiB on
+Linux, bytes on macOS — and `psutil` gives a clean portable current RSS;
+the system-available figure is the more directly diagnostic number.)
+Tests: `TestResourceSnapshot` (fields + the psutil-missing degradation),
+`test_worker_crashed_records_resources`, and the provenance test.
+
 ### Item 7 — provenance of the *failed run*, not the report builder
 
 `provenance.json` describes the machine that **built** the report
@@ -2606,7 +2622,8 @@ multi-file and dedup cases) in `test_error_context.py`.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). Still to do: the resource snapshot in `details` (item 6). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). `_worker_crashed` also records `details["resources"]` (memory snapshot + `num_processes`) via `collect_resource_snapshot` (item 6). |
+| `autowisp/miscellaneous.py` | **New** `collect_resource_snapshot()` — cross-OS memory snapshot via `psutil`, best-effort (items 6). |
 | run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) ✓ | Each passes its `related_files` classifier — a `FileKind` for item-only sites, or a `partial`/module function returning the item plus batch-constant auxiliaries (item 9, done). |
 | `calibrate.py` ✓ | Scopes `_calibration_related_files` (raw image + master bias/dark/flat) around each image (item 9, done). |
 | `lightcurve_processing.py` (`LightCurveProcessingManager.__call__`) ✓ | Scopes the single photref for the whole LC step, covering `create_lightcurves` / `epd` / `tfa` / the statistics generators (item 9, done). |
@@ -2674,8 +2691,9 @@ are the difference between a report with logs and one without — and are
 self-report → the one culprit within it) are **coupled** — Item 3 narrows,
 Item 4 isolates — and are now **done** together. **5–8** are enrichment
 that make the report self-explaining without a maintainer hand-querying
-the DB, and can follow independently; **5** (OS-level exit signal) is
-**done**. **9** (populate `related_files`)
+the DB, and can follow independently; **5** (OS-level exit signal) and
+**6** (memory snapshot) are **done** — together with items 4 (native dump)
+they triangulate OOM vs. crash. **9** (populate `related_files`)
 stands somewhat apart — it improves *every* error, not just crashes — and
 is now **done at all sites** (every `run_pool` call site, `calibrate`, the
 lightcurve steps via the manager dispatch, and Scheme-B

@@ -28,7 +28,10 @@ from traceback import format_exc
 from typing import Optional, Sequence
 
 from autowisp.database.frozen_row import FrozenRow
-from autowisp.miscellaneous import get_code_version_str
+from autowisp.miscellaneous import (
+    collect_resource_snapshot,
+    get_code_version_str,
+)
 from autowisp.exceptions import (
     AutoWISPError,
     CalibrationError,
@@ -656,7 +659,12 @@ def _pool_exit_signals(executor):
 
 
 def _worker_crashed(
-    items, exc: Exception, inflight=None, related_files=None, exit_signal=None
+    items,
+    exc: Exception,
+    inflight=None,
+    related_files=None,
+    exit_signal=None,
+    num_processes=None,
 ) -> "WorkerCrashedError":
     """Synthesise the parent-side error for a worker that died silently.
 
@@ -685,6 +693,10 @@ def _worker_crashed(
             dead worker(s) (see :func:`decode_exit_signals`) -- the tell
             for SIGKILL/OOM vs. a native crash. Recorded when non-empty.
 
+        num_processes(int or None):    The pool's worker count, recorded
+            alongside the memory snapshot so ``N`` workers vs. total RAM
+            makes an OOM death easy to judge.
+
     Returns:
         WorkerCrashedError:    Stamped with the ambient context.
     """
@@ -703,6 +715,13 @@ def _worker_crashed(
     err.details["pool_error"] = repr(exc)
     if exit_signal:
         err.details["exit_signal"] = exit_signal
+    # Machine memory at crash time (+ the worker count): the tell for an
+    # OOM/jetsam kill, especially paired with a SIGKILL and no native dump.
+    resources = collect_resource_snapshot()
+    if num_processes is not None:
+        resources["num_processes"] = num_processes
+    if resources:
+        err.details["resources"] = resources
     if inflight is not None:
         try:
             in_flight = list(inflight.values())
@@ -866,6 +885,7 @@ def run_pool(
                     inflight,
                     related_files,
                     _pool_exit_signals(executor),
+                    num_processes,
                 ) from exc
     finally:
         manager.shutdown()

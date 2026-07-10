@@ -17,6 +17,7 @@ from multiprocessing import Process, Queue
 from unittest import mock
 
 import autowisp.error_context as ecmod
+from autowisp.miscellaneous import collect_resource_snapshot
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     ErrorContext,
@@ -790,6 +791,29 @@ class TestPoolPropagation(_ContextTestCase):
         entries = ctx.exception.details.get("exit_signal", [])
         self.assertIn("SIGSEGV", [entry.get("signal") for entry in entries])
 
+    def test_worker_crashed_records_resources(self):
+        """A crash records a memory snapshot + the worker count.
+
+        ``N`` workers vs. total RAM is what makes an OOM/jetsam death easy
+        to judge (paired with a SIGKILL and no native dump from items 4-5).
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        ["/lc/AAA.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=2,
+                    )
+
+        resources = ctx.exception.details.get("resources", {})
+        self.assertEqual(resources.get("num_processes"), 2)
+        self.assertGreater(resources.get("ram_total", 0), 0)
+
     def test_worker_error_carries_related_file(self):
         """A worker error carries the item it was processing as a file.
 
@@ -997,6 +1021,32 @@ class TestExitSignalDecode(unittest.TestCase):
                     {"exitcode": 1},
                 ],
             )
+
+
+class TestResourceSnapshot(unittest.TestCase):
+    """collect_resource_snapshot is best-effort and never raises."""
+
+    def test_memory_fields_present_and_sane(self):
+        """psutil is a hard dependency, so the memory fields are present."""
+
+        snap = collect_resource_snapshot()
+        self.assertGreater(snap["ram_total"], 0)
+        self.assertGreaterEqual(snap["ram_available"], 0)
+        self.assertGreater(snap["process_rss"], 0)
+        self.assertIsInstance(snap["ram_percent_used"], float)
+
+    def test_empty_when_psutil_unavailable(self):
+        """A missing psutil degrades to an empty dict, never a raise."""
+
+        real_import = __import__
+
+        def fake_import(name, *args, **kwargs):
+            if name == "psutil":
+                raise ImportError("simulated missing psutil")
+            return real_import(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=fake_import):
+            self.assertEqual(collect_resource_snapshot(), {})
 
 
 class TestNestingGuard(_ContextTestCase):

@@ -313,12 +313,15 @@ class TestCollectProvenance(unittest.TestCase):
             "platform",
             "python_version",
             "code_version",
+            "resources",
             "packages",
         ):
             self.assertIn(key, provenance)
         # numpy is a hard dependency, so its version is always recorded.
         self.assertIn("numpy", provenance["packages"])
         self.assertIsInstance(provenance["packages"]["numpy"], str)
+        # psutil is a hard dependency, so the RAM ceiling is recorded.
+        self.assertGreater(provenance["resources"]["ram_total"], 0)
         # Everything must be JSON-serializable for the manifest.
         json.dumps(provenance)
 
