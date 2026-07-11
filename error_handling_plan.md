@@ -1986,7 +1986,9 @@ were delivered alongside it:
 
 ## Phase 8 — deferred-site migration + BUI-specific raises
 
-*(section pending — to be written when we start it)*
+*(In progress. Below: the two strands, the per-site design as each is
+tackled, and the "Deferred raise sites" backlog inventory carried over
+from Phase 7.)*
 
 Two strands:
 
@@ -1995,16 +1997,41 @@ Two strands:
    catalogued backlog is the "Deferred raise sites" subsection below.
    Phase 8 retypes the subset that actually benefits — a more specific
    class callers can `except`, a clearer `user_message`, or explicit
-   `related_files` — rather than the whole list. Likely first candidates:
-   the catalog-coverage cluster (a dedicated `CatalogError`?), the
-   lightcurve-IO sites (with the LC as a `related_file`), and the broad
-   `raise Exception` in `lc_data_io.py:479`.
+   `related_files` — rather than the whole list.
 
 2. **New BUI-specific raises.** Introduce a few new exceptions raised
    precisely so the BUI can detect and handle them (distinct presentation
    / recovery, not just the generic error surfacing from phase 5). The
    exact set, their `Component`/parent, and the BUI handling are to be
    designed here.
+
+### Strand 1a — `CatalogError` (done)
+
+Catalog trouble is **not astrometry-specific** — a live Gaia query can
+fail, and a cached catalog can fail to cover the frames or mismatch the
+required epoch / magnitude range / FOV, during solve_astrometry,
+find_stars, fit_star_shape, etc. So `CatalogError` is a cross-cutting
+`StepError` (component `step`, `step_name` stamped from context), giving
+callers one `except CatalogError` regardless of which step tripped it.
+
+- **Class** added in `exceptions.py` (a `StepError`).
+- **`catalog.py` migrated** — all 12 coverage/consistency raises (`FOV
+  with no consistent pointing`, `FOV > 40°`, epoch / magnitude-expression
+  / magnitude-limit / width / height / RA / Dec mismatches, missing cached
+  fixture with live query disabled) go from bare `RuntimeError`/
+  `ValueError` to `CatalogError`.
+- **The retry-exhaustion case** (`WISPGaia.get_result`) now raises a
+  `CatalogError` (chaining the underlying error via `from`) after the last
+  of its 10 attempts, instead of re-raising the raw transport error —
+  exactly the "ran out of retries" failure.
+- **Not** migrated: `solve_astrometry`'s "catalog coverage seems to be in
+  an infinite loop" — despite the wording that is a *convergence* failure
+  (the astrometry solution shifts as the catalog is re-fetched), a
+  `ConvergenceError` candidate, not a `CatalogError`.
+- Tests: `test_catalog_error_is_cross_cutting_step_error` and
+  `test_get_result_raises_catalog_error_after_retries` (mocked query +
+  no-op sleep) in `test_exception_hierarchy.py`; plus the auto-coverage
+  from the hierarchy's "every concrete class" + pickle round-trip tests.
 
 ### Deferred raise sites (Phase 7 backlog)
 

@@ -557,6 +557,19 @@ class WorkerCrashedError(StepError):
     """
 
 
+class CatalogError(StepError):
+    """A problem with the reference catalog (query or coverage/consistency).
+
+    A cross-cutting :class:`StepError` -- catalog trouble is not specific to
+    one stage: a live Gaia query can exhaust its retries, and a cached
+    catalog can fail to cover the frames or mismatch the required epoch /
+    magnitude range / field of view during solve_astrometry, find_stars,
+    fit_star_shape, etc. Raised as one catchable type across all of them
+    (``step_name`` is stamped from the ambient context), so callers can
+    ``except CatalogError`` regardless of which step triggered it.
+    """
+
+
 # --- Pipeline-level exceptions. ---------------------------------------
 
 

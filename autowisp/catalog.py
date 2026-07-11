@@ -17,6 +17,7 @@ from astropy.coordinates import SkyCoord
 from astroquery.gaia import GaiaClass, conf
 
 from autowisp.evaluator import Evaluator
+from autowisp.exceptions import CatalogError
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.astrometry import Transformation
 from autowisp.astrometry.map_projections import (
@@ -121,7 +122,10 @@ class WISPGaia(GaiaClass):
                 break
             except Exception as error:  # pylint: disable=broad-except
                 if attempt + 1 == max_retries:
-                    raise
+                    raise CatalogError(
+                        f"Gaia catalog query failed after {max_retries} "
+                        f"attempts: {error}"
+                    ) from error
                 _logger.warning(
                     "Gaia query attempt %d/%d failed: %s. "
                     "Retrying in %d seconds.",
@@ -447,7 +451,7 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
     """
 
     if environ.get("AUTOWISP_NO_LIVE_CATALOG"):
-        raise RuntimeError(
+        raise CatalogError(
             "Live Gaia query disabled via AUTOWISP_NO_LIVE_CATALOG, but catalog "
             f"{fname!r} is missing and would require a query. Its cached FITS "
             "fixture is absent or its checksum did not match."
@@ -832,7 +836,7 @@ def find_outliers(center_ra_dec, max_allowed_offset):
         points, max_allowed_offset
     )
     if num_inside < 2 <= center_ra_dec.size:
-        raise ValueError(
+        raise CatalogError(
             "Attempting to determine field of view to cover frames with no "
             "conssistent pointing."
         )
@@ -969,7 +973,7 @@ def get_max_abs_corner_xi_eta(  # pylint: disable=too-many-locals, too-many-bran
     )
 
     if max(result) > 40.0:
-        raise RuntimeError(
+        raise CatalogError(
             "Observations with field of view exceeding 40 degrees are not "
             "supported."
         )
@@ -1097,7 +1101,7 @@ def get_catalog_info(  # pylint: disable=too-many-branches
                         )
                         != catalog_info["epoch"]
                     ):
-                        raise RuntimeError(
+                        raise CatalogError(
                             "Not all data reduction files to "
                             "be covered by a single catalog "
                             "have the same epoch"
@@ -1160,7 +1164,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     )
                     > 0.25
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} '
                         f'has epoch {catalog_header["EPOCH"]!r}, '
                         f'but {catalog_info["epoch"]!r} is needed'
@@ -1170,7 +1174,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     catalog_header["MAGEXPR"]
                     != catalog_info["magnitude_expression"]
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} has '
                         f'magnitude expression {catalog_header["MAGEXPR"]!r} '
                         f'instead of {catalog_info["magnitude_expression"]!r}'
@@ -1184,7 +1188,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                         > catalog_info["magnitude_limit"][0]
                     )
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} excludes '
                         f'sources brighter than {catalog_header["MAGMIN"]!r} '
                         f'but {catalog_info["magnitude_limit"][0]!r} are '
@@ -1195,7 +1199,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     catalog_header["MAGMAX"]
                     < catalog_info["magnitude_limit"][-1]
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} excludes '
                         f'sources fainter than {catalog_header["MAGMAX"]!r} but'
                         f' {catalog_info["magnitude_limit"][-1]!r} are '
@@ -1205,7 +1209,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 if catalog_header["WIDTH"] < catalog_info["width"].to_value(
                     units.deg
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} width '
                         f'{catalog_header["WIDTH"]!r} is less than the required'
                         f' {catalog_info["width"]!r}'
@@ -1213,7 +1217,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 if catalog_header["HEIGHT"] < catalog_info["height"].to_value(
                     units.deg
                 ):
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} height '
                         f'{catalog_header["HEIGHT"]!r} is less than the '
                         f'required {catalog_info["height"]!r}'
@@ -1226,7 +1230,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 ) > configuration[
                     "pointing_precision"
                 ] * units.deg:
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} center RA '
                         f'{catalog_header["RA"]!r} is too far from the '
                         f'required RA={query_center["RA"]!r}'
@@ -1235,7 +1239,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                 if (
                     catalog_header["DEC"] - query_center["Dec"]
                 ) * units.deg > configuration["pointing_precision"] * units.deg:
-                    raise RuntimeError(
+                    raise CatalogError(
                         f'Catalog {catalog_info["fname"]} center Dec '
                         f'{catalog_header["DEC"]!r} is too far from the '
                         f'required Dec={query_center["Dec"]!r}'
@@ -1335,7 +1339,7 @@ def check_catalog_coverage(
     return width < catalog_header["WIDTH"] and height < catalog_header["HEIGHT"]
 
 
-def show_stars(catalog_fname): # pragma: no cover
+def show_stars(catalog_fname):  # pragma: no cover
     """Show the stars in the catalog on a 3-D plot of the sky."""
 
     from matplotlib import pyplot  # pylint: disable=import-outside-toplevel
@@ -1375,7 +1379,7 @@ def show_stars(catalog_fname): # pragma: no cover
     pyplot.show()
 
 
-def main(config): # pragma: no cover
+def main(config):  # pragma: no cover
     """Avoid polluting global namespace."""
 
     import doctest  # pylint: disable=import-outside-toplevel
