@@ -362,14 +362,7 @@ class LCDataIO:
         )
         cls.dr_fname_parser = staticmethod(dr_fname_parser)
 
-        if source_list is not None:
-            source_list = [src for src in source_list if src in cls._catalogue]
-            if len(source_list) == 0:
-                raise RuntimeError(
-                    "No lightcurve sources remain after filtering to the limited "
-                    "catalog sources. Check your catalog selection and source IDs."
-                )
-        else:
+        if source_list is None:
             source_list = list(cls._catalogue.keys())
 
         cls._logger.debug(
