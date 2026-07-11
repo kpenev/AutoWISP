@@ -77,12 +77,20 @@ class ErrorContext:
 
         in_worker(bool):    True inside a multiprocessing worker process;
             used by the nested-worker guard.
+
+        config(dict or None):    Snapshot of the per-process configuration
+            (the resolved step parameters plus the runtime inputs threaded
+            in), recorded onto errors so a crash report shows the exact
+            settings the failing step ran with -- the resolved config is a
+            runtime derivation and lives nowhere else. ``None`` outside a
+            configured process.
     """
 
     pipeline_run: Optional[FrozenRow] = None
     step_name: Optional[str] = None
     related_files: tuple = ()
     in_worker: bool = False
+    config: Optional[dict] = None
 
     @classmethod
     def from_config(cls, config):
@@ -127,6 +135,9 @@ class ErrorContext:
             pipeline_run=pipeline_run,
             step_name=step_name,
             in_worker=bool(config.get("parent_pid")),
+            # A shallow snapshot: later mutation of the caller's dict must
+            # not change what an error reports.
+            config=dict(config),
         )
 
 
@@ -170,15 +181,16 @@ def set_pipeline_run(run: Optional[FrozenRow]) -> contextvars.Token:
             step_name=current.step_name,
             related_files=current.related_files,
             in_worker=current.in_worker,
+            config=current.config,
         )
     )
 
 
 @contextmanager
-def error_context(*, step_name=None, related_files: Sequence = ()):
+def error_context(*, step_name=None, related_files: Sequence = (), config=None):
     """Scope additional context for any error raised inside the block.
 
-    Builds a new :class:`ErrorContext` (step and files supplied at
+    Builds a new :class:`ErrorContext` (step, files, and config supplied at
     construction, not by mutating the current one), installs it for the
     duration of the block, and resets the token on exit.
 
@@ -188,6 +200,14 @@ def error_context(*, step_name=None, related_files: Sequence = ()):
 
         related_files(Sequence[RelatedFile]):    Files appended to the
             ambient related-files list for the duration of the block.
+
+        config(dict or None):    The step's resolved config to record on
+            errors raised in the block. The managers scope this at each
+            step's dispatch -- uniformly for every step, whether or not it
+            uses a worker pool -- so a parent-side error (including a
+            synthesised ``WorkerCrashedError``) carries the *failing
+            step's* config, not the base config the parent bootstrapped
+            with. ``None`` keeps whatever is already in scope.
 
     Yields:
         None
@@ -200,6 +220,7 @@ def error_context(*, step_name=None, related_files: Sequence = ()):
             step_name=step_name or current.step_name,
             related_files=current.related_files + tuple(related_files),
             in_worker=current.in_worker,
+            config=config if config is not None else current.config,
         )
     )
     try:
@@ -213,7 +234,9 @@ def _stamp(exc: AutoWISPError) -> None:
 
     Already-populated fields are left untouched. This is the one place
     that writes ``step_name`` / ``related_files`` / ``pipeline_run`` /
-    ``crashed`` after construction (they are mutable instance attributes).
+    ``crashed`` after construction (they are mutable instance attributes),
+    and stamps the process config into ``details`` so it travels back to
+    the parent with a worker error.
 
     Args:
         exc(AutoWISPError):    The exception to stamp in place.
@@ -229,6 +252,8 @@ def _stamp(exc: AutoWISPError) -> None:
         exc.related_files = ctx.related_files
     if exc.pipeline_run is None and ctx.pipeline_run is not None:
         exc.with_pipeline_run(ctx.pipeline_run)
+    if ctx.config is not None:
+        exc.details.setdefault("config", ctx.config)
 
 
 def _wrap(exc: Exception, component: Component) -> AutoWISPError:

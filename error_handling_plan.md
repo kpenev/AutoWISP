@@ -2499,21 +2499,41 @@ all import cycle-free. `run_pipeline` records `host=get_hostname()`;
 `environment` capture (`test_error_persistence`), `collect_environment`'s
 package filtering (`test_crash_report`), and the existing provenance test.
 
-### Item 8 — make the report self-contained for the failing step
+### Item 8 — record the resolved config on the error
 
-The bundled DB copy holds the resolved configuration, but reading it
-means opening SQLite; the sidecar should stand alone.
+The original framing here ("the bundled DB holds the resolved
+configuration, but reading it means opening SQLite") was **wrong**: the DB
+holds only the *raw* config rows (`parameter × condition × value ×
+version`); the **resolved** config a step actually ran with is a runtime
+derivation (`ProcessingManager.get_config` picks each parameter's value by
+matching the image's evaluated conditions) and is persisted **nowhere**.
+So it is the one config-related thing worth capturing — and, because it
+lives only in memory, worth capturing for *every* error, not just a crash.
 
-- Include the resolved configuration for the failing run/step in the
-  sidecar `details` (scrubbed via the existing `scrub_mapping`), so
-  `num_parallel_processes`, `max_tasks_per_child`, and the step's
-  parameters are visible without the DB.
-- Resolve the two open phase-6 refinements while here: for a
-  `WorkerCrashedError`, bundle the whole failed batch's error rows +
-  sidecars (not just the one requested), and surface the
-  `light_curve_processing_progress` timeline (which step/photref started
-  and did not finish) directly in the report — the datum that, in the
-  real case, was recoverable only by hand-querying the DB.
+- The resolved config is a **per-step context item**, set the same way as
+  `step_name` / `related_files`: `ErrorContext` gains a `config` field;
+  `from_config` snapshots it (so each worker rebuilds it from the config
+  it was handed); the managers scope it at each step's dispatch via
+  `error_context(config=...)`. `_stamp` then carries it into
+  `details["config"]` on any error — so a worker error gets it from its
+  own bootstrap and a parent-side error (including a synthesised
+  `WorkerCrashedError`, which runs inside the manager's scope) gets the
+  *failing step's* config, not the base `add_images_to_db` config the
+  parent bootstrapped with. Scrubbed at report time by the existing
+  sidecar `scrub_text`.
+- **Dropped** (were phase-6 refinements): a `progress.json` timeline and a
+  `related_errors.json` summary. Both only *duplicate the bundled DB* (the
+  `*_processing_progress` and `error` tables are in the scrubbed copy), and
+  after items 1–9 the facts that once needed a hand-query — which step,
+  which photref, which input — are already on the error itself
+  (`step_name`, `related_files`, `crashed_inputs`). Not worth the code.
+
+**Implemented.** `ErrorContext.config` + `from_config` snapshot;
+`error_context(config=...)` scoped in `_process_batch` (image) and
+`__call__` (lightcurve); `_stamp` writes `details["config"]`. Tests:
+`test_worker_error_carries_config` (worker path) and
+`test_worker_crashed_carries_scoped_config` (parent/crash path, proving it
+is the failing step's config, not the base).
 
 ### Item 9 — populate `related_files` (finish the deferred Phase-2 scoping)
 
@@ -2647,11 +2667,12 @@ multi-file and dedup cases) in `test_error_context.py`.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). `_worker_crashed` also records `details["resources"]` (memory snapshot + `num_processes`) via `collect_resource_snapshot` (item 6). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). `_worker_crashed` also records `details["resources"]` (memory snapshot + `num_processes`) via `collect_resource_snapshot` (item 6). `ErrorContext` gains a `config` field (`from_config` snapshots it) and `_stamp` writes `details["config"]` (item 8). |
 | `autowisp/miscellaneous.py` | **New** `collect_resource_snapshot()` — cross-OS memory snapshot via `psutil`, best-effort (items 6). |
 | run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) ✓ | Each passes its `related_files` classifier — a `FileKind` for item-only sites, or a `partial`/module function returning the item plus batch-constant auxiliaries (item 9, done). |
 | `calibrate.py` ✓ | Scopes `_calibration_related_files` (raw image + master bias/dark/flat) around each image (item 9, done). |
-| `lightcurve_processing.py` (`LightCurveProcessingManager.__call__`) ✓ | Scopes the single photref for the whole LC step, covering `create_lightcurves` / `epd` / `tfa` / the statistics generators (item 9, done). |
+| `lightcurve_processing.py` (`LightCurveProcessingManager.__call__`) ✓ | Scopes the step's config and the single photref for the whole LC step, covering `create_lightcurves` / `epd` / `tfa` / the statistics generators (items 8, 9). |
+| `image_processing.py` (`_process_batch`) ✓ | Its per-step `error_context` now also scopes `config` (item 8). |
 | `solve_astrometry.py` ✓ | The Scheme-B worker scopes the DR file so `capture_for_queue` stamps it (item 9, done). |
 | `autowisp/tests/test_related_files.py` ✓ | **New.** Unit tests for the per-step classifiers. |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
@@ -2722,8 +2743,10 @@ the DB, and can follow independently; **5** (OS-level exit signal) and
 they triangulate OOM vs. crash. **7** (crash-time provenance) is **done**
 at reduced scope (the "different machine" premise was a `getfqdn` vs.
 `gethostname` artifact, so the `PipelineRun` migration was dropped in
-favour of host-consistency + crash-time env in the sidecar). **8** remains.
-**9** (populate `related_files`)
+favour of host-consistency + crash-time env in the sidecar). **8** is
+**done** at reduced scope too — only the resolved config is worth
+recording (the rest of the original framing just duplicated the bundled
+DB). **9** (populate `related_files`)
 stands somewhat apart — it improves *every* error, not just crashes — and
 is now **done at all sites** (every `run_pool` call site, `calibrate`, the
 lightcurve steps via the manager dispatch, and Scheme-B

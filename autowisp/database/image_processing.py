@@ -719,11 +719,13 @@ class ImageProcessingManager(ProcessingManager):
     ):
         """Run the current step for a batch of images given configuration."""
 
-        # ``error_context`` (outer) scopes the step name so it is still
-        # active when ``_run_step``'s ``capture_errors`` stamps the
-        # exception on the way out -- the context manager's reset fires
-        # only after the inner ``except`` has run.
-        with error_context(step_name=step_name):
+        # ``error_context`` (outer) scopes the step name and its resolved
+        # config so both are still active when ``_run_step``'s
+        # ``capture_errors`` stamps the exception on the way out -- the
+        # context manager's reset fires only after the inner ``except`` has
+        # run. Scoping config here (uniformly for every step) is what lets a
+        # parent-side error carry the failing step's config.
+        with error_context(step_name=step_name, config=config):
             new_masters = self._run_step(batch, start_status, config, step_name)
 
         if new_masters:

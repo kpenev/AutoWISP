@@ -573,18 +573,20 @@ class LightCurveProcessingManager(ProcessingManager):
                 )
 
                 step_module = getattr(processing_steps, step_name)
-                # Scope the single photometric reference for the whole step
-                # (create_lightcurves / epd / tfa / the statistics
-                # generators) so any main-process error links to it; the
-                # parallel workers additionally scope each light curve.
+                # Scope the step's config and its single photometric
+                # reference for the whole step (create_lightcurves / epd /
+                # tfa / the statistics generators) so any main-process error
+                # carries both; the parallel workers additionally scope each
+                # light curve.
                 with error_context(
+                    config=configuration,
                     related_files=[
                         RelatedFile(
                             FileKind.DR_FILE,
                             single_photref_fname,
                             role="single_photref",
                         )
-                    ]
+                    ],
                 ):
                     new_masters = getattr(step_module, step_name)(
                         lc_fnames, 0, configuration, self._mark_progress

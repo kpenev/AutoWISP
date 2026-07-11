@@ -814,6 +814,53 @@ class TestPoolPropagation(_ContextTestCase):
         self.assertEqual(resources.get("num_processes"), 2)
         self.assertGreater(resources.get("ram_total", 0), 0)
 
+    def test_worker_error_carries_config(self):
+        """A worker error carries its process config (via from_config).
+
+        The resolved config lives only at runtime, so recording it is the
+        only way a report shows the settings the step actually ran with.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with self.assertRaises(FindStarsError) as ctx:
+                run_pool(
+                    _raise_find_stars_error,
+                    ["/lc/A.h5"],
+                    config=_pool_config(
+                        project_home, run_id=77, step="find_stars"
+                    ),
+                    num_processes=1,
+                )
+
+        config = ctx.exception.details.get("config", {})
+        self.assertEqual(config.get("processing_step"), "find_stars")
+        self.assertEqual(config.get("code_version"), "testver")
+
+    def test_worker_crashed_carries_scoped_config(self):
+        """A crash carries the *failing step's* config, scoped by the manager.
+
+        The parent's own context holds the base ``add_images_to_db`` config,
+        so the failing step's config must come from the
+        ``error_context(config=...)`` the manager scopes at dispatch (here
+        simulated around ``run_pool``) -- not from the parent context.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            step_config = _pool_config(project_home, run_id=55, step="tfa")
+            step_config["detrend_rej_level"] = 5.0  # a step-specific marker
+            with error_context(step_name="tfa", config=step_config):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        ["/lc/A.h5"],
+                        config=step_config,
+                        num_processes=1,
+                    )
+
+        config = ctx.exception.details.get("config", {})
+        self.assertEqual(config.get("detrend_rej_level"), 5.0)
+        self.assertEqual(config.get("processing_step"), "tfa")
+
     def test_worker_error_carries_related_file(self):
         """A worker error carries the item it was processing as a file.
 
