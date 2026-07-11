@@ -2033,6 +2033,48 @@ callers one `except CatalogError` regardless of which step tripped it.
   no-op sleep) in `test_exception_hierarchy.py`; plus the auto-coverage
   from the hierarchy's "every concrete class" + pickle round-trip tests.
 
+### Strand 1b — cohesive library clusters (done)
+
+Retyped the backlog clusters that sit in **library** code (so a specific
+class lets callers `except` regardless of which step reached them), each to
+an *existing* class -- no new types beyond `CatalogError`:
+
+- `image_calibration/calibrator.py` — the 4 config/data raises (bad area
+  dimension, invalid gain, invalid / malformatted leak directions) →
+  `CalibrationError`.
+- `source_finder_util.py` — unrecognized source-extraction tool →
+  `ConfigurationError` (a bad config value).
+- `astrometry/astrometry.py` — too few equations to solve for the
+  transformation coefficients → `SolveAstrometryError`.
+- `magnitude_fitting/master_photref_collector_{grcollect,zarr}.py` —
+  "failed to generate master photometric reference" → `FitMagnitudesError`,
+  **and** the one catch of it (`iterative_refit.py`, "no new master photref
+  this iteration") narrowed from the far-too-broad `except RuntimeError` to
+  `except FitMagnitudesError`, so an unrelated `RuntimeError` in
+  `generate_master` now surfaces instead of being swallowed.
+
+**Retyping a deferred site requires auditing its catch sites** — these
+sites were deferred precisely because callers `except` the *stdlib* type,
+and the AutoWISP classes deliberately do not subclass stdlib, so a blind
+swap silently breaks control flow. Each cluster above was checked: the
+calibrator / source-finder / astrometry raises have no specific-type
+handler wrapping them; the master-photref one did (handled above).
+
+- **`hdf5_file.py` — reverted, deliberately deferred.** Its ~14
+  `IOError`/`KeyError` raises are **control-flow**, not just errors:
+  `DataReductionFile.check_for_dataset(must_exist=True)` and
+  `get_attribute` raise `IOError` for "absent", and `DataReductionFile` /
+  `LightCurveFile` / `magnitude_fitting` `except IOError` all over to detect
+  absence (loop termination, `return False`, existence checks). Retyping to
+  `HDF5LayoutError` needs a coordinated update of every such catch site — a
+  careful task of its own, not a mechanical swap; left for later.
+
+These are otherwise mechanical class swaps; the classes are covered by the
+hierarchy tests, and a smoke import verifies each module. The step-internal
+backlog sites (below) are deliberately left to auto-wrapping -- the step
+boundary already stamps the step name, so retyping them mostly buys a
+narrower `user_message`, lower value.
+
 ### Deferred raise sites (Phase 7 backlog)
 
 These are the `raise <stdlib exception>` sites that Phase 7 **leaves to

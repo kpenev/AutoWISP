@@ -6,6 +6,8 @@ import subprocess
 
 from astrowisp import fistar_path
 
+from autowisp.exceptions import ConfigurationError
+
 faulthandler.enable()
 
 
@@ -77,4 +79,6 @@ def get_srcextract_columns(tool):
             "s/n",
             "npix",
         )
-    raise KeyError("Unrecognized sourc exatraction tool: " + repr(tool))
+    raise ConfigurationError(
+        "Unrecognized source extraction tool: " + repr(tool)
+    )

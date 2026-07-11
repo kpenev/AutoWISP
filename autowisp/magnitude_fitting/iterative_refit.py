@@ -7,7 +7,7 @@ import numpy
 from astropy.io import fits
 
 from autowisp.error_context import run_pool
-from autowisp.exceptions import FileKind, RelatedFile
+from autowisp.exceptions import FileKind, FitMagnitudesError, RelatedFile
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import (
@@ -234,7 +234,9 @@ def iterative_refit(
                 fit_terms_expression=configuration.mphotref_scatter_fit_terms,
                 extra_header=sphotref_header,
             )
-        except RuntimeError:
+        # Catch only the master-photref generation failure, so an unrelated
+        # error inside generate_master surfaces instead of being swallowed.
+        except FitMagnitudesError:
             return None, None
         new_reference = get_master_photref(master_reference_fname)
 

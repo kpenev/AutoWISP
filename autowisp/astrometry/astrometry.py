@@ -22,6 +22,7 @@ from scipy.optimize import fsolve
 
 from astropy.io import fits
 
+from autowisp.exceptions import SolveAstrometryError
 from autowisp.astrometry.map_projections import (
     gnomonic_projection,
     inverse_gnomonic_projection,
@@ -511,9 +512,10 @@ def get_initial_corr_web(  # pylint: disable=too-many-branches
                 "Cookie": f"session={client.session}",
             }
             req = Request(corr_url, headers=headers)
-            with urlopen(req) as remote_corr, open(
-                corr_fname, "wb"
-            ) as local_corr:
+            with (
+                urlopen(req) as remote_corr,
+                open(corr_fname, "wb") as local_corr,
+            ):
                 shutil.copyfileobj(remote_corr, local_corr)
             with fits.open(corr_fname, mode="readonly") as corr:
                 result = numpy.copy(corr[1].data[:])
@@ -559,7 +561,7 @@ def estimate_transformation(*, config, **initial_corr_kwarg):
     )
 
     if tweak_order == 0:
-        return None, 'solve-field failed'
+        return None, "solve-field failed"
 
     initial_corr = numpy.zeros(
         (field_corr["field_x"].shape),
@@ -571,13 +573,16 @@ def estimate_transformation(*, config, **initial_corr_kwarg):
     initial_corr["RA"] = field_corr["index_ra"]
     initial_corr["Dec"] = field_corr["index_dec"]
 
-    return estimate_transformation_from_corr(
-        initial_corr=initial_corr,
-        tweak_order=tweak_order,
-        astrometry_order=config["astrometry_order"],
-        x_cent=config["x_cent"],
-        y_cent=config["y_cent"],
-    ), "success"
+    return (
+        estimate_transformation_from_corr(
+            initial_corr=initial_corr,
+            tweak_order=tweak_order,
+            astrometry_order=config["astrometry_order"],
+            x_cent=config["x_cent"],
+            y_cent=config["y_cent"],
+        ),
+        "success",
+    )
 
 
 def refine_transformation(
@@ -779,7 +784,7 @@ def refine_transformation(
         if trans_matrix.shape[0] <= (
             min_source_safety_factor * trans_matrix.shape[1]
         ):
-            raise ValueError(
+            raise SolveAstrometryError(
                 f"The number of equations ({trans_matrix.shape[0]}) is "
                 f"insufficient to solve for {trans_matrix.shape[1]} "
                 "transformation coefficients with safety factor of "
