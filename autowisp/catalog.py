@@ -418,8 +418,12 @@ def write_query_to_file(query, fname, overwrite, **query_kwargs):
                 )
 
             if source_ids_to_keep:
-                mask = numpy.array(
-                    [str(sid) in source_ids_to_keep for sid in query["source_id"]]
+                allowed_ids = numpy.array(sorted(source_ids_to_keep), dtype=str)
+                query_ids = numpy.asarray(query["source_id"], dtype=str)
+                positions = numpy.searchsorted(allowed_ids, query_ids)
+                mask = (
+                    (positions < len(allowed_ids))
+                    & (allowed_ids[positions] == query_ids)
                 )
                 query = query[mask]
                 _logger.debug(
