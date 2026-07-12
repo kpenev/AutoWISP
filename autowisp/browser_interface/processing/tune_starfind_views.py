@@ -31,24 +31,34 @@ from autowisp.database.data_model import (
     Configuration,
     Parameter,
     AlternateParameterName,
+    Image,
 )
 # pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
 
 from .display_fits_util import update_fits_display
 
-STARFIND_SESSION_VERSION = 3
+STARFIND_SESSION_VERSION = 4
 
 STARFIND_DEFAULT_CONFIG = {
     "srcfind-tool": "fistar",
     "filter-sources": "True",
-    "srcextract-max-sources": "0",
+    "srcextract-max-sources": "4000",
     "brightness-threshold": "1000",
     "brightness-quantile": "0.999",
     "brightness-quantile-scale": "1.0",
 }
 
 STARFIND_MANAGED_PARAMS = tuple(STARFIND_DEFAULT_CONFIG)
+
+STARFIND_CONFIG_KEYS = {
+    "srcfind-tool": "srcfind_tool",
+    "filter-sources": "filter_sources",
+    "srcextract-max-sources": "srcextract_max_sources",
+    "brightness-threshold": "brightness_threshold",
+    "brightness-quantile": "brightness_quantile",
+    "brightness-quantile-scale": "brightness_quantile_scale",
+}
 
 BATCH_DISPLAY_ORDER = (0, 1, 3, 2)
 
@@ -72,13 +82,13 @@ def _init_session(request, processing, db_session):
     )[0]
     grouping_expressions = [
         {
-            "expression": "TELSCPID",
-            "display_expression": "TELSCPID_DISPLAY",
+            "expression": "INTSN",
+            "display_expression": "INTSN",
             "description": "{value} telescope",
         },
         {
-            "expression": "CAMERAID",
-            "display_expression": "CAMERAID_DISPLAY",
+            "expression": "CAMSN",
+            "display_expression": "CAMSN",
             "description": "{value} camera",
         },
         {
@@ -132,17 +142,13 @@ def _get_pending(request):
                         image.id, channel, "calibrated"
                     )
                 )
-                # Ensure DB-backed header fields like CAMERAID/TELSCPID exist
+                # Ensure DB-backed header fields like INTSN/CAMSN exist
                 # for grouping expressions when they are missing in FITS.
                 evaluator.symtable.update(
                     processing._get_extra_header(image)
                 )
                 grouping_expressions = request.session["starfind"][
                     "grouping_expressions"
-                ]
-                condition_values = [
-                    evaluator(expr["expression"])
-                    for expr in grouping_expressions
                 ]
                 display_values = [
                     evaluator(expr["display_expression"])
@@ -162,7 +168,6 @@ def _get_pending(request):
                         image.id,
                         channel,
                         processing.get_step_input(image, channel, "calibrated"),
-                        condition_values,
                     )
                 )
             request.session["starfind"]["pending"][imtype.name] = sorted(
@@ -439,7 +444,12 @@ def _desired_config_from_submission(submitted_config):
             "srcfind-tool": submitted_config["srcfind-tool"].strip(),
             "filter-sources": submitted_config["filter-sources"].strip(),
             "srcextract-max-sources": str(
-                int(submitted_config.get("srcextract-max-sources", "0"))
+                int(
+                    submitted_config.get(
+                        "srcextract-max-sources",
+                        STARFIND_DEFAULT_CONFIG["srcextract-max-sources"],
+                    )
+                )
             ),
         }
     )
@@ -470,13 +480,107 @@ def _desired_config_from_submission(submitted_config):
     return desired_config
 
 
-def _changed_config_from_defaults(desired_config):
-    """Return only values that differ from source extraction defaults."""
+def _config_value_to_string(value):
+    """Return a database-compatible string value for source extraction config."""
 
+    if value is None:
+        return None
+
+    return str(value)
+
+
+def _starfind_config_from_pipeline_config(pipeline_config):
+    """Return BUI parameter names and values from parsed pipeline config."""
+
+    return {
+        param: _config_value_to_string(
+            pipeline_config.get(
+                config_key,
+                STARFIND_DEFAULT_CONFIG[param],
+            )
+        )
+        for param, config_key in STARFIND_CONFIG_KEYS.items()
+    }
+
+
+def _get_batch_entry_config(
+    processing,
+    db_session,
+    batch_entry,
+    *,
+    exclude_batch_key=None,
+    grouping_expressions=None,
+):
+    """Return effective find_stars config for a pending batch entry."""
+
+    image_id, channel = batch_entry[:2]
+    image = db_session.get(Image, image_id)
+    processing.evaluate_expressions_image(image, db_session)
+    matched_expressions = set(
+        processing._evaluated_expressions[image_id][channel]["matched"]
+    )
+
+    if exclude_batch_key is not None:
+        assert grouping_expressions is not None
+        matched_expressions -= _get_condition_expression_ids(
+            db_session,
+            exclude_batch_key,
+            grouping_expressions,
+        )
+
+    return _starfind_config_from_pipeline_config(
+        processing.get_config(
+            matched_expressions,
+            db_session,
+            step_name="find_stars",
+        )[0]
+    )
+
+
+def _get_condition_expression_ids(
+    db_session, batch_key, grouping_expressions
+):
+    """Return DB expression IDs for existing expressions in a batch key."""
+
+    expression_ids = set()
+    for expression in _iter_condition_expressions(
+        batch_key, grouping_expressions
+    ):
+        expression_id = db_session.scalar(
+            select(ConditionExpression.id).filter_by(expression=expression)
+        )
+        if expression_id is not None:
+            expression_ids.add(expression_id)
+
+    return expression_ids
+
+
+def _get_submitted_params(desired_config):
+    """Return mode-relevant parameters to persist from the submitted config."""
+
+    params = [
+        "srcfind-tool",
+        "filter-sources",
+        "srcextract-max-sources",
+        "brightness-threshold",
+    ]
+    if desired_config["brightness-threshold"] is None:
+        params.extend(
+            ["brightness-quantile", "brightness-quantile-scale"]
+        )
+
+    return params
+
+
+def _changed_config_from_baseline(desired_config, baseline_config):
+    """Return submitted values that differ from inherited frame config."""
+
+    submitted_params = set(_get_submitted_params(desired_config))
     return {
         param: value
         for param, value in desired_config.items()
-        if not _values_match(value, STARFIND_DEFAULT_CONFIG[param])
+        if param in submitted_params
+        and not _values_match(value, baseline_config[param])
     }
 
 
@@ -560,37 +664,16 @@ def tune_starfind(request, imtype, batch_index):
     defaults = _get_tune_defaults()
 
     try:
-        grouping_expressions = request.session["starfind"][
-            "grouping_expressions"
-        ]
         with start_db_session() as db_session:
-            saved_configs = []
-            for exact_batch_key in _get_exact_batch_keys(batch):
-                condition_id = _get_existing_condition_id(
-                    db_session, exact_batch_key, grouping_expressions
-                )
-                saved_config = _get_saved_starfind_config(
-                    db_session, condition_id
-                )
-                if saved_config:
-                    saved_configs.append(saved_config)
-
-            unique_configs = {
-                json.dumps(config, sort_keys=True): config
-                for config in saved_configs
-            }
-            if len(unique_configs) == 1:
-                defaults.update(
-                    _context_from_starfind_config(
-                        next(iter(unique_configs.values()))
+            defaults.update(
+                _context_from_starfind_config(
+                    _get_batch_entry_config(
+                        ImageProcessingManager(pipeline_run_id=None),
+                        db_session,
+                        batch[1][image_index],
                     )
                 )
-            elif len(unique_configs) > 1:
-                logging.warning(
-                    "Multiple saved source extraction configs match batch %s; "
-                    "falling back to defaults.",
-                    batch[0],
-                )
+            )
     except Exception:  # pragma: no cover - keep tune UI available
         logging.exception(
             "Failed to load saved find_stars values for current batch"
@@ -751,7 +834,6 @@ def save_starfind_config(request, imtype, batch_index):
         len(batch_key["condition_values"]) == len(grouping_expressions)
         for batch_key in exact_batch_keys
     )
-    changed_config = _changed_config_from_defaults(desired_config)
 
     with start_db_session() as db_session:
         param_ids, missing_params = _get_param_ids(
@@ -761,7 +843,18 @@ def save_starfind_config(request, imtype, batch_index):
         if missing_params:
             return _missing_parameter_response(is_ajax, missing_params)
 
+        processing = ImageProcessingManager(pipeline_run_id=None)
         for batch_key in exact_batch_keys:
+            inherited_config = _get_batch_entry_config(
+                processing,
+                db_session,
+                batch[1][0],
+                exclude_batch_key=batch_key,
+                grouping_expressions=grouping_expressions,
+            )
+            changed_config = _changed_config_from_baseline(
+                desired_config, inherited_config
+            )
             condition_id = _get_existing_condition_id(
                 db_session, batch_key, grouping_expressions
             )
