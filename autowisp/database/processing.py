@@ -455,6 +455,12 @@ class ProcessingManager:
             "OBSSSNID": obs_session.label,
             "TARGETID": obs_session.target.name,
             "OBSERVER": obs_session.observer.name,
+            "CAMSN": cls._get_equipment_identifier(
+                obs_session.camera, "camera_type", "cameras"
+            ),
+            "INTSN": cls._get_equipment_identifier(
+                obs_session.telescope, "telescope_type", "telescopes"
+            ),
             "CAMERAID_DISPLAY": cls._get_equipment_type_identifier(
                 obs_session.camera, "camera_type"
             ),
