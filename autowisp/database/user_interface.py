@@ -405,6 +405,27 @@ def _get_config_info(version, step="All"):
     return config_info
 
 
+_CONFIG_EXPRESSION_ORDER = (
+    "EXPTIME",
+    "INTSN",
+    "CAMSN",
+    "TELSCPID",
+    "CAMERAID",
+    "CLRCHNL",
+)
+
+
+def _config_expression_sort_key(expression_count):
+    """Return deterministic ordering key for configuration conditions."""
+
+    expression, count = expression_count
+    for order, expression_prefix in enumerate(_CONFIG_EXPRESSION_ORDER):
+        if expression.startswith(expression_prefix):
+            return (order, -count, expression)
+
+    return (len(_CONFIG_EXPRESSION_ORDER), -count, expression)
+
+
 def get_json_config(version=0, step="All", **dump_kwargs):
     """Return the configuration as a JSON object."""
 
@@ -456,8 +477,7 @@ def get_json_config(version=0, step="All", **dump_kwargs):
             expr_count[0]
             for expr_count in sorted(
                 param_info["expression_counts"].items(),
-                key=lambda expr_count: expr_count[1],
-                reverse=True,
+                key=_config_expression_sort_key,
             )
         ]
         config_data["children"].append(
