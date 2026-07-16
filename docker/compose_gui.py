@@ -18,7 +18,9 @@ def _find_compose_path():
 
     When running as a PyInstaller frozen executable, resolve the compose file
     from the executable directory.
-    Returns a Path object (may not exist).
+
+    Returns:
+        Path: The expected compose.yaml path. The path may not exist yet.
     """
 
     try:
@@ -56,10 +58,24 @@ DEFAULT_LABELS = {
 
 
 def read_compose_text():
+    """Read the current compose.yaml contents.
+
+    Returns:
+        str: The complete compose.yaml file contents as UTF-8 text.
+    """
     return COMPOSE_PATH.read_text(encoding="utf-8")
 
 
 def target_matches(target_path, expected):
+    """Check whether a compose target matches an expected container path.
+
+    Args:
+        target_path: Target path read from compose.yaml.
+        expected: Expected container mount path.
+
+    Returns:
+        bool: True if target_path equals expected or is below expected.
+    """
     return target_path == expected or target_path.startswith(
         expected.rstrip("/") + "/"
     )
@@ -73,8 +89,23 @@ def find_and_replace_sources(
     new_anet_narrow=None,
     new_anet_wide=None,
 ):
-    # Work line-by-line to preserve formatting; find target:
-    # /storage and /tmp and replace the nearest source: above them
+    """Replace source paths for known volume targets in compose YAML text.
+
+    The compose file is processed line-by-line to preserve formatting. For each
+    known target path, this finds the nearest preceding source line and replaces
+    it with the matching user-selected host path.
+
+    Args:
+        text: Original compose.yaml text.
+        new_storage: Host path to use for the /storage target.
+        new_tmp: Host path to use for the /tmp target.
+        new_bui: Optional host path to use for /app_data/autowisp.
+        new_anet_narrow: Optional host path for narrow astrometry indices.
+        new_anet_wide: Optional host path for wide astrometry indices.
+
+    Returns:
+        str: Updated compose.yaml text.
+    """
     lines = text.splitlines()
 
     def replace_for_target(target, new_path):
@@ -82,6 +113,13 @@ def find_and_replace_sources(
         nearest preceding `source:` line with new_path. This handles cases like
         `target: /storage/<container name>` by using prefix matching instead of
         exact equality.
+
+        Args:
+            target: Container target path to search for.
+            new_path: New host source path to write above the target.
+
+        Returns:
+            None
         """
         target_re = re.compile(
             rf"^\s*target:\s*{re.escape(target.rstrip('/'))}(?:/.*)?\s*$"
@@ -109,13 +147,27 @@ def find_and_replace_sources(
 
 
 def find_free_port(hostname="localhost"):
-    """Find an available port by binding to port 0."""
+    """Find an available TCP port on the requested host.
+
+    Args:
+        hostname: Host interface to bind while asking the OS for a free port.
+
+    Returns:
+        str: Available port number as a string.
+    """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind((hostname, 0))
         return str(sock.getsockname()[1])
 
 
 def get_current_port():
+    """Read the first host/container port mapping from compose.yaml.
+
+    Returns:
+        tuple[str, str, str]: Host port, container port, and quote character.
+        If no mapping exists, returns a free host port, container port "8089",
+        and a double quote.
+    """
     text = read_compose_text()
     lines = text.splitlines()
     # Find first port mapping like "8089:8089" and return the host port.
@@ -146,9 +198,9 @@ def get_current_sources():
     a pipe (e.g. <IOdir| description>) the description (text after |) is
     extracted and returned as the label for that field in the GUI.
 
-    Returns a tuple:
-      (storage, tmp, bui, anet_narrow, anet_wide,
-       storage_label, tmp_label, bui_label, anet_narrow_label, anet_wide_label)
+    Returns:
+        SimpleNamespace: Object with storage, tmp, bui, anet_narrow,
+        anet_wide, and matching *_label attributes.
     """
     text = read_compose_text()
     lines = text.splitlines()
@@ -203,6 +255,20 @@ class MountPoint:
         on_select=None,
         width=60,
     ):
+        """Create a labeled path entry with a Browse button.
+
+        Args:
+            root: Tkinter parent widget.
+            row: Grid row where the mount point widgets should be placed.
+            label_text: Text shown beside the entry.
+            initial_value: Initial filesystem path shown in the entry.
+            title: Directory-picker dialog title.
+            on_select: Optional callback called with the selected path.
+            width: Entry width in characters.
+
+        Returns:
+            None
+        """
         self.title = title
         self.on_select = on_select
         self.label = tk.Label(root, text=label_text)
@@ -214,16 +280,42 @@ class MountPoint:
         self.browse_btn.grid(row=row, column=2, padx=6)
 
     def get(self):
+        """Return the path currently shown in the entry.
+
+        Returns:
+            str: Current entry value.
+        """
         return self.var.get()
 
     def set(self, value):
+        """Set the path shown in the entry.
+
+        Args:
+            value: New path string to display.
+
+        Returns:
+            None
+        """
         self.var.set(value)
 
     def set_state(self, state):
+        """Enable or disable the entry and Browse button together.
+
+        Args:
+            state: Tkinter widget state, such as "normal" or "disabled".
+
+        Returns:
+            None
+        """
         self.entry.configure(state=state)
         self.browse_btn.configure(state=state)
 
     def browse(self):
+        """Open a folder picker and store or pass on the selected directory.
+
+        Returns:
+            None
+        """
         p = filedialog.askdirectory(
             initialdir=self.get() or os.getcwd(), title=self.title
         )
@@ -236,6 +328,14 @@ class MountPoint:
 
 class ComposeEditorApp:
     def __init__(self, root):
+        """Build the AutoWISP compose editor window and initialize its state.
+
+        Args:
+            root: Tkinter root window for the application.
+
+        Returns:
+            None
+        """
         self.root = root
         root.title("AutoWISP Compose Editor")
 
@@ -251,8 +351,20 @@ class ComposeEditorApp:
                 "Select storage folder",
                 self.handle_storage_selected,
             ),
-            ("tmp", sources.tmp_label, sources.tmp, "Select tmp folder", None),
-            ("bui", sources.bui_label, sources.bui, "Select BUI folder", None),
+            (
+                "tmp",
+                sources.tmp_label,
+                sources.tmp,
+                "Select tmp folder",
+                None,
+            ),
+            (
+                "bui",
+                sources.bui_label,
+                sources.bui,
+                "Select BUI folder",
+                None,
+            ),
             (
                 "anet_narrow",
                 sources.anet_narrow_label,
@@ -325,6 +437,13 @@ class ComposeEditorApp:
         - create those folders if they do not exist
         - enable the previously-disabled widgets
         - optionally show an informational popup
+
+        Args:
+            p: Selected storage folder path.
+            show_info: Whether to show a confirmation message box.
+
+        Returns:
+            None
         """
         # normalize path
         p = os.path.abspath(p)
@@ -368,16 +487,43 @@ class ComposeEditorApp:
         self.save_compose_settings()
 
     def handle_mount_selected(self, name, path):
+        """Store a selected non-storage mount path and persist compose.yaml.
+
+        Args:
+            name: Mount name in self.mounts.
+            path: Selected host folder path.
+
+        Returns:
+            None
+        """
         self.mounts[name].set(os.path.abspath(path))
         self.save_compose_settings()
 
     def handle_form_field_saved(self, _event=None):
+        """Persist compose.yaml when a form field loses focus or Return is used.
+
+        Args:
+            _event: Optional Tkinter event supplied by widget bindings.
+
+        Returns:
+            None
+        """
         self.save_compose_settings()
 
     def mount_values(self):
+        """Collect the current path values from every mount entry.
+
+        Returns:
+            dict[str, str]: Mapping of mount names to path entry values.
+        """
         return {name: mount.get() for name, mount in self.mounts.items()}
 
     def save_compose_settings(self):
+        """Write the current GUI path and port settings back to compose.yaml.
+
+        Returns:
+            bool: True when compose.yaml was saved, otherwise False.
+        """
         try:
             values = self.mount_values()
             new_text = find_and_replace_sources(
@@ -396,9 +542,10 @@ class ComposeEditorApp:
             return False
 
     def disable_all_except_storage(self):
-        """
-            Disable all entries/browse buttons and action buttons
-            except the storage row.
+        """Disable all controls except the storage folder selector.
+
+        Returns:
+            None
         """
         for name, mount in self.mounts.items():
             if name == "storage":
@@ -412,13 +559,22 @@ class ComposeEditorApp:
         self.mounts["storage"].set_state("normal")
 
     def enable_all_widgets(self):
-        """Enable all previously-disabled widgets after storage selection."""
+        """Enable all previously-disabled widgets after storage selection.
+
+        Returns:
+            None
+        """
         for mount in self.mounts.values():
             mount.set_state("normal")
 
         self.run_btn.configure(state="normal")
 
     def update_image(self):
+        """Launch Docker commands in a terminal to refresh the wisp image.
+
+        Returns:
+            None
+        """
         try:
             if not COMPOSE_PATH.exists():
                 messagebox.showerror(
@@ -453,6 +609,9 @@ class ComposeEditorApp:
         unmodified (contains placeholders like <IOdir|...), only the Storage
         selector remains enabled. If the compose file appears modified, enable
         all controls so the user can edit freely.
+
+        Returns:
+            None
         """
         text = ""
         try:
@@ -489,6 +648,11 @@ class ComposeEditorApp:
             return
 
     def run_docker(self):
+        """Save settings, start docker compose, and open AutoWISP when ready.
+
+        Returns:
+            None
+        """
         try:
             if not COMPOSE_PATH.exists():
                 messagebox.showerror(
@@ -516,6 +680,11 @@ class ComposeEditorApp:
             poll_interval = 2  # seconds
 
             def _poll_and_open():
+                """Wait for the local AutoWISP URL to respond, then open it.
+
+                Returns:
+                    None
+                """
                 end_time = time.time() + timeout
                 while time.time() < end_time:
                     try:
@@ -557,8 +726,18 @@ class ComposeEditorApp:
 
 
 def find_and_replace_port(text, new_host_port):
-    # Replace or add port mapping (e.g., "8089:8089") with new_host_port:8089
-    # If no port mapping exists, add a ports section after the shm_size line
+    """Replace or add the host port mapping in compose YAML text.
+
+    Existing mappings such as "8089:8089" keep their container port and quote
+    style. If no mapping exists, a ports section is added after shm_size.
+
+    Args:
+        text: Original compose.yaml text.
+        new_host_port: Host port to expose for the existing container port.
+
+    Returns:
+        str: Updated compose.yaml text.
+    """
     lines = text.splitlines()
     for i, line in enumerate(lines):
         s = line.strip()
