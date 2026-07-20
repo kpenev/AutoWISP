@@ -13,6 +13,7 @@ from autowisp.database.image_processing import ImageProcessingManager
 # pylint: disable=no-name-in-module
 from autowisp.database.data_model import (
     ImageProcessingProgress,
+    LightCurveProcessingProgress,
     Step,
     ImageType,
     ProcessingSequence,
@@ -21,6 +22,14 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 
 datetime_fmt = "%Y%m%d %H:%M:%S"
+
+
+def _get_progress_type(request):
+    """Return the requested progress model and its URL identifier."""
+
+    if request.GET.get("processing_type") == "lightcurve":
+        return LightCurveProcessingProgress, "lightcurve"
+    return ImageProcessingProgress, "image"
 
 
 def review(request, selected_processing_id, min_log_level="WARNING"):
@@ -35,20 +44,37 @@ def review(request, selected_processing_id, min_log_level="WARNING"):
             displayed.
     """
 
+    progress_class, processing_type = _get_progress_type(request)
     context = {
         "selected_processing_id": selected_processing_id,
         "min_log_level": min_log_level,
+        "processing_type": processing_type,
     }
     with start_db_session() as db_session:
         selected_progress = db_session.scalar(
-            select(ImageProcessingProgress).where(
-                ImageProcessingProgress.id == selected_processing_id,
+            select(progress_class).where(
+                progress_class.id == selected_processing_id,
             )
+        )
+        target_column = (
+            LightCurveProcessingProgress.single_photref_id
+            if progress_class is LightCurveProcessingProgress
+            else ImageProcessingProgress.image_type_id
+        )
+        target_id = getattr(selected_progress, target_column.key)
+        image_type_id = (
+            db_session.scalar(
+                select(ProcessingSequence.image_type_id).where(
+                    ProcessingSequence.step_id == selected_progress.step_id
+                )
+            )
+            if progress_class is LightCurveProcessingProgress
+            else target_id
         )
         selected_progress = (
             selected_progress.id,
             selected_progress.step_id,
-            selected_progress.image_type_id,
+            image_type_id,
             selected_progress.started.strftime(datetime_fmt),
             (
                 "-"
@@ -65,20 +91,17 @@ def review(request, selected_processing_id, min_log_level="WARNING"):
             )
             for record in db_session.execute(
                 select(
-                    ImageProcessingProgress.id,
-                    ImageProcessingProgress.started,
-                    ImageProcessingProgress.finished,
+                    progress_class.id,
+                    progress_class.started,
+                    progress_class.finished,
                 ).where(
-                    (ImageProcessingProgress.step_id == selected_progress[1]),
-                    (
-                        ImageProcessingProgress.image_type_id
-                        == selected_progress[2]
-                    ),
+                    progress_class.step_id == selected_progress[1],
+                    target_column == target_id,
                 )
             ).all()
         ]
         context["selected_info"] = selected_progress
-        context["pipeline_steps"] = db_session.execute(
+        image_steps = db_session.execute(
             select(
                 Step.id,
                 func.replace(Step.name, "_", " "),
@@ -90,30 +113,59 @@ def review(request, selected_processing_id, min_log_level="WARNING"):
                 Step.name,
             )
         ).all()
-        context["image_types"] = db_session.execute(
+        lightcurve_steps = db_session.execute(
             select(
-                ProcessingSequence.image_type_id,
-                ImageType.name,
-                ImageProcessingProgress.id,
+                Step.id,
+                func.replace(Step.name, "_", " "),
+                func.max(LightCurveProcessingProgress.id),
             )
-            .select_from(ProcessingSequence)
-            .join(ImageType)
-            .join(
-                ImageProcessingProgress,
-                and_(
-                    (
-                        ImageProcessingProgress.step_id
-                        == ProcessingSequence.step_id
-                    ),
-                    (
-                        ImageProcessingProgress.image_type_id
-                        == ProcessingSequence.image_type_id
-                    ),
-                ),
-            )
-            .where(ProcessingSequence.step_id == selected_progress[1])
-            .group_by(ProcessingSequence.image_type_id, ImageType.name)
+            .join(LightCurveProcessingProgress)
+            .group_by(Step.id, Step.name)
         ).all()
+        context["pipeline_steps"] = sorted(
+            [(*step, "image") for step in image_steps]
+            + [(*step, "lightcurve") for step in lightcurve_steps]
+        )
+
+        if progress_class is LightCurveProcessingProgress:
+            image_type = db_session.execute(
+                select(ImageType.id, ImageType.name)
+                .select_from(ProcessingSequence)
+                .join(ImageType)
+                .where(ProcessingSequence.step_id == selected_progress[1])
+            ).one()
+            context["image_types"] = [
+                (*image_type, selected_processing_id, processing_type)
+            ]
+        else:
+            context["image_types"] = [
+                (*image_type, processing_type)
+                for image_type in db_session.execute(
+                    select(
+                        ProcessingSequence.image_type_id,
+                        ImageType.name,
+                        ImageProcessingProgress.id,
+                    )
+                    .select_from(ProcessingSequence)
+                    .join(ImageType)
+                    .join(
+                        ImageProcessingProgress,
+                        and_(
+                            ImageProcessingProgress.step_id
+                            == ProcessingSequence.step_id,
+                            ImageProcessingProgress.image_type_id
+                            == ProcessingSequence.image_type_id,
+                        ),
+                    )
+                    .where(
+                        ProcessingSequence.step_id == selected_progress[1]
+                    )
+                    .group_by(
+                        ProcessingSequence.image_type_id,
+                        ImageType.name,
+                    )
+                ).all()
+            ]
 
     return render(request, "processing/review.html", context)
 
@@ -123,16 +175,24 @@ def review_single(
 ):
     """A view that shows only one type of output from a processing step."""
 
+    progress_class, processing_type = _get_progress_type(request)
     context = {
         "selected_processing_id": selected_processing_id,
         "what": what,
         "min_log_level": min_log_level,
         "selected_subp": sub_process,
+        "processing_type": processing_type,
     }
 
-    log_output_fnames = ImageProcessingManager(
-        pipeline_run_id=None
-    ).find_processing_outputs(selected_processing_id)
+    with start_db_session() as db_session:
+        processing_progress = db_session.scalar(
+            select(progress_class).where(
+                progress_class.id == selected_processing_id
+            )
+        )
+        log_output_fnames = ImageProcessingManager(
+            pipeline_run_id=None
+        ).find_processing_outputs(processing_progress, db_session)
     context["sub_processes"] = range(1, len(log_output_fnames[1][0]) + 1)
     assert len(log_output_fnames[1][0]) == len(log_output_fnames[1][1])
 
