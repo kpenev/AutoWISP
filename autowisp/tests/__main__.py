@@ -285,6 +285,15 @@ def main():
     try:
         with data_dir_cm as test_dir:
             get_test_data(test_dir, local_source=args.test_data)
+            # Point solve_astrometry at the astrometry.net indices bundled in
+            # the test data (env overrides the config path). Environments with
+            # no local solve-field (e.g. Windows without ANSVR) fall back to the
+            # web solver via astrometry.local_solver_available().
+            anet_indices = path.join(test_dir, "anet_indices")
+            if path.isdir(anet_indices):
+                os.environ["AUTOWISP_ANET_INDICES"] = (
+                    f"[{anet_indices}, {anet_indices}]"
+                )
             processing_dir = path.join(test_dir, "processing")
             print(f"Test data directory: {test_dir!r}")
             print(f"Test data contents: {glob(test_dir + '/*')}")

@@ -72,6 +72,7 @@ def add_anet_cmdline_args(parser):
     parser.add_argument(
         "--anet-indices",
         nargs=2,
+        env_var="AUTOWISP_ANET_INDICES",
         default=(
             (
                 rf"C:\Users\{getpass.getuser()}"
