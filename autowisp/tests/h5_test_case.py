@@ -17,6 +17,14 @@ from autowisp.tests import AutoWISPTestCase
 class H5TestCase(AutoWISPTestCase):
     """Add assert for comparing groups in HDF5 files."""
 
+    # Datasets (keyed by leaf name) whose stored value has a large, arbitrary
+    # zero-point, so a relative tolerance is meaningless: rtol=1e-8 on a
+    # ~2.4e6 BJD is a ~2000 s absolute slop, which silently hides real timing
+    # errors. Compare these with a purely absolute tolerance (in the dataset's
+    # own units) instead. BJD is in days, so 1e-6 day (~0.086 s) catches real
+    # timing errors while tolerating cross-platform numerical noise.
+    _absolute_tolerance_datasets = {"BJD": 1e-6}
+
     def _project_relative(self, dr_fname, value):
         """Return ``value`` as a path relative to whichever project_home
         ``dr_fname`` lives in (``test_directory`` or ``processing_directory``).
@@ -84,9 +92,15 @@ class H5TestCase(AutoWISPTestCase):
                     [self._project_relative(dr_fname2, v) for v in data2]
                 )
             if dset1.dtype.kind == "f":
+                abs_atol = self._absolute_tolerance_datasets.get(
+                    dset1.name.rsplit("/", 1)[-1]
+                )
+                rtol, atol = (
+                    (0.0, abs_atol) if abs_atol is not None else (1e-8, 1e-8)
+                )
                 differ = numpy.logical_not(
                     numpy.isclose(
-                        data1, data2, rtol=1e-8, atol=1e-8, equal_nan=True
+                        data1, data2, rtol=rtol, atol=atol, equal_nan=True
                     )
                 )
                 if differ.any():

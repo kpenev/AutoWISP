@@ -34,6 +34,10 @@ from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
 from autowisp.tests.test_detrending_stat import TestDetrendingStat
 from autowisp.tests.test_catalog import TestCatalog
+from autowisp.tests.test_lc_filter import (
+    TestCatalogSourceListFilter,
+    TestLCFilter,
+)
 from autowisp.tests.test_provenance_resolver import TestProvenanceResolver
 from autowisp.tests.test_parse_config_overwrites import (
     TestParseConfigOverwrites,

@@ -21,6 +21,7 @@ py_src = [
   'test_find_stars.py',
   'test_fit_magnitudes.py',
   'test_full_pipeline.py',
+  'test_lc_filter.py',
   'test_fit_source_extracted_psf_map.py',
   'test_fit_star_shape.py',
   'test_measure_aperture_photometry.py',
