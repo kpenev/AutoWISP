@@ -461,18 +461,35 @@ def create_catalog_file(fname, overwrite=False, **query_kwargs):
     )
 
 
+def read_source_id_list(fname):
+    """Read a file of catalog source IDs (one per line) into a set of strings.
+
+    Blank lines are ignored. IDs are kept as strings so matching is independent
+    of the (possibly platform dependent) integer dtype of the catalog index.
+    """
+
+    with open(fname, "r", encoding="utf-8") as id_file:
+        return {line.strip() for line in id_file if line.strip()}
+
+
 def read_catalog_file(
     cat_fits,
     filter_expr=None,
     sort_expr=None,
     return_metadata=False,
     add_gnomonic_projection=False,
+    source_id_filter=None,
 ):
     """
     Read a catalog FITS file.
 
     Args:
         cat_fits(str, or opened FITS file):    The file to read.
+
+        source_id_filter(iterable of str or None):    If not None, only sources
+            whose ``source_id`` (compared as a string) is in this collection are
+            returned. Applied before any ``filter_expr``/``sort_expr`` so a
+            single cached catalog can be reused for arbitrary source subsets.
 
     Returns:
         pandas.DataFrame:
@@ -487,12 +504,20 @@ def read_catalog_file(
                 sort_expr,
                 return_metadata,
                 add_gnomonic_projection,
+                source_id_filter,
             )
 
     fixed_dtype = cat_fits[1].data.dtype.newbyteorder("=")
     result = pandas.DataFrame.from_records(
         cat_fits[1].data.astype(fixed_dtype), index="source_id"
     )
+    if source_id_filter is not None:
+        result = result[
+            numpy.isin(
+                result.index.to_numpy().astype(str),
+                numpy.asarray(sorted(source_id_filter), dtype=str),
+            )
+        ]
     metadata = None
     if return_metadata or add_gnomonic_projection:
         metadata = cat_fits[1].header
@@ -1116,6 +1141,13 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
         configuration=configuration,
         **dr_path_substitutions,
     )
+
+    # Restrict the (possibly cached) catalog to an explicit list of source IDs
+    # at read time. The list does not affect the query or the cache key, so the
+    # full catalog can be queried once and reused for any subset.
+    source_id_filter = configuration.get("source_list")
+    if source_id_filter is not None:
+        source_id_filter = read_source_id_list(source_id_filter)
     with lock if lock is not None else nullcontext():
         if path.exists(catalog_info["fname"]):
             with fits.open(catalog_info["fname"]) as cat_fits:
@@ -1228,7 +1260,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                     > catalog_info["magnitude_limit"][-1]
                 ):
                     filter_expr.append(
-                        '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
+                        f'(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
                     )
                 # pylint: enable=too-many-boolean-expressions
 
@@ -1239,6 +1271,7 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
                             " and ".join(filter_expr) if filter_expr else None
                         ),
                         return_metadata=return_metadata,
+                        source_id_filter=source_id_filter,
                     ),
                     outliers,
                     catalog_info["fname"],
@@ -1250,7 +1283,9 @@ def ensure_catalog(  # pylint: disable=too-many-branches, too-many-arguments
         create_catalog_file(**catalog_info, verbose=True)
         return (
             read_catalog_file(
-                catalog_info["fname"], return_metadata=return_metadata
+                catalog_info["fname"],
+                return_metadata=return_metadata,
+                source_id_filter=source_id_filter,
             ),
             outliers,
             catalog_info["fname"],

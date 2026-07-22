@@ -1049,6 +1049,8 @@ class LCDataIO:
             """Fill all datasets with pipeline key prefix `'skypos'`."""
 
             num_sources = len(data_slice_source_indices)
+            if num_sources == 0:
+                return
 
             # False positive, pylint does not see units attributes
             # pylint: disable=no-member
@@ -1063,8 +1065,8 @@ class LCDataIO:
             )
 
             source_coords = SkyCoord(
-                ra=self._ra_dec[0] * units.deg,
-                dec=self._ra_dec[1] * units.deg,
+                ra=self._ra_dec[0, data_slice_source_indices] * units.deg,
+                dec=self._ra_dec[1, data_slice_source_indices] * units.deg,
                 frame="icrs",
             )
 
@@ -1085,7 +1087,7 @@ class LCDataIO:
             # pylint: disable=no-member
             data["hour_angle"] = (
                 obs_time.sidereal_time("apparent").to(units.hourangle).value
-                - self._ra_dec[0] / 15.0
+                - self._ra_dec[0, data_slice_source_indices] / 15.0
             )
             # pylint: enable=no-member
             data["per_source"] = numpy.ones((num_sources,), dtype=numpy.bool_)
@@ -1136,24 +1138,28 @@ class LCDataIO:
         ]
 
         skipped_sources = []
+        present_source_indices = []
         for skip_src, slice_ind in zip(
             source_data.index, data_slice_source_indices
         ):
             if slice_ind is None:
                 skipped_sources.append(skip_src)
+            else:
+                present_source_indices.append(slice_ind)
 
         if skipped_sources:
             source_data.drop(skipped_sources, inplace=True)
 
         fill_direct_from_dr(data_slice_source_indices)
-        fill_sky_position_datasets(data_slice_source_indices)
-        fill_srcextract_psf_map(source_data, data_slice_source_indices)
-        fill_source_field(
-            quantity="source_in_frame",
-            values=numpy.ones(len(data_slice_source_indices), dtype=bool),
-            dim_values=(),
-            data_slice_source_indices=data_slice_source_indices,
-        )
+        if present_source_indices:
+            fill_sky_position_datasets(present_source_indices)
+            fill_srcextract_psf_map(source_data, present_source_indices)
+            fill_source_field(
+                quantity="source_in_frame",
+                values=numpy.ones(len(present_source_indices), dtype=bool),
+                dim_values=(),
+                data_slice_source_indices=present_source_indices,
+            )
 
         return skipped_sources
 
