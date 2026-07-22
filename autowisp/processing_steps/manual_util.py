@@ -258,8 +258,17 @@ class ManualStepArgumentParser(ArgumentParser):
             help="An expression to evaluate for each catalog source to "
             "determine if the source should be used for astrometry of a given "
             "channel. If filter for a given channel is not specified, the full "
-            "catalog is used for that channel. / For lc-catalog-filter the path"
-            " to a file containing the sources GAIA ids is specified instead "
+            "catalog is used for that channel.",
+        )
+        self.add_argument(
+            f"--{prefix}-catalog-source-list",
+            f"--{prefix}-catalogue-source-list",
+            "--cat-source-list",
+            default=catalog_config.get("source_list"),
+            help="Path to a file listing the GAIA source IDs (one per line) to "
+            "keep in the catalog. When given, the catalog is restricted to "
+            "these sources at read time, so the full cached catalog query is "
+            "reused. If not specified, all sources in the catalog are kept.",
         )
         self.add_argument(
             f"--{prefix}-catalog-epoch",
