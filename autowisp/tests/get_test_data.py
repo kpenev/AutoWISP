@@ -19,7 +19,7 @@ def download_zip(destination):
         print("Re-using existing 'test_data.zip'")
         return result
     req = requests.get(
-        "https://zenodo.org/records/21494020/files/test_data.zip",
+        "https://zenodo.org/records/21501301/files/test_data.zip",
         timeout=60,
     )
     if not req.ok:

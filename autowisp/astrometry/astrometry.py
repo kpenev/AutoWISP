@@ -297,6 +297,31 @@ def create_config_file(config_fname, fov_range, anet_indices):
         _logger.debug("Astrometry.net engine config:\n%s", config_file.read())
 
 
+def _ansvr_bash():
+    """Return the ANSVR cygwin ``bash`` path on Windows if installed, else None.
+
+    ANSVR (https://adgsoftware.com/ansvr/) is how ``solve-field`` is provided on
+    Windows; its ``solve-field`` is a cygwin binary invoked through this bash,
+    so it never appears on the Windows PATH.
+    """
+
+    if os.name != "nt":
+        return None
+    bash_exe = os.environ.get(
+        "ANSVR_BASH",
+        os.path.expandvars(r"%LOCALAPPDATA%\cygwin_ansvr\bin\bash.exe"),
+    )
+    return bash_exe if os.path.exists(bash_exe) else None
+
+
+def local_solver_available():
+    """Whether a local ``solve-field`` can be invoked (native or via ANSVR)."""
+
+    if os.name == "nt":
+        return _ansvr_bash() is not None
+    return shutil.which("solve-field") is not None
+
+
 def get_initial_corr_local(
     header, xy_extracted, tweak_order_range, fov_range, anet_indices
 ):
@@ -314,14 +339,8 @@ def get_initial_corr_local(
         config_fname,
     ):
         xy_extracted = create_sources_file(xy_extracted, sources_fname)
-        use_ansvr = False
-        bash_exe = None
-        if os.name == "nt":
-            bash_exe = os.environ.get(
-                "ANSVR_BASH",
-                os.path.expandvars(r"%LOCALAPPDATA%\cygwin_ansvr\bin\bash.exe"),
-            )
-            use_ansvr = os.path.exists(bash_exe)
+        bash_exe = _ansvr_bash()
+        use_ansvr = bash_exe is not None
 
         create_config_file(config_fname, fov_range, anet_indices)
 
@@ -521,6 +540,7 @@ def get_initial_corr(
         "anet_indices" in config
         and os.path.exists(config["anet_indices"][0])
         and os.path.exists(config["anet_indices"][1])
+        and local_solver_available()
     ):
         return get_initial_corr_local(*initial_corr_arg, config["anet_indices"])
 

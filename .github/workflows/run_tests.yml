@@ -61,6 +61,20 @@ jobs:
           # matrix.extra_pip adds per-cell constraints (Intel mac pins llvmlite).
           python -m pip install "numpy${{ matrix.numpy == '1' && '<2' || '>=2' }}" ${{ matrix.extra_pip }} .
           python -c "from importlib.metadata import version; print('numpy', version('numpy'), '| astrowisp', version('astrowisp'))"
+      # Solve astrometry locally on Linux/macOS: just install solve-field. The
+      # test harness points solve_astrometry at the astrometry.net indices bundled
+      # in the test data (via AUTOWISP_ANET_INDICES). Windows has no practical
+      # solve-field, so local_solver_available() makes it fall back to the web
+      # solver -- and as the only Windows cell it is the one live web check.
+      - name: Install solve-field (local plate solving)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            Linux) sudo apt-get update -qq && sudo apt-get install -y -qq astrometry.net ;;
+            macOS) brew install astrometry-net ;;
+            *) echo "No solve-field install for $RUNNER_OS"; exit 1 ;;
+          esac
       - name: Run tests
         shell: bash
         run: |
