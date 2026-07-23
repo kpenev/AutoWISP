@@ -43,6 +43,7 @@ def epd(lc_collection, start_status, configuration, mark_progress):
             error_avg=configuration["detrend_error_avg"],
             rej_level=configuration["detrend_rej_level"],
             max_rej_iter=configuration["detrend_max_rej_iter"],
+            reject_scale_floor=configuration["detrend_reject_scale_floor"],
             pre_reject=configuration["pre_reject_outliers"],
             mark_progress=mark_progress,
         ),
