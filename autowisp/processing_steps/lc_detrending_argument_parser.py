@@ -541,6 +541,17 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             "perform. If the fit has not converged by then, the latest "
             "iteration is accepted. Default: %(default)s",
         )
+        self.add_argument(
+            "--detrend-reject-scale-floor",
+            type=float,
+            default=1e-5,
+            help="Floor on the residual scale (in the units of the fitted "
+            "quantity) used for outlier rejection. Without it, a (near-)perfect "
+            "fit has a residual ~0, collapsing the rejection threshold to ~0 so "
+            "that points get rejected on floating-point noise -- which can, "
+            "platform-dependently, reject enough points to fail the fit. "
+            "Default: %(default)s",
+        )
         if add_reconstructive:
             self.add_argument(
                 "--target-id",

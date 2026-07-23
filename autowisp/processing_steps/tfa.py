@@ -64,6 +64,7 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
             error_avg=configuration["detrend_error_avg"],
             rej_level=configuration["detrend_rej_level"],
             max_rej_iter=configuration["detrend_max_rej_iter"],
+            reject_scale_floor=configuration["detrend_reject_scale_floor"],
             fit_identifier="TFA",
             verify_template_data=True,
             mark_progress=mark_progress,
