@@ -10,16 +10,19 @@ import requests
 
 
 def download_zip(destination):
-    """Download the test data zip file from Zenodo."""
+    """Download the test data zip file from Zenodo.
 
-    print("Starting download")
+    To reuse a local bundle instead (to skip re-fetching the large archive, or
+    to test against a regenerated bundle), pass it explicitly with the
+    ``--test-data`` command-line argument -- a file in the current directory is
+    deliberately *not* picked up implicitly, as that silently overrode Zenodo
+    and produced confusing passes against a stale bundle.
+    """
+
+    print("Downloading test data from Zenodo ...")
     result = path.join(destination, "test_data.zip")
-    if path.exists("test_data.zip"):
-        shutil.copyfile("test_data.zip", result)
-        print("Re-using existing 'test_data.zip'")
-        return result
     req = requests.get(
-        "https://zenodo.org/records/21501301/files/test_data.zip",
+        "https://zenodo.org/records/21539385/files/test_data.zip",
         timeout=60,
     )
     if not req.ok:
@@ -68,9 +71,8 @@ def get_test_data(destination, local_source=None):
             "nor a directory."
         )
 
-    print(f"Downloading test data to {destination!r} ...")
     with ZipFile(download_zip(destination), "r") as zip_ref:
-        print(f"Unzipping all files to {destination!r} ...")
+        print(f"Unzipping test data to {destination!r} ...")
         zip_ref.extractall(destination)
 
 

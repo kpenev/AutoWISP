@@ -357,87 +357,141 @@ class TFACorrection(Correction):
                     1
                 ]
             )
-            print("Template indices: " + repr(template_indices))
+            self._logger.debug("Template indices: %s", repr(template_indices))
             return numpy.nonzero(allowed_stars)[0][template_indices]
 
         # TODO: simplify the logic below (too many things appear redundant)
         self._logger.debug("Selecting templates from: %s", repr(epd_statistics))
+        num_stars = len(epd_statistics["mag"])
         saturated = (
             epd_statistics["mag"] < self._configuration["saturation_magnitude"]
         )
-        self._logger.debug(
-            "There are %s unsaturated stars.",
-            numpy.logical_not(saturated).sum(),
+        bright_enough = (
+            epd_statistics["mag"] < self._configuration["faint_mag_limit"]
         )
-        min_observations = min(
-            numpy.quantile(
-                epd_statistics["num_finite"],
-                self._configuration["min_observations_quantile"],
-            ),
-            (
-                self._configuration["min_observations_fraction"]
-                * epd_statistics["num_finite"].max()
-            ),
+
+        obs_quantile = numpy.quantile(
+            epd_statistics["num_finite"],
+            self._configuration["min_observations_quantile"],
         )
-        self._logger.debug(
-            "Requiring at least %s observations", repr(min_observations)
+        obs_fraction = (
+            self._configuration["min_observations_fraction"]
+            * epd_statistics["num_finite"].max()
         )
+        min_observations = min(obs_quantile, obs_fraction)
+        enough_observations = epd_statistics["num_finite"] >= min_observations
 
         bright_and_long_lc = numpy.logical_and(
-            (epd_statistics["mag"] < self._configuration["faint_mag_limit"])[
-                :, None
-            ],
-            epd_statistics["num_finite"] >= min_observations,
+            bright_enough[:, None], enough_observations
         )
 
-        self._logger.debug(
-            "There are %s non-faint stars with sufficient observations",
-            bright_and_long_lc.sum(0),
-        )
-
-        acceptable_rms = select_typical_rms_stars(
+        # Stars whose RMS is typical for their magnitude (not intrinsic
+        # variables); a separate cut from ``max_rms`` below.
+        typical_rms = select_typical_rms_stars(
             numpy.logical_and(
                 numpy.logical_not(saturated[:, None]), bright_and_long_lc
             )
         )
 
         if self._configuration["allow_saturated_templates"]:
-            acceptable_rms = numpy.logical_or(
-                saturated[:, None], acceptable_rms
-            )
+            acceptable_rms = numpy.logical_or(saturated[:, None], typical_rms)
         else:
             acceptable_rms = numpy.logical_and(
-                numpy.logical_not(saturated)[:, None], acceptable_rms
+                numpy.logical_not(saturated)[:, None], typical_rms
             )
-        acceptable_rms = numpy.logical_and(
-            epd_statistics["rms"] < self._configuration["max_rms"],
-            acceptable_rms,
-        )
-
-        self._logger.debug(
-            "Requiring at least %d observations", min_observations
-        )
-        self._logger.debug(
-            "There are %s stars with low RMS", acceptable_rms.sum(0)
-        )
+        low_rms = epd_statistics["rms"] < self._configuration["max_rms"]
+        acceptable_rms = numpy.logical_and(low_rms, acceptable_rms)
 
         allowed_stars = numpy.logical_and(bright_and_long_lc, acceptable_rms)
 
         allowed_star_count = allowed_stars.sum(0)
-        allowed_stars[:, allowed_star_count == 0] = bright_and_long_lc[
-            :, allowed_star_count == 0
-        ]
+        used_fallback = allowed_star_count == 0
+        allowed_stars[:, used_fallback] = bright_and_long_lc[:, used_fallback]
 
-        self._logger.debug("There are %s overlap stars", allowed_stars.sum(0))
+        # Stages 1-4 of the selection funnel (per-star cuts, shared by all
+        # channels) -- see the per-channel stages logged in the loop below.
+        self._logger.debug(
+            "Template selection funnel: %d stars total; %d unsaturated "
+            "(mag >= %s); %d bright enough (mag < %s); min_observations = %s "
+            "(min of quantile[%s] = %s and %s * max = %s).",
+            num_stars,
+            int(numpy.logical_not(saturated).sum()),
+            self._configuration["saturation_magnitude"],
+            int(bright_enough.sum()),
+            self._configuration["faint_mag_limit"],
+            repr(min_observations),
+            self._configuration["min_observations_quantile"],
+            repr(obs_quantile),
+            self._configuration["min_observations_fraction"],
+            repr(obs_fraction),
+        )
 
         num_photometries = epd_statistics["rms"][0].size
+        grid_size = self._configuration["sqrt_num_templates"] ** 2
 
         result = []
-
         for photometry_index in range(num_photometries):
-            result.append(
-                select_template_stars(allowed_stars[:, photometry_index])
+            selected = select_template_stars(
+                allowed_stars[:, photometry_index]
             )
+            result.append(selected)
+
+            # Stages 5-7 (remaining per-channel cuts) at debug.
+            self._logger.debug(
+                "Channel %d funnel: %d with enough observations; %d bright & "
+                "long-LC; %d typical RMS for mag; %d also RMS < %s.",
+                photometry_index,
+                int(enough_observations[:, photometry_index].sum()),
+                int(bright_and_long_lc[:, photometry_index].sum()),
+                int(typical_rms[:, photometry_index].sum()),
+                int(acceptable_rms[:, photometry_index].sum()),
+                self._configuration["max_rms"],
+            )
+            # Stages 8-9 (candidates + grid collapse) at info.
+            candidates = int(allowed_stars[:, photometry_index].sum())
+            self._logger.info(
+                "Channel %d: %d candidate template stars%s -> %d selected "
+                "(grid of %d points).",
+                photometry_index,
+                candidates,
+                (
+                    " [fallback: no star passed every cut, using the "
+                    "bright & long-LC set]"
+                    if used_fallback[photometry_index]
+                    else ""
+                ),
+                len(selected),
+                grid_size,
+            )
+            if len(selected) < grid_size:
+                self._logger.warning(
+                    "TFA selected only %d of the expected %d templates for "
+                    "channel %d. Funnel: %d stars total -> %d unsaturated -> "
+                    "%d bright (mag < %s) -> %d with >= %s observations -> "
+                    "%d typical RMS for mag -> %d also RMS < %s -> %d allowed"
+                    "%s -> %d after collapsing %d grid points to distinct "
+                    "nearest stars.",
+                    len(selected),
+                    grid_size,
+                    photometry_index,
+                    num_stars,
+                    int(numpy.logical_not(saturated).sum()),
+                    int(bright_enough.sum()),
+                    self._configuration["faint_mag_limit"],
+                    int(enough_observations[:, photometry_index].sum()),
+                    repr(min_observations),
+                    int(typical_rms[:, photometry_index].sum()),
+                    int(acceptable_rms[:, photometry_index].sum()),
+                    self._configuration["max_rms"],
+                    candidates,
+                    (
+                        " (fallback to bright & long-LC)"
+                        if used_fallback[photometry_index]
+                        else ""
+                    ),
+                    len(selected),
+                    grid_size,
+                )
 
         if getattr(self._configuration, "selected_plots", None) is not None:
             self._plot_template_selection(

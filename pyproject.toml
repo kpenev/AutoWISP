@@ -52,7 +52,9 @@ dependencies = [
     'astrowisp >= 2.0.1',
     'configargparse',
     'Django',
-    'h5py',
+    # >= 2.10 for the new dtype API (vlen_dtype/string_dtype/check_enum_dtype,
+    # all added in 2.10.0); modern installs are 3.x regardless.
+    'h5py >= 2.10',
     'lxml',
     'matplotlib',
     # meepmeep is transitive-only (via pytransit); we never import it. Pin <1
