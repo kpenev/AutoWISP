@@ -32,6 +32,20 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             configuration indices (re-used if requested again).
     """
 
+    #: Config datasets whose per-configuration value is itself an array of
+    #: varying length, so they must be stored as ragged (variable-length)
+    #: datasets rather than a fixed-width 2-D array. Currently the TFA template
+    #: star IDs, whose count differs between configurations (e.g. per color
+    #: channel). The element type stays whatever the database declares; only the
+    #: ragged (vlen) storage is imposed here, so no structure/database change is
+    #: needed and existing databases work unchanged.
+    _ragged_config_keys = frozenset(
+        {
+            "shapefit.tfa.cfg.template_source_ids",
+            "apphot.tfa.cfg.template_source_ids",
+        }
+    )
+
     @classmethod
     def _product(cls):
         return "light_curve"
@@ -41,6 +55,19 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         """The name of the root tag in the layout configuration."""
 
         return "LightCurve"
+
+    def get_dtype(self, element_key):
+        """Store the ragged config datasets as variable-length arrays.
+
+        See :attr:`_ragged_config_keys`: these hold one array per configuration
+        whose length varies, so a fixed-width dataset cannot represent them. The
+        element type is the database-declared one, wrapped as vlen; all other
+        keys defer to the database dtype unchanged.
+        """
+
+        if element_key in self._ragged_config_keys:
+            return h5py.vlen_dtype(super().get_dtype(element_key))
+        return super().get_dtype(element_key)
 
     def _get_hashable_dataset(self, dataset_key, **substitutions):
         """Return the selected dataset with hashable entries."""
@@ -382,12 +409,24 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                             else value
                         )
             for key in config_data_to_add:
-                config_data_to_add[key] = numpy.array(
-                    config_data_to_add[key],
-                    dtype=h5py.check_dtype(
-                        vlen=numpy.dtype(self.get_dtype(key))
-                    ),
+                vlen_base = h5py.check_dtype(
+                    vlen=numpy.dtype(self.get_dtype(key))
                 )
+                if vlen_base is not None and vlen_base not in (bytes, str):
+                    # Ragged numeric config: each configuration's value is an
+                    # array of possibly differing length. Store as a 1-D object
+                    # array of arrays so h5py writes them as variable-length
+                    # rows (a fixed-width array would fail to broadcast).
+                    ragged = numpy.empty(
+                        len(config_data_to_add[key]), dtype=object
+                    )
+                    for index, value in enumerate(config_data_to_add[key]):
+                        ragged[index] = numpy.asarray(value, dtype=vlen_base)
+                    config_data_to_add[key] = ragged
+                else:
+                    config_data_to_add[key] = numpy.array(
+                        config_data_to_add[key], dtype=vlen_base
+                    )
             config_data_to_add[component + ".cfg_index"] = index_dset
             return config_data_to_add
 
@@ -541,7 +580,15 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                     dataset[confirmed_length - pad : confirmed_length] = (
                         get_pad_value(dataset_config.replace_nonfinite)
                     )
-                dataset[confirmed_length:] = data_copy
+                if data_copy.dtype == object:
+                    # Variable-length (ragged) rows: h5py mishandles
+                    # slice-assignment of a 1-D object array whose element is a
+                    # uniform-length array (it reads it as a fixed 2-D source and
+                    # fails to broadcast). Assign each ragged row by scalar index.
+                    for offset in range(len(data_copy)):
+                        dataset[confirmed_length + offset] = data_copy[offset]
+                else:
+                    dataset[confirmed_length:] = data_copy
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions

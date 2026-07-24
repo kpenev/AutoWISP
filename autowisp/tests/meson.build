@@ -30,6 +30,7 @@ py_src = [
   'test_solve_astrometry.py',
   'test_stack_to_master.py',
   'test_tfa.py',
+  'test_tfa_num_templates.py',
 ]
 
 py.install_sources(

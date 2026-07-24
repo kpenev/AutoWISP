@@ -32,6 +32,10 @@ from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
 from autowisp.tests.test_tfa import TestTFA
+from autowisp.tests.test_tfa_num_templates import (
+    TestTemplateSourceIdsVlen,
+    TestTemplateSelectionDiagnostics,
+)
 from autowisp.tests.test_detrending_stat import TestDetrendingStat
 from autowisp.tests.test_catalog import TestCatalog
 from autowisp.tests.test_lc_filter import (

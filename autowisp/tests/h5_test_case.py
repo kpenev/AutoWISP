@@ -121,6 +121,23 @@ class H5TestCase(AutoWISPTestCase):
                         + f"\n\t{data2[differ]}"
                         + f"\n\tdiff: {data1[differ] - data2[differ]}\n\t"
                     )
+            elif dset1.dtype.kind == "O":
+                # Variable-length (ragged) rows -- each entry is itself an
+                # array (e.g. TFA TemplateStarIDs). Compare row by row.
+                mismatched = [
+                    index
+                    for index in range(len(data1))
+                    if not numpy.array_equal(data1[index], data2[index])
+                ]
+                if mismatched:
+                    self.fail(
+                        f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
+                        f"{dr_fname2!r}/{dset2.name!r} do not match "
+                        f"(different rows: {mismatched})."
+                        f"\n{dr_fname1!r}/{dset1.name!r}"
+                        f"\n\t{[data1[index] for index in mismatched]}"
+                        f"\n\t{[data2[index] for index in mismatched]}"
+                    )
             else:
                 differ = data1 != data2
                 if numpy.any(differ):
