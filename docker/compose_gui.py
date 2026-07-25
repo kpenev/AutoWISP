@@ -41,6 +41,18 @@ def _find_compose_path():
 
 COMPOSE_PATH = _find_compose_path()
 PROJECT_ROOT = COMPOSE_PATH.resolve().parent
+
+
+def _launch_terminal(cmd_str, cwd):
+    if os.name == "nt":
+        subprocess.Popen(
+            ["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str],
+            cwd=cwd,
+        )
+    else:
+        subprocess.Popen(["bash", "-lc", cmd_str], cwd=cwd)
+
+
 MOUNT_TARGETS = {
     "storage": "/storage",
     "tmp": "/tmp",
@@ -596,10 +608,7 @@ class ComposeEditorApp:
                 "docker compose rm -f wisp &&"
                 "docker pull kpenev/wisp & exit"
             )
-            subprocess.Popen(
-                ["cmd.exe", "/c", "start", "", "cmd", "/k", cmd_str],
-                cwd=PROJECT_ROOT,
-            )
+            _launch_terminal(cmd_str, PROJECT_ROOT)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to update Docker image: {e}")
 
@@ -666,9 +675,7 @@ class ComposeEditorApp:
 
             cwd = os.getcwd()
             cmd_str = "docker compose up"
-            subprocess.Popen(
-                ["cmd.exe", "/c", "start", "", "/min", "cmd", "/k", cmd_str], cwd=cwd
-            )
+            _launch_terminal(cmd_str, cwd)
             # Poll the service URL and open the browser only when it responds
             try:
                 port = int(self.port_var.get())
