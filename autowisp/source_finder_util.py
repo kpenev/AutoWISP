@@ -38,7 +38,7 @@ def start_fistar(unpacked_fits_fname, threshold, stdout=subprocess.PIPE):
         "--algorithm",
         "uplink",
         "--flux-threshold",
-        repr(threshold),
+        repr(float(threshold)),
     ]
     print(
         "Running: "
