@@ -28,6 +28,7 @@ py_src = [
   'test_parse_config_overwrites.py',
   'test_provenance_resolver.py',
   'test_solve_astrometry.py',
+  'test_source_finder.py',
   'test_stack_to_master.py',
   'test_tfa.py',
   'test_tfa_num_templates.py',

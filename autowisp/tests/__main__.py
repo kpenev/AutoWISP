@@ -20,6 +20,7 @@ from autowisp.tests.get_test_data import get_test_data
 from autowisp.tests.test_calibrate import TestCalibrate
 from autowisp.tests.test_stack_to_master import TestStackToMaster
 from autowisp.tests.test_find_stars import TestFindStars
+from autowisp.tests.test_source_finder import TestQuantileBrightnessThreshold
 from autowisp.tests.test_solve_astrometry import TestSolveAstrometry
 from autowisp.tests.test_fit_star_shape import TestFitStarShape
 from autowisp.tests.test_measure_aperture_photometry import (
