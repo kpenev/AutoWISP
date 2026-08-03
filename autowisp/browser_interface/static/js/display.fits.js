@@ -301,14 +301,14 @@ async function updateView(change)
 
 var image = document.getElementById("main-image")
 
-//Ask the server for a list of locations and display them as markers.
+//Ask the server for locations, display them, and return the parsed response.
 async function showImageLocations(getLocationsURL, params, replace, marker)
 {
     let csrftoken = getCookie('csrftoken');
     let headers = new Headers();
     headers.append('X-CSRFToken', csrftoken);
     headers.append("Content-type", "application/json; charset=UTF-8")
-    const response = await fetch(getLocationsURL, {
+    return fetch(getLocationsURL, {
         method: "POST",
         body: JSON.stringify(params),
         headers: headers,
@@ -320,12 +320,14 @@ async function showImageLocations(getLocationsURL, params, replace, marker)
         })
         .then((data) => {
             console.log(data);
-            if ( data.stars.length == 0 )
+            if ( data.stars.length === 0 && data.message )
                 alert(data.message);
             markImageLocations(data.stars, replace, marker);
+            return data;
         })
         .catch(function(error) {
             alert("Adding sources failed:" + error);
+            return null;
         })
 }
 
