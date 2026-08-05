@@ -13,6 +13,7 @@ from astrowisp.utils.file_utilities import (
 )
 from autowisp import source_finder_util
 from autowisp.evaluator import Evaluator
+from autowisp.exceptions import NoSourcesFoundError
 
 
 # This still makes sense as a class
@@ -200,6 +201,37 @@ class SourceFinder:
                 deletechars="",
                 missing_values="-",
             )
+            # A single extracted source comes back from genfromtxt as a 0-d
+            # array, which the finite-value mask below cannot index.
+            result = numpy.atleast_1d(result)
+            if result.size == 0:
+                if not source_fname:
+                    # stdout is already at EOF, so this only reaps the
+                    # extractor rather than leaving it behind on the raise.
+                    extraction_process.communicate()
+                raise NoSourcesFoundError(
+                    f"Source extraction with {configuration['tool']!r} found "
+                    f"no sources in {fits_fname!r} using brightness threshold "
+                    f"{configuration['brightness_threshold']!r}.",
+                    user_message=(
+                        f"No stars were found in {fits_fname}. The image may "
+                        "be clouded over or badly out of focus, or the "
+                        "brightness threshold may be set too high."
+                    ),
+                    details={
+                        "image": fits_fname,
+                        "srcfind_tool": configuration["tool"],
+                        "brightness_threshold": configuration[
+                            "brightness_threshold"
+                        ],
+                        "brightness_quantile": configuration[
+                            "brightness_quantile"
+                        ],
+                        "brightness_quantile_scale": configuration[
+                            "brightness_quantile_scale"
+                        ],
+                    },
+                )
             finite = numpy.ones(result.size, dtype=bool)
             for colname in result.dtype.names:
                 finite = numpy.logical_and(
