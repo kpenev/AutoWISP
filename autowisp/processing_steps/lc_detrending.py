@@ -7,6 +7,8 @@ import numpy
 from pytransit import QuadraticModel
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.error_context import error_context
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.magnitude_fitting.util import format_master_catalog
@@ -67,9 +69,13 @@ def _add_catalog_info(
                         # string/bytes IDs keep their own dtype.
                         (
                             "ID",
-                            numpy.uint64
-                            if isinstance(cat_source_id, (int, numpy.integer))
-                            else numpy.dtype(type(cat_source_id)),
+                            (
+                                numpy.uint64
+                                if isinstance(
+                                    cat_source_id, (int, numpy.integer)
+                                )
+                                else numpy.dtype(type(cat_source_id))
+                            ),
                         ),
                         ("mag", float),
                         ("xi", float),
@@ -175,14 +181,56 @@ def calculate_detrending_performance(
     ) as sphotref_dr:
         sphotref_header = sphotref_dr.get_frame_header()
 
-    catalog_sources = read_catalog_file(
-        configuration["detrending_catalog"].format_map(sphotref_header),
-        add_gnomonic_projection=True,
+    detrending_catalog_fname = configuration["detrending_catalog"].format_map(
+        sphotref_header
     )
-
     output_statistics_fname = configuration[
         f"{detrending_mode}_statistics_fname"
     ].format_map(sphotref_header)
+
+    # Both are known only after header substitution. The single photref is
+    # already scoped for the whole step by the LC manager; each lightcurve
+    # is scoped individually further down, inside the loops that read them.
+    with error_context(
+        related_files=[
+            RelatedFile(
+                FileKind.CATALOG, detrending_catalog_fname, role="input"
+            ),
+            RelatedFile(
+                FileKind.OUTPUT,
+                output_statistics_fname,
+                role="expected_output",
+            ),
+        ]
+    ):
+        return _generate_statistics(
+            lc_fnames,
+            configuration,
+            detrending_mode=detrending_mode,
+            catalog_fname=detrending_catalog_fname,
+            output_fname=output_statistics_fname,
+            mark_progress=mark_progress,
+        )
+
+
+# The caller resolves the two filenames (header substitution) to build the
+# error scope, so they arrive here rather than being re-derived.
+# pylint: disable=too-many-arguments
+def _generate_statistics(
+    lc_fnames,
+    configuration,
+    *,
+    detrending_mode,
+    catalog_fname,
+    output_fname,
+    mark_progress,
+):
+    """Compute, augment and save the detrending statistics (see caller)."""
+
+    catalog_sources = read_catalog_file(
+        catalog_fname,
+        add_gnomonic_projection=True,
+    )
 
     statistics = recalculate_correction_statistics(
         lc_fnames,
@@ -205,11 +253,11 @@ def calculate_detrending_performance(
         statistics,
     )
 
-    if not path.exists(path.dirname(output_statistics_fname)):
-        makedirs(path.dirname(output_statistics_fname))
-    save_correction_statistics(statistics, output_statistics_fname)
+    if not path.exists(path.dirname(output_fname)):
+        makedirs(path.dirname(output_fname))
+    save_correction_statistics(statistics, output_fname)
     mark_progress(lc_fnames)
-    return {"filename": output_statistics_fname, "preference_order": None}
+    return {"filename": output_fname, "preference_order": None}
 
 
 def detrend_light_curves(lc_collection, configuration, correct):

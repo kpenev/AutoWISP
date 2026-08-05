@@ -185,6 +185,8 @@ def recalculate_correction_statistics(
         len(lc_fnames), dtype=EPDCorrection.get_result_dtype(len(fit_datasets))
     )
 
+    # The lightcurve attaches itself to any error raised while it is open,
+    # so no explicit scope is needed here.
     for lc_index, fname in enumerate(lc_fnames):
         with LightCurveFile(fname, "r") as lightcurve:
             for fit_index, (_, substitutions, to_dset) in enumerate(

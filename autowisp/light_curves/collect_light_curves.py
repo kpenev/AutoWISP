@@ -39,40 +39,33 @@ def get_combined_sources(dr_filenames, **dr_path_substitutions):
     return dr_sources
 
 
+# The arguments are the union of what LCDataIO.create and the catalog query
+# need; bundling them would only move the same set behind one name.
+# pylint: disable=too-many-arguments
 # This is simple enough
 # pylint: disable=too-many-locals
-def collect_light_curves(
+def _prepare_lc_collection(
     dr_filenames,
     configuration,
-    mark_start,
     mark_end,
     *,
-    dr_fname_parser=parse_fname_keywords,
-    optional_header=None,
-    observatory=None,
+    dr_fname_parser,
+    optional_header,
+    observatory,
     **path_substitutions,
 ):
-    """
-    Add the data from a collection of DR files to LCs, creating LCs if needed.
+    """Resolve everything the writing pass needs (see collect_light_curves).
 
-    Args:
-        dr_filenames([str]):    The filenames of the data reduction files to add
-            to LCs.
-
-        configuration:    Object with attributes configuring the LC collection
-            procedure.
-
-        path_substitutions:    Any substitutions to resolve paths within DR and
-            LC files to data to read/write (e.g. versions of various
-            componenents).
-
-        dr_fname_parser:    See same name argument to LCDataIO::create().
-
-        optional_header:    See same name argument to LCDataIO::create().
+    Reads the first DR file and the single photref to settle the source
+    extraction configuration, the catalog and the source list, drops any
+    DR file with outlier pointing, and works out where each source's
+    lightcurve goes.
 
     Returns:
-        [(src ID part 1, src ID part 2, ...)];
-            The sources for which new lightcurves were created.
+        dict:    ``data_io``, the surviving ``dr_filenames``, the
+            ``(source id, lc filename)`` pairs in ``sources_lc_fnames``,
+            the ``frame_chunk`` size to process at a time, and the
+            ``catalog`` ``(sources, header)`` pair the caller returns.
     """
 
     logger = logging.getLogger(__name__)
@@ -112,7 +105,7 @@ def collect_light_curves(
             skipped = dr_sources - catalog_source_ids
             logger.debug(
                 "Skipping %d DR sources not present in limited LC catalog",
-                len(skipped)
+                len(skipped),
             )
         data_io = LCDataIO.create(
             catalog_sources=catalog_sources,
@@ -134,7 +127,7 @@ def collect_light_curves(
             srcid_formatter.format(
                 configuration["lc_fname"],
                 *numpy.atleast_1d(source_id),
-                PROJHOME=configuration['project_home']
+                PROJHOME=configuration["project_home"],
             ),
         )
         for source_id in data_io.source_destinations.keys()
@@ -147,12 +140,46 @@ def collect_light_curves(
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
+    return {
+        "data_io": data_io,
+        "dr_filenames": dr_filenames,
+        "sources_lc_fnames": sources_lc_fnames,
+        "frame_chunk": frame_chunk,
+        "catalog": (catalog_sources, catalog_header),
+    }
+
+
+# pylint: enable=too-many-locals
+# pylint: enable=too-many-arguments
+
+
+def _write_lightcurves(prepared, mark_start, mark_end):
+    """Add the DR data to the lightcurves, one chunk of frames at a time.
+
+    Args:
+        prepared(dict):    The result of :func:`_prepare_lc_collection`.
+
+        mark_start, mark_end:    Progress callbacks, invoked per DR file.
+
+    Returns:
+        None
+    """
+
+    data_io = prepared["data_io"]
+    dr_filenames = prepared["dr_filenames"]
+    sources_lc_fnames = prepared["sources_lc_fnames"]
+    frame_chunk = prepared["frame_chunk"]
+
     num_processed = 0
     while num_processed < len(dr_filenames):
         stop_processing = min(len(dr_filenames), num_processed + frame_chunk)
         data_io.prepare_for_reading()
         for dr_fname in dr_filenames[num_processed:stop_processing]:
             mark_start(dr_fname)
+        # No explicit related-files scoping here: ``data_io.read`` /
+        # ``data_io.write`` and the confirmation pass below all open the DR
+        # or lightcurve through ``with``, and HDF5 products attach
+        # themselves to any error raised while they are open.
         config_skipped = list(
             map(
                 data_io.read,
@@ -179,7 +206,49 @@ def collect_light_curves(
 
         num_processed = stop_processing
 
-    return catalog_sources, catalog_header
 
+def collect_light_curves(
+    dr_filenames,
+    configuration,
+    mark_start,
+    mark_end,
+    *,
+    dr_fname_parser=parse_fname_keywords,
+    optional_header=None,
+    observatory=None,
+    **path_substitutions,
+):
+    """
+    Add the data from a collection of DR files to LCs, creating LCs if needed.
 
-# pylint: enable=too-many-locals
+    Args:
+        dr_filenames([str]):    The filenames of the data reduction files to add
+            to LCs.
+
+        configuration:    Object with attributes configuring the LC collection
+            procedure.
+
+        path_substitutions:    Any substitutions to resolve paths within DR and
+            LC files to data to read/write (e.g. versions of various
+            componenents).
+
+        dr_fname_parser:    See same name argument to LCDataIO::create().
+
+        optional_header:    See same name argument to LCDataIO::create().
+
+    Returns:
+        [(src ID part 1, src ID part 2, ...)];
+            The sources for which new lightcurves were created.
+    """
+
+    prepared = _prepare_lc_collection(
+        dr_filenames,
+        configuration,
+        mark_end,
+        dr_fname_parser=dr_fname_parser,
+        optional_header=optional_header,
+        observatory=observatory,
+        **path_substitutions,
+    )
+    _write_lightcurves(prepared, mark_start, mark_end)
+    return prepared["catalog"]

@@ -2649,7 +2649,10 @@ records, image *sets* — so the generic wrapper cannot classify them):
 - **Main-process / Scheme-B paths** scope the same way at their per-item
   point using the filename they already compute (`get_step_input` in the
   manager dispatch; the `dr_fname` in `solve_astrometry`'s worker) — the
-  literal deferred Phase-2 line.
+  literal deferred Phase-2 line. *(Superseded in part: where the per-item
+  file is an HDF5 product it now attaches itself, so several of these
+  scopes were written and then removed again — see "HDF5 products attach
+  themselves" below.)*
 
 **More than the per-item file: per-step auxiliary inputs.** The item being
 mapped over is not the only file a failure implicates — most steps also
@@ -2663,23 +2666,80 @@ dispatch time. `→ out` marks a file the step *produces*, attached as
 `role="expected_output"` — worth attaching because a failure mid-write is
 exactly when you want to know which output is now suspect.
 
-| step | per-item file | auxiliary files | status |
-| ---- | ------------- | --------------- | ------ |
-| `add_images_to_db` | raw image | — | ✓ dispatch scope |
-| `calibrate` | raw image | master bias / dark / flat applied; calibrated image `→ out` | ✓ `_calibration_related_files` |
-| `stack_to_master` | calibrated frame | the master being stacked `→ out` | ✓ `stacking_related_files` |
-| `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | ✓ `stacking_related_files` |
-| `find_stars` | calibrated image | DR file `→ out` | ✓ item only (DR not attached) |
-| `solve_astrometry` | DR file | the Gaia catalog queried | ✓ item only (catalog not attached) |
-| `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR file; the catalog | ✓ `_frame_set_related_files` (frames only) |
-| `measure_aperture_photometry` | calibrated image | DR file | ✓ item only (DR not attached) |
-| `fit_source_extracted_psf_map` | DR file | — | ✓ dispatch scope |
-| `calculate_photref_merit` | DR file | — | ✓ dispatch scope |
-| `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | ✓ `_magfit_related_files` (catalog not attached) |
-| `create_lightcurves` | the DR being read, **or** the one LC being written (see below) | single photref DR; the lightcurve catalog; the Gaia catalog queried; the catalog source-list filter | ✗ **partial** — the manager scopes the single photref for the whole step; neither per-item file is scoped |
-| `epd` | lightcurve | single photref DR; output statistics file `→ out` | ✓ `_detrending_related_files` |
-| `tfa` | lightcurve | single photref DR; the template lightcurves; output statistics file `→ out` | ✓ `_detrending_related_files` (templates not attached) |
-| `generate_epd_statistics`, `generate_tfa_statistics` | lightcurve | single photref DR; output statistics file `→ out` | ✗ **partial** — manager-level single photref only, no per-LC scope |
+| step | per-item file | auxiliary files | how the per-item file is attached |
+| ---- | ------------- | --------------- | --------------------------------- |
+| `add_images_to_db` | raw image | — | explicit dispatch scope (FITS) |
+| `calibrate` | raw image | master bias / dark / flat applied | explicit, `_calibration_related_files` (FITS) |
+| `stack_to_master` | calibrated frame | the master being stacked `→ out` | explicit, `stacking_related_files` (FITS) |
+| `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | explicit, `stacking_related_files` (FITS) |
+| `find_stars` | calibrated image | DR file `→ out` | explicit classifier (image); DR **automatic** once opened |
+| `solve_astrometry` | DR file | the Gaia catalog queried | **automatic** (`solve_image` opens the DR as its first act) |
+| `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR; the catalog | explicit `_frame_set_related_files`; DRs automatic |
+| `measure_aperture_photometry` | calibrated image | DR file | explicit classifier (image); DR automatic |
+| `fit_source_extracted_psf_map` | DR file | — | **automatic** |
+| `calculate_photref_merit` | DR file | — | **automatic** |
+| `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | explicit `_magfit_related_files` (needed for crash promotion) |
+| `create_lightcurves` | the DR being read, **or** the one LC being written | single photref DR; the lightcurve catalog; the Gaia catalog; the catalog source-list filter | **automatic** for both; catalogs/filter explicit at the step |
+| `epd` | lightcurve | single photref DR; output statistics `→ out` | explicit `_detrending_related_files` (crash promotion); LC also automatic |
+| `tfa` | lightcurve | single photref DR; the template lightcurves; output statistics `→ out` | as `epd`; templates not attached |
+| `generate_epd_statistics`, `generate_tfa_statistics` | lightcurve | single photref DR; the detrending catalog; output statistics `→ out` | **automatic** for the LC; catalog/output explicit at the step |
+
+### HDF5 products attach themselves
+
+Most of the "per-item file" column above needs no code in the step at
+all. `HDF5File.__enter__` / `__exit__` scope the product they opened, so
+**any DR or lightcurve opened through a `with` block names itself on
+every error raised while it is open**, at whatever depth. Each subclass
+declares one class attribute (`related_file_kind`); the role comes from
+the open mode (`r` → `input`, else `output`), and a nameless in-memory
+product attaches nothing. Entering the same object twice pushes a stack
+of scopes rather than a single slot.
+
+That covers roughly 67 `with` sites and made the explicit DR/LC scoping
+in `fit_source_extracted_psf_map`, `calculate_photref_merit`,
+`collect_light_curves`, `recalculate_correction_statistics` and
+`_add_catalog_info` redundant; all of it was removed. It cannot cover
+FITS images, masters, catalogs, statistics outputs or the source-list
+filter, which is why the explicit scopes above remain.
+
+Two limits worth knowing:
+
+- **The open itself is not covered.** `h5py.File` opens in the
+  *constructor*, before `__enter__` runs, so "could not open this DR"
+  carries no related file (the filename is in the `HDF5LayoutError`
+  message instead). The `run_pool` sites keep their explicit classifiers
+  regardless, because crash promotion needs one when a worker dies without
+  raising: no `__enter__` ever runs, so there is nothing to attach. Scheme
+  B does *not* need one -- its dead-worker `WorkerCrashedError` is raised
+  in the parent, where a worker-side scope could never have reached it.
+- **Coverage follows the `with`, not the step.** Narrowing a block so the
+  work happens after the file closes silently drops the file from any
+  error. A generic test of the hook cannot see that, so each step relying
+  solely on the automatic path has a test that runs it against a real but
+  empty product and asserts the natural failure names it.
+
+### The scoping trap: a scope must outlive the stamp
+
+`related_files` used to be lost on every main-process scope, and the
+tests did not notice. `error_context` resets its ContextVar as the
+exception unwinds — *before* any enclosing `except` runs — so by the time
+`capture_errors` (at `ProcessingManager._run_step`) stamped the error,
+the ambient context was empty. Only the `run_pool` and Scheme-B sites
+worked, because they stamp *inside* the scope on purpose.
+
+The fix keeps the files with the exception rather than with the context:
+`error_context` records its own contribution onto the exception passing
+through it, `capture_errors` / `_stamp_worker_error` carry that over when
+they wrap it in a `StepError` subclass, and `_stamp` merges the recorded
+entries with any scopes still in force. Two consequences to preserve:
+
+- **A test that reads the ambient context from inside a scope proves
+  nothing.** It passes whether or not anything reaches the error. Assert
+  on the related files of the *stamped exception* instead.
+- Entries accumulate innermost-first, but **order carries no meaning** —
+  the renderer lists them and the artifact-FK lookup is an SQL `IN`. Tests
+  compare with `assertCountEqual`, which ignores order while still
+  catching a missing, extra or duplicated entry.
 
 Two distinct shapes fall out of the table, and they are wired differently:
 
@@ -2771,8 +2831,8 @@ Sequence within the item: land the **lightcurve path
 the path the real crash hit and the smallest end-to-end slice — then the
 remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
 
-**Implemented (first wave — the `status` column above is the authority on
-what is left).**
+**Implemented (the table's last column is the authority on what is
+explicit, what is automatic, and what is left).**
 `run_pool`/`worker_entry`/`_WorkerEntry` gained an optional `related_files`
 classifier (a `FileKind` or an ``item -> RelatedFile | Iterable | None``
 callable, resolved by `_resolve_related_files`); `_WorkerEntry.__call__`
@@ -2798,39 +2858,46 @@ them too. Wired at every site:
   photref once for the whole step (covering the main-process paths); the
   epd/tfa parallel workers additionally scope each LC via
   `apply_correction`.
-- **solve_astrometry** (Scheme B) — the `Process`/`Queue` worker scopes
-  the DR file so `capture_for_queue` stamps it onto the queued error.
+- **solve_astrometry** (Scheme B) — nothing explicit: `solve_image`
+  opens the DR as its first act and works inside that block, so the file
+  records itself on the exception and `capture_for_queue` stamps it onto
+  the queued error.
 
-**Still to wire.** Every remaining row of the table, in rough order of
-value:
+**Still to wire.**
 
-1. ~~**Steps with no scope at all**~~ — **done.** `add_images_to_db`,
-   `fit_source_extracted_psf_map` and `calculate_photref_merit` took the
-   same per-item dispatch scope `calibrate` already used. The two
-   stackers are the one shape that legitimately attaches a *collection*:
-   stacking has no per-item boundary — the whole set is averaged in a
-   single `MasterMaker`/`MasterFlatMaker` call — so a failure (too few
-   valid frames, mismatched geometry) is about the set, not one frame.
+1. ~~Steps with no scope at all~~ — **done.** `add_images_to_db` took the
+   per-item dispatch scope `calibrate` already used;
+   `fit_source_extracted_psf_map` and `calculate_photref_merit` need none
+   at all, since the DR they open attaches itself. The two stackers are
+   the one shape that legitimately attaches a *collection*: stacking has
+   no per-item boundary — the whole set is averaged in a single
+   `MasterMaker`/`MasterFlatMaker` call — so a failure (too few valid
+   frames, mismatched geometry) is about the set, not one frame.
    `stacking_related_files` (in `stack_to_master`, reused by the flat
-   variant) attaches every input frame plus the master(s) being written
-   as `expected_output`. That does not contradict the "never attach a
+   variant) attaches every input frame plus the master(s) being written as
+   `expected_output`. That does not contradict the "never attach a
    collection" rule above: the rule applies where a single-file boundary
    exists, and a stack is bounded by what one master consumes, unlike the
    per-source lightcurves `create_lightcurves` writes.
-2. **Per-item scope missing under a manager-level scope** —
-   `create_lightcurves` and the two statistics generators currently carry
-   only the batch-constant single photref, so an error names the photref
-   but not the DR/LC that actually failed. This is the same
-   "which file?" gap that motivated the item, just one level down — and
-   for `create_lightcurves` it means the three single-file scope points
-   tabulated above, never the `sources_lc_fnames` collection.
-3. **Auxiliaries not yet attached where the item already is** — the DR
-   file for `find_stars` / `measure_aperture_photometry` /
-   `fit_star_shape`, the catalog for `solve_astrometry` /
-   `fit_star_shape` / `fit_magnitudes`, the TFA template lightcurves, and
-   the `→ out` products throughout. Cheapest of the three (the call sites
-   already build a classifier; these only extend what it returns) and the
-   most useful for catalog-coverage and layout-mismatch failures.
+2. ~~Per-item scope missing under a manager-level scope~~ — **done.**
+   `create_lightcurves` and the two statistics generators now name the
+   individual DR or lightcurve, all of it automatic: the reading,
+   writing and confirmation passes each open exactly one product at a
+   time, which is also what keeps a large field's tens of thousands of
+   lightcurves out of any single error. What the steps do scope
+   explicitly is what is *not* an HDF5 product — the lightcurve catalog
+   (`MasterCatalog.as_related_file`, whose role depends on whether this
+   run creates it), the Gaia catalog, the source-list filter, and the
+   detrending catalog plus statistics output.
+3. **Auxiliaries not yet attached where the item already is** — the
+   catalog for `solve_astrometry` / `fit_star_shape` / `fit_magnitudes`,
+   the TFA template lightcurves, and the `→ out` products throughout. The
+   DR files that used to head this list are now automatic. Cheapest of
+   the three (the call sites already build a classifier; these only
+   extend what it returns) and the most useful for catalog-coverage and
+   layout-mismatch failures. The catalog is best attached inside
+   `ensure_catalog`, which resolves the `{checksum}` filename every caller
+   would otherwise have to reproduce.
 
 Note `_resolve_artifact_fks` only FK-links images/masters — the raw
 image, masters, single/master photref all resolve to their rows, while
@@ -2843,14 +2910,17 @@ multi-file and dedup cases) in `test_error_context.py`.
 
 | File | Change |
 | ---- | ------ |
-| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). `_worker_crashed` also records `details["resources"]` (memory snapshot + `num_processes`) via `collect_resource_snapshot` (item 6). `ErrorContext` gains a `config` field (`from_config` snapshots it) and `_stamp` writes `details["config"]` (item 8). |
+| `autowisp/error_context.py` | `run_pool` creates a `Manager().dict()` in-flight map and passes it to `worker_entry`; `_WorkerEntry.__call__` writes/clears `self.inflight[os.getpid()]` around the callable (item 3). `_worker_crashed` sets `step_name` on the `WorkerCrashedError`, records `crashed_inputs` (from the map), and records `exit_signal` from `_pool_exit_signals(executor)` (item 5; `decode_exit_signals` is OS-aware — POSIX signal vs. Windows NTSTATUS). `run_pool`/`worker_entry` gain an optional `related_files` classifier (FileKind or picklable callable returning one or many); `_WorkerEntry.__call__` scopes `error_context(related_files=[...])` per item and `_worker_crashed` promotes the in-flight items through it (deduped). Auxiliary files (single photref, masters) are folded into the classifier via `partial`, not a second argument (item 9). `_worker_crashed` also records `details["resources"]` (memory snapshot + `num_processes`) via `collect_resource_snapshot` (item 6). `ErrorContext` gains a `config` field (`from_config` snapshots it) and `_stamp` writes `details["config"]` (item 8). **Scopes also record their own files onto the exception passing through them** (`_remember_related_files`), since the ContextVar is reset before any enclosing `except` runs; `capture_errors` / `_stamp_worker_error` carry those over when they wrap (`_inherit_related_files`), and `_stamp` merges them with the scopes still in force (item 9). |
 | `autowisp/miscellaneous.py` | **New** `collect_resource_snapshot()` — cross-OS memory snapshot via `psutil`, best-effort (items 6). |
 | run_pool call sites (`apply_correction.py`, `iterative_refit.py`, `measure_aperture_photometry.py`, `find_stars.py`, `fit_star_shape.py`) ✓ | Each passes its `related_files` classifier — a `FileKind` for item-only sites, or a `partial`/module function returning the item plus batch-constant auxiliaries (item 9, done). |
 | `calibrate.py` ✓ | Scopes `_calibration_related_files` (raw image + master bias/dark/flat) around each image (item 9, done). |
 | `lightcurve_processing.py` (`LightCurveProcessingManager.__call__`) ✓ | Scopes the step's config and the single photref for the whole LC step, covering `create_lightcurves` / `epd` / `tfa` / the statistics generators (items 8, 9). |
 | `image_processing.py` (`_process_batch`) ✓ | Its per-step `error_context` now also scopes `config` (item 8). |
-| `solve_astrometry.py` ✓ | The Scheme-B worker scopes the DR file so `capture_for_queue` stamps it (item 9, done). |
-| `autowisp/tests/test_related_files.py` ✓ | **New.** Unit tests for the per-step classifiers. |
+| `solve_astrometry.py` ✓ | Explicit DR scoping *removed*: the file attaches itself inside `solve_image`, and the queued error picks it up from the exception (item 9). |
+| `autowisp/hdf5_file.py` ✓ | **New behaviour.** `HDF5File.__enter__` / `__exit__` scope the product they open, so every DR / lightcurve names itself on errors raised while it is open; `DataReductionFile` / `LightCurveFile` declare `related_file_kind` (item 9). |
+| `collect_light_curves.py` ✓ | Split into `_prepare_lc_collection` (catalog, sources, destinations) and `_write_lightcurves` (the chunk loop), which also gives the writing pass a testable seam. No explicit related-files scoping: every DR and lightcurve it touches is opened through a `with`. |
+| `create_lightcurves.py`, `lc_detrending.py` ✓ | Scope what is *not* an HDF5 product: the lightcurve catalog (`MasterCatalog.as_related_file`), the Gaia catalog, the source-list filter, the detrending catalog and the statistics output (item 9). |
+| `autowisp/tests/test_related_files.py` ✓ | **New.** The per-step classifiers, the main-process dispatch scopes (asserted on the *stamped exception*), and HDF5 self-attachment -- including two steps run against a real but empty DR, so a later narrowing of the `with` is caught. |
 | `autowisp/exceptions.py` | `WorkerCrashedError` is re-parented from `PipelineError` to `StepError` (component `step`, inheriting the `step_name` slot); no change to persistence, which already reads `getattr(exc, "step_name", None)`. |
 | `autowisp/multiprocessing_util.py` | `setup_process_map` enables `faulthandler` against the worker's redirected stderr and registers the SIGUSR1 dump (item 4). |
 | `autowisp/database/processing.py` | Promote `find_processing_outputs` to the base `ProcessingManager`, parameterized by a `_progress_model` class attribute and a `_progress_image_type(progress, db_session)` hook (item 2). |
@@ -2924,6 +2994,9 @@ favour of host-consistency + crash-time env in the sidecar). **8** is
 recording (the rest of the original framing just duplicated the bundled
 DB). **9** (populate `related_files`)
 stands somewhat apart — it improves *every* error, not just crashes — and
-is now **done at all sites** (every `run_pool` call site, `calibrate`, the
-lightcurve steps via the manager dispatch, and Scheme-B
-`solve_astrometry`).
+is now **done for every step**, by two complementary routes: HDF5 products
+(DR files, lightcurves) attach themselves whenever they are open, and the
+steps explicitly scope what is not an HDF5 product (raw and calibrated
+frames, masters, catalogs, the source-list filter, output products). The
+`run_pool` classifiers stay regardless, since crash promotion has no open
+file to draw on. What remains is the tier-3 list of auxiliaries.

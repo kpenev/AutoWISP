@@ -26,7 +26,9 @@ from autowisp.light_curves.collect_light_curves import (
     get_combined_sources,
     DecodingStringFormatter,
 )
-from autowisp.catalog import read_catalog_file
+from autowisp.catalog import read_catalog_file, get_catalog_config
+from autowisp.error_context import error_context
+from autowisp.exceptions import FileKind, RelatedFile
 
 input_type = "dr"
 
@@ -270,6 +272,43 @@ class MasterCatalog:
 
         return self._new
 
+    def as_related_file(self):
+        """This catalog as a :class:`RelatedFile`, with the fitting role.
+
+        The resolved filename is known only here (the configured value is
+        a header-substituted template), and the role depends on whether
+        this run reads an existing catalog or writes a new one.
+        """
+
+        return RelatedFile(
+            FileKind.CATALOG,
+            self._master_cat_fname,
+            role="expected_output" if self._new else "lc_catalog",
+        )
+
+
+def _catalog_related_files(master_catalog, configuration):
+    """The lightcurve catalog and, if configured, its source-list filter.
+
+    Args:
+        master_catalog(MasterCatalog):    Knows the resolved catalog
+            filename and whether this run creates it.
+
+        configuration:    The step configuration, holding the ``lc``
+            catalog query settings.
+
+    Returns:
+        list:    The ``RelatedFile`` entries known for the whole step.
+    """
+
+    related = [master_catalog.as_related_file()]
+    source_list = get_catalog_config(configuration, "lc").get("source_list")
+    if source_list:
+        related.append(
+            RelatedFile(FileKind.CONFIG, source_list, role="source_list_filter")
+        )
+    return related
+
 
 def create_lightcurves(
     dr_collection, start_status, configuration, mark_start, mark_end
@@ -295,27 +334,38 @@ def create_lightcurves(
     )
     master_catalog = MasterCatalog(configuration)
 
-    for (lat, lon, alt), dr_filename_list in dr_by_observatory.items():
-        _logger.debug(
-            "Collecting lightcurves for %d DR files at observatory "
-            "(lat, lon, alt) = (%.4f, %.4f, %.4f)",
-            len(dr_filename_list),
-            lat,
-            lon,
-            alt,
-        )
-        master_catalog.add_batch(
-            *collect_light_curves(
-                dr_filename_list,
-                configuration,
-                mark_start=mark_start,
-                mark_end=mark_end,
-                dr_fname_parser=dummy_fname_parser,
-                optional_header="all",
-                observatory={"SITELAT": lat, "SITELONG": lon, "SITEALT": alt},
-                **path_substitutions,
+    # Step-wide inputs, on top of the single photref the LC manager already
+    # scopes: a wrong catalog or source-list filter silently changes which
+    # sources get lightcurves at all. The per-DR and per-lightcurve files
+    # are scoped deeper, in ``collect_light_curves``.
+    with error_context(
+        related_files=_catalog_related_files(master_catalog, configuration)
+    ):
+        for (lat, lon, alt), dr_filename_list in dr_by_observatory.items():
+            _logger.debug(
+                "Collecting lightcurves for %d DR files at observatory "
+                "(lat, lon, alt) = (%.4f, %.4f, %.4f)",
+                len(dr_filename_list),
+                lat,
+                lon,
+                alt,
             )
-        )
+            master_catalog.add_batch(
+                *collect_light_curves(
+                    dr_filename_list,
+                    configuration,
+                    mark_start=mark_start,
+                    mark_end=mark_end,
+                    dr_fname_parser=dummy_fname_parser,
+                    optional_header="all",
+                    observatory={
+                        "SITELAT": lat,
+                        "SITELONG": lon,
+                        "SITEALT": alt,
+                    },
+                    **path_substitutions,
+                )
+            )
 
     if master_catalog.is_new():
         return {
