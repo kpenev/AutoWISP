@@ -10,7 +10,7 @@ import logging
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.exceptions import Component, NoSourcesFoundError
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -33,6 +33,9 @@ from autowisp.database.data_model import ObservingSession
 
 input_type = "calibrated + dr"
 _logger = logging.getLogger(__name__)
+fail_reasons = {
+    "no sources extracted": -2,
+}
 
 
 def parse_command_line(*args):
@@ -165,7 +168,15 @@ def find_stars_single(  # pylint: disable=too-many-arguments, too-many-positiona
 
     fits_header = get_primary_header(image_fname)
     _logger.debug("Extracting sources from %r", image_fname)
-    extracted_sources = find_stars_in_image(image_fname)
+    try:
+        extracted_sources = find_stars_in_image(image_fname)
+    except NoSourcesFoundError as error:
+        # A starless frame (clouded over, badly defocused, threshold too
+        # high) fails just that frame; the rest of the batch continues.
+        _logger.error("%s", error)
+        mark_start(image_fname)
+        mark_end(image_fname, fail_reasons["no sources extracted"])
+        return
     _logger.debug("Finished extracting sources: %r", extracted_sources)
     mark_start(image_fname)
     _logger.debug("Marked started: %r", extracted_sources)

@@ -359,6 +359,16 @@ class FindStarsError(StepError):
     """Failure in the find_stars step."""
 
 
+class NoSourcesFoundError(FindStarsError):
+    """Source extraction completed but found no sources in a frame.
+
+    Distinct from a generic :class:`FindStarsError` so the step can mark
+    just that frame as failed and carry on (a clouded or badly defocused
+    frame is not a reason to abort the run), while every *other*
+    find_stars failure still propagates.
+    """
+
+
 class SolveAstrometryError(StepError):
     """Failure in the solve_astrometry step."""
 
