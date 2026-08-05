@@ -164,6 +164,65 @@ def set_error_context(ctx: ErrorContext) -> contextvars.Token:
     return _context.set(ctx)
 
 
+def _remember_related_files(exc: BaseException, related_files: tuple) -> None:
+    """Attach ``related_files`` to ``exc`` so they outlive their scope.
+
+    A scope's ContextVar is reset while the exception is still
+    propagating -- *before* any enclosing ``except`` runs -- so by the time
+    :func:`_stamp` sees the error at a capture boundary the ambient context
+    no longer holds the files. Recording them on the exception itself is
+    what survives the unwind.
+
+    Each scope contributes only the files it added, so nesting accumulates
+    innermost-first: the item that actually failed, then whatever enclosed
+    it.
+
+    Args:
+        exc(BaseException):    The exception leaving the scope.
+
+        related_files(tuple):    What this scope contributed.
+
+    Returns:
+        None
+    """
+
+    if not related_files:
+        return
+    merged = list(getattr(exc, "_autowisp_scope_related_files", ()))
+    merged.extend(related for related in related_files if related not in merged)
+    try:
+        # Deliberately a private attribute on someone else's exception: it
+        # is this module's bookkeeping, not part of any public interface.
+        # pylint: disable=protected-access
+        exc._autowisp_scope_related_files = tuple(merged)
+        # pylint: enable=protected-access
+    except AttributeError:
+        # Exotic exceptions (``__slots__``, no ``__dict__``) just do not
+        # carry the files; recording context must never break a raise.
+        pass
+
+
+def _inherit_related_files(wrapper_exc, original: BaseException) -> None:
+    """Carry files recorded on ``original`` over to the exception wrapping it.
+
+    Scopes record onto the exception that passed through them, but the
+    capture layer surfaces a *different* object (the ``StepError`` subclass
+    wrapping a bare ``ValueError``), which would otherwise start empty.
+
+    Args:
+        wrapper_exc(AutoWISPError):    The wrapping exception.
+
+        original(BaseException):    The exception it wraps.
+
+    Returns:
+        None
+    """
+
+    _remember_related_files(
+        wrapper_exc, getattr(original, "_autowisp_scope_related_files", ())
+    )
+
+
 def set_pipeline_run(run: Optional[FrozenRow]) -> contextvars.Token:
     """Replace the bundle with a copy carrying ``run``, keeping the rest.
 
@@ -225,6 +284,9 @@ def error_context(*, step_name=None, related_files: Sequence = (), config=None):
     )
     try:
         yield
+    except BaseException as exc:
+        _remember_related_files(exc, tuple(related_files))
+        raise
     finally:
         _context.reset(token)
 
@@ -249,7 +311,16 @@ def _stamp(exc: AutoWISPError) -> None:
     if isinstance(exc, StepError) and not getattr(exc, "step_name", None):
         exc.step_name = ctx.step_name
     if not exc.related_files:
-        exc.related_files = ctx.related_files
+        # Scopes the exception already left recorded themselves on it (the
+        # ambient context has since been reset); scopes still in force are
+        # only in the context. Both matter, and the two can name the same
+        # file when a path is scoped twice, so merge rather than pick one.
+        remembered = getattr(exc, "_autowisp_scope_related_files", ())
+        exc.related_files = remembered + tuple(
+            related
+            for related in ctx.related_files
+            if related not in remembered
+        )
     if exc.pipeline_run is None and ctx.pipeline_run is not None:
         exc.with_pipeline_run(ctx.pipeline_run)
     if ctx.config is not None:
@@ -331,6 +402,7 @@ def capture_errors(*, component: Component, wrap_unknown=True):
                 if not wrap_unknown:
                     raise
                 wrapped = _wrap(exc, component)
+                _inherit_related_files(wrapped, exc)
                 _stamp(wrapped)
                 raise wrapped from exc
 
@@ -368,6 +440,8 @@ def _stamp_worker_error(exc: Exception, component: Component) -> AutoWISPError:
     """
 
     stamped = exc if isinstance(exc, AutoWISPError) else _wrap(exc, component)
+    if stamped is not exc:
+        _inherit_related_files(stamped, exc)
     stamped.stamp_subprocess()
     _stamp(stamped)
     stamped.details.setdefault("original_traceback", format_exc())

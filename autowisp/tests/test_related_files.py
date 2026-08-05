@@ -7,7 +7,10 @@ call site rather than a helper in isolation, in one of two ways matching
 how the site works:
 
 - main-process steps scope the context themselves, so the first call
-  inside the scope is stubbed and reports what the ambient context holds;
+  inside the scope is stubbed to *raise* and the assertion is on the
+  related files the capture boundary stamps onto the escaping error --
+  never on the ambient context read from inside the scope, which proves
+  only that the scope exists, not that anything reaches the error;
 - ``run_pool`` sites hand a classifier to the pool for the workers to
   apply, so ``run_pool`` is intercepted and the classifier it was given is
   applied to a sample item.
@@ -17,14 +20,15 @@ is covered in ``test_error_context.py``.
 """
 
 import unittest
+from contextlib import ExitStack
 from importlib import import_module
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import numpy
 
-from autowisp.error_context import get_error_context
-from autowisp.exceptions import FileKind
+from autowisp.error_context import capture_errors
+from autowisp.exceptions import AutoWISPError, Component, FileKind
 from autowisp.processing_steps import add_images_to_db as add_images_to_db_step
 from autowisp.processing_steps import calculate_photref_merit as merit_step
 from autowisp.processing_steps import calibrate as calibrate_step
@@ -45,7 +49,15 @@ iterative_refit_step = import_module(
 
 
 def _pairs(related):
-    """(kind, posix path) tuples for order-independent assertions."""
+    """The ``(kind, posix path)`` entries, for comparison in a test.
+
+    Always compared with ``assertCountEqual``: the order in which related
+    files appear carries no meaning (nothing downstream depends on it --
+    the renderer just lists them and the artifact-FK lookup is an SQL
+    ``IN``), so pinning it would over-constrain the implementation.
+    Counting rather than a set still catches a missing entry, an
+    unexpected extra one, and an accidental duplicate.
+    """
 
     return [(rf.kind, rf.path.as_posix()) for rf in related]
 
@@ -54,30 +66,93 @@ class _StubRaise(Exception):
     """Raised by a stubbed per-item call to stop the step right there."""
 
 
-class TestMainProcessScopes(unittest.TestCase):
+# A mixin for the test classes below, so it deliberately has no tests of
+# its own.
+# pylint: disable=too-few-public-methods
+class _StampedFilesMixin:
+    """Run something behind a capture boundary and inspect the error."""
+
+    def _stamped_files(self, run):
+        """Return the related files on the error escaping ``run``.
+
+        Wraps ``run`` in the same capture boundary the manager applies to
+        a step, so this reproduces the real path: the code raises, its
+        scopes unwind, and the boundary stamps whatever survived.
+        """
+
+        @capture_errors(component=Component.STEP)
+        def boundary():
+            """Stand in for ``ProcessingManager._run_step``."""
+
+            run()
+
+        with self.assertRaises(AutoWISPError) as caught:
+            boundary()
+        return _pairs(caught.exception.related_files)
+
+    @staticmethod
+    def _raise_stub(*_args, **_kwargs):
+        """Stand in for the first call inside a scope; always raises."""
+
+        raise _StubRaise
+
+    def _stamped_step_files(self, step, collection, config=None, **patches):
+        """Fail ``step`` inside its scope; return the files it reports.
+
+        Covers the steps sharing the manager's calling convention
+        ``(collection, start_status, configuration, mark_start, mark_end)``:
+        ``mark_start`` is the first call inside the scope, so passing the
+        raising stub for it fails the step exactly there, with no need to
+        patch the step itself.
+
+        Args:
+            step(callable):    The step function to run.
+
+            collection:    The images / DR files to hand it.
+
+            config(dict or None):    Its configuration; empty if omitted.
+
+            patches:    Attributes of the step's *own* module to replace
+                for the duration -- the objects built before the loop that
+                would otherwise reach real files (a ``Calibrator``, a
+                master-filename resolver).
+
+        Returns:
+            list:    ``(kind, path)`` pairs from the stamped error.
+        """
+
+        module = import_module(step.__module__)
+        with ExitStack() as patched:
+            for attribute, replacement in patches.items():
+                patched.enter_context(
+                    patch.object(module, attribute, replacement)
+                )
+            return self._stamped_files(
+                lambda: step(
+                    collection, None, config or {}, self._raise_stub, None
+                )
+            )
+
+
+# pylint: enable=too-few-public-methods
+
+
+class TestMainProcessScopes(_StampedFilesMixin, unittest.TestCase):
     """The main-process steps, exercised through their real dispatch.
 
     These build their ``RelatedFile`` entries at the scope rather than in a
-    classifier, so rather than testing a helper in isolation each test runs
-    the actual step and stubs the first call *inside* the scope. The stub
-    records what the ambient context holds at that moment -- exactly what
-    ``_stamp`` copies onto an error raised anywhere below -- and then
-    raises, stopping the step before it reaches any database, FITS, or HDF5
-    access.
+    classifier, so each test runs the actual step with the first call
+    *inside* the scope stubbed to raise -- which also stops the step before
+    it reaches any database, FITS or HDF5 access.
+
+    The assertion is on the **stamped exception**, not on the live ambient
+    context. That distinction is the whole point: the scope's ``with``
+    unwinds (resetting the ContextVar) before any enclosing ``except``
+    runs, so a test that reads the context from inside the scope passes
+    even when nothing ever reaches the error. What the pipeline actually
+    depends on is what ``capture_errors`` -- the boundary at
+    ``ProcessingManager._run_step`` -- ends up putting on the error.
     """
-
-    def _record_scope_and_raise(self, seen):
-        """Return a stub that appends the ambient files, then raises."""
-
-        # Signature-agnostic: the stubbed calls differ per step and none of
-        # their arguments matter, only the context in force when they run.
-        def stub(*_args, **_kwargs):
-            """Stand in for the first call inside the scope."""
-
-            seen.append(_pairs(get_error_context().related_files))
-            raise _StubRaise
-
-        return stub
 
     def test_calibrate_scopes_the_raw_image_and_masters(self):
         """Channel-keyed master dicts contribute one entry per channel.
@@ -87,76 +162,63 @@ class TestMainProcessScopes(unittest.TestCase):
         is the real step.
         """
 
-        seen = []
         config = {
             "master_bias": {"R": "/M/bias_R.fits", "G": "/M/bias_G.fits"},
             "master_dark": None,  # not applied -> skipped
             "master_flat": "/M/flat.fits",  # bare filename also accepted
         }
-        with (
-            patch.object(calibrate_step, "Calibrator", lambda **_kwargs: None),
-            self.assertRaises(_StubRaise),
-        ):
-            calibrate_step.calibrate(
-                ["/RAW/img.fits"],
-                None,
-                config,
-                self._record_scope_and_raise(seen),
-                None,
-            )
+        pairs = self._stamped_step_files(
+            calibrate_step.calibrate,
+            ["/RAW/img.fits"],
+            config,
+            Calibrator=lambda **_kwargs: None,
+        )
 
-        self.assertEqual(len(seen), 1)
-        pairs = seen[0]
-        self.assertEqual(pairs[0], (FileKind.RAW_IMAGE, "/RAW/img.fits"))
-        self.assertIn((FileKind.MASTER_BIAS, "/M/bias_R.fits"), pairs)
-        self.assertIn((FileKind.MASTER_BIAS, "/M/bias_G.fits"), pairs)
-        self.assertIn((FileKind.MASTER_FLAT, "/M/flat.fits"), pairs)
-        # The un-applied dark contributes nothing.
-        self.assertFalse(any(kind is FileKind.MASTER_DARK for kind, _ in pairs))
+        # Exhaustive, so the un-applied dark failing to be skipped shows up
+        # as an unexpected extra entry.
+        self.assertCountEqual(
+            pairs,
+            [
+                (FileKind.RAW_IMAGE, "/RAW/img.fits"),
+                (FileKind.MASTER_BIAS, "/M/bias_R.fits"),
+                (FileKind.MASTER_BIAS, "/M/bias_G.fits"),
+                (FileKind.MASTER_FLAT, "/M/flat.fits"),
+            ],
+        )
 
     def test_calibrate_without_masters_scopes_only_the_image(self):
         """With no masters configured, only the raw image is attached."""
 
-        seen = []
-        with (
-            patch.object(calibrate_step, "Calibrator", lambda **_kwargs: None),
-            self.assertRaises(_StubRaise),
-        ):
-            calibrate_step.calibrate(
-                ["/RAW/img.fits"],
-                None,
-                {},
-                self._record_scope_and_raise(seen),
-                None,
-            )
+        pairs = self._stamped_step_files(
+            calibrate_step.calibrate,
+            ["/RAW/img.fits"],
+            Calibrator=lambda **_kwargs: None,
+        )
 
-        self.assertEqual(seen, [[(FileKind.RAW_IMAGE, "/RAW/img.fits")]])
+        self.assertCountEqual(pairs, [(FileKind.RAW_IMAGE, "/RAW/img.fits")])
 
     def test_add_images_to_db_scopes_the_raw_image(self):
         """The raw image is in scope before any DB work begins.
 
-        ``Evaluator`` is the first call inside the scope and runs *before*
-        ``start_db_session``, so stubbing it keeps the test away from the
-        database entirely.
+        The odd one out: this step takes no progress callbacks, so it
+        cannot use ``_stamped_step_files`` and fails through a patch
+        instead. ``Evaluator`` is the first call inside the scope and runs
+        *before* ``start_db_session``, so stubbing it also keeps the test
+        away from the database entirely.
         """
 
-        seen = []
-        with (
-            patch.object(
-                add_images_to_db_step,
-                "Evaluator",
-                self._record_scope_and_raise(seen),
-            ),
-            self.assertRaises(_StubRaise),
-        ):
-            add_images_to_db_step.add_images_to_db(["/RAW/a.fits"], {})
+        with patch.object(add_images_to_db_step, "Evaluator", self._raise_stub):
+            pairs = self._stamped_files(
+                lambda: add_images_to_db_step.add_images_to_db(
+                    ["/RAW/a.fits"], {}
+                )
+            )
 
-        self.assertEqual(seen, [[(FileKind.RAW_IMAGE, "/RAW/a.fits")]])
+        self.assertCountEqual(pairs, [(FileKind.RAW_IMAGE, "/RAW/a.fits")])
 
     def test_psf_map_scopes_the_dr_file(self):
         """The PSF-map fit scopes the DR file it is smoothing."""
 
-        seen = []
         config = dict.fromkeys(
             [
                 "srcextract_psf_params",
@@ -169,25 +231,23 @@ class TestMainProcessScopes(unittest.TestCase):
         )
         with (
             patch.object(
-                psf_map_step,
-                "smooth_srcextract_psf",
-                self._record_scope_and_raise(seen),
+                psf_map_step, "smooth_srcextract_psf", self._raise_stub
             ),
             patch.object(
                 psf_map_step, "get_dr_substitutions", lambda _config: {}
             ),
-            self.assertRaises(_StubRaise),
         ):
-            psf_map_step.fit_source_extracted_psf_map(
-                ["/DR/a.h5"], None, config, None, None
+            pairs = self._stamped_files(
+                lambda: psf_map_step.fit_source_extracted_psf_map(
+                    ["/DR/a.h5"], None, config, None, None
+                )
             )
 
-        self.assertEqual(seen, [[(FileKind.DR_FILE, "/DR/a.h5")]])
+        self.assertCountEqual(pairs, [(FileKind.DR_FILE, "/DR/a.h5")])
 
     def test_photref_merit_scopes_the_dr_file(self):
         """Merit calculation scopes the DR file it is scoring."""
 
-        seen = []
         config = {
             what + "_version": 0
             for what in [
@@ -202,49 +262,35 @@ class TestMainProcessScopes(unittest.TestCase):
             patch.object(
                 merit_step, "get_typical_star", lambda *args, **kwargs: None
             ),
-            patch.object(
-                merit_step,
-                "get_frame_merit_info",
-                self._record_scope_and_raise(seen),
-            ),
-            self.assertRaises(_StubRaise),
+            patch.object(merit_step, "get_frame_merit_info", self._raise_stub),
         ):
-            merit_step.calculate_photref_merit(["/DR/a.h5"], config)
+            pairs = self._stamped_files(
+                lambda: merit_step.calculate_photref_merit(["/DR/a.h5"], config)
+            )
 
-        self.assertEqual(seen, [[(FileKind.DR_FILE, "/DR/a.h5")]])
+        self.assertCountEqual(pairs, [(FileKind.DR_FILE, "/DR/a.h5")])
 
     def test_stack_to_master_scopes_frames_and_master(self):
         """Stacking scopes every input frame plus the master it writes.
 
         ``mark_start`` is injected by the manager and is the first call
-        inside the scope, so recording through it needs no patching of the
+        inside the scope, so failing through it needs no patching of the
         step itself -- only ``get_master_fname``, which would otherwise
         open the first frame to build the name.
         """
 
-        seen = []
-        with (
-            patch.object(
-                stack_step, "get_master_fname", lambda *args: "/M/master.fits"
-            ),
-            self.assertRaises(_StubRaise),
-        ):
-            stack_step.stack_to_master(
-                ["/CAL/a.fits", "/CAL/b.fits"],
-                None,
-                {},
-                self._record_scope_and_raise(seen),
-                None,
-            )
+        pairs = self._stamped_step_files(
+            stack_step.stack_to_master,
+            ["/CAL/a.fits", "/CAL/b.fits"],
+            get_master_fname=lambda *args: "/M/master.fits",
+        )
 
-        self.assertEqual(
-            seen,
+        self.assertCountEqual(
+            pairs,
             [
-                [
-                    (FileKind.CALIBRATED_IMAGE, "/CAL/a.fits"),
-                    (FileKind.CALIBRATED_IMAGE, "/CAL/b.fits"),
-                    (FileKind.OUTPUT, "/M/master.fits"),
-                ]
+                (FileKind.CALIBRATED_IMAGE, "/CAL/a.fits"),
+                (FileKind.CALIBRATED_IMAGE, "/CAL/b.fits"),
+                (FileKind.OUTPUT, "/M/master.fits"),
             ],
         )
 
@@ -255,28 +301,20 @@ class TestMainProcessScopes(unittest.TestCase):
         uses the step's own parser defaults rather than a hand-built dict.
         """
 
-        seen = []
         masters = {"high": "/M/high.fits", "low": "/M/low.fits"}
-        with (
-            patch.object(flat_step, "get_master_fnames", lambda *args: masters),
-            self.assertRaises(_StubRaise),
-        ):
-            flat_step.stack_to_master_flat(
-                ["/CAL/f.fits"],
-                None,
-                flat_step.parse_command_line([]),
-                self._record_scope_and_raise(seen),
-                None,
-            )
+        pairs = self._stamped_step_files(
+            flat_step.stack_to_master_flat,
+            ["/CAL/f.fits"],
+            flat_step.parse_command_line([]),
+            get_master_fnames=lambda *args: masters,
+        )
 
-        self.assertEqual(
-            seen,
+        self.assertCountEqual(
+            pairs,
             [
-                [
-                    (FileKind.CALIBRATED_IMAGE, "/CAL/f.fits"),
-                    (FileKind.OUTPUT, "/M/high.fits"),
-                    (FileKind.OUTPUT, "/M/low.fits"),
-                ]
+                (FileKind.CALIBRATED_IMAGE, "/CAL/f.fits"),
+                (FileKind.OUTPUT, "/M/high.fits"),
+                (FileKind.OUTPUT, "/M/low.fits"),
             ],
         )
 
@@ -324,7 +362,7 @@ class TestWorkerPoolClassifiers(unittest.TestCase):
             ),
         )
 
-        self.assertEqual(
+        self.assertCountEqual(
             _pairs(classifier(["/CAL/a.fits", "/CAL/b.fits"])),
             [
                 (FileKind.CALIBRATED_IMAGE, "/CAL/a.fits"),
@@ -353,7 +391,7 @@ class TestWorkerPoolClassifiers(unittest.TestCase):
                 single_photref_dr_fname="/DR/sp.h5"
             )
 
-        self.assertEqual(
+        self.assertCountEqual(
             _pairs(classifier("/LC/src.h5")),
             [
                 (FileKind.LIGHTCURVE, "/LC/src.h5"),
@@ -367,7 +405,7 @@ class TestWorkerPoolClassifiers(unittest.TestCase):
         with patch.object(apply_correction_step, "get_db_engine", MagicMock()):
             classifier = self._detrending_classifier()
 
-        self.assertEqual(
+        self.assertCountEqual(
             _pairs(classifier("/LC/src.h5")),
             [(FileKind.LIGHTCURVE, "/LC/src.h5")],
         )
@@ -403,7 +441,7 @@ class TestWorkerPoolClassifiers(unittest.TestCase):
 
         classifier = self._magfit_classifier("/M/mp.fits")
 
-        self.assertEqual(
+        self.assertCountEqual(
             _pairs(classifier("/DR/x.h5")),
             [
                 (FileKind.DR_FILE, "/DR/x.h5"),
@@ -417,7 +455,7 @@ class TestWorkerPoolClassifiers(unittest.TestCase):
 
         classifier = self._magfit_classifier(None)
 
-        self.assertEqual(
+        self.assertCountEqual(
             _pairs(classifier("/DR/x.h5")),
             [(FileKind.DR_FILE, "/DR/x.h5"), (FileKind.DR_FILE, "/DR/sp.h5")],
         )
