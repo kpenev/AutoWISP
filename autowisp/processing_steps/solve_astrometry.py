@@ -4,6 +4,7 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
+from contextlib import ExitStack
 from multiprocessing import Queue, Process, Lock
 from traceback import format_exc
 import os
@@ -19,11 +20,17 @@ from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     capture_for_queue,
     decode_exit_signals,
+    error_context,
     reraise_from_worker,
     forbid_nested_workers,
 )
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component, WorkerCrashedError
+from autowisp.exceptions import (
+    Component,
+    FileKind,
+    RelatedFile,
+    WorkerCrashedError,
+)
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -402,7 +409,7 @@ def construct_transformation(transformation_info):
     return transformation
 
 
-def find_final_transformation(
+def find_final_transformation(  # pylint: disable=too-many-locals
     header, transformation_estimate, xy_extracted, web_lock, configuration
 ):
     """Find the final transformation for a given image."""
@@ -414,48 +421,66 @@ def find_final_transformation(
     frame_is_covered = False
     project_to_frame = construct_transformation(transformation_estimate)
     iteration = 0
-    while not frame_is_covered:
-        catalog, catalog_header = ensure_catalog(
-            transformation=project_to_frame,
-            header=header,
-            configuration=get_catalog_config(configuration, "astrometry"),
-            lock=web_lock,
-        )[0]
-
-        (
-            transformation_estimate["trans_x"],
-            transformation_estimate["trans_y"],
-            cat_extracted_corr,
-            res_rms,
-            ratio,
-            transformation_estimate["ra_cent"],
-            transformation_estimate["dec_cent"],
-            success,
-        ) = refine_transformation(
-            xy_extracted=xy_extracted,
-            catalog=catalog,
-            x_frame=header["NAXIS1"],
-            y_frame=header["NAXIS2"],
-            astrometry_order=configuration["astrometry_order"],
-            max_srcmatch_distance=configuration["max_srcmatch_distance"],
-            max_iterations=configuration["max_astrom_iter"],
-            trans_threshold=configuration["trans_threshold"],
-            min_source_safety_factor=configuration["min_source_safety_factor"],
-            **transformation_estimate,
-        )
-        project_to_frame = construct_transformation(transformation_estimate)
-        frame_is_covered = check_catalog_coverage(
-            header,
-            project_to_frame,
-            catalog_header,
-            configuration["astrometry_catalog_fov_safety_margin"],
-        )
-        iteration += 1
-        if iteration > 10:
-            raise RuntimeError(
-                "Attempting to ensure catalog coverage seems to be in an "
-                "infinite loop!"
+    # Each pass may resolve a *different* catalog as the transformation is
+    # refined, and the coverage failure below is precisely a question of
+    # which ones were tried -- so the scopes accumulate rather than
+    # replacing one another, and every catalog used is named on the error.
+    # Repeats (the same catalog resolved twice) are merged out when the
+    # error is stamped.
+    with ExitStack() as catalog_scopes:
+        while not frame_is_covered:
+            (catalog, catalog_header), _, catalog_fname = ensure_catalog(
+                transformation=project_to_frame,
+                header=header,
+                configuration=get_catalog_config(configuration, "astrometry"),
+                lock=web_lock,
             )
+            catalog_scopes.enter_context(
+                error_context(
+                    related_files=[
+                        RelatedFile(
+                            FileKind.CATALOG, catalog_fname, role="input"
+                        )
+                    ]
+                )
+            )
+
+            (
+                transformation_estimate["trans_x"],
+                transformation_estimate["trans_y"],
+                cat_extracted_corr,
+                res_rms,
+                ratio,
+                transformation_estimate["ra_cent"],
+                transformation_estimate["dec_cent"],
+                success,
+            ) = refine_transformation(
+                xy_extracted=xy_extracted,
+                catalog=catalog,
+                x_frame=header["NAXIS1"],
+                y_frame=header["NAXIS2"],
+                astrometry_order=configuration["astrometry_order"],
+                max_srcmatch_distance=configuration["max_srcmatch_distance"],
+                max_iterations=configuration["max_astrom_iter"],
+                trans_threshold=configuration["trans_threshold"],
+                min_source_safety_factor=configuration[
+                    "min_source_safety_factor"
+                ],
+                **transformation_estimate,
+            )
+            project_to_frame = construct_transformation(transformation_estimate)
+            frame_is_covered = check_catalog_coverage(
+                header,
+                project_to_frame,
+                catalog_header,
+                configuration["astrometry_catalog_fov_safety_margin"],
+            )
+            iteration += 1
+            if iteration > 10:
+                raise RuntimeError(
+                    "Attempting to ensure catalog coverage seems to be in an "
+                    "infinite loop!"
+                )
 
     return (
         transformation_estimate,

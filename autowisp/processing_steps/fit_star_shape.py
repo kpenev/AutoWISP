@@ -15,7 +15,7 @@ from autowisp.fit_expression import (
     iterative_fit,
 )
 from autowisp.multiprocessing_util import setup_process
-from autowisp.error_context import run_pool
+from autowisp.error_context import error_context, run_pool
 from autowisp.error_cli import cli_entry_point
 from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
@@ -583,37 +583,51 @@ class SourceListCreator:
 
 
 def create_source_list_creator(dr_fnames, configuration, catalog_lock):
-    """Return a fully configured instance of SourceListCreator."""
+    """Return a configured SourceListCreator and the catalog behind it.
 
-    catalog_sources, outliers = ensure_catalog(
+    The catalog filename is handed back rather than scoped here: this
+    function only *resolves* it, while the caller uses it for the whole
+    fit, so that is where it belongs on an error.
+
+    Returns:
+        (SourceListCreator, str):    The configured creator, and the
+            resolved filename of the catalog it draws its sources from.
+    """
+
+    catalog_sources, outliers, catalog_fname = ensure_catalog(
         dr_files=dr_fnames,
         configuration=get_catalog_config(configuration, "photometry"),
         return_metadata=False,
         skytoframe_version=configuration["skytoframe_version"],
         lock=catalog_lock,
-    )[:2]
+    )
     if outliers.size:
         raise RuntimeError(
             "Not all images in multi-image fit have consistent pointing!"
         )
 
-    return SourceListCreator(
-        catalog_sources=catalog_sources,
-        fit_variables=configuration["map_variables"],
-        grouping=SplitSources(
-            magnitude_column=configuration["split_magnitude_column"],
-            radius_splits=configuration["radius_splits"],
-            mag_split_by_source_count=configuration["mag_split_source_count"],
+    return (
+        SourceListCreator(
+            catalog_sources=catalog_sources,
+            fit_variables=configuration["map_variables"],
+            grouping=SplitSources(
+                magnitude_column=configuration["split_magnitude_column"],
+                radius_splits=configuration["radius_splits"],
+                mag_split_by_source_count=configuration[
+                    "mag_split_source_count"
+                ],
+            ),
+            **{
+                option: configuration[option]
+                for option in [
+                    "grouping_frame",
+                    "discard_faint",
+                    "remove_group_id",
+                    "skytoframe_version",
+                ]
+            },
         ),
-        **{
-            option: configuration[option]
-            for option in [
-                "grouping_frame",
-                "discard_faint",
-                "remove_group_id",
-                "skytoframe_version",
-            ]
-        },
+        catalog_fname,
     )
 
 
@@ -779,69 +793,83 @@ def fit_frame_set(
     _logger.debug("Fitting configuration: %s", repr(configuration))
 
     dr_fnames = [get_dr_fname(f) for f in frame_filenames]
-    get_sources = create_source_list_creator(
+    get_sources, catalog_fname = create_source_list_creator(
         dr_fnames, configuration, catalog_lock
     )
-    _logger.debug("Created source getter")
+    # Everything below draws on the catalog, so name it on any error
+    # raised while it does.
+    with error_context(
+        related_files=[
+            RelatedFile(FileKind.CATALOG, catalog_fname, role="input")
+        ]
+    ):
+        _logger.debug("Created source getter")
 
-    shape_fitter_config = get_shape_fitter_config(configuration)
-    star_shape_fitter = PiecewiseBicubicPSFMap()
-    _logger.debug("Created star shape fitter.")
+        shape_fitter_config = get_shape_fitter_config(configuration)
+        star_shape_fitter = PiecewiseBicubicPSFMap()
+        _logger.debug("Created star shape fitter.")
 
-    fit_sources = [get_sources(frame) for frame in frame_filenames]
-    _logger.debug("Fit sources: %s", repr(fit_sources))
+        fit_sources = [get_sources(frame) for frame in frame_filenames]
+        _logger.debug("Fit sources: %s", repr(fit_sources))
 
-    num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
-    _logger.debug("Fitting %s group", repr(num_fit_groups))
-
-    for fname in frame_filenames:
-        mark_start(fname)
-    for fit_group in range(num_fit_groups):
-        shape_fitter_config["dr_path_substitutions"]["fit_group"] = fit_group
-        _logger.debug(
-            "Fitting:\n"
-            "\tframe_filenames: %s\n"
-            "\tsources: %s\n"
-            "\tdr_fnames: %s\n",
-            repr(frame_filenames),
-            repr([sources[fit_group] for sources in fit_sources]),
-            repr([get_dr_fname(f) for f in frame_filenames]),
+        num_fit_groups = max(
+            len(frame_sources) for frame_sources in fit_sources
         )
-        star_shape_fitter.fit(
-            fits_fnames=frame_filenames,
-            sources=[
-                sources[fit_group].to_records() for sources in fit_sources
-            ],
-            output_dr_fnames=dr_fnames,
-            **shape_fitter_config,
-        )
-        _logger.debug("Done fitting")
+        _logger.debug("Fitting %s group", repr(num_fit_groups))
 
-    dr_path_substitutions = get_dr_substitutions(configuration)
-    bg_fit_config = {
-        argname[len("bg_map_") :]: value
-        for argname, value in configuration.items()
-        if argname.startswith("bg_map_")
-    }
-    for fname in frame_filenames:
-        diagnostics = []
-        try:
-            with DataReductionFile(
-                header=get_primary_header(fname), mode="r"
-            ) as dr_file:
-                header = dr_file.get_frame_header()
-                bg_center, bg_residual = get_center_background(
-                    dr_file, header, **bg_fit_config, **dr_path_substitutions
-                )
-                diagnostics.append(("bg_center", bg_center))
-                diagnostics.append(("bg_map_residual", bg_residual))
-        except Exception:
-            _logger.error(
-                "Failed to compute background diagnostics for %s",
-                fname,
-                exc_info=True,
+        for fname in frame_filenames:
+            mark_start(fname)
+        for fit_group in range(num_fit_groups):
+            shape_fitter_config["dr_path_substitutions"][
+                "fit_group"
+            ] = fit_group
+            _logger.debug(
+                "Fitting:\n"
+                "\tframe_filenames: %s\n"
+                "\tsources: %s\n"
+                "\tdr_fnames: %s\n",
+                repr(frame_filenames),
+                repr([sources[fit_group] for sources in fit_sources]),
+                repr([get_dr_fname(f) for f in frame_filenames]),
             )
-        mark_end(fname, diagnostics=diagnostics or None)
+            star_shape_fitter.fit(
+                fits_fnames=frame_filenames,
+                sources=[
+                    sources[fit_group].to_records() for sources in fit_sources
+                ],
+                output_dr_fnames=dr_fnames,
+                **shape_fitter_config,
+            )
+            _logger.debug("Done fitting")
+
+        dr_path_substitutions = get_dr_substitutions(configuration)
+        bg_fit_config = {
+            argname[len("bg_map_") :]: value
+            for argname, value in configuration.items()
+            if argname.startswith("bg_map_")
+        }
+        for fname in frame_filenames:
+            diagnostics = []
+            try:
+                with DataReductionFile(
+                    header=get_primary_header(fname), mode="r"
+                ) as dr_file:
+                    header = dr_file.get_frame_header()
+                    bg_center, bg_residual = get_center_background(
+                        dr_file,
+                        header,
+                        **bg_fit_config,
+                        **dr_path_substitutions,
+                    )
+                    diagnostics.append(("bg_center", bg_center))
+                    diagnostics.append(("bg_map_residual", bg_residual))
+            except Exception:
+                _logger.error(
+                    "Failed to compute background diagnostics for %s",
+                    fname,
+                    exc_info=True,
+                )
+            mark_end(fname, diagnostics=diagnostics or None)
 
 
 def fit_star_shape(

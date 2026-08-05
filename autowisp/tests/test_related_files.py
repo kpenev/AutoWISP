@@ -411,6 +411,63 @@ class TestHDF5ProductsAttachThemselves(_StampedFilesMixin, unittest.TestCase):
         )
 
 
+class TestCatalogScopes(_StampedFilesMixin, unittest.TestCase):
+    """The catalog is named by the step that *uses* it, not by the query.
+
+    ``ensure_catalog`` resolves the ``{checksum}`` filename and returns,
+    long before its caller is done with it, so each consumer scopes the
+    returned name around its own work. These stub the query and fail the
+    work below it, which is what would break if a scope were ever moved
+    back down into ``ensure_catalog``.
+    """
+
+    catalog_fname = "/MASTERS/Gaia/abc123.fits"
+
+    def _catalog_pair(self):
+        """The expected entry for the stubbed catalog."""
+
+        return (FileKind.CATALOG, self.catalog_fname)
+
+    def test_fit_star_shape_names_the_catalog_it_fits_against(self):
+        """The catalog covers the whole frame-set fit, not just the query.
+
+        ``fit_frame_set`` takes its own argument list rather than the
+        manager's, and derives DR names from real FITS headers before it
+        reaches the catalog, so those two steps are stubbed out. The
+        failure is injected *after* the source-list creator is built,
+        which is exactly what a scope left inside ``ensure_catalog`` (or
+        inside ``create_source_list_creator``) would fail to report.
+        """
+
+        with (
+            patch.object(
+                fit_star_shape_step,
+                "create_source_list_creator",
+                lambda *_args: (MagicMock(), self.catalog_fname),
+            ),
+            patch.object(
+                fit_star_shape_step, "get_primary_header", lambda _fname: {}
+            ),
+            patch.object(
+                fit_star_shape_step.DataReductionFile,
+                "fname_template",
+                "/DR/a.h5",
+            ),
+            patch.object(
+                fit_star_shape_step,
+                "get_shape_fitter_config",
+                self._raise_stub,
+            ),
+        ):
+            pairs = self._stamped_files(
+                lambda: fit_star_shape_step.fit_frame_set(
+                    ["/CAL/a.fits"], {}, MagicMock(), MagicMock()
+                )
+            )
+
+        self.assertCountEqual(pairs, [self._catalog_pair()])
+
+
 class TestWorkerPoolClassifiers(unittest.TestCase):
     """The ``run_pool`` sites, checked through the call that wires them up.
 

@@ -2673,15 +2673,15 @@ exactly when you want to know which output is now suspect.
 | `stack_to_master` | calibrated frame | the master being stacked `→ out` | explicit, `stacking_related_files` (FITS) |
 | `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | explicit, `stacking_related_files` (FITS) |
 | `find_stars` | calibrated image | DR file `→ out` | explicit classifier (image); DR **automatic** once opened |
-| `solve_astrometry` | DR file | the Gaia catalog queried | **automatic** (`solve_image` opens the DR as its first act) |
-| `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR; the catalog | explicit `_frame_set_related_files`; DRs automatic |
+| `solve_astrometry` | DR file | the Gaia catalog(s) queried | DR **automatic**; catalogs explicit in `find_final_transformation`, accumulating one scope per coverage iteration |
+| `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR; the catalog | explicit `_frame_set_related_files`; DRs automatic; catalog explicit in `fit_frame_set` |
 | `measure_aperture_photometry` | calibrated image | DR file | explicit classifier (image); DR automatic |
 | `fit_source_extracted_psf_map` | DR file | — | **automatic** |
 | `calculate_photref_merit` | DR file | — | **automatic** |
-| `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | explicit `_magfit_related_files` (needed for crash promotion) |
-| `create_lightcurves` | the DR being read, **or** the one LC being written | single photref DR; the lightcurve catalog; the Gaia catalog; the catalog source-list filter | **automatic** for both; catalogs/filter explicit at the step |
+| `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | explicit `_magfit_related_files` (needed for crash promotion); catalog explicit around the fit |
+| `create_lightcurves` | the DR being read, **or** the one LC being written | single photref DR; the lightcurve catalog; the Gaia catalog; the catalog source-list filter | **automatic** for both; LC catalog + filter explicit at the step, Gaia catalog explicit around the writing pass |
 | `epd` | lightcurve | single photref DR; output statistics `→ out` | explicit `_detrending_related_files` (crash promotion); LC also automatic |
-| `tfa` | lightcurve | single photref DR; the template lightcurves; output statistics `→ out` | as `epd`; templates not attached |
+| `tfa` | lightcurve | single photref DR; the template lightcurves; output statistics `→ out` | as `epd`; each template **automatic** while being read (see below) |
 | `generate_epd_statistics`, `generate_tfa_statistics` | lightcurve | single photref DR; the detrending catalog; output statistics `→ out` | **automatic** for the LC; catalog/output explicit at the step |
 
 ### HDF5 products attach themselves
@@ -2889,15 +2889,40 @@ them too. Wired at every site:
    (`MasterCatalog.as_related_file`, whose role depends on whether this
    run creates it), the Gaia catalog, the source-list filter, and the
    detrending catalog plus statistics output.
-3. **Auxiliaries not yet attached where the item already is** — the
-   catalog for `solve_astrometry` / `fit_star_shape` / `fit_magnitudes`,
-   the TFA template lightcurves, and the `→ out` products throughout. The
-   DR files that used to head this list are now automatic. Cheapest of
-   the three (the call sites already build a classifier; these only
-   extend what it returns) and the most useful for catalog-coverage and
-   layout-mismatch failures. The catalog is best attached inside
-   `ensure_catalog`, which resolves the `{checksum}` filename every caller
-   would otherwise have to reproduce.
+3. ~~Auxiliaries not yet attached where the item already is~~ — **done**,
+   and two of the three turned out to need nothing.
+
+   **The catalog** is now scoped at all four consumers. Not inside
+   `ensure_catalog`, which was the obvious-looking place and is wrong: it
+   *returns*, so a scope there would pop before the caller uses anything
+   it produced — including `solve_astrometry`'s coverage loop, whose
+   "infinite loop" `RuntimeError` is the most catalog-implicating failure
+   there is. The rule this settles: **the scope belongs at the unit of
+   work, not at the point of discovery; discovery just hands the name
+   outward.** `ensure_catalog` already returned the resolved
+   `{checksum}` filename as its third element (three of four callers were
+   discarding it), so no new plumbing was needed —
+   `create_source_list_creator` now returns it too, for the same reason.
+   `solve_astrometry` is the one special case: it re-resolves the catalog
+   on every coverage iteration, so the scopes accumulate in an
+   `ExitStack` and the error names every catalog tried, not just the last.
+
+   **The TFA templates** need nothing: every template read goes through
+   `with LightCurveFile(...)`, so the one being read is already named.
+   Attaching the whole set (64 by default, `sqrt_num_templates=8`) was
+   considered and rejected — that is inventory rather than a pointer, and
+   the template identities are already persisted in the lightcurve's own
+   `*.tfa.cfg.template_source_ids` config datasets.
+
+   **The `→ out` products** are likewise mostly covered: DR files and
+   lightcurves opened for writing attach themselves with `role="output"`,
+   and the masters, statistics files and lightcurve catalog are already
+   explicit. The one gap left deliberately is `calibrate`'s calibrated
+   image: naming it means computing `calibrated_fname` per channel from
+   the raw header (as `cleanup_interrupted` does), i.e. a FITS open on
+   every image purely to build a scope that matters only on failure. The
+   raw image and the masters applied are attached, which is the
+   information a calibration failure actually needs.
 
 Note `_resolve_artifact_fks` only FK-links images/masters — the raw
 image, masters, single/master photref all resolve to their rows, while

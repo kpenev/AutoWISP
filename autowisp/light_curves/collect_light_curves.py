@@ -7,6 +7,8 @@ import logging
 
 import numpy
 
+from autowisp.error_context import error_context
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.hat.file_parsers import parse_fname_keywords
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.catalog import ensure_catalog, get_catalog_config
@@ -64,8 +66,10 @@ def _prepare_lc_collection(
     Returns:
         dict:    ``data_io``, the surviving ``dr_filenames``, the
             ``(source id, lc filename)`` pairs in ``sources_lc_fnames``,
-            the ``frame_chunk`` size to process at a time, and the
-            ``catalog`` ``(sources, header)`` pair the caller returns.
+            the ``frame_chunk`` size to process at a time, the ``catalog``
+            ``(sources, header)`` pair the caller returns, and
+            ``catalog_fname`` -- the resolved catalog filename, which only
+            the query knows and the caller scopes onto its errors.
     """
 
     logger = logging.getLogger(__name__)
@@ -84,13 +88,17 @@ def _prepare_lc_collection(
         with DataReductionFile(
             configuration["single_photref_dr_fname"], "r"
         ) as sphotref_dr:
-            (catalog_sources, catalog_header), outliers = ensure_catalog(
+            (
+                (catalog_sources, catalog_header),
+                outliers,
+                catalog_fname,
+            ) = ensure_catalog(
                 header=sphotref_dr.get_frame_header(),
                 dr_files=dr_filenames,
                 configuration=get_catalog_config(configuration, "lc"),
                 return_metadata=True,
                 skytoframe_version=configuration["skytoframe_version"],
-            )[:2]
+            )
         for outlier_ind in reversed(outliers):
             outlier_dr = dr_filenames.pop(outlier_ind)
             logger.warning(
@@ -146,6 +154,7 @@ def _prepare_lc_collection(
         "sources_lc_fnames": sources_lc_fnames,
         "frame_chunk": frame_chunk,
         "catalog": (catalog_sources, catalog_header),
+        "catalog_fname": catalog_fname,
     }
 
 
@@ -250,5 +259,16 @@ def collect_light_curves(
         observatory=observatory,
         **path_substitutions,
     )
-    _write_lightcurves(prepared, mark_start, mark_end)
+    # The catalog decides which sources get a lightcurve at all, so it is
+    # named on anything that goes wrong while they are being written. Its
+    # resolved filename is only known once the query has run, which is why
+    # the scope is here rather than around the whole function.
+    with error_context(
+        related_files=[
+            RelatedFile(
+                FileKind.CATALOG, prepared["catalog_fname"], role="input"
+            )
+        ]
+    ):
+        _write_lightcurves(prepared, mark_start, mark_end)
     return prepared["catalog"]

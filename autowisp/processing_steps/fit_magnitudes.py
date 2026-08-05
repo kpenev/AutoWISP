@@ -14,7 +14,8 @@ from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.error_context import error_context
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp import magnitude_fitting
 from autowisp.astrometry.transformation import (
     Transformation,
@@ -274,63 +275,75 @@ def fit_magnitudes(
         dr_collection, configuration, sphotref_header, mark_start, mark_end
     )
 
-    kwargs = {
-        "fit_dr_filenames": dr_fnames,
-        "configuration": SimpleNamespace(
-            **configuration,
-            continue_from_iteration=(start_status + 1) // 2,
-            source_name_format="{0:d}",
-        ),
-        "mark_start": mark_start,
-        "mark_end": mark_end,
-        "path_substitutions": get_path_substitutions(
-            configuration, sphotref_header
-        ),
-    }
+    # Everything below consumes the catalog, so name it on any error
+    # raised while it does. The scope belongs here rather than in
+    # ``ensure_catalog``, which returns long before the fitting starts.
+    with error_context(
+        related_files=[
+            RelatedFile(FileKind.CATALOG, catalog_fname, role="input")
+        ]
+    ):
+        kwargs = {
+            "fit_dr_filenames": dr_fnames,
+            "configuration": SimpleNamespace(
+                **configuration,
+                continue_from_iteration=(start_status + 1) // 2,
+                source_name_format="{0:d}",
+            ),
+            "mark_start": mark_start,
+            "mark_end": mark_end,
+            "path_substitutions": get_path_substitutions(
+                configuration, sphotref_header
+            ),
+        }
 
-    if configuration["master_photref_fname"] is not None:
+        if configuration["master_photref_fname"] is not None:
+            _logger.info(
+                "Using existing master photometric reference: %s with\n\t%s",
+                configuration["master_photref_fname"],
+                "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
+            )
+            assert start_status == -1
+            magnitude_fitting.single_iteration(
+                photref=magnitude_fitting.get_master_photref(
+                    configuration["master_photref_fname"]
+                ),
+                **kwargs,
+            )
+            return None
+
         _logger.info(
-            "Using existing master photometric reference: %s with\n\t%s",
-            configuration["master_photref_fname"],
+            "Starting iterative magfit for single photref: %s with\n\t%s",
+            configuration["single_photref_dr_fname"],
             "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
         )
-        assert start_status == -1
-        magnitude_fitting.single_iteration(
-            photref=magnitude_fitting.get_master_photref(
-                configuration["master_photref_fname"]
-            ),
-            **kwargs,
+
+        master_photref_fname, magfit_stat_fname = (
+            magnitude_fitting.iterative_refit(
+                single_photref_dr_fname=configuration[
+                    "single_photref_dr_fname"
+                ],
+                catalog_sources=catalog_sources,
+                **kwargs,
+            )
         )
-        return None
-
-    _logger.info(
-        "Starting iterative magfit for single photref: %s with\n\t%s",
-        configuration["single_photref_dr_fname"],
-        "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
-    )
-
-    master_photref_fname, magfit_stat_fname = magnitude_fitting.iterative_refit(
-        single_photref_dr_fname=configuration["single_photref_dr_fname"],
-        catalog_sources=catalog_sources,
-        **kwargs,
-    )
-    return [
-        {
-            "filename": master_photref_fname,
-            "preference_order": None,
-            "type": "master_photref",
-        },
-        {
-            "filename": magfit_stat_fname,
-            "preference_order": None,
-            "type": "magfit_stat",
-        },
-        {
-            "filename": catalog_fname,
-            "preference_order": None,
-            "type": "magfit_catalog",
-        },
-    ]
+        return [
+            {
+                "filename": master_photref_fname,
+                "preference_order": None,
+                "type": "master_photref",
+            },
+            {
+                "filename": magfit_stat_fname,
+                "preference_order": None,
+                "type": "magfit_stat",
+            },
+            {
+                "filename": catalog_fname,
+                "preference_order": None,
+                "type": "magfit_catalog",
+            },
+        ]
 
 
 def delete_master(filename, master_type):
