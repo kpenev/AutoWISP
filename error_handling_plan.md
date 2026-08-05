@@ -105,15 +105,60 @@ exactly one source of truth.
    retype the worthwhile subset of the Phase 7 "deferred" raise sites,
    and introduce a few new exceptions raised specifically so the BUI can
    handle them. *(section pending)*
-9. ⏳ [Silent-worker-death diagnostics + crash-report completeness](#phase-9--silent-worker-death-diagnostics--crash-report-completeness):
+9. ✅ [Silent-worker-death diagnostics + crash-report completeness](#phase-9--silent-worker-death-diagnostics--crash-report-completeness):
    close the gaps a real `WorkerCrashedError` crash report exposed — the
    step link that log-collection depends on, lightcurve-step log
    selection, the specific culprit input, a native/OS-level cause for the
    death, and run-time (not report-time) provenance.
 
-Phases 1–7 are implemented and have their own sections below; phases 8–9
-get their sections when we start them (phase 9's is written below,
-motivated by a real crash report).
+Every phase has its own section below.
+
+## Status at a glance
+
+*As of 2026-08-05. Everything below this section is the design record —
+long, and written as each piece was worked out. This table is the state.
+Commit hashes are on the `error_reports` branch; phases 1–7 are on
+`master`.*
+
+| phase | state | where |
+| ----- | ----- | ----- |
+| **1–7** | ✅ done | on `master` |
+| **8** strand 1 — retype deferred raise sites | ◑ **partial, and deliberately so** | 1a `CatalogError` + `catalog.py` (`a2f69b42`); 1b cohesive library clusters (`6ec38e59`) |
+| **8** strand 2 — BUI-specific raises | ☐ **not started, undesigned** | — |
+| **9** — silent-worker-death diagnostics | ✅ done, all 9 items | see below |
+
+**Phase 8 strand 1** is the only "unfinished" work that may need no
+further code. Its backlog lists 73 catalogued `raise <stdlib>` sites, but
+the strand's own rule is to retype *the subset that benefits* — a class
+callers can `except`, a clearer `user_message`, or explicit
+`related_files` — not the whole list. Every one of them already
+auto-wraps into the right `StepError` subclass carrying step name,
+pipeline-run snapshot, `subprocess_id`, related files and the original
+traceback. "Close it as sufficient" is a legitimate outcome; what is left
+is a judgement pass, not a migration.
+
+**Phase 8 strand 2** needs design before code: which conditions the BUI
+wants to detect and present or recover from differently, rather than
+letting them surface through the generic phase-5 rendering.
+
+### Phase 9, item by item
+
+| item | what it fixed | commit |
+| ---- | ------------- | ------ |
+| 1 | `WorkerCrashedError` carries its queryable step link (the "no matching logs found" root cause) | `84f0cb12` |
+| 2 | log selection resolves lightcurve-step logs | `3e0f2b42` |
+| 3–4 | shared in-flight map naming the crashed input; `faulthandler` in every worker | `65170fec` |
+| 5 | OS-level cause of a worker death (POSIX signal / Windows NTSTATUS) | `4e456b7d` |
+| 6 | memory snapshot to confirm or deny OOM | `2e05a54a` |
+| 7 | crash-time provenance and consistent host | `b80ae7ad` |
+| 8 | the resolved config recorded on every error | `1549e30a` |
+| 9 | `related_files` populated for every step | `fc66e632`, `8b2bb23d`, `aa331fd7`, `85d7d602`, `9d6bda6e`, `0ccf6021`, `fc4e479d`, `26dc92f7` |
+
+Item 9 took the most passes because two things surfaced mid-way: the
+scoping mechanism was reaching no errors at all (see "The scoping trap"
+under item 9), and HDF5 products turned out to be able to attach
+themselves, which removed several scopes written earlier in the same
+item.
 
 ## Phase 1 — Exception hierarchy
 
