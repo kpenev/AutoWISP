@@ -2652,19 +2652,94 @@ records, image *sets* — so the generic wrapper cannot classify them):
   literal deferred Phase-2 line.
 
 **More than the per-item file: per-step auxiliary inputs.** The item being
-mapped over is not the only file a failure implicates — several steps also
+mapped over is not the only file a failure implicates — most steps also
 consume auxiliary inputs that are exactly what a config-vs-file mismatch is
-usually *about*, and they are known at dispatch time:
+usually *about*, and they are known at dispatch time.
 
-| step | auxiliary related files (beyond the item) |
-| ---- | ---------------------------------------- |
-| `calibrate` | the master bias / dark / flat applied (whichever exist) |
-| `fit_magnitudes` | the single photometric reference being processed (and, when in play, the master photref and the stat reference) |
-| `create_lightcurves`, `epd`, `tfa`, `generate_epd_statistics`, `generate_tfa_statistics` | the single photometric reference |
+**Every step, and the files each one implicates.** The per-item column is
+what the step maps over (the natural `role="input"`); the auxiliary column
+is everything else the step reads or is about to write, all of it known at
+dispatch time. `→ out` marks a file the step *produces*, attached as
+`role="expected_output"` — worth attaching because a failure mid-write is
+exactly when you want to know which output is now suspect.
 
-These are **batch-constant** (the LC/magfit manager processes one single
-photref at a time; the masters come from the step's resolved config), not
-per-item. Rather than a second `run_pool` argument, they are folded into
+| step | per-item file | auxiliary files | status |
+| ---- | ------------- | --------------- | ------ |
+| `add_images_to_db` | raw image | — | **gap** |
+| `calibrate` | raw image | master bias / dark / flat applied; calibrated image `→ out` | ✓ `_calibration_related_files` |
+| `stack_to_master` | calibrated frame | the master being stacked `→ out` | **gap** |
+| `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | **gap** |
+| `find_stars` | calibrated image | DR file `→ out` | ✓ item only (DR not attached) |
+| `solve_astrometry` | DR file | the Gaia catalog queried | ✓ item only (catalog not attached) |
+| `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR file; the catalog | ✓ `_frame_set_related_files` (frames only) |
+| `measure_aperture_photometry` | calibrated image | DR file | ✓ item only (DR not attached) |
+| `fit_source_extracted_psf_map` | DR file | — | **gap** |
+| `calculate_photref_merit` | DR file | — | **gap** |
+| `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | ✓ `_magfit_related_files` (catalog not attached) |
+| `create_lightcurves` | the DR being read, **or** the one LC being written (see below) | single photref DR; the lightcurve catalog; the Gaia catalog queried; the catalog source-list filter | ✗ **partial** — the manager scopes the single photref for the whole step; neither per-item file is scoped |
+| `epd` | lightcurve | single photref DR; output statistics file `→ out` | ✓ `_detrending_related_files` |
+| `tfa` | lightcurve | single photref DR; the template lightcurves; output statistics file `→ out` | ✓ `_detrending_related_files` (templates not attached) |
+| `generate_epd_statistics`, `generate_tfa_statistics` | lightcurve | single photref DR; output statistics file `→ out` | ✗ **partial** — manager-level single photref only, no per-LC scope |
+
+Two distinct shapes fall out of the table, and they are wired differently:
+
+- **Per-item** files vary with the work item and must be classified inside
+  the worker boundary (the `run_pool` classifier, or the dispatch scope for
+  main-process/Scheme-B steps).
+- **Auxiliary** files are **batch-constant** (the LC/magfit manager
+  processes one single photref at a time; the masters and the catalog come
+  from the step's resolved config), so they are bound once at the call site.
+
+**Never attach a collection — attach the file in hand.** `related_files`
+is a *diagnostic pointer*, not an inventory of what the step touched, and
+the two must not be confused where the collection is large.
+`create_lightcurves` is the case that forces the rule: it writes one
+lightcurve per catalog source, which is **tens of thousands** of files in
+a large field. Attaching them all would bloat every sidecar, drown the
+rendered list, and still not say which one failed. The scope must
+therefore sit at the innermost point that handles a *single* file, so the
+ambient context is never more than one item deep. In
+`collect_light_curves` that is three distinct points, each already a loop
+over one file:
+
+| loop | file to scope | role |
+| ---- | ------------- | ---- |
+| `data_io.read` over the DR chunk | that DR file | `input` |
+| `data_io.write` over `sources_lc_fnames` | that one LC | `expected_output` |
+| the `confirm_lc_length` pass | that one LC | `output` |
+
+So a failure writing source *N*'s lightcurve names *that* lightcurve plus
+the step's auxiliaries, and a failure reading a DR names that DR — while
+a failure in the surrounding setup (catalog, photref, memory planning)
+names only the auxiliaries, which is the correct answer for it.
+
+The `create_lightcurves` auxiliaries are worth spelling out, because
+"the catalog" is ambiguous here — the step has **two**:
+
+- **the single photref DR** (`single_photref_dr_fname`) — the reference
+  the whole step is bound to;
+- **the lightcurve catalog** (`--lightcurve-catalog-fname`, the
+  `lc_catalog_{TARGETID}_{CLRCHNL}_{EXPTIME}.fits` master): read as an
+  `input` when it already exists, attached as `expected_output` on the
+  run that creates it (it is registered as a `MasterFile` of type
+  `lightcurve_catalog`, so it FK-resolves);
+- **the Gaia query catalog** (`--lc-catalog`, the cached
+  `MASTERS/Gaia/{checksum}.fits`) — `FileKind.CATALOG`, `input`;
+- **the catalog source-list filter** (`--lc-catalog-source-list`), when
+  given: a plain text list of GAIA source IDs that restricts the catalog
+  at read time. **Only present once this branch is merged with master** —
+  it arrived with the lc-filter work (`read_source_id_list` in
+  `catalog.py`) and does not exist on this branch yet. It belongs in the
+  list because a wrong or malformed filter file silently changes which
+  sources get lightcurves at all, which is exactly the kind of
+  config-vs-file mismatch this item exists to surface.
+
+`FileKind` needs no new member for these: both catalogs are
+`FileKind.CATALOG`, told apart by `role` (`"lc_catalog"` vs
+`"query_catalog"`) rather than by kind, and the source-list filter is
+`FileKind.CONFIG` — it is a user-supplied control file, not catalog data.
+A dedicated ``LIGHTCURVE_CATALOG`` kind would only be worth it if the BUI
+wants to render the two differently. Rather than a second `run_pool` argument, they are folded into
 the *same* `related_files` classifier: the call site binds the auxiliary
 files into a picklable `functools.partial` of a module-level function that
 returns ``[item_file, *auxiliaries]``. One argument, and both the
@@ -2696,7 +2771,8 @@ Sequence within the item: land the **lightcurve path
 the path the real crash hit and the smallest end-to-end slice — then the
 remaining `run_pool` sites, then the main-process/Scheme-B dispatch.
 
-**Implemented (all sites).**
+**Implemented (first wave — the `status` column above is the authority on
+what is left).**
 `run_pool`/`worker_entry`/`_WorkerEntry` gained an optional `related_files`
 classifier (a `FileKind` or an ``item -> RelatedFile | Iterable | None``
 callable, resolved by `_resolve_related_files`); `_WorkerEntry.__call__`
@@ -2724,6 +2800,30 @@ them too. Wired at every site:
   `apply_correction`.
 - **solve_astrometry** (Scheme B) — the `Process`/`Queue` worker scopes
   the DR file so `capture_for_queue` stamps it onto the queued error.
+
+**Still to wire.** Every remaining row of the table, in rough order of
+value:
+
+1. **Steps with no scope at all** — `add_images_to_db`,
+   `stack_to_master`, `stack_to_master_flat`,
+   `fit_source_extracted_psf_map`, `calculate_photref_merit`. All are
+   main-process loops over a collection, so each takes the same dispatch
+   scope `calibrate` already uses; the two stackers additionally attach
+   the master they are about to write.
+2. **Per-item scope missing under a manager-level scope** —
+   `create_lightcurves` and the two statistics generators currently carry
+   only the batch-constant single photref, so an error names the photref
+   but not the DR/LC that actually failed. This is the same
+   "which file?" gap that motivated the item, just one level down — and
+   for `create_lightcurves` it means the three single-file scope points
+   tabulated above, never the `sources_lc_fnames` collection.
+3. **Auxiliaries not yet attached where the item already is** — the DR
+   file for `find_stars` / `measure_aperture_photometry` /
+   `fit_star_shape`, the catalog for `solve_astrometry` /
+   `fit_star_shape` / `fit_magnitudes`, the TFA template lightcurves, and
+   the `→ out` products throughout. Cheapest of the three (the call sites
+   already build a classifier; these only extend what it returns) and the
+   most useful for catalog-coverage and layout-mismatch failures.
 
 Note `_resolve_artifact_fks` only FK-links images/masters — the raw
 image, masters, single/master photref all resolve to their rows, while
