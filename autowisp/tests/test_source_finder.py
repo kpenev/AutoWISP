@@ -133,7 +133,9 @@ class TestExtremeSourceCounts(unittest.TestCase):
             with self.assertRaises(NoSourcesFoundError) as caught:
                 finder(frame)
 
-        self.assertIn(frame, str(caught.exception))
+        # ``repr`` because the message interpolates the name with ``!r``,
+        # which on Windows doubles the backslashes of the raw path.
+        self.assertIn(repr(frame), str(caught.exception))
         self.assertEqual(caught.exception.details["image"], frame)
         self.assertEqual(
             caught.exception.details["brightness_threshold"], 1.0e6
