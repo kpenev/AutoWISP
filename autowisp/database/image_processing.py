@@ -29,9 +29,11 @@ from autowisp.astrometry import Transformation
 from autowisp.database.data_model import (
     StepDependencies,
     ImageProcessingProgress,
+    LightCurveProcessingProgress,
     ProcessedImages,
     Step,
     Image,
+    ImageType,
     ImageDiagnostics,
     PhotometryDiagnostics,
     DiagnosticType,
@@ -42,6 +44,7 @@ from autowisp.database.data_model import (
     Condition,
     ConditionExpression,
     ImageMasterSelection,
+    ProcessingSequence,
 )
 from autowisp.database.data_model.provenance import (
     Camera,
@@ -1047,8 +1050,8 @@ class ImageProcessingManager(ProcessingManager):
                         header = dr_file.get_frame_header()
                     image_id = db_session.scalar(
                         select(Image.id).where(  # pylint: disable=no-member
-                            Image.raw_fname.like(  # pylint: disable=no-member
-                                f"%/{header['RAWFNAME']}.%"
+                            Image.raw_fname.contains(  # pylint: disable=no-member
+                                f"{header['RAWFNAME']}."
                             )
                         )
                     )
@@ -1705,7 +1708,10 @@ class ImageProcessingManager(ProcessingManager):
                     processing_progress, db_session
                 )
 
-        if not isinstance(processing_progress, ImageProcessingProgress):
+        if not isinstance(
+            processing_progress,
+            (ImageProcessingProgress, LightCurveProcessingProgress),
+        ):
             return self.find_processing_outputs(
                 db_session.scalar(
                     select(ImageProcessingProgress).filter_by(
@@ -1715,12 +1721,25 @@ class ImageProcessingManager(ProcessingManager):
                 db_session,
             )
 
+        if isinstance(processing_progress, ImageProcessingProgress):
+            image_type = processing_progress.image_type.name
+        else:
+            image_type = db_session.scalar(
+                select(ImageType.name)
+                .select_from(ProcessingSequence)
+                .join(ImageType)
+                .where(
+                    ProcessingSequence.step_id == processing_progress.step_id
+                )
+                .limit(1)
+            )
+
         main_fnames = get_log_outerr_filenames(
             existing_pid=processing_progress.run.process_id,
             task="*",
             parent_pid="",
             processing_step=processing_progress.step.name,
-            image_type=processing_progress.image_type.name,
+            image_type=image_type,
             **self._processing_config,
         )
         logging.info("Main fnames: %s", repr(main_fnames))
@@ -1733,7 +1752,7 @@ class ImageProcessingManager(ProcessingManager):
                 task="*",
                 parent_pid=processing_progress.run.process_id,
                 processing_step=processing_progress.step.name,
-                image_type=processing_progress.image_type.name,
+                image_type=image_type,
                 **self._processing_config,
             ),
         )

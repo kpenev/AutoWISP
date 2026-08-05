@@ -236,10 +236,10 @@ def bind_images_to_photref(dr_fname, batch):
 
         pf_image_id = db_session.scalar(
             select(Image.id).where(  # pylint: disable=no-member
-                Image.raw_fname.like(  # pylint: disable=no-member
-                    f"%/{pf_rawfname}.%"
+                Image.raw_fname.contains(  # pylint: disable=no-member
+                    f"{pf_rawfname}."
                 )
-            )
+            ) 
         )
         if pf_image_id is None:
             return

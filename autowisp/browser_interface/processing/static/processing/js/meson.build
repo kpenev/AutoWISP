@@ -1,5 +1,6 @@
 src = [
   'review_output.js',
+  'review_steps.js',
   'select.photref.js',
   'tune.starfind.js',
   'progress.js',

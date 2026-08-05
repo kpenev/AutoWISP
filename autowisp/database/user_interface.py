@@ -343,15 +343,20 @@ def get_progress_lightcurves(
     )
 
 
-def get_progress(step, *args, **kwargs):
-    """Return info about completed work ona given step."""
-
-    if step.name in [
+LIGHT_CURVE_STEPS = frozenset(
+    {
         "epd",
         "tfa",
         "generate_epd_statistics",
         "generate_tfa_statistics",
-    ]:
+    }
+)
+
+
+def get_progress(step, *args, **kwargs):
+    """Return info about completed work ona given step."""
+
+    if step.name in LIGHT_CURVE_STEPS:
         return get_progress_lightcurves(step.id, *args, **kwargs)
 
     return get_progress_images(step.id, *args, **kwargs)

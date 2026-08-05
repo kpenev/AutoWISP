@@ -293,8 +293,9 @@ Processing Progress
                 Logs
             </div>
             <div class="dropdown-content">
-                {% for run_id, started, finished in runs %}
-                <a href="{% url 'processing:review' run_id 'INFO' %}"
+                {% for run_id, started, finished, processing_type in runs %}
+                {% url 'processing:review' run_id 'INFO' as review_url %}
+                <a href="{{ review_url }}{% if processing_type == 'lightcurve' %}?processing_type=lightcurve{% endif %}"
                    class="dropdown-content">
                     Started {{started}}
                 </a>
