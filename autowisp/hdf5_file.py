@@ -17,9 +17,11 @@ import logging
 from lxml import etree
 import h5py
 import numpy
+
 from astropy.io import fits
 
-from autowisp.exceptions import HDF5LayoutError
+from autowisp.error_context import error_context
+from autowisp.exceptions import HDF5LayoutError, RelatedFile
 
 git_id = "$Id$"
 
@@ -39,6 +41,11 @@ class HDF5File(ABC, h5py.File):
     of files.
 
     Attributes:
+        related_file_kind:    The :class:`FileKind` this product is
+            reported as when it is attached to an error (see
+            :meth:`__enter__`). ``None`` (the default) attaches nothing,
+            so a product only participates once it declares its kind.
+
         _file_structure:    See the first entry returned by get_file_structure.
 
         _file_structure_version:    See the second entry returned by
@@ -48,6 +55,8 @@ class HDF5File(ABC, h5py.File):
             HAT-ID prefixes, with the correct data type ready for adding as a
             dataset.
     """
+
+    related_file_kind = None
 
     @classmethod
     @abstractmethod
@@ -675,15 +684,12 @@ class HDF5File(ABC, h5py.File):
         attribute_name = attribute_config.name % substitutions
         if attribute_name in parent.attrs:
             # TODO: handle  multi-valued attributes correctly.
-            if (
-                if_exists == "ignore"
-                or numpy.array_equal(
-                    parent.attrs[attribute_name],
-                    attribute_value,
-                    equal_nan=numpy.issubdtype(
-                        numpy.asarray(attribute_value).dtype, float
-                    ),
-                )
+            if if_exists == "ignore" or numpy.array_equal(
+                parent.attrs[attribute_name],
+                attribute_value,
+                equal_nan=numpy.issubdtype(
+                    numpy.asarray(attribute_value).dtype, float
+                ),
             ):
                 return parent.attrs[attribute_name]
             if if_exists == "error":
@@ -1084,10 +1090,7 @@ class HDF5File(ABC, h5py.File):
     def _replace_nonfinite(data, expected_dtype, replace_nonfinite):
         """Return (copy of) data with non-finite values replaced."""
 
-        if (
-            data.dtype.kind == "S"
-            or data.dtype in [numpy.bytes_]
-        ) and (
+        if (data.dtype.kind == "S" or data.dtype in [numpy.bytes_]) and (
             (
                 expected_dtype is not None
                 and numpy.dtype(expected_dtype).kind == "f"
@@ -1287,6 +1290,73 @@ class HDF5File(ABC, h5py.File):
             self[layout_version_path].attrs[
                 layout_version_attr
             ] = self._file_structure_version
+
+        self._error_scopes = []
+        self._related_file = (
+            None
+            if fname is None or self.related_file_kind is None
+            else RelatedFile(
+                self.related_file_kind,
+                fname,
+                role="input" if mode == "r" else "output",
+            )
+        )
+
+    def __enter__(self):
+        """Open the file *and* attach it to any error raised while open.
+
+        Every pipeline product opened through a ``with`` block therefore
+        names itself on errors raised below it, without each call site
+        having to scope it explicitly. Files with no name on disk (the
+        ``memory_only`` in-memory products) attach nothing.
+
+        The scope is entered *before* delegating, so a failure in the
+        underlying ``__enter__`` is covered too. Note this does not
+        extend to the file *open* itself: ``h5py.File`` opens in the
+        constructor, which runs before any of this (the open-failure path
+        names the file in its ``HDF5LayoutError`` instead).
+
+        Returns:
+            HDF5File:    This file. Returned as ``self`` rather than as
+                whatever ``super().__enter__()`` hands back (which is the
+                same object) so static analysis keeps seeing the concrete
+                product type instead of ``h5py.File``.
+        """
+
+        if self._related_file is not None:
+            # A stack, not a single slot: nothing stops the same object
+            # being entered more than once, and each entry owns the
+            # ContextVar token its exit must reset.
+            scope = error_context(related_files=[self._related_file])
+            scope.__enter__()
+            self._error_scopes.append(scope)
+        try:
+            super().__enter__()
+            return self
+        except BaseException:
+            # ``__exit__`` is not called when ``__enter__`` raises, so the
+            # scope has to be unwound here or its token leaks into
+            # everything that follows.
+            self._release_error_scope(*exc_info())
+            raise
+
+    def __exit__(self, *exception):
+        """Close the file, then drop it from the ambient error context.
+
+        The scope is released *after* the close so a failure while
+        flushing or closing still carries the file it was closing.
+        """
+
+        try:
+            return super().__exit__(*exception)
+        finally:
+            self._release_error_scope(*exception)
+
+    def _release_error_scope(self, *exception):
+        """Exit the innermost error scope this file entered, if any."""
+
+        if self._error_scopes:
+            self._error_scopes.pop().__exit__(*exception)
 
     @staticmethod
     def collect_columns(destination, name_head, name_tail, dset_name, values):

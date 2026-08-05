@@ -19,15 +19,21 @@ The generic scoping machinery (worker transport, crash promotion, dedup)
 is covered in ``test_error_context.py``.
 """
 
+import os
 import unittest
 from contextlib import ExitStack
 from importlib import import_module
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import numpy
 
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.database.interface import set_project_home
 from autowisp.error_context import capture_errors
+from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.exceptions import AutoWISPError, Component, FileKind
 from autowisp.processing_steps import add_images_to_db as add_images_to_db_step
 from autowisp.processing_steps import calculate_photref_merit as merit_step
@@ -216,60 +222,6 @@ class TestMainProcessScopes(_StampedFilesMixin, unittest.TestCase):
 
         self.assertCountEqual(pairs, [(FileKind.RAW_IMAGE, "/RAW/a.fits")])
 
-    def test_psf_map_scopes_the_dr_file(self):
-        """The PSF-map fit scopes the DR file it is smoothing."""
-
-        config = dict.fromkeys(
-            [
-                "srcextract_psf_params",
-                "srcextract_psfmap_terms",
-                "srcextract_psfmap_weights",
-                "srcextract_psfmap_error_avg",
-                "srcextract_psfmap_rej_level",
-                "srcextract_psfmap_max_rej_iter",
-            ]
-        )
-        with (
-            patch.object(
-                psf_map_step, "smooth_srcextract_psf", self._raise_stub
-            ),
-            patch.object(
-                psf_map_step, "get_dr_substitutions", lambda _config: {}
-            ),
-        ):
-            pairs = self._stamped_files(
-                lambda: psf_map_step.fit_source_extracted_psf_map(
-                    ["/DR/a.h5"], None, config, None, None
-                )
-            )
-
-        self.assertCountEqual(pairs, [(FileKind.DR_FILE, "/DR/a.h5")])
-
-    def test_photref_merit_scopes_the_dr_file(self):
-        """Merit calculation scopes the DR file it is scoring."""
-
-        config = {
-            what + "_version": 0
-            for what in [
-                "srcextract",
-                "catalogue",
-                "skytoframe",
-                "background",
-                "srcproj",
-            ]
-        }
-        with (
-            patch.object(
-                merit_step, "get_typical_star", lambda *args, **kwargs: None
-            ),
-            patch.object(merit_step, "get_frame_merit_info", self._raise_stub),
-        ):
-            pairs = self._stamped_files(
-                lambda: merit_step.calculate_photref_merit(["/DR/a.h5"], config)
-            )
-
-        self.assertCountEqual(pairs, [(FileKind.DR_FILE, "/DR/a.h5")])
-
     def test_stack_to_master_scopes_frames_and_master(self):
         """Stacking scopes every input frame plus the master it writes.
 
@@ -316,6 +268,146 @@ class TestMainProcessScopes(_StampedFilesMixin, unittest.TestCase):
                 (FileKind.OUTPUT, "/M/high.fits"),
                 (FileKind.OUTPUT, "/M/low.fits"),
             ],
+        )
+
+
+class TestHDF5ProductsAttachThemselves(_StampedFilesMixin, unittest.TestCase):
+    """DR and lightcurve files scope themselves while open.
+
+    This is what replaced the per-step DR/LC scopes: every pipeline HDF5
+    product opened through a ``with`` block attaches itself, so a step that
+    simply opens one needs no scoping code of its own.
+
+    Unlike the rest of the module these use real products, which needs a
+    throwaway project home for the layout lookup.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Create a project home holding one (empty) DR file."""
+
+        # Lives for the whole class and is released in tearDownClass, so a
+        # ``with`` is not an option here.
+        # pylint: disable=consider-using-with
+        cls._home = TemporaryDirectory()
+        # pylint: enable=consider-using-with
+        set_project_home(cls._home.name)
+        cls.dr_fname = os.path.join(cls._home.name, "frame.h5")
+        with DataReductionFile(cls.dr_fname, "a"):
+            pass
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove the throwaway project home."""
+
+        cls._home.cleanup()
+
+    def _dr_pair(self):
+        """The expected entry for the fixture DR file."""
+
+        return (FileKind.DR_FILE, Path(self.dr_fname).as_posix())
+
+    def test_open_for_reading_attaches_as_input(self):
+        """A DR opened ``"r"`` is reported, as an input."""
+
+        def read_and_fail():
+            """Fail with the DR file open."""
+
+            with DataReductionFile(self.dr_fname, "r"):
+                raise _StubRaise
+
+        self.assertCountEqual(
+            self._stamped_files(read_and_fail), [self._dr_pair()]
+        )
+
+    def test_nested_products_all_attach(self):
+        """A lightcurve opened inside a DR block adds to it, not replaces."""
+
+        lc_fname = os.path.join(self._home.name, "src.h5")
+
+        def write_and_fail():
+            """Fail with both a DR and a lightcurve open."""
+
+            with (
+                DataReductionFile(self.dr_fname, "r"),
+                LightCurveFile(lc_fname, "a", source_ids={"Gaia DR3": "123"}),
+            ):
+                raise _StubRaise
+
+        self.assertCountEqual(
+            self._stamped_files(write_and_fail),
+            [
+                self._dr_pair(),
+                (FileKind.LIGHTCURVE, Path(lc_fname).as_posix()),
+            ],
+        )
+
+    def test_in_memory_product_attaches_nothing(self):
+        """The nameless in-memory products have no file to report."""
+
+        def fail_in_memory():
+            """Fail with only an in-memory product open."""
+
+            with DataReductionFile():
+                raise _StubRaise
+
+        self.assertCountEqual(self._stamped_files(fail_in_memory), [])
+
+    def test_psf_map_step_names_the_dr_it_failed_on(self):
+        """``fit_source_extracted_psf_map`` reports the DR it was reading.
+
+        Nothing is stubbed: the step is handed a DR that lacks the
+        datasets it needs and fails on its own *inside* the block that
+        opened it. That is what makes this catch a later refactor which
+        narrows the ``with`` so the work no longer happens while the file
+        is open -- a regression the hook's own tests cannot see.
+        """
+
+        config = dict.fromkeys(
+            [
+                "srcextract_psf_params",
+                "srcextract_psfmap_terms",
+                "srcextract_psfmap_weights",
+                "srcextract_psfmap_error_avg",
+                "srcextract_psfmap_rej_level",
+                "srcextract_psfmap_max_rej_iter",
+            ]
+        )
+        config.update(
+            (component + "_version", 0)
+            for component in ["srcextract", "catalogue", "skytoframe"]
+        )
+
+        self.assertCountEqual(
+            self._stamped_files(
+                lambda: psf_map_step.fit_source_extracted_psf_map(
+                    [self.dr_fname], None, config, MagicMock(), MagicMock()
+                )
+            ),
+            [self._dr_pair()],
+        )
+
+    def test_merit_step_names_the_dr_it_failed_on(self):
+        """``calculate_photref_merit`` reports the DR it was scoring."""
+
+        config = {
+            component + "_version": 0
+            for component in [
+                "srcextract",
+                "catalogue",
+                "skytoframe",
+                "background",
+                "srcproj",
+            ]
+        }
+
+        self.assertCountEqual(
+            self._stamped_files(
+                lambda: merit_step.calculate_photref_merit(
+                    [self.dr_fname], config
+                )
+            ),
+            [self._dr_pair()],
         )
 
 

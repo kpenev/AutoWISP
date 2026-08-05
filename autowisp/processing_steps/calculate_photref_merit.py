@@ -11,8 +11,6 @@ from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 from autowisp.multiprocessing_util import setup_process
-from autowisp.error_context import error_context
-from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.astrometry import Transformation
 from autowisp.processing_steps.fit_source_extracted_psf_map import (
     get_predictors_and_weights,
@@ -239,25 +237,18 @@ def calculate_photref_merit(dr_filenames, config):
     }
     typical_star = get_typical_star(dr_filenames, **dr_path_substitutions)
     _logger.debug("Typical star:\n%s", repr(typical_star))
-    # An explicit loop rather than a generator expression so each frame's
-    # merit calculation can be scoped to the DR file it is about.
-    frame_merit = []
-    for dr_fname in dr_filenames:
-        with error_context(
-            related_files=[
-                RelatedFile(FileKind.DR_FILE, dr_fname, role="input")
-            ]
-        ):
-            frame_merit.append(
-                get_frame_merit_info(
-                    dr_fname,
-                    typical_star,
-                    bg_fit_config,
-                    config,
-                    **dr_path_substitutions,
-                )
-            )
-    merit_info = pandas.DataFrame(frame_merit)
+    # ``get_frame_merit_info`` opens the DR file, which attaches itself to
+    # any error raised while it is open, so no explicit scope is needed.
+    merit_info = pandas.DataFrame(
+        get_frame_merit_info(
+            dr_fname,
+            typical_star,
+            bg_fit_config,
+            config,
+            **dr_path_substitutions,
+        )
+        for dr_fname in dr_filenames
+    )
     frame_quantities = list(merit_info.columns)
     frame_quantities.remove("dr")
     for column in frame_quantities:
