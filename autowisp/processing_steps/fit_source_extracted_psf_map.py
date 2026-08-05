@@ -9,7 +9,8 @@ import numpy
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.error_context import error_context
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.fit_expression import (
@@ -340,13 +341,18 @@ def fit_source_extracted_psf_map(
     )
 
     for dr_fname in dr_collection:
-        smooth_srcextract_psf(
-            dr_fname=dr_fname,
-            configuration=smoothing_config,
-            mark_start=mark_start,
-            mark_end=mark_end,
-            **get_dr_substitutions(configuration),
-        )
+        with error_context(
+            related_files=[
+                RelatedFile(FileKind.DR_FILE, dr_fname, role="input")
+            ]
+        ):
+            smooth_srcextract_psf(
+                dr_fname=dr_fname,
+                configuration=smoothing_config,
+                mark_start=mark_start,
+                mark_end=mark_end,
+                **get_dr_substitutions(configuration),
+            )
 
 
 def cleanup_interrupted(interrupted, configuration):

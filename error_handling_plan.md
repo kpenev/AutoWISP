@@ -2665,16 +2665,16 @@ exactly when you want to know which output is now suspect.
 
 | step | per-item file | auxiliary files | status |
 | ---- | ------------- | --------------- | ------ |
-| `add_images_to_db` | raw image | — | **gap** |
+| `add_images_to_db` | raw image | — | ✓ dispatch scope |
 | `calibrate` | raw image | master bias / dark / flat applied; calibrated image `→ out` | ✓ `_calibration_related_files` |
-| `stack_to_master` | calibrated frame | the master being stacked `→ out` | **gap** |
-| `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | **gap** |
+| `stack_to_master` | calibrated frame | the master being stacked `→ out` | ✓ `stacking_related_files` |
+| `stack_to_master_flat` | calibrated frame | the high / low master flats `→ out` | ✓ `stacking_related_files` |
 | `find_stars` | calibrated image | DR file `→ out` | ✓ item only (DR not attached) |
 | `solve_astrometry` | DR file | the Gaia catalog queried | ✓ item only (catalog not attached) |
 | `fit_star_shape` | the frame *set* (simultaneous fit) | each frame's DR file; the catalog | ✓ `_frame_set_related_files` (frames only) |
 | `measure_aperture_photometry` | calibrated image | DR file | ✓ item only (DR not attached) |
-| `fit_source_extracted_psf_map` | DR file | — | **gap** |
-| `calculate_photref_merit` | DR file | — | **gap** |
+| `fit_source_extracted_psf_map` | DR file | — | ✓ dispatch scope |
+| `calculate_photref_merit` | DR file | — | ✓ dispatch scope |
 | `fit_magnitudes` | DR file | single photref DR; master photref; the catalog | ✓ `_magfit_related_files` (catalog not attached) |
 | `create_lightcurves` | the DR being read, **or** the one LC being written (see below) | single photref DR; the lightcurve catalog; the Gaia catalog queried; the catalog source-list filter | ✗ **partial** — the manager scopes the single photref for the whole step; neither per-item file is scoped |
 | `epd` | lightcurve | single photref DR; output statistics file `→ out` | ✓ `_detrending_related_files` |
@@ -2804,12 +2804,19 @@ them too. Wired at every site:
 **Still to wire.** Every remaining row of the table, in rough order of
 value:
 
-1. **Steps with no scope at all** — `add_images_to_db`,
-   `stack_to_master`, `stack_to_master_flat`,
-   `fit_source_extracted_psf_map`, `calculate_photref_merit`. All are
-   main-process loops over a collection, so each takes the same dispatch
-   scope `calibrate` already uses; the two stackers additionally attach
-   the master they are about to write.
+1. ~~**Steps with no scope at all**~~ — **done.** `add_images_to_db`,
+   `fit_source_extracted_psf_map` and `calculate_photref_merit` took the
+   same per-item dispatch scope `calibrate` already used. The two
+   stackers are the one shape that legitimately attaches a *collection*:
+   stacking has no per-item boundary — the whole set is averaged in a
+   single `MasterMaker`/`MasterFlatMaker` call — so a failure (too few
+   valid frames, mismatched geometry) is about the set, not one frame.
+   `stacking_related_files` (in `stack_to_master`, reused by the flat
+   variant) attaches every input frame plus the master(s) being written
+   as `expected_output`. That does not contradict the "never attach a
+   collection" rule above: the rule applies where a single-file boundary
+   exists, and a stack is bounded by what one master consumes, unlike the
+   per-source lightcurves `create_lightcurves` writes.
 2. **Per-item scope missing under a manager-level scope** —
    `create_lightcurves` and the two statistics generators currently carry
    only the batch-constant single photref, so an error names the photref

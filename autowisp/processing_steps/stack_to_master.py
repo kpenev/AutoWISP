@@ -13,7 +13,8 @@ from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.error_context import error_context
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.master_maker import MasterMaker
 from autowisp.processing_steps.manual_util import (
@@ -163,6 +164,35 @@ def get_master_fname(
     return configuration[fname_key].format_map(substitutions)
 
 
+def stacking_related_files(image_collection, master_fnames):
+    """The frames going into a stack plus the master(s) coming out.
+
+    Unlike the steps that map over their input one file at a time, stacking
+    *is* the collection: a failure (too few valid frames, mismatched
+    geometry) is about the set, not about one frame, so every input is
+    attached. The set is bounded by what a single master stacks, unlike the
+    per-source lightcurves ``create_lightcurves`` writes.
+
+    Args:
+        image_collection:    The calibrated frames being stacked.
+
+        master_fnames(Sequence[str]):    The master(s) this stack produces,
+            attached as ``expected_output`` -- they may not exist yet (or
+            may be half-written) when the failure surfaces.
+
+    Returns:
+        list:    The ``RelatedFile`` entries for the stack.
+    """
+
+    return [
+        RelatedFile(FileKind.CALIBRATED_IMAGE, image_fname, role="input")
+        for image_fname in image_collection
+    ] + [
+        RelatedFile(FileKind.OUTPUT, master_fname, role="expected_output")
+        for master_fname in master_fnames
+    ]
+
+
 def stack_to_master(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
@@ -170,29 +200,36 @@ def stack_to_master(
 
     assert start_status is None
 
-    for image_fname in image_collection:
-        mark_start(image_fname)
     master_fname = get_master_fname(image_collection[0], configuration)
-    success, discarded_frames = MasterMaker(
-        **{
-            arg: configuration[arg]
-            for arg in [
-                "outlier_threshold",
-                "average_func",
-                "min_valid_frames",
-                "min_valid_values",
-                "max_iter",
-                "exclude_mask",
-                "compress",
-                "add_averaged_keywords",
-            ]
-        }
-    )(image_collection, master_fname)
-    for image_fname in image_collection:
-        mark_end(
-            image_fname,
-            fail_reasons["discarded"] if image_fname in discarded_frames else 1,
-        )
+    with error_context(
+        related_files=stacking_related_files(image_collection, [master_fname])
+    ):
+        for image_fname in image_collection:
+            mark_start(image_fname)
+        success, discarded_frames = MasterMaker(
+            **{
+                arg: configuration[arg]
+                for arg in [
+                    "outlier_threshold",
+                    "average_func",
+                    "min_valid_frames",
+                    "min_valid_values",
+                    "max_iter",
+                    "exclude_mask",
+                    "compress",
+                    "add_averaged_keywords",
+                ]
+            }
+        )(image_collection, master_fname)
+        for image_fname in image_collection:
+            mark_end(
+                image_fname,
+                (
+                    fail_reasons["discarded"]
+                    if image_fname in discarded_frames
+                    else 1
+                ),
+            )
 
     if success:
         assert exists(master_fname)
@@ -229,9 +266,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     stack_to_master(
         list(find_fits_fnames(cmdline_config["calibrated_images"])),
