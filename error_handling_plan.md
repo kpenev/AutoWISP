@@ -111,6 +111,12 @@ exactly one source of truth.
    selection, the specific culprit input, a native/OS-level cause for the
    death, and run-time (not report-time) provenance.
 
+10. ⏳ [Assertion messages](#phase-10--assertion-messages): give every
+    surviving `assert` a message saying what its failure *indicates*, and
+    convert the ones that are really input/config validation into proper
+    raises. A bare `assert` reaches the user as the literal word
+    "AssertionError".
+
 Every phase has its own section below.
 
 ## Status at a glance
@@ -126,6 +132,7 @@ Commit hashes are on the `error_reports` branch; phases 1–7 are on
 | **8** strand 1 — retype deferred raise sites | ◑ **partial, and deliberately so** | 1a `CatalogError` + `catalog.py` (`a2f69b42`); 1b cohesive library clusters (`6ec38e59`) |
 | **8** strand 2 — BUI-specific raises | ☐ **not started, undesigned** | — |
 | **9** — silent-worker-death diagnostics | ✅ done, all 9 items | see below |
+| **10** — assertion messages | ⏳ **started**, 264 bare asserts to triage | seeded by `browser_interface/configuration/views.py` |
 
 **Phase 8 strand 1** is the only "unfinished" work that may need no
 further code. Its backlog lists 73 catalogued `raise <stdlib>` sites, but
@@ -3069,4 +3076,99 @@ is now **done for every step**, by two complementary routes: HDF5 products
 steps explicitly scope what is not an HDF5 product (raw and calibrated
 frames, masters, catalogs, the source-list filter, output products). The
 `run_pool` classifiers stay regardless, since crash promotion has no open
-file to draw on. What remains is the tier-3 list of auxiliaries.
+file to draw on.
+
+## Phase 10 — assertion messages
+
+*(Started. Seeded by the `browser_interface/configuration/views.py`
+edits, which gave two bare asserts messages naming the offending value.)*
+
+### Why this belongs in the error-handling plan
+
+A bare `assert` is not a private developer note once the capture layer is
+in place — it is a *user-facing error message*, and a uselessly bad one.
+`_wrap` builds its message as `str(exc) or exc.__class__.__name__`, and
+`str(AssertionError())` is empty, so the chain produces:
+
+```
+bare assert          -> StepError: user_message='AssertionError'
+assert with message  -> StepError: user_message='expected one source per frame, found 2'
+```
+
+That `user_message` is what the BUI shows, what the CLI prints, and what
+the `Error` row stores. So every bare assert that can fire in front of a
+user is a step that fails with the word "AssertionError" and nothing
+else — the exact outcome phases 1–9 exist to prevent.
+
+### Scale
+
+| area | bare | with message |
+| ---- | ---- | ------------ |
+| pipeline | 241 | 13 |
+| `browser_interface` | 19 | 4 |
+| tests | 4 | 0 |
+| **total** | **264** | **17** |
+
+Densest files: `light_curves/lc_data_io.py` (18),
+`database/user_interface.py` (12),
+`image_calibration/master_flat_maker.py` (12), `catalog.py` (11),
+`database/image_processing.py` (11), `hdf5_file.py` (10). The inventory
+is reproducible with a short `ast` walk over `autowisp/**/*.py` looking
+for `ast.Assert` with `msg=None`.
+
+### A triage, not a mechanical sweep
+
+Each site gets one of three outcomes, and choosing which is the real
+work:
+
+1. **Add a message.** For genuine internal invariants: say what the
+   failure *indicates*, not what the expression was (the reader can see
+   the expression), and interpolate the offending value — as the seeding
+   edits do: ``assert key in index, f"Parameter {key} not found
+   configuration!"``.
+2. **Convert to a raise.** An `assert` that can fire because of *user
+   input, configuration, or file contents* is not an invariant — it is
+   validation wearing the wrong clothes, and it vanishes entirely under
+   `python -O`. These become `ConfigurationError`, `BadImageError`,
+   `HDF5LayoutError` and friends, with a `user_message`. Several of the
+   phase-7/8 "deferred raise sites" already sit in this category.
+3. **Leave it bare.** Deep-library invariants no user action can provoke,
+   where a message would be noise. This should be the small minority, and
+   it is the outcome to justify rather than assume.
+
+The 1-versus-2 distinction matters more than the wording: a message
+improves a report, but conversion decides whether the check survives an
+optimised run at all.
+
+### Priority
+
+Outward from where users meet them, not alphabetically:
+
+1. **Orchestration and steps** — `database/image_processing.py`,
+   `database/processing.py`, `database/user_interface.py`,
+   `processing_steps/*`. These fire on real runs with real
+   configurations, so they are the ones producing "AssertionError" in the
+   BUI today.
+2. **Products and IO** — `hdf5_file.py`, `lc_data_io.py`, the DR/LC
+   layers, where a malformed or unexpected file trips an invariant. Many
+   of these are category 2.
+3. **Numerics and library internals** — `master_flat_maker.py`,
+   `tfa_correction.py`, the fitting code. Mostly category 1 or 3.
+
+### Keeping it fixed
+
+Optional follow-up once the sweep is done: a check that fails on *new*
+bare asserts, so this cannot silently regrow. Pylint has no such rule,
+but the same `ast` walk used for the inventory is a few lines as a test,
+seeded with an explicit allowlist of the category-3 sites.
+
+### Tests (Phase 10)
+
+The sweep needs no new machinery — the capture layer already carries
+whatever message an assert supplies. What is worth pinning is the
+motivating behaviour itself, so the incentive cannot quietly disappear: a
+test that a bare `AssertionError` surfaces with
+``user_message == "AssertionError"``, and one raised with text surfaces
+with that text. The converted sites (category 2) then get the same
+treatment as any other typed raise: assert the class and the
+`user_message`.
