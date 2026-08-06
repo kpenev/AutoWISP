@@ -8,7 +8,7 @@ from pytransit import QuadraticModel
 
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.error_context import error_context
-from autowisp.exceptions import FileKind, RelatedFile
+from autowisp.exceptions import ConfigurationError, FileKind, RelatedFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.magnitude_fitting.util import format_master_catalog
@@ -57,7 +57,12 @@ def _add_catalog_info(
                             cat_source_id = int(source_id)
                     except ValueError:
                         pass
-            assert cat_source_id is not None
+            if cat_source_id is None:
+                raise ConfigurationError(
+                    f"None of the identifiers in {fname} appears in the "
+                    "detrending catalog, so its magnitude and position "
+                    "cannot be looked up!"
+                )
 
             cat_info = catalog[cat_source_id]
             if result is None:
@@ -117,7 +122,11 @@ def correct_target_lc(target_lc_fname, configuration, correct):
     """Perform reconstructive detrending on the target LC."""
 
     num_limbdark_coef = len(configuration["limb_darkening"])
-    assert num_limbdark_coef == 2
+    if num_limbdark_coef != 2:
+        raise ConfigurationError(
+            f"{num_limbdark_coef} limb darkening coefficients were given; "
+            "the quadratic law used for the transit model takes exactly two!"
+        )
 
     transit_parameters = get_transit_parameters(configuration)
     fit_parameter_flags = numpy.zeros(len(transit_parameters), dtype=bool)
@@ -166,9 +175,12 @@ def calculate_detrending_performance(
         recalc_arguments:    Passed directly to
             recalculate_correction_statistics()
     """
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     lc_fnames = list(lc_fnames)
-    assert start_status == 0
 
     _logger.debug(
         "Generating %s performance statistics for %d light_curves",

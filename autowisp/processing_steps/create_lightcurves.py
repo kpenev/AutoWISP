@@ -31,6 +31,14 @@ from autowisp.error_context import error_context
 from autowisp.exceptions import FileKind, RelatedFile
 
 input_type = "dr"
+#: On top of the always-allowed "nothing done yet": ``1`` means a previous
+#: run got as far as adding the points but not marking the DR files final,
+#: so it only needs finishing off.
+allowed_start_status_values = (1,)
+#: Unlike the steps that only ever record "started", lightcurve creation
+#: adds the points (``0`` -> ``1``) before marking the DR files final, so
+#: an interrupted run can be found in either state.
+allowed_interrupted_status_values = (0, 1)
 
 _logger = logging.getLogger(__name__)
 
@@ -320,7 +328,6 @@ def create_lightcurves(
 
     dr_by_observatory = sort_by_observatory(dr_collection, configuration)
 
-    assert start_status in [None, 1]
     if start_status == 1:
         for dr_fname in dr_collection:
             mark_end(dr_fname)
@@ -382,15 +389,15 @@ def cleanup_interrupted(interrupted, configuration):
 
     min_status = min(interrupted, key=lambda x: x[1])[1]
     max_status = max(interrupted, key=lambda x: x[1])[1]
-    assert min_status >= 0
     _logger.info(
         "Cleaning up interrupted lightcurve generation with status %d to %d",
         min_status,
         max_status,
     )
+    # The manager has already checked every status against
+    # ``allowed_interrupted_status_values``, so the only case left is 1.
     if max_status == 0:
         return -1
-    assert max_status == 1
 
     dr_sources = get_combined_sources(
         map(lambda x: x[0], interrupted),

@@ -491,20 +491,44 @@ def _parse_json_config(json_config):
     result = {}
     expression_list = []
 
+    # Rejecting every malformed node shape with its own message is
+    # inherently branchy; the alternative is one vague error for all of
+    # them.
+    # pylint: disable=too-many-branches
     def walk_json(sub_tree, parameter=None, expression_ids=None):
         """Recursively walk the JSON configuration tree adding to results."""
 
         if sub_tree["type"] == "parameter":
-            assert parameter is None
-            assert sub_tree["name"] not in result
-            assert expression_ids is None
-            assert sub_tree["children"]
+            if parameter is not None or expression_ids is not None:
+                raise ConfigurationError(
+                    f'Parameter {sub_tree["name"]} is nested under parameter '
+                    f"{parameter} in the JSON configuration; parameters must "
+                    "be at the top level!"
+                )
+            if sub_tree["name"] in result:
+                raise ConfigurationError(
+                    f'Parameter {sub_tree["name"]} is specified more than '
+                    "once in the JSON configuration!"
+                )
+            if not sub_tree["children"]:
+                raise ConfigurationError(
+                    f'Parameter {sub_tree["name"]} in the JSON configuration '
+                    "has no value or condition under it!"
+                )
             for child in sub_tree["children"]:
                 walk_json(child, sub_tree["name"], ())
         elif sub_tree["type"] == "value":
-            assert not sub_tree["children"]
-            assert parameter
-            assert expression_ids is not None
+            if sub_tree["children"]:
+                raise ConfigurationError(
+                    f'Value {sub_tree["name"]} of parameter {parameter} has '
+                    "further nodes under it in the JSON configuration; "
+                    "values must be the leaves of the tree!"
+                )
+            if not parameter or expression_ids is None:
+                raise ConfigurationError(
+                    f'Value {sub_tree["name"]} in the JSON configuration is '
+                    "not under any parameter!"
+                )
             if parameter not in result:
                 result[parameter] = []
             print(
@@ -517,8 +541,17 @@ def _parse_json_config(json_config):
                 {"expressions": set(expression_ids), "value": sub_tree["name"]}
             )
         elif sub_tree["type"] == "condition":
-            assert sub_tree["children"]
-            assert parameter
+            if not sub_tree["children"]:
+                raise ConfigurationError(
+                    f'Condition {sub_tree["name"]} of parameter {parameter} '
+                    "has no value or further condition under it in the JSON "
+                    "configuration!"
+                )
+            if not parameter:
+                raise ConfigurationError(
+                    f'Condition {sub_tree["name"]} in the JSON configuration '
+                    "is not under any parameter!"
+                )
             try:
                 condition_id = expression_list.index(sub_tree["name"])
             except ValueError:
@@ -914,7 +947,11 @@ def update_db_entry(
 
     if "type" in attribute_names:
         type_id = int(properties.get("type-id"))
-        assert type_id >= 0
+        if type_id < 0:
+            raise ConfigurationError(
+                f"No {component_type} type selected (got type ID "
+                f"{type_id})!"
+            )
         setattr(db_item, component_type + "_type_id", type_id)
 
     if entry_id < 0:
@@ -1077,6 +1114,9 @@ def apply_master_config(master_settings):
                     "dark",
                     "flat",
                     "object",
+                ), (
+                    "The built-in step dependencies have calibrate consuming "
+                    f"an unknown master type: {step_dependencies[i][1]}!"
                 )
                 for master_type in disabled_masters:
                     try:
@@ -1106,7 +1146,10 @@ def apply_master_config(master_settings):
         if master_type in ("highflat", "lowflat"):
             master_type = "flat"
         enabled = master_settings[f"master-{master_type}-enabled"]
-        assert enabled == "always" or int(enabled) == 1
+        assert enabled == "always" or int(enabled) == 1, (
+            f"Master {master_type} is set to {enabled!r} yet survived the "
+            "removal of the masters the user disabled!"
+        )
         master_config["must_match"] = frozenset(
             filter(None, get_list(f"master-{master_type}-match"))
         )

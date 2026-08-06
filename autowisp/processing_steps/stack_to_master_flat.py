@@ -32,6 +32,9 @@ from autowisp.image_smoothing import (
 
 
 input_type = "calibrated"
+#: Frames are marked as started and nothing else until the masters are
+#: written, so that is the only state an interrupted stack leaves behind.
+allowed_interrupted_status_values = (0,)
 _logger = logging.getLogger(__name__)
 fail_reasons = {
     "stacking_failed_high": -2,
@@ -357,11 +360,13 @@ def stack_to_master_flat(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Stack the given frames to produce single high and/or low master flat."""
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     def key_translate(k):
         return "size" if k == "filter_size" else k
-
-    assert start_status is None
 
     split_config = {}
     for prefix in [
@@ -445,7 +450,11 @@ def stack_to_master_flat(
         )
     ):
         for image_fname in image_collection:
-            assert get_master_fnames(image_fname, configuration) == fnames
+            assert get_master_fnames(image_fname, configuration) == fnames, (
+                f"{image_fname} belongs in flat masters "
+                f"{get_master_fnames(image_fname, configuration)}, not the "
+                f"{fnames} the rest of this batch is being stacked into!"
+            )
             mark_start(image_fname)
 
         success, classified_images = create_master(
@@ -475,7 +484,10 @@ def stack_to_master_flat(
     result = {}
     for illumination in ["high", "low"]:
         if success[illumination]:
-            assert exists(fnames[illumination])
+            assert exists(fnames[illumination]), (
+                f"Stacking reported a successful {illumination} flat but "
+                f"{fnames[illumination]} was not created!"
+            )
             header = get_primary_header(fnames[illumination])
             result[illumination] = {
                 "filename": fnames[illumination],

@@ -9,7 +9,12 @@ import numpy
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import error_context
-from autowisp.exceptions import FileKind, RelatedFile
+from autowisp.exceptions import (
+    FileKind,
+    MasterSelectionError,
+    PipelineError,
+    RelatedFile,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -61,7 +66,11 @@ class LightCurveProcessingManager(ProcessingManager):
         if isinstance(which, int):
             which = [which]
 
-        assert status > 0
+        assert status > 0, (
+            f"Recording progress of {self.current_step.name} with status "
+            f"{status}; only positive statuses mark work actually done, "
+            "negative ones are set by the manager for failures!"
+        )
         with start_db_session() as db_session:
             for star in which:
                 if isinstance(star, int):
@@ -150,7 +159,11 @@ class LightCurveProcessingManager(ProcessingManager):
         if previous:
             lc_fnames = list(lc_fnames)
             for check in lc_fnames:
-                assert path.exists(check)
+                if not path.exists(check):
+                    raise PipelineError(
+                        f"Lightcurve {check} was detrended by a previous "
+                        "step but is no longer on disk!"
+                    )
             return lc_fnames
         return [
             lc
@@ -301,7 +314,11 @@ class LightCurveProcessingManager(ProcessingManager):
             .where(StepDependencies.blocked_step_id == step.id)
             .where(StepDependencies.blocked_image_type_id == image_type.id)
         ).all():
-            assert required_imtype_id == image_type.id
+            assert required_imtype_id == image_type.id, (
+                f"Dependency of {step.name} on {required_step_name} was "
+                f"selected for image type {image_type.id} but came back for "
+                f"{required_imtype_id}!"
+            )
             if required_step_name not in self.pending:
                 continue
             if image_type.name not in self.pending[required_step_name]:
@@ -527,7 +544,12 @@ class LightCurveProcessingManager(ProcessingManager):
         catalog = create_lc_cofig["lightcurve_catalog_fname"].format_map(
             sphotref_header
         )
-        assert path.exists(catalog)
+        if not path.exists(catalog):
+            raise MasterSelectionError(
+                f"The lightcurve catalog {catalog} that create_lightcurves "
+                "should have produced is missing, so the detrending "
+                "configuration cannot be completed!"
+            )
 
         step_config = self.get_config(
             matched_expressions, db_session, db_step=step
@@ -588,6 +610,7 @@ class LightCurveProcessingManager(ProcessingManager):
                         )
                     ],
                 ):
+                    self.check_start_status(step_module, step_name, 0)
                     new_masters = getattr(step_module, step_name)(
                         lc_fnames, 0, configuration, self._mark_progress
                     )

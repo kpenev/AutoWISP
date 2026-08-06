@@ -245,12 +245,20 @@ class ProcessingManager:
         best_master_value = infinity
         best_master_fname = None
         for master_fname, use_smallest in candidate_masters:
-            assert use_smallest is not None
+            assert use_smallest is not None, (
+                f"Master {master_fname} is a candidate for "
+                f'{image_eval("RAWFNAME")} but has no expression saying which '
+                "of several candidates to prefer!"
+            )
             master_value = image_eval(use_smallest)
             if master_value < best_master_value:
                 best_master_value = master_value
                 best_master_fname = master_fname
-        assert best_master_fname
+        assert best_master_fname, (
+            f"None of the {len(candidate_masters)} candidate masters for "
+            f'{image_eval("RAWFNAME")}, channel {image_eval("CLRCHNL")} could '
+            "be ranked; their preference expressions gave no usable value!"
+        )
         return best_master_fname
 
     def _get_master(
@@ -369,7 +377,12 @@ class ProcessingManager:
                     evaluate.symtable
                 )
                 break
-        assert "dr" in evaluated_expressions
+        if "dr" not in evaluated_expressions:
+            raise ConfigurationError(
+                "None of the configured data reduction filenames applies to "
+                f'{evaluate("RAWFNAME")}, channel {evaluate("CLRCHNL")}: the '
+                "conditions attached to each of them are all unsatisfied!"
+            )
 
         for master_type in db_session.scalars(
             select(MasterType)
@@ -421,6 +434,87 @@ class ProcessingManager:
             "CAMERAID": obs_session.camera.serial_number,
             "TELSCPID": obs_session.telescope.serial_number,
         }
+
+    @staticmethod
+    def check_interrupted_statuses(step_module, step_name, interrupted):
+        """Verify a step can clean up after the progress it is handed.
+
+        Unlike the start status, there is no universally valid value
+        here: how far a step can get before being interrupted is
+        genuinely step-specific (most only ever record "started", but
+        lightcurve creation also has a "points added, not yet final"
+        stage), so every step with a ``cleanup_interrupted`` declares its
+        own ``allowed_interrupted_status_values``. As for the start
+        status, a declaration of ``None`` means the step sorts this out
+        itself -- ``fit_magnitudes`` reads an iteration number out of the
+        status rather than matching it against a fixed set.
+
+        Checked once here rather than inside each step's
+        ``cleanup_interrupted``, because the statuses come from
+        ``ProcessedImages`` rows that only the manager reads.
+
+        Args:
+            step_module:    The module implementing the step.
+
+            step_name(str):    Its name, for the message.
+
+            interrupted:    The ``(filename, status)`` pairs about to be
+                handed to the step's ``cleanup_interrupted``.
+
+        Returns:
+            None
+        """
+
+        allowed = getattr(
+            step_module, "allowed_interrupted_status_values", (0,)
+        )
+        if allowed is None:
+            return
+        for input_fname, status in interrupted:
+            assert status in allowed, (
+                f"Interrupted {step_name} left {input_fname} at status "
+                f"{status!r}, which it never reports; it can only be "
+                f"interrupted at {allowed!r}!"
+            )
+
+    @staticmethod
+    def check_start_status(step_module, step_name, start_status):
+        """Verify a step can start from the status the database implies.
+
+        The status says how far a previous run got. ``None`` -- nothing
+        done yet -- is always acceptable, so a step that cannot resume at
+        all declares nothing; anything else means the stored progress and
+        the step disagree about what resuming means. A step that *can*
+        resume lists the extra statuses it accepts in its module-level
+        ``allowed_start_status_values``, and a step that declares ``None``
+        works this out for itself (``fit_magnitudes`` derives an
+        iteration number from the status rather than just checking it).
+
+        This lives here, rather than as an assert repeated in every step,
+        because it is only meaningful when the manager derives the status
+        from ``ProcessedImages`` rows -- run standalone, a step is handed
+        a constant by its own ``main()``.
+
+        Args:
+            step_module:    The module implementing the step.
+
+            step_name(str):    Its name, for the message.
+
+            start_status:    What the manager is about to pass it.
+
+        Returns:
+            None
+        """
+
+        allowed = getattr(step_module, "allowed_start_status_values", ())
+        if allowed is None or start_status is None:
+            return
+        assert start_status in allowed, (
+            f"Cannot start {step_name} from status {start_status!r}: it "
+            "resumes only from "
+            + (f"{allowed!r} or " if allowed else "")
+            + "no previous processing at all!"
+        )
 
     def get_matched_expressions(self, evaluate):
         """Return set of matching expressions given an evaluator for image."""
@@ -640,7 +734,11 @@ class ProcessingManager:
             **self._processing_config,
         )
         logging.info("Main fnames: %s", repr(main_fnames))
-        assert len(main_fnames[0]) == len(main_fnames[1]) == 1
+        assert len(main_fnames[0]) == len(main_fnames[1]) == 1, (
+            f"{processing_progress.step.name} reported "
+            f"{len(main_fnames[0])} input and {len(main_fnames[1])} output "
+            "files where exactly one of each was expected!"
+        )
 
         return (
             tuple(fname[0] for fname in main_fnames),
@@ -832,9 +930,15 @@ class ProcessingManager:
     ):
         """Return the configuration for the given step for given expressions."""
 
-        assert db_step or step_name
+        assert (
+            db_step or step_name
+        ), "Requesting a configuration without saying which step it is for!"
         if matched_expressions is None:
-            assert image_id is not None and channel is not None
+            assert image_id is not None and channel is not None, (
+                "Requesting the configuration for "
+                f"{step_name or db_step.name} without either the matched "
+                "expressions or an image and channel to evaluate them for!"
+            )
             matched_expressions = self._evaluated_expressions[image_id][
                 channel
             ]["matched"]
@@ -938,7 +1042,10 @@ class ProcessingManager:
 
             type_id_select = select(MasterType.id)
             if step_name is not None:
-                assert image_type_name is not None
+                assert image_type_name is not None, (
+                    f"Looking up the master type produced by {step_name} "
+                    "without saying which image type it was created from!"
+                )
                 type_id_select = (
                     type_id_select.join(ImageType)
                     .join(Step)

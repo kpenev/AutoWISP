@@ -25,6 +25,9 @@ from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
 
 input_type = "calibrated"
+#: Frames are marked as started and nothing else until the master is
+#: written, so that is the only state an interrupted stack leaves behind.
+allowed_interrupted_status_values = (0,)
 _logger = logging.getLogger(__name__)
 
 fail_reasons = {"discarded": -2}
@@ -38,7 +41,10 @@ class ParseAverageAction(Action):
     def __call__(self, parser, namespace, values, option_string=None):
         """Set the callable to use for averaging."""
 
-        assert len(values) == 1
+        assert len(values) == 1, (
+            f"{option_string} takes a single averaging function, but "
+            f"{len(values)} values were given: {values!r}!"
+        )
         if ":" not in values[0]:
             result = getattr(numpy, "nan" + values[0])
         else:
@@ -197,8 +203,10 @@ def stack_to_master(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Stack the given frames to produce a single master frame."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     master_fname = get_master_fname(image_collection[0], configuration)
     with error_context(
@@ -232,7 +240,9 @@ def stack_to_master(
             )
 
     if success:
-        assert exists(master_fname)
+        assert exists(
+            master_fname
+        ), f"Stacking reported success but {master_fname} was not created!"
         header = get_primary_header(master_fname)
         return {
             "filename": master_fname,
@@ -253,7 +263,12 @@ def cleanup_interrupted(interrupted, configuration):
     )
 
     for image_fname, _ in interrupted:
-        assert master_fname == get_master_fname(image_fname, configuration)
+        assert master_fname == get_master_fname(image_fname, configuration), (
+            f"{image_fname} was being stacked into "
+            f"{get_master_fname(image_fname, configuration)}, not the "
+            f"{master_fname} being cleaned up; one interrupted run cannot "
+            "span several masters!"
+        )
 
     if exists(master_fname):
         remove(master_fname)

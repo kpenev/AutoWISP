@@ -37,6 +37,9 @@ from autowisp.data_reduction.utils import delete_star_shape_fit
 _logger = logging.getLogger(__name__)
 
 input_type = "calibrated + dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 
 
 def parse_grid_arg(grid_str):
@@ -876,8 +879,10 @@ def fit_star_shape(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Find the best-fit model for the PSF/PRF in the given images."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     image_collection = sorted(image_collection)
@@ -932,9 +937,7 @@ def cleanup_interrupted(interrupted, configuration):
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     dr_path_substitutions = get_dr_substitutions(configuration)
-    for image_fname, status in interrupted:
-        assert status == 0
-
+    for image_fname, _ in interrupted:
         fits_header = get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode="r+") as dr_file:
             dr_file.delete_sources(

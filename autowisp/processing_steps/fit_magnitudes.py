@@ -37,6 +37,19 @@ from autowisp.database.data_model import MasterFile
 # pylint: enable=no-name-in-module
 
 input_type = "dr"
+#: ``None`` because this step does not merely check the status -- it
+#: derives the magfit iteration to continue from out of it (see
+#: ``fit_magnitudes``), so it validates the value itself.
+allowed_start_status_values = None
+#: Likewise: an interrupted magfit can be at any iteration, and
+#: ``cleanup_interrupted`` reads the iteration out of the statuses and
+#: checks their consistency itself.
+# Name is 33 characters; the constant regex caps at 30. It only trips here
+# because pylint treats the ``None`` as a constant while the tuples the
+# other steps assign count as variables.
+# pylint: disable=invalid-name
+allowed_interrupted_status_values = None
+# pylint: enable=invalid-name
 _logger = logging.getLogger(__name__)
 
 
@@ -264,7 +277,10 @@ def fit_magnitudes(
     if start_status is None:
         start_status = -1
     else:
-        assert start_status % 2 == 1
+        assert start_status % 2 == 1, (
+            f"Magnitude fitting recorded an even status {start_status}; only "
+            "odd ones mark a completed iteration it could resume from!"
+        )
 
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r"
@@ -303,7 +319,11 @@ def fit_magnitudes(
                 configuration["master_photref_fname"],
                 "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
             )
-            assert start_status == -1
+            assert start_status == -1, (
+                f"Magnitude fitting was asked to resume from {start_status} "
+                "against an existing master photometric reference, which "
+                "takes a single pass and so can only start from scratch!"
+            )
             magnitude_fitting.single_iteration(
                 photref=magnitude_fitting.get_master_photref(
                     configuration["master_photref_fname"]
@@ -484,7 +504,12 @@ def cleanup_interrupted(interrupted, configuration):
                     master_type + "_fname_format"
                 ].format_map(fname_substitutions)
                 _logger.debug("Checking existence of %s", repr(check_fname))
-                assert os.path.exists(check_fname)
+                assert os.path.exists(check_fname), (
+                    f"Magnitude fitting recorded reaching iteration "
+                    f"{max_status // 2}, but the {master_type} it should "
+                    f"have produced at iteration {iteration} "
+                    f"({check_fname}) is missing!"
+                )
             fname_substitutions["magfit_iteration"] = max_status // 2 + 1
             check_no_master(
                 configuration[master_type + "_fname_format"].format_map(

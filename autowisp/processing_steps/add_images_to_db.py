@@ -6,7 +6,7 @@ import logging
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import error_context
-from autowisp.exceptions import FileKind, RelatedFile
+from autowisp.exceptions import ConfigurationError, FileKind, RelatedFile
 from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
@@ -84,7 +84,12 @@ def create_image(image_fname, header_eval, configuration, db_session):
         image_type = None
         for test_image_type in recognized_image_types:
             if header_eval(configuration[f"{test_image_type}_check"]):
-                assert image_type is None
+                if image_type is not None:
+                    raise ConfigurationError(
+                        f"{image_fname} satisfies both the {image_type} and "
+                        f"the {test_image_type} check, so what kind of frame "
+                        "it is cannot be decided!"
+                    )
                 image_type = test_image_type
     image_type_id = (
         db_session.query(ImageType.id).filter_by(name=image_type).one()[0]
@@ -135,10 +140,20 @@ def add_images_to_db(image_collection, configuration):
                         image.raw_fname,
                         existing_image.id,
                     )
-                    assert existing_image.image_type_id == image.image_type_id
+                    assert (
+                        existing_image.image_type_id == image.image_type_id
+                    ), (
+                        f"{image.raw_fname} is already in the database as "
+                        f"image type {existing_image.image_type_id} but now "
+                        f"looks like type {image.image_type_id}!"
+                    )
                     assert (
                         existing_image.observing_session_id
                         == image.observing_session.id
+                    ), (
+                        f"{image.raw_fname} is already in the database under "
+                        f"observing session {existing_image.observing_session_id}"
+                        f" but now resolves to {image.observing_session.id}!"
                     )
 
 

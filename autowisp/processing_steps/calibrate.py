@@ -25,6 +25,9 @@ from autowisp.image_calibration.fits_util import (
 )
 
 input_type = "raw"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 _logger = logging.getLogger(__name__)
 
 
@@ -322,8 +325,10 @@ def calibrate(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Calibrate the images from the specified collection."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     _logger.debug("Image collection: %s", repr(image_collection))
     calibrate_image = Calibrator(**configuration)
@@ -341,8 +346,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Cleanup file system after partially calibrated images."""
 
     _logger.info("Cleaning up: %s", repr(interrupted))
-    for raw_fname, status in interrupted:
-        assert status == 0
+    for raw_fname, _ in interrupted:
         header = get_raw_header(raw_fname, configuration)
         for channel_name, channel_slice in configuration[
             "split_channels"
@@ -357,7 +361,10 @@ def cleanup_interrupted(interrupted, configuration):
             )
             if os.path.exists(calibrated_fname):
                 os.remove(calibrated_fname)
-            assert not os.path.exists(calibrated_fname)
+            assert not os.path.exists(calibrated_fname), (
+                f"{calibrated_fname} is still there after being removed to "
+                "clean up an interrupted calibration!"
+            )
 
     return -1
 

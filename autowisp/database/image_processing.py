@@ -364,7 +364,12 @@ class ImageProcessingManager(ProcessingManager):
                 for best_master, sub_batch in splits.items():
                     if best_master is None:
                         if input_master_type.optional:
-                            assert config_key not in result
+                            assert config_key not in result, (
+                                "Two groups of images ended up sharing "
+                                f"configuration {config_key} when split by "
+                                f"{input_master_type.master_type.name} "
+                                "master!"
+                            )
                             result[config_key] = (config, sub_batch)
                         else:
                             result[None] = (
@@ -563,7 +568,10 @@ class ImageProcessingManager(ProcessingManager):
         ).input_type
 
         for entry in need_cleanup:
-            assert entry[2] == self.current_step
+            assert entry[2] == self.current_step, (
+                f"Interrupted processing of step {entry[2].name} turned up "
+                f"while cleaning up after {self.current_step.name}!"
+            )
 
         pending = [
             (
@@ -618,10 +626,25 @@ class ImageProcessingManager(ProcessingManager):
                 repr(interrupted),
                 repr(config),
             )
+            self.check_interrupted_statuses(
+                step_module, self.current_step.name, interrupted
+            )
             new_status = step_module.cleanup_interrupted(interrupted, config)
+            # Whatever cleanup leaves behind is what the step will be
+            # started from next time, so it has to be a status the step can
+            # actually start from. -1 deletes the record entirely, leaving
+            # the step with no previous processing at all.
+            self.check_start_status(
+                step_module,
+                self.current_step.name,
+                None if new_status == -1 else new_status,
+            )
             for _, processed, _ in need_cleanup:
-                assert new_status >= -1
-                assert new_status <= processed.status
+                assert new_status <= processed.status, (
+                    f"Cleaning up interrupted {self.current_step.name} "
+                    f"reported status {new_status}, further along than the "
+                    f"{processed.status} reached before the interruption!"
+                )
                 if new_status == -1:
                     db_session.delete(processed)
                 else:
@@ -736,6 +759,7 @@ class ImageProcessingManager(ProcessingManager):
         """Invoke the step's entry function for a batch of images."""
 
         step_module = getattr(processing_steps, step_name)
+        self.check_start_status(step_module, step_name, start_status)
         return getattr(step_module, step_name)(
             batch,
             start_status,
@@ -756,8 +780,13 @@ class ImageProcessingManager(ProcessingManager):
             None
         """
 
-        assert self.current_step is not None
-        assert self._current_processing is not None
+        assert (
+            self.current_step is not None
+        ), f"Marking {input_fname} as started outside of any processing step!"
+        assert self._current_processing is not None, (
+            f"Marking {input_fname} as started before the "
+            f"{self.current_step.name} progress record was created!"
+        )
         self._logger.debug(
             "Starting processing IDs: %s",
             repr(self._processed_ids[input_fname]),
@@ -916,9 +945,17 @@ class ImageProcessingManager(ProcessingManager):
             None
         """
 
-        assert self.current_step is not None
-        assert self._current_processing is not None
-        assert status != -1
+        assert (
+            self.current_step is not None
+        ), f"Marking {input_fname} as finished outside of any processing step!"
+        assert self._current_processing is not None, (
+            f"Marking {input_fname} as finished before the "
+            f"{self.current_step.name} progress record was created!"
+        )
+        assert status != -1, (
+            f"Status -1 is reserved for {input_fname} being skipped because "
+            "a prerequisite step failed, so a step may not report it!"
+        )
 
         if status < 0:
             self._some_failed = True
@@ -998,7 +1035,11 @@ class ImageProcessingManager(ProcessingManager):
                     )
                     continue
                 for image, channel, status in batch:
-                    assert image.image_type_id == check_image_type_id
+                    assert image.image_type_id == check_image_type_id, (
+                        f"{image.raw_fname} is of image type "
+                        f"{image.image_type_id} in a batch collected for "
+                        f"image type {check_image_type_id}!"
+                    )
 
                     if (config_key, status) not in result:
                         result[config_key, status] = (config, [])
@@ -1393,7 +1434,11 @@ class ImageProcessingManager(ProcessingManager):
                         image.id == finished_image_id
                         and channel == finished_channel
                     ):
-                        assert not found
+                        assert not found, (
+                            f"Image {finished_image_id} channel "
+                            f"{finished_channel} is listed more than once "
+                            "among the images still to be processed!"
+                        )
                         del pending[i]
                         found = True
                         break

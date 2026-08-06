@@ -63,6 +63,9 @@ from autowisp.database.data_model.provenance import Observatory
 _logger = logging.getLogger(__name__)
 
 input_type = "dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 fail_reasons = {
     "failed to converge": -2,
     "few matched": -3,
@@ -994,8 +997,10 @@ def solve_astrometry(
     dr_collection, start_status, configuration, mark_start, mark_end
 ):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     _logger.debug(
         "Solving astrometry for %d DR files with configuration %s",
@@ -1061,9 +1066,7 @@ def solve_astrometry(
 def cleanup_interrupted(interrupted, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
 
-    for dr_fname, status in interrupted:
-        assert status == 0
-
+    for dr_fname, _ in interrupted:
         path_substitutions = {
             substitution: configuration[substitution]
             for substitution in [

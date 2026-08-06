@@ -25,6 +25,9 @@ from autowisp.processing_steps.manual_util import (
 _logger = logging.getLogger(__name__)
 
 input_type = "dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 
 
 def parse_command_line(*args):
@@ -311,8 +314,10 @@ def fit_source_extracted_psf_map(
     dr_collection, start_status, configuration, mark_start, mark_end
 ):
     """Fit a smooth dependence of source extraction PSF for a DR collection."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     # This defines a type not variable
     # pylint: disable=invalid-name
@@ -356,9 +361,7 @@ def cleanup_interrupted(interrupted, configuration):
 
     path_substitutions = get_dr_substitutions(configuration)
 
-    for dr_fname, status in interrupted:
-        assert status == 0
-
+    for dr_fname, _ in interrupted:
         with DataReductionFile(dr_fname, "r+") as dr_file:
             dr_file.delete_dataset("srcextract.psf_map", **path_substitutions)
 
