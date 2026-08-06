@@ -7,6 +7,7 @@ import h5py
 
 from autowisp.database.hdf5_file_structure import HDF5FileDatabaseStructure
 from autowisp.evaluator import Evaluator
+from autowisp.exceptions import FileKind
 from .hashable_array import HashableArray
 
 _config_dset_key_rex = re.compile(
@@ -45,6 +46,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             "apphot.tfa.cfg.template_source_ids",
         }
     )
+
+    related_file_kind = FileKind.LIGHTCURVE
 
     @classmethod
     def _product(cls):
@@ -754,9 +757,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             self[dest_path].shape,
             corrected_values.shape,
         )
-        self[dest_path][
-            corrected_selection
-        ] = self._replace_nonfinite(
+        self[dest_path][corrected_selection] = self._replace_nonfinite(
             corrected_values,
             self.get_dataset_creation_args(corrected_key, **substitutions).get(
                 "dtype"

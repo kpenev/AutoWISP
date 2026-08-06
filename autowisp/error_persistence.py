@@ -33,7 +33,11 @@ from autowisp.database.interface import (
 from autowisp.database.data_model import Error, Image, MasterFile
 
 # pylint: enable=no-name-in-module
-from autowisp.exceptions import Component, sanitize_for_json
+from autowisp.exceptions import (
+    Component,
+    collect_environment,
+    sanitize_for_json,
+)
 
 git_id = "$Id$"
 
@@ -140,9 +144,15 @@ def _write_sidecar(exc, error_id, bucket, *, gzip_threshold=64 * 1024):
     relative_dir = os.path.join("errors", bucket)
     os.makedirs(os.path.join(project_home, relative_dir), exist_ok=True)
 
-    payload = json.dumps(
-        exc.to_detail_dict(), default=sanitize_for_json, indent=2
-    ).encode("utf-8")
+    # The environment is captured *here* -- in the process that hit the
+    # error, at the moment it is recorded -- so it reflects the versions
+    # that actually produced the failure, not whatever is installed when
+    # the report is built later (see ``collect_environment``).
+    detail = exc.to_detail_dict()
+    detail["environment"] = collect_environment()
+    payload = json.dumps(detail, default=sanitize_for_json, indent=2).encode(
+        "utf-8"
+    )
 
     suffix = ".json.gz" if len(payload) > gzip_threshold else ".json"
     relative_path = os.path.join(relative_dir, f"{error_id}{suffix}")

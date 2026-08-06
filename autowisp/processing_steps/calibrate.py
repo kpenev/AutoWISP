@@ -11,7 +11,8 @@ from configargparse import Action
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.error_context import error_context
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.image_calibration import Calibrator, overscan_methods
 from autowisp.processing_steps.manual_util import (
@@ -24,6 +25,9 @@ from autowisp.image_calibration.fits_util import (
 )
 
 input_type = "raw"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 _logger = logging.getLogger(__name__)
 
 
@@ -292,28 +296,57 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
+def _calibration_related_files(image_fname, configuration):
+    """The raw image plus every master applied to it (channel by channel).
+
+    The raw image FK-resolves to its ``Image`` row and the masters to their
+    ``MasterFile`` rows, so a calibration failure -- often a mismatch
+    between a master and the frame -- links straight to both.
+    """
+
+    related = [RelatedFile(FileKind.RAW_IMAGE, image_fname, role="input")]
+    for key, kind in (
+        ("master_bias", FileKind.MASTER_BIAS),
+        ("master_dark", FileKind.MASTER_DARK),
+        ("master_flat", FileKind.MASTER_FLAT),
+    ):
+        spec = configuration.get(key)
+        if not spec:
+            continue
+        # Channel-dependent: ``{channel: fname}`` (or a bare filename).
+        fnames = spec.values() if isinstance(spec, dict) else [spec]
+        related.extend(
+            RelatedFile(kind, fname, role=key) for fname in fnames if fname
+        )
+    return related
+
+
 def calibrate(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Calibrate the images from the specified collection."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     _logger.debug("Image collection: %s", repr(image_collection))
     calibrate_image = Calibrator(**configuration)
     for image_fname in image_collection:
         _logger.debug("Calibrating: %s", repr(image_fname))
-        mark_start(image_fname)
-        channel_diagnostics = calibrate_image(image_fname)
-        mark_end(image_fname, diagnostics=channel_diagnostics)
+        with error_context(
+            related_files=_calibration_related_files(image_fname, configuration)
+        ):
+            mark_start(image_fname)
+            channel_diagnostics = calibrate_image(image_fname)
+            mark_end(image_fname, diagnostics=channel_diagnostics)
 
 
 def cleanup_interrupted(interrupted, configuration):
     """Cleanup file system after partially calibrated images."""
 
     _logger.info("Cleaning up: %s", repr(interrupted))
-    for raw_fname, status in interrupted:
-        assert status == 0
+    for raw_fname, _ in interrupted:
         header = get_raw_header(raw_fname, configuration)
         for channel_name, channel_slice in configuration[
             "split_channels"
@@ -328,7 +361,10 @@ def cleanup_interrupted(interrupted, configuration):
             )
             if os.path.exists(calibrated_fname):
                 os.remove(calibrated_fname)
-            assert not os.path.exists(calibrated_fname)
+            assert not os.path.exists(calibrated_fname), (
+                f"{calibrated_fname} is still there after being removed to "
+                "clean up an interrupted calibration!"
+            )
 
     return -1
 

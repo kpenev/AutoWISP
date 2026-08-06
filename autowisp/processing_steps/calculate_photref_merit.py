@@ -237,6 +237,8 @@ def calculate_photref_merit(dr_filenames, config):
     }
     typical_star = get_typical_star(dr_filenames, **dr_path_substitutions)
     _logger.debug("Typical star:\n%s", repr(typical_star))
+    # ``get_frame_merit_info`` opens the DR file, which attaches itself to
+    # any error raised while it is open, so no explicit scope is needed.
     merit_info = pandas.DataFrame(
         get_frame_merit_info(
             dr_fname,

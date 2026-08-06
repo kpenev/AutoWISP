@@ -21,7 +21,13 @@ from autowisp.database.initialize_database import initialize_database
 class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
-    successful_test = False
+    #: Set False by a test that does not want its processing directory
+    #: kept even when it fails (nothing does at present). Failure is
+    #: detected from the test result, so a passing test never has to say
+    #: anything -- the previous arrangement, where each test opted in by
+    #: setting ``successful_test``, silently preserved the directory of
+    #: every test that forgot to.
+    preserve_failed_processing = True
     _logger = logging.getLogger(__name__)
 
     # Stage the cached Gaia catalog FITS (``test_data/MASTERS/Gaia``) into the
@@ -205,13 +211,35 @@ class AutoWISPTestCase(FloatTestCase):
         ) as survey_json:
             import_json_to_survey(survey_json)
 
-        self.successful_test = False
+    def _test_failed(self):
+        """Whether *this* test has just failed or errored.
+
+        Read off the result rather than a flag the test sets, so nothing
+        has to be remembered at the end of every test method. Two things
+        make the obvious shortcuts wrong: ``_outcome.success`` is still
+        True here (it is reset per test *part*, and ``tearDown`` is its
+        own part), and ``result.errors`` / ``result.failures`` accumulate
+        over the whole run -- so the entries have to be matched against
+        this test rather than merely counted.
+
+        Returns:
+            bool:    True if this test recorded a failure or an error.
+        """
+
+        result = getattr(getattr(self, "_outcome", None), "result", None)
+        if result is None:
+            return False
+        return any(
+            test is self
+            for group in ("errors", "failures")
+            for test, _ in getattr(result, group, ())
+        )
 
     def tearDown(self):
         """Remove the processing directory."""
 
         print(f"Tearing down processing in {self.processing_directory!r}")
-        if not self.successful_test:
+        if self.preserve_failed_processing and self._test_failed():
             # Preserve every failed test in its own subdirectory (keyed by
             # class + method) so a run with several failures keeps all of them
             # for post-mortem, rather than each failure overwriting the last.

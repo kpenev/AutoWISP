@@ -8,15 +8,20 @@ temporary directory. Each test starts from a clean ambient context (reset
 in ``setUp``).
 """
 
+import glob
 import os
 import pickle
 import tempfile
 import unittest
 from multiprocessing import Process, Queue
+from unittest import mock
 
+import autowisp.error_context as ecmod
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import (
     ErrorContext,
+    _resolve_related_files,
+    _worker_crashed,
     capture_errors,
     capture_for_queue,
     error_context,
@@ -41,6 +46,7 @@ from autowisp.exceptions import (
     StepError,
     ViewError,
     WorkerCrashedError,
+    collect_resource_snapshot,
 )
 from autowisp.processing_steps.solve_astrometry import manage_astrometry
 from autowisp.database.frozen_row import FrozenRow
@@ -50,6 +56,21 @@ def _dr_file(path="/tmp/x.h5", role="input"):
     """A small RelatedFile for related-files assertions."""
 
     return RelatedFile(FileKind.DR_FILE, path, role=role)
+
+
+def _lc_with_reference(item):
+    """A ``related_files`` classifier: the item plus a batch-constant ref.
+
+    Module-level (so it is picklable to workers) and returns *multiple*
+    files -- the per-item lightcurve and the single photometric reference
+    the whole batch shares -- exactly the shape the detrending call site
+    builds via ``functools.partial``.
+    """
+
+    return [
+        RelatedFile(FileKind.LIGHTCURVE, item, role="input"),
+        RelatedFile(FileKind.DR_FILE, "/dr/ref.h5", role="single_photref"),
+    ]
 
 
 def _raise_find_stars_error(item):
@@ -72,6 +93,25 @@ def _hard_exit_worker(_):
     """Module-level Pool worker that hard-exits without an exception."""
 
     os._exit(7)  # pylint: disable=protected-access
+
+
+def _segfault_worker(_):
+    """Module-level Pool worker that crashes with a real SIGSEGV.
+
+    Used to prove ``faulthandler`` (armed in ``setup_process_map``) dumps a
+    native traceback into the worker's own redirected log before it dies.
+    """
+
+    try:
+        import resource  # pylint: disable=import-outside-toplevel
+
+        # No core file, so a CI box is not littered with them.
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except Exception:  # pylint: disable=broad-except
+        pass
+    import ctypes  # pylint: disable=import-outside-toplevel
+
+    ctypes.string_at(0)  # dereference NULL -> SIGSEGV
 
 
 def _nested_run_pool_worker(item):
@@ -445,6 +485,73 @@ class TestWorkerEntry(_ContextTestCase):
 
         self.assertEqual(worker_entry(lambda: 7, Component.STEP)(), 7)
 
+    def test_inflight_map_tracks_then_clears_item(self):
+        """The item is in the in-flight map while running, gone after.
+
+        (A plain dict stands in for the ``Manager().dict()`` proxy; the
+        write/clear logic is the same.)
+        """
+
+        tracker = {}
+        seen = {}
+
+        def fn(item):
+            seen["during"] = dict(tracker)  # snapshot while executing
+            return item * 2
+
+        result = worker_entry(fn, Component.STEP, tracker)(21)
+
+        self.assertEqual(result, 42)
+        self.assertEqual(seen["during"], {os.getpid(): 21})
+        self.assertEqual(dict(tracker), {})  # cleared on return
+
+    def test_inflight_map_cleared_on_error(self):
+        """A failing task still clears its in-flight entry."""
+
+        tracker = {}
+
+        def boom(_):
+            raise ValueError("boom")
+
+        with error_context(step_name="find_stars"):
+            with self.assertRaises(FindStarsError):
+                worker_entry(boom, Component.STEP, tracker)(7)
+
+        self.assertEqual(dict(tracker), {})
+
+    def test_resolve_related_files_from_kind_and_callable(self):
+        """A FileKind wraps a path item; a callable is used as given."""
+
+        (rf,) = _resolve_related_files(FileKind.LIGHTCURVE, "/lc/x.h5")
+        self.assertEqual(rf.kind, FileKind.LIGHTCURVE)
+        self.assertEqual(rf.path.as_posix(), "/lc/x.h5")
+        self.assertEqual(rf.role, "input")
+
+        made = _dr_file("/data/y.h5")
+        self.assertEqual(
+            _resolve_related_files(lambda item: made, "anything"), (made,)
+        )
+
+    def test_resolve_related_files_callable_returning_many(self):
+        """A classifier may return several files (item + batch constants)."""
+
+        result = _resolve_related_files(_lc_with_reference, "/lc/x.h5")
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].kind, FileKind.LIGHTCURVE)
+        self.assertEqual(result[0].path.as_posix(), "/lc/x.h5")
+        self.assertEqual(result[1].kind, FileKind.DR_FILE)
+        self.assertEqual(result[1].path.as_posix(), "/dr/ref.h5")
+
+    def test_resolve_related_files_is_total(self):
+        """No classifier, no item, or a bad classifier -> empty, no raise."""
+
+        self.assertEqual(_resolve_related_files(None, "/lc/x.h5"), ())
+        self.assertEqual(_resolve_related_files(FileKind.LIGHTCURVE, None), ())
+        # A FileKind on a non-path item (Path(42) raises) degrades to empty.
+        self.assertEqual(_resolve_related_files(FileKind.LIGHTCURVE, 42), ())
+        # A classifier that raises degrades to empty.
+        self.assertEqual(_resolve_related_files(lambda _: 1 / 0, "x"), ())
+
     def test_subprocess_id_not_overwritten_by_later_stamp(self):
         """An already-stamped subprocess_id survives a second boundary.
 
@@ -562,6 +669,298 @@ class TestPoolPropagation(_ContextTestCase):
         self.assertEqual(exc.details["num_inputs"], 2)
         self.assertIn("pool_error", exc.details)
 
+    def test_worker_crashed_carries_step_name(self):
+        """The synthesised WorkerCrashedError records the ambient step.
+
+        Regression for the "no matching logs found" crash-report gap: the
+        step name must reach the queryable ``step_name`` attribute (which
+        the persistence layer writes to ``error.step_name`` and
+        crash-report log-collection resolves the run/step logs from), not
+        only the free-text message. The parent stamps it from its ambient
+        context -- in the pipeline it is inside
+        ``error_context(step_name=...)`` when it launches the pool.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        [1, 2],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+        exc = ctx.exception
+        # The attribute persistence reads (getattr(exc, "step_name", ...)):
+        self.assertEqual(exc.step_name, "tfa")
+        # And the belt-and-braces copy that reaches the sidecar:
+        self.assertEqual(exc.details["step_name"], "tfa")
+        # A worker death is a step failure, not an orchestration failure:
+        self.assertEqual(exc.component, Component.STEP)
+
+    def test_worker_crashed_names_inflight_input(self):
+        """A silent death records the in-flight item(s), not a head sample.
+
+        The wrapped worker writes its item into the shared in-flight map
+        before running; a hard ``os._exit`` leaves it there, so
+        ``_worker_crashed`` can name the culprit in
+        ``details["crashed_inputs"]`` (bounded by the worker count).
+        """
+
+        items = ["/lc/AAA.h5", "/lc/BBB.h5"]
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        items,
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+        crashed = ctx.exception.details.get("crashed_inputs")
+        self.assertTrue(crashed, "expected a non-empty crashed_inputs")
+        self.assertTrue(set(crashed) <= {repr(item) for item in items})
+
+    @unittest.skipUnless(
+        os.name == "posix",
+        "no way to provoke a segfault: ctypes.string_at(0) raises a "
+        "catchable OSError on Windows rather than killing the worker",
+    )
+    def test_faulthandler_dumps_native_traceback(self):
+        """A segfaulting worker leaves a native dump in its own log.
+
+        Proves the ``faulthandler`` armed in ``setup_process_map`` turns an
+        otherwise-silent SIGSEGV into a collectable C-level traceback --
+        which is what distinguishes the faulted worker from the innocents
+        the executor merely terminates.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError):
+                    run_pool(
+                        _segfault_worker,
+                        ["/lc/AAA.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+            # Worker logs live under a parent-pid subdirectory.
+            logs = glob.glob(
+                os.path.join(project_home, "**", "*.outerr"), recursive=True
+            )
+            blobs = [
+                open(path, encoding="utf-8", errors="replace").read()
+                for path in logs
+            ]
+        self.assertTrue(
+            any(
+                "Fatal Python error" in b or "Current thread" in b
+                for b in blobs
+            ),
+            "no faulthandler native dump found in any worker log",
+        )
+
+    @unittest.skipUnless(
+        os.name == "posix", "signal decoding is POSIX-only (see item 5)"
+    )
+    def test_worker_crashed_records_exit_signal(self):
+        """A native crash records the decoded killing signal.
+
+        The tell for OOM/jetsam (``SIGKILL``) vs. a native crash
+        (``SIGSEGV``); here a segfault is expected to surface as
+        ``SIGSEGV``. (On Windows the code is an NTSTATUS, not a signal --
+        that path is covered by ``TestExitSignalDecode``.)
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _segfault_worker,
+                        ["/lc/AAA.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                    )
+
+        entries = ctx.exception.details.get("exit_signal", [])
+        self.assertIn("SIGSEGV", [entry.get("signal") for entry in entries])
+
+    def test_worker_crashed_records_resources(self):
+        """A crash records a memory snapshot + the worker count.
+
+        ``N`` workers vs. total RAM is what makes an OOM/jetsam death easy
+        to judge (paired with a SIGKILL and no native dump from items 4-5).
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        ["/lc/AAA.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=2,
+                    )
+
+        resources = ctx.exception.details.get("resources", {})
+        self.assertEqual(resources.get("num_processes"), 2)
+        self.assertGreater(resources.get("ram_total", 0), 0)
+
+    def test_worker_error_carries_config(self):
+        """A worker error carries its process config (via from_config).
+
+        The resolved config lives only at runtime, so recording it is the
+        only way a report shows the settings the step actually ran with.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with self.assertRaises(FindStarsError) as ctx:
+                run_pool(
+                    _raise_find_stars_error,
+                    ["/lc/A.h5"],
+                    config=_pool_config(
+                        project_home, run_id=77, step="find_stars"
+                    ),
+                    num_processes=1,
+                )
+
+        config = ctx.exception.details.get("config", {})
+        self.assertEqual(config.get("processing_step"), "find_stars")
+        self.assertEqual(config.get("code_version"), "testver")
+
+    def test_worker_crashed_carries_scoped_config(self):
+        """A crash carries the *failing step's* config, scoped by the manager.
+
+        The parent's own context holds the base ``add_images_to_db`` config,
+        so the failing step's config must come from the
+        ``error_context(config=...)`` the manager scopes at dispatch (here
+        simulated around ``run_pool``) -- not from the parent context.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            step_config = _pool_config(project_home, run_id=55, step="tfa")
+            step_config["detrend_rej_level"] = 5.0  # a step-specific marker
+            with error_context(step_name="tfa", config=step_config):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        ["/lc/A.h5"],
+                        config=step_config,
+                        num_processes=1,
+                    )
+
+        config = ctx.exception.details.get("config", {})
+        self.assertEqual(config.get("detrend_rej_level"), 5.0)
+        self.assertEqual(config.get("processing_step"), "tfa")
+
+    def test_worker_error_carries_related_file(self):
+        """A worker error carries the item it was processing as a file.
+
+        The ``related_files`` classifier scopes the item as the ambient
+        related file inside the worker, so an error raised for it (here a
+        ``FindStarsError``) crosses back carrying that file -- the datum a
+        config-vs-file-content failure most needs.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with self.assertRaises(FindStarsError) as ctx:
+                run_pool(
+                    _raise_find_stars_error,
+                    ["/lc/AAA.h5"],
+                    config=_pool_config(project_home, run_id=77),
+                    num_processes=1,
+                    related_files=FileKind.LIGHTCURVE,
+                )
+
+        related = ctx.exception.related_files
+        self.assertEqual(len(related), 1)
+        self.assertEqual(related[0].kind, FileKind.LIGHTCURVE)
+        self.assertEqual(related[0].path.as_posix(), "/lc/AAA.h5")
+
+    def test_worker_crashed_promotes_related_files(self):
+        """A silent death promotes the in-flight item to a related file.
+
+        So a ``WorkerCrashedError`` links straight to the offending file
+        (rendered / FK-resolved), not only a ``details`` string.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with error_context(step_name="tfa"):
+                with self.assertRaises(WorkerCrashedError) as ctx:
+                    run_pool(
+                        _hard_exit_worker,
+                        ["/lc/AAA.h5", "/lc/BBB.h5"],
+                        config=_pool_config(
+                            project_home, run_id=55, step="tfa"
+                        ),
+                        num_processes=1,
+                        related_files=FileKind.LIGHTCURVE,
+                    )
+
+        related = ctx.exception.related_files
+        self.assertTrue(related)
+        self.assertTrue(all(r.kind == FileKind.LIGHTCURVE for r in related))
+        self.assertTrue(
+            {r.path.as_posix() for r in related} <= {"/lc/AAA.h5", "/lc/BBB.h5"}
+        )
+
+    def test_worker_error_carries_reference_files(self):
+        """A multi-file classifier attaches item *and* batch constants.
+
+        Mirrors the detrending call site: the classifier returns the light
+        curve plus the single photometric reference, so an error carries
+        both.
+        """
+
+        with tempfile.TemporaryDirectory() as project_home:
+            with self.assertRaises(FindStarsError) as ctx:
+                run_pool(
+                    _raise_find_stars_error,
+                    ["/lc/AAA.h5"],
+                    config=_pool_config(project_home, run_id=77),
+                    num_processes=1,
+                    related_files=_lc_with_reference,
+                )
+
+        got = {(r.kind, r.path.as_posix()) for r in ctx.exception.related_files}
+        self.assertIn((FileKind.LIGHTCURVE, "/lc/AAA.h5"), got)
+        self.assertIn((FileKind.DR_FILE, "/dr/ref.h5"), got)
+
+    def test_worker_crashed_dedups_shared_related_file(self):
+        """A batch-constant file appears once across many in-flight items.
+
+        Two workers in flight against the same reference -> the reference
+        is promoted once, not once per crashed input.
+        """
+
+        inflight = {111: "/lc/A.h5", 222: "/lc/B.h5"}
+        with error_context(step_name="tfa"):
+            err = _worker_crashed(
+                ["/lc/A.h5", "/lc/B.h5"],
+                RuntimeError("pool broke"),
+                inflight,
+                _lc_with_reference,
+            )
+
+        pairs = [(r.kind, r.path.as_posix()) for r in err.related_files]
+        self.assertIn((FileKind.LIGHTCURVE, "/lc/A.h5"), pairs)
+        self.assertIn((FileKind.LIGHTCURVE, "/lc/B.h5"), pairs)
+        # The shared single photref, returned for both items, is deduped:
+        self.assertEqual(pairs.count((FileKind.DR_FILE, "/dr/ref.h5")), 1)
+
 
 class TestProcessQueuePropagation(_ContextTestCase):
     """Process + Queue workers return stamped errors over a queue."""
@@ -611,8 +1010,9 @@ class TestProcessQueuePropagation(_ContextTestCase):
 
         ``manage_astrometry`` polls ``is_alive()`` while waiting on the
         result queue; when every worker has died without queuing a result
-        it raises a ``WorkerCrashedError`` recording the OS exit codes,
-        instead of blocking forever.
+        it raises a ``WorkerCrashedError`` recording the OS exit codes
+        (normalised to the same ``exit_signal`` shape as Scheme A), instead
+        of blocking forever.
         """
 
         worker = Process(target=_instant_exit)
@@ -631,8 +1031,74 @@ class TestProcessQueuePropagation(_ContextTestCase):
             )
 
         exc = ctx.exception
-        self.assertEqual(exc.details["exitcodes"], [7])
+        # os._exit(7) -> a plain exit code (positive), no signal decoded.
+        self.assertEqual(exc.details["exit_signal"], [{"exitcode": 7}])
         self.assertEqual(exc.details["num_in_flight"], 1)
+
+
+class TestExitSignalDecode(unittest.TestCase):
+    """decode_exit_signals is portable and drops clean/running exits."""
+
+    def test_drops_running_and_clean(self):
+        """``None`` (running) and ``0`` (clean) contribute nothing."""
+
+        self.assertEqual(ecmod.decode_exit_signals([None, 0]), [])
+
+    def test_posix_signals_and_plain_codes(self):
+        """POSIX: negative codes decode to their signal; positive don't."""
+
+        with mock.patch.object(ecmod.os, "name", "posix"):
+            self.assertEqual(
+                ecmod.decode_exit_signals([7, -9, -11]),
+                [
+                    {"exitcode": 7},
+                    {"exitcode": -9, "signal": "SIGKILL"},
+                    {"exitcode": -11, "signal": "SIGSEGV"},
+                ],
+            )
+
+    def test_windows_status_not_signal(self):
+        """Windows: an abnormal code is an NTSTATUS, never a POSIX signal.
+
+        Both the unsigned and signed spellings of an access violation map
+        to the conventional hex status; a plain small code stays bare.
+        """
+
+        with mock.patch.object(ecmod.os, "name", "nt"):
+            self.assertEqual(
+                ecmod.decode_exit_signals([0xC0000005, -1073741819, 1]),
+                [
+                    {"exitcode": 0xC0000005, "status": "0xC0000005"},
+                    {"exitcode": -1073741819, "status": "0xC0000005"},
+                    {"exitcode": 1},
+                ],
+            )
+
+
+class TestResourceSnapshot(unittest.TestCase):
+    """collect_resource_snapshot is best-effort and never raises."""
+
+    def test_memory_fields_present_and_sane(self):
+        """psutil is a hard dependency, so the memory fields are present."""
+
+        snap = collect_resource_snapshot()
+        self.assertGreater(snap["ram_total"], 0)
+        self.assertGreaterEqual(snap["ram_available"], 0)
+        self.assertGreater(snap["process_rss"], 0)
+        self.assertIsInstance(snap["ram_percent_used"], float)
+
+    def test_empty_when_psutil_unavailable(self):
+        """A missing psutil degrades to an empty dict, never a raise."""
+
+        real_import = __import__
+
+        def fake_import(name, *args, **kwargs):
+            if name == "psutil":
+                raise ImportError("simulated missing psutil")
+            return real_import(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=fake_import):
+            self.assertEqual(collect_resource_snapshot(), {})
 
 
 class TestNestingGuard(_ContextTestCase):

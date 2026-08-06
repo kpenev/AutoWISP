@@ -10,7 +10,7 @@ import logging
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component, NoSourcesFoundError
+from autowisp.exceptions import Component, FileKind, NoSourcesFoundError
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,
@@ -32,6 +32,9 @@ from autowisp.database.data_model import ObservingSession
 # pylint: enable=no-name-in-module
 
 input_type = "calibrated + dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 _logger = logging.getLogger(__name__)
 fail_reasons = {
     "no sources extracted": -2,
@@ -212,6 +215,10 @@ def find_stars(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Extract sources from all input images and save them to DR files."""
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     _logger.debug(
         "Start of find_stars steps for DB %s for %d images with configuration "
@@ -220,8 +227,6 @@ def find_stars(
         len(image_collection),
         repr(configuration),
     )
-    assert start_status is None
-
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     find_stars_in_image = SourceFinder(
         tool=configuration["srcfind_tool"],
@@ -270,6 +275,7 @@ def find_stars(
             image_collection,
             config=configuration,
             num_processes=configuration["num_parallel_processes"],
+            related_files=FileKind.CALIBRATED_IMAGE,
         )
 
 
@@ -277,9 +283,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove the extracted stars from the DR of the given calibrated image."""
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
-    for image_fname, status in interrupted:
-        assert status == 0
-
+    for image_fname, _ in interrupted:
         fits_header = get_primary_header(image_fname)
         dr_fname = DataReductionFile.get_fname_from_header(fits_header)
         if not path.exists(dr_fname):

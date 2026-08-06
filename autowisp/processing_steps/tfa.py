@@ -24,10 +24,17 @@ def parse_command_line(*args):
     ).parse_args(*args)
 
 
+#: Lightcurve steps do not resume: the manager hands them every LC to
+#: correct from the start.
+allowed_start_status_values = (0,)
+
+
 def tfa(lc_collection, start_status, configuration, mark_progress):
     """Perform TFA on (a subset of the points in) the given lightucurves."""
-
-    assert start_status == 0
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     configuration["fit_datasets"] = configuration.pop("tfa_datasets")
     for param in list(configuration.keys()):
@@ -77,9 +84,7 @@ def main():
     """Run the step from the command line."""
 
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
 
     tfa(
         find_lc_fnames(cmdline_config.pop("lc_files")),

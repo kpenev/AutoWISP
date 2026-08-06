@@ -5,6 +5,8 @@
 import logging
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_context import error_context
+from autowisp.exceptions import ConfigurationError, FileKind, RelatedFile
 from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
@@ -82,7 +84,12 @@ def create_image(image_fname, header_eval, configuration, db_session):
         image_type = None
         for test_image_type in recognized_image_types:
             if header_eval(configuration[f"{test_image_type}_check"]):
-                assert image_type is None
+                if image_type is not None:
+                    raise ConfigurationError(
+                        f"{image_fname} satisfies both the {image_type} and "
+                        f"the {test_image_type} check, so what kind of frame "
+                        "it is cannot be decided!"
+                    )
                 image_type = test_image_type
     image_type_id = (
         db_session.query(ImageType.id).filter_by(name=image_type).one()[0]
@@ -99,47 +106,60 @@ def add_images_to_db(image_collection, configuration):
 
     for image_fname in image_collection:
         logging.debug("Adding image %s to database", image_fname)
-        header_eval = Evaluator(image_fname)
-        header_eval.symtable["FULLPATH"] = image_fname
-        _logger.debug(
-            "Defining evaluator with keys: %s",
-            repr(header_eval.symtable.keys()),
-        )
-        with start_db_session() as db_session:
-            image, image_type = create_image(
-                image_fname, header_eval, configuration, db_session
+        with error_context(
+            related_files=[
+                RelatedFile(FileKind.RAW_IMAGE, image_fname, role="input")
+            ]
+        ):
+            header_eval = Evaluator(image_fname)
+            header_eval.symtable["FULLPATH"] = image_fname
+            _logger.debug(
+                "Defining evaluator with keys: %s",
+                repr(header_eval.symtable.keys()),
             )
-            if image is None:
-                continue
-            existing_image = (
-                db_session.query(Image)
-                .filter_by(raw_fname=image.raw_fname)
-                .one_or_none()
-            )
-            image.observing_session = get_or_create_observing_session(
-                image_type, header_eval, configuration, db_session
-            )
-            image.jd = header_eval.symtable.get("JD-OBS")
-            if existing_image is None:
-                db_session.add(image)
-            else:
-                logging.info(
-                    "Image %s already in the database with ID: %s",
-                    image.raw_fname,
-                    existing_image.id,
+            with start_db_session() as db_session:
+                image, image_type = create_image(
+                    image_fname, header_eval, configuration, db_session
                 )
-                assert existing_image.image_type_id == image.image_type_id
-                assert (
-                    existing_image.observing_session_id
-                    == image.observing_session.id
+                if image is None:
+                    continue
+                existing_image = (
+                    db_session.query(Image)
+                    .filter_by(raw_fname=image.raw_fname)
+                    .one_or_none()
                 )
+                image.observing_session = get_or_create_observing_session(
+                    image_type, header_eval, configuration, db_session
+                )
+                image.jd = header_eval.symtable.get("JD-OBS")
+                if existing_image is None:
+                    db_session.add(image)
+                else:
+                    logging.info(
+                        "Image %s already in the database with ID: %s",
+                        image.raw_fname,
+                        existing_image.id,
+                    )
+                    assert (
+                        existing_image.image_type_id == image.image_type_id
+                    ), (
+                        f"{image.raw_fname} is already in the database as "
+                        f"image type {existing_image.image_type_id} but now "
+                        f"looks like type {image.image_type_id}!"
+                    )
+                    assert (
+                        existing_image.observing_session_id
+                        == image.observing_session.id
+                    ), (
+                        f"{image.raw_fname} is already in the database under "
+                        f"observing session {existing_image.observing_session_id}"
+                        f" but now resolves to {image.observing_session.id}!"
+                    )
 
 
 if __name__ == "__main__":
     cmdline_config = parse_command_line()
-    setup_process(
-        task="main", **cmdline_config
-    )
+    setup_process(task="main", **cmdline_config)
     add_images_to_db(
         find_fits_fnames(cmdline_config.pop("raw_images")), cmdline_config
     )

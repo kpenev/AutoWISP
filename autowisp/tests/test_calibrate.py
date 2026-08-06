@@ -32,9 +32,7 @@ class TestCalibrate(FITSTestCase):
             )
         )
         expected = sorted(
-            glob(
-                path.join(self.test_directory, "CAL", input_imtype, "*.fits")
-            )
+            glob(path.join(self.test_directory, "CAL", input_imtype, "*.fits"))
         )
         generated_names = [path.basename(fname) for fname in generated]
         expected_names = [path.basename(fname) for fname in expected]
@@ -49,7 +47,6 @@ class TestCalibrate(FITSTestCase):
         for gen_fname, exp_fname in zip(generated, expected):
             self.assert_fits_match(exp_fname, gen_fname)
         rmtree(path.join(self.processing_directory, "CAL", input_imtype))
-        self.successful_test = True
 
     def test_bias_calibration(self):
         """Check if bias calibration works as expected."""

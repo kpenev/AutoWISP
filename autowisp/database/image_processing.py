@@ -10,10 +10,7 @@ from sqlalchemy import sql, select, update, and_, or_
 from astropy.coordinates import SkyCoord
 from astropy import units as astropy_units
 
-from autowisp.multiprocessing_util import (
-    setup_process,
-    get_log_outerr_filenames,
-)
+from autowisp.multiprocessing_util import setup_process
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import start_db_session, get_project_home
 from autowisp.exceptions import Component, MasterSelectionError, PipelineError
@@ -367,7 +364,12 @@ class ImageProcessingManager(ProcessingManager):
                 for best_master, sub_batch in splits.items():
                     if best_master is None:
                         if input_master_type.optional:
-                            assert config_key not in result
+                            assert config_key not in result, (
+                                "Two groups of images ended up sharing "
+                                f"configuration {config_key} when split by "
+                                f"{input_master_type.master_type.name} "
+                                "master!"
+                            )
                             result[config_key] = (config, sub_batch)
                         else:
                             result[None] = (
@@ -566,7 +568,10 @@ class ImageProcessingManager(ProcessingManager):
         ).input_type
 
         for entry in need_cleanup:
-            assert entry[2] == self.current_step
+            assert entry[2] == self.current_step, (
+                f"Interrupted processing of step {entry[2].name} turned up "
+                f"while cleaning up after {self.current_step.name}!"
+            )
 
         pending = [
             (
@@ -621,10 +626,25 @@ class ImageProcessingManager(ProcessingManager):
                 repr(interrupted),
                 repr(config),
             )
+            self.check_interrupted_statuses(
+                step_module, self.current_step.name, interrupted
+            )
             new_status = step_module.cleanup_interrupted(interrupted, config)
+            # Whatever cleanup leaves behind is what the step will be
+            # started from next time, so it has to be a status the step can
+            # actually start from. -1 deletes the record entirely, leaving
+            # the step with no previous processing at all.
+            self.check_start_status(
+                step_module,
+                self.current_step.name,
+                None if new_status == -1 else new_status,
+            )
             for _, processed, _ in need_cleanup:
-                assert new_status >= -1
-                assert new_status <= processed.status
+                assert new_status <= processed.status, (
+                    f"Cleaning up interrupted {self.current_step.name} "
+                    f"reported status {new_status}, further along than the "
+                    f"{processed.status} reached before the interruption!"
+                )
                 if new_status == -1:
                     db_session.delete(processed)
                 else:
@@ -722,11 +742,13 @@ class ImageProcessingManager(ProcessingManager):
     ):
         """Run the current step for a batch of images given configuration."""
 
-        # ``error_context`` (outer) scopes the step name so it is still
-        # active when ``_run_step``'s ``capture_errors`` stamps the
-        # exception on the way out -- the context manager's reset fires
-        # only after the inner ``except`` has run.
-        with error_context(step_name=step_name):
+        # ``error_context`` (outer) scopes the step name and its resolved
+        # config so both are still active when ``_run_step``'s
+        # ``capture_errors`` stamps the exception on the way out -- the
+        # context manager's reset fires only after the inner ``except`` has
+        # run. Scoping config here (uniformly for every step) is what lets a
+        # parent-side error carry the failing step's config.
+        with error_context(step_name=step_name, config=config):
             new_masters = self._run_step(batch, start_status, config, step_name)
 
         if new_masters:
@@ -737,6 +759,7 @@ class ImageProcessingManager(ProcessingManager):
         """Invoke the step's entry function for a batch of images."""
 
         step_module = getattr(processing_steps, step_name)
+        self.check_start_status(step_module, step_name, start_status)
         return getattr(step_module, step_name)(
             batch,
             start_status,
@@ -757,8 +780,13 @@ class ImageProcessingManager(ProcessingManager):
             None
         """
 
-        assert self.current_step is not None
-        assert self._current_processing is not None
+        assert (
+            self.current_step is not None
+        ), f"Marking {input_fname} as started outside of any processing step!"
+        assert self._current_processing is not None, (
+            f"Marking {input_fname} as started before the "
+            f"{self.current_step.name} progress record was created!"
+        )
         self._logger.debug(
             "Starting processing IDs: %s",
             repr(self._processed_ids[input_fname]),
@@ -812,7 +840,9 @@ class ImageProcessingManager(ProcessingManager):
                     db_session.flush()
                     diag_type_id = new_type.id
                 else:
-                    raise PipelineError(f"Unknown diagnostic type {diag_name!r}")
+                    raise PipelineError(
+                        f"Unknown diagnostic type {diag_name!r}"
+                    )
             db_session.add(
                 ImageDiagnostics(
                     image_id=finished_id["image_id"],
@@ -915,9 +945,17 @@ class ImageProcessingManager(ProcessingManager):
             None
         """
 
-        assert self.current_step is not None
-        assert self._current_processing is not None
-        assert status != -1
+        assert (
+            self.current_step is not None
+        ), f"Marking {input_fname} as finished outside of any processing step!"
+        assert self._current_processing is not None, (
+            f"Marking {input_fname} as finished before the "
+            f"{self.current_step.name} progress record was created!"
+        )
+        assert status != -1, (
+            f"Status -1 is reserved for {input_fname} being skipped because "
+            "a prerequisite step failed, so a step may not report it!"
+        )
 
         if status < 0:
             self._some_failed = True
@@ -997,7 +1035,11 @@ class ImageProcessingManager(ProcessingManager):
                     )
                     continue
                 for image, channel, status in batch:
-                    assert image.image_type_id == check_image_type_id
+                    assert image.image_type_id == check_image_type_id, (
+                        f"{image.raw_fname} is of image type "
+                        f"{image.image_type_id} in a batch collected for "
+                        f"image type {check_image_type_id}!"
+                    )
 
                     if (config_key, status) not in result:
                         result[config_key, status] = (config, [])
@@ -1261,7 +1303,7 @@ class ImageProcessingManager(ProcessingManager):
                 == ConditionExpression.id,
             )
             .where(
-                Condition.id # pylint: disable=no-member
+                Condition.id  # pylint: disable=no-member
                 == photref_type.condition_id
             )
             .order_by(ConditionExpression.id)
@@ -1392,7 +1434,11 @@ class ImageProcessingManager(ProcessingManager):
                         image.id == finished_image_id
                         and channel == finished_channel
                     ):
-                        assert not found
+                        assert not found, (
+                            f"Image {finished_image_id} channel "
+                            f"{finished_channel} is listed more than once "
+                            "among the images still to be processed!"
+                        )
                         del pending[i]
                         found = True
                         break
@@ -1693,50 +1739,14 @@ class ImageProcessingManager(ProcessingManager):
             result.append((batch, match_expressions.ref_master_values))
         return result
 
-    def find_processing_outputs(self, processing_progress, db_session=None):
-        """Return all logging and output filenames for given processing ID."""
+    #: Image processing records progress here; drives the shared
+    #: ``find_processing_outputs`` in the base class.
+    _progress_model = ImageProcessingProgress
 
-        if db_session is None:
-            # False positivie
-            # pylint: disable=redefined-argument-from-local
-            with start_db_session() as db_session:
-                # pylint: enable=redefined-argument-from-local
-                return self.find_processing_outputs(
-                    processing_progress, db_session
-                )
+    def _progress_image_type(self, processing_progress, db_session):
+        """The image type is carried directly on an image progress row."""
 
-        if not isinstance(processing_progress, ImageProcessingProgress):
-            return self.find_processing_outputs(
-                db_session.scalar(
-                    select(ImageProcessingProgress).filter_by(
-                        id=processing_progress
-                    )
-                ),
-                db_session,
-            )
-
-        main_fnames = get_log_outerr_filenames(
-            existing_pid=processing_progress.run.process_id,
-            task="*",
-            parent_pid="",
-            processing_step=processing_progress.step.name,
-            image_type=processing_progress.image_type.name,
-            **self._processing_config,
-        )
-        logging.info("Main fnames: %s", repr(main_fnames))
-        assert len(main_fnames[0]) == len(main_fnames[1]) == 1
-
-        return (
-            tuple(fname[0] for fname in main_fnames),
-            get_log_outerr_filenames(
-                existing_pid="*",
-                task="*",
-                parent_pid=processing_progress.run.process_id,
-                processing_step=processing_progress.step.name,
-                image_type=processing_progress.image_type.name,
-                **self._processing_config,
-            ),
-        )
+        return processing_progress.image_type.name
 
     def __call__(self, limit_to_steps=None, step_imtype_filter=None):
         """Perform all the processing for the given steps (all if None)."""
@@ -1779,8 +1789,8 @@ class ImageProcessingManager(ProcessingManager):
                     f"{key!r}: {len(val)}" for key, val in self.pending.items()
                 ),
             )
-            
-            #If filtered or not ready, stop processing here
+
+            # If filtered or not ready, stop processing here
             if processing_batches is None:
                 continue
 

@@ -18,10 +18,13 @@ on.
 import contextvars
 import functools
 import os
+import signal
 import socket
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
+from multiprocessing import Manager
+from time import monotonic, sleep
 from traceback import format_exc
 from typing import Optional, Sequence
 
@@ -31,15 +34,18 @@ from autowisp.exceptions import (
     AutoWISPError,
     CalibrationError,
     Component,
+    collect_resource_snapshot,
     CreateLightCurvesError,
     DetrendingStatError,
     EPDError,
+    FileKind,
     FindStarsError,
     FitMagnitudesError,
     FitPSFMapError,
     FitStarShapeError,
     MeasurePhotometryError,
     PipelineError,
+    RelatedFile,
     SolveAstrometryError,
     StackToMasterError,
     StepError,
@@ -72,12 +78,20 @@ class ErrorContext:
 
         in_worker(bool):    True inside a multiprocessing worker process;
             used by the nested-worker guard.
+
+        config(dict or None):    Snapshot of the per-process configuration
+            (the resolved step parameters plus the runtime inputs threaded
+            in), recorded onto errors so a crash report shows the exact
+            settings the failing step ran with -- the resolved config is a
+            runtime derivation and lives nowhere else. ``None`` outside a
+            configured process.
     """
 
     pipeline_run: Optional[FrozenRow] = None
     step_name: Optional[str] = None
     related_files: tuple = ()
     in_worker: bool = False
+    config: Optional[dict] = None
 
     @classmethod
     def from_config(cls, config):
@@ -122,6 +136,9 @@ class ErrorContext:
             pipeline_run=pipeline_run,
             step_name=step_name,
             in_worker=bool(config.get("parent_pid")),
+            # A shallow snapshot: later mutation of the caller's dict must
+            # not change what an error reports.
+            config=dict(config),
         )
 
 
@@ -148,6 +165,65 @@ def set_error_context(ctx: ErrorContext) -> contextvars.Token:
     return _context.set(ctx)
 
 
+def _remember_related_files(exc: BaseException, related_files: tuple) -> None:
+    """Attach ``related_files`` to ``exc`` so they outlive their scope.
+
+    A scope's ContextVar is reset while the exception is still
+    propagating -- *before* any enclosing ``except`` runs -- so by the time
+    :func:`_stamp` sees the error at a capture boundary the ambient context
+    no longer holds the files. Recording them on the exception itself is
+    what survives the unwind.
+
+    Each scope contributes only the files it added, so nesting accumulates
+    innermost-first: the item that actually failed, then whatever enclosed
+    it.
+
+    Args:
+        exc(BaseException):    The exception leaving the scope.
+
+        related_files(tuple):    What this scope contributed.
+
+    Returns:
+        None
+    """
+
+    if not related_files:
+        return
+    merged = list(getattr(exc, "_autowisp_scope_related_files", ()))
+    merged.extend(related for related in related_files if related not in merged)
+    try:
+        # Deliberately a private attribute on someone else's exception: it
+        # is this module's bookkeeping, not part of any public interface.
+        # pylint: disable=protected-access
+        exc._autowisp_scope_related_files = tuple(merged)
+        # pylint: enable=protected-access
+    except AttributeError:
+        # Exotic exceptions (``__slots__``, no ``__dict__``) just do not
+        # carry the files; recording context must never break a raise.
+        pass
+
+
+def _inherit_related_files(wrapper_exc, original: BaseException) -> None:
+    """Carry files recorded on ``original`` over to the exception wrapping it.
+
+    Scopes record onto the exception that passed through them, but the
+    capture layer surfaces a *different* object (the ``StepError`` subclass
+    wrapping a bare ``ValueError``), which would otherwise start empty.
+
+    Args:
+        wrapper_exc(AutoWISPError):    The wrapping exception.
+
+        original(BaseException):    The exception it wraps.
+
+    Returns:
+        None
+    """
+
+    _remember_related_files(
+        wrapper_exc, getattr(original, "_autowisp_scope_related_files", ())
+    )
+
+
 def set_pipeline_run(run: Optional[FrozenRow]) -> contextvars.Token:
     """Replace the bundle with a copy carrying ``run``, keeping the rest.
 
@@ -165,15 +241,16 @@ def set_pipeline_run(run: Optional[FrozenRow]) -> contextvars.Token:
             step_name=current.step_name,
             related_files=current.related_files,
             in_worker=current.in_worker,
+            config=current.config,
         )
     )
 
 
 @contextmanager
-def error_context(*, step_name=None, related_files: Sequence = ()):
+def error_context(*, step_name=None, related_files: Sequence = (), config=None):
     """Scope additional context for any error raised inside the block.
 
-    Builds a new :class:`ErrorContext` (step and files supplied at
+    Builds a new :class:`ErrorContext` (step, files, and config supplied at
     construction, not by mutating the current one), installs it for the
     duration of the block, and resets the token on exit.
 
@@ -183,6 +260,14 @@ def error_context(*, step_name=None, related_files: Sequence = ()):
 
         related_files(Sequence[RelatedFile]):    Files appended to the
             ambient related-files list for the duration of the block.
+
+        config(dict or None):    The step's resolved config to record on
+            errors raised in the block. The managers scope this at each
+            step's dispatch -- uniformly for every step, whether or not it
+            uses a worker pool -- so a parent-side error (including a
+            synthesised ``WorkerCrashedError``) carries the *failing
+            step's* config, not the base config the parent bootstrapped
+            with. ``None`` keeps whatever is already in scope.
 
     Yields:
         None
@@ -195,10 +280,14 @@ def error_context(*, step_name=None, related_files: Sequence = ()):
             step_name=step_name or current.step_name,
             related_files=current.related_files + tuple(related_files),
             in_worker=current.in_worker,
+            config=config if config is not None else current.config,
         )
     )
     try:
         yield
+    except BaseException as exc:
+        _remember_related_files(exc, tuple(related_files))
+        raise
     finally:
         _context.reset(token)
 
@@ -208,7 +297,9 @@ def _stamp(exc: AutoWISPError) -> None:
 
     Already-populated fields are left untouched. This is the one place
     that writes ``step_name`` / ``related_files`` / ``pipeline_run`` /
-    ``crashed`` after construction (they are mutable instance attributes).
+    ``crashed`` after construction (they are mutable instance attributes),
+    and stamps the process config into ``details`` so it travels back to
+    the parent with a worker error.
 
     Args:
         exc(AutoWISPError):    The exception to stamp in place.
@@ -221,9 +312,20 @@ def _stamp(exc: AutoWISPError) -> None:
     if isinstance(exc, StepError) and not getattr(exc, "step_name", None):
         exc.step_name = ctx.step_name
     if not exc.related_files:
-        exc.related_files = ctx.related_files
+        # Scopes the exception already left recorded themselves on it (the
+        # ambient context has since been reset); scopes still in force are
+        # only in the context. Both matter, and the two can name the same
+        # file when a path is scoped twice, so merge rather than pick one.
+        remembered = getattr(exc, "_autowisp_scope_related_files", ())
+        exc.related_files = remembered + tuple(
+            related
+            for related in ctx.related_files
+            if related not in remembered
+        )
     if exc.pipeline_run is None and ctx.pipeline_run is not None:
         exc.with_pipeline_run(ctx.pipeline_run)
+    if ctx.config is not None:
+        exc.details.setdefault("config", ctx.config)
 
 
 def _wrap(exc: Exception, component: Component) -> AutoWISPError:
@@ -301,6 +403,7 @@ def capture_errors(*, component: Component, wrap_unknown=True):
                 if not wrap_unknown:
                     raise
                 wrapped = _wrap(exc, component)
+                _inherit_related_files(wrapped, exc)
                 _stamp(wrapped)
                 raise wrapped from exc
 
@@ -338,10 +441,50 @@ def _stamp_worker_error(exc: Exception, component: Component) -> AutoWISPError:
     """
 
     stamped = exc if isinstance(exc, AutoWISPError) else _wrap(exc, component)
+    if stamped is not exc:
+        _inherit_related_files(stamped, exc)
     stamped.stamp_subprocess()
     _stamp(stamped)
     stamped.details.setdefault("original_traceback", format_exc())
     return stamped
+
+
+def _resolve_related_files(related_files, item):
+    """Build the :class:`RelatedFile`\\ s for a work item, best-effort.
+
+    ``related_files`` is the call site's classifier for the items it maps
+    over -- either a :class:`FileKind` (the item is a path) or a callable
+    ``item -> RelatedFile | Iterable[RelatedFile] | None`` (for items that
+    are not a bare path, e.g. an image set). Never raises: a classifier
+    that does not fit the item simply yields no related files, so error
+    handling is never itself a source of errors.
+
+    Args:
+        related_files(FileKind, Callable, or None):    The classifier, or
+            ``None`` to attach nothing.
+
+        item:    The work item handed to the worker.
+
+    Returns:
+        tuple:    Zero or more :class:`RelatedFile` entries.
+    """
+
+    if related_files is None or item is None:
+        return ()
+    try:
+        if isinstance(related_files, FileKind):
+            return (RelatedFile(related_files, item, role="input"),)
+        result = related_files(item)
+    except Exception:  # pylint: disable=broad-except
+        return ()
+    if result is None:
+        return ()
+    if isinstance(result, RelatedFile):
+        return (result,)
+    try:
+        return tuple(result)
+    except TypeError:
+        return ()
 
 
 class _WorkerEntry:  # pylint: disable=too-few-public-methods
@@ -352,33 +495,84 @@ class _WorkerEntry:  # pylint: disable=too-few-public-methods
     :func:`_stamp_worker_error`) and re-raised, letting the Pool pickle it
     back to the parent.
 
+    Around the wrapped call it does two things with the item:
+
+    - **In-flight tracking.** The item is recorded in the shared in-flight
+      map (``{pid: item}``) and cleared on return. The executor never
+      records which worker is running which item -- workers self-pull, the
+      parent only hears back on *completion*, and a broken pool collapses
+      every pending future to the same ``BrokenProcessPool`` -- so this
+      map is the only place the culprit input of a silent death can be
+      recovered from. A hard ``os._exit`` (segfault/OOM) skips the
+      ``finally``, leaving the culprit behind, which is exactly the case
+      we need it for.
+    - **Related-file context.** The item is scoped as the ambient
+      ``related_files`` (via ``related_files``, the call site's classifier),
+      so *any* error the callable raises -- e.g. a config-vs-file-content
+      mismatch deep inside the step -- carries the file it was about, which
+      then FK-resolves / renders in the error record.
+
+    Both ride on the wrapper: the executor already pickles ``_WorkerEntry``
+    to each worker, and a ``Manager().dict()`` proxy pickles/reconnects
+    across that boundary, so no separate plumbing is needed.
+
     This is a class, not a closure, because ``Pool.map`` pickles the
     mapped callable to send it to the worker (under both ``fork`` and
     ``spawn``); a closure is not picklable, whereas an instance holding a
     picklable ``func`` (e.g. a ``functools.partial`` of a module-level
-    function) and an enum ``component`` is.
+    function), an enum ``component``, and a picklable proxy is.
 
     Attributes:
         func(Callable):    The wrapped per-item worker callable.
 
         component(Component):    Component for wrapping unknown errors.
+
+        inflight(DictProxy or None):    Shared ``{pid: item}`` map, or
+            ``None`` to disable tracking (non-``run_pool`` callers).
+
+        related_files(FileKind, Callable, or None):    Classifier turning
+            the item into related file(s); see :func:`_resolve_related_files`.
     """
 
-    def __init__(self, func, component: Component):
+    def __init__(
+        self, func, component: Component, inflight=None, related_files=None
+    ):
         self.func = func
         self.component = component
+        self.inflight = inflight
+        self.related_files = related_files
 
     def __call__(self, *args, **kwargs):
+        item = args[0] if args else None
+        pid = os.getpid()
+        if self.inflight is not None:
+            try:
+                self.inflight[pid] = item if args else kwargs
+            except Exception:  # pylint: disable=broad-except
+                pass  # tracking is best-effort; never fail a task over it
         try:
-            return self.func(*args, **kwargs)
-        except Exception as exc:  # pylint: disable=broad-except
-            stamped = _stamp_worker_error(exc, self.component)
-            if stamped is exc:
-                raise
-            raise stamped from exc
+            # The stamping ``except`` is *inside* the related-files scope so
+            # ``_stamp`` copies the item onto the error before it is pickled
+            # back (the parent's context no longer has it).
+            with error_context(
+                related_files=_resolve_related_files(self.related_files, item)
+            ):
+                try:
+                    return self.func(*args, **kwargs)
+                except Exception as exc:  # pylint: disable=broad-except
+                    stamped = _stamp_worker_error(exc, self.component)
+                    if stamped is exc:
+                        raise
+                    raise stamped from exc
+        finally:
+            if self.inflight is not None:
+                try:
+                    self.inflight.pop(pid, None)
+                except Exception:  # pylint: disable=broad-except
+                    pass
 
 
-def worker_entry(func, component: Component):
+def worker_entry(func, component: Component, inflight=None, related_files=None):
     """Wrap a Pool worker callable so errors come back picklable + stamped.
 
     Args:
@@ -389,11 +583,17 @@ def worker_entry(func, component: Component):
         component(Component):    Component to assign when wrapping an
             unknown exception.
 
+        inflight(DictProxy or None):    Shared in-flight map (see
+            :class:`_WorkerEntry`); ``None`` disables tracking.
+
+        related_files(FileKind, Callable, or None):    Per-item related-file
+            classifier (see :func:`_resolve_related_files`).
+
     Returns:
         _WorkerEntry:    A picklable callable suitable to hand to a Pool.
     """
 
-    return _WorkerEntry(func, component)
+    return _WorkerEntry(func, component, inflight, related_files)
 
 
 def capture_for_queue(exc: Exception, *, component: Component) -> AutoWISPError:
@@ -457,7 +657,120 @@ def forbid_nested_workers() -> None:
         )
 
 
-def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
+def _signal_name(signum):
+    """POSIX signal name for a number (e.g. 9 -> ``"SIGKILL"``), or None."""
+
+    try:
+        return signal.Signals(signum).name
+    except (ValueError, AttributeError):
+        return None
+
+
+def _exit_signal_entry(code):
+    """Decode one process exit code into a portable death descriptor.
+
+    ``None`` (still running) and ``0`` (clean) yield ``None``. The meaning
+    of a non-zero code is OS-specific, so decode accordingly:
+
+    - **POSIX**: a *negative* code is a kill by signal ``-code`` (``SIGKILL``
+      -> OOM / macOS jetsam, ``SIGSEGV`` -> native crash), whose name is
+      added; a positive code is a plain ``exit(code)``.
+    - **Windows**: there are no POSIX signals -- the code is a process /
+      NTSTATUS exit status (e.g. ``0xC0000005`` = access violation), so its
+      conventional hex form is added for abnormal values rather than being
+      (mis)read as a signal.
+
+    Never raises.
+
+    Args:
+        code(int or None):    A ``multiprocessing.Process.exitcode``.
+
+    Returns:
+        dict or None:    ``{"exitcode": code[, "signal"|"status": ...]}``.
+    """
+
+    if code in (None, 0):
+        return None
+    entry = {"exitcode": code}
+    try:
+        if os.name == "posix":
+            if code < 0:
+                entry["signal"] = _signal_name(-code)
+        elif code < 0 or code > 0xFFFF:
+            # Windows crash/NTSTATUS codes read best in hex.
+            entry["status"] = f"0x{code & 0xFFFFFFFF:08X}"
+    except Exception:  # pylint: disable=broad-except
+        pass
+    return entry
+
+
+def decode_exit_signals(exitcodes):
+    """Decode a collection of process exit codes (best-effort, portable).
+
+    Returns one :func:`_exit_signal_entry` per *abnormal* exit (dropping
+    ``None`` = still running and ``0`` = clean), so an empty list means no
+    abnormal termination was observed. Shared by both parallel schemes so a
+    crash report reads the same ``details["exit_signal"]`` regardless of
+    transport. Never raises.
+
+    Args:
+        exitcodes(iterable):    ``Process.exitcode`` values.
+
+    Returns:
+        list[dict]:    The decoded abnormal exits.
+    """
+
+    result = []
+    try:
+        for code in exitcodes:
+            entry = _exit_signal_entry(code)
+            if entry is not None:
+                result.append(entry)
+    except Exception:  # pylint: disable=broad-except
+        pass
+    return result
+
+
+def _pool_exit_signals(executor, wait_seconds=5.0):
+    """Decode a broken pool's worker exit codes (best-effort, private API).
+
+    ``ProcessPoolExecutor`` hides a worker death behind
+    ``BrokenProcessPool`` and clears its process table on shutdown, so this
+    must be read at the moment of the break (see :func:`run_pool`). Reaches
+    into the executor's private ``_processes``; returns ``[]`` if the
+    attribute is absent or anything goes wrong.
+
+    Args:
+        executor(ProcessPoolExecutor):    The broken executor.
+
+        wait_seconds(float):    How long to wait for the exit codes to be
+            collected before giving up on decoding them. Only ever paid on
+            the crash path, and only until the reaper wins.
+
+    Returns:
+        list[dict]:    Decoded abnormal worker exits.
+    """
+
+    try:
+        processes = list((getattr(executor, "_processes", None) or {}).values())
+        deadline = monotonic() + wait_seconds
+        while monotonic() < deadline and any(
+            proc.exitcode is None for proc in processes
+        ):
+            sleep(0.05)
+        return decode_exit_signals(proc.exitcode for proc in processes)
+    except Exception:  # pylint: disable=broad-except
+        return []
+
+
+def _worker_crashed(
+    items,
+    exc: Exception,
+    inflight=None,
+    related_files=None,
+    exit_signal=None,
+    num_processes=None,
+) -> "WorkerCrashedError":
     """Synthesise the parent-side error for a worker that died silently.
 
     Used when a worker dies without producing an error object (segfault,
@@ -470,6 +783,25 @@ def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
 
         exc(Exception):    The error the pool surfaced for the death.
 
+        inflight(DictProxy or None):    The shared ``{pid: item}``
+            in-flight map (see :class:`_WorkerEntry`). Its values are the
+            items being executed at the moment of death -- the culprit
+            plus any innocents the executor force-terminated, a set
+            bounded by the worker count. ``None`` if tracking was off.
+
+        related_files(FileKind, Callable, or None):    The call site's
+            related-file classifier, used to promote the in-flight items
+            to structured ``related_files`` on the error (so a crash links
+            straight to the offending file, not just a ``details`` string).
+
+        exit_signal(list or None):    Decoded OS-level exit info for the
+            dead worker(s) (see :func:`decode_exit_signals`) -- the tell
+            for SIGKILL/OOM vs. a native crash. Recorded when non-empty.
+
+        num_processes(int or None):    The pool's worker count, recorded
+            alongside the memory snapshot so ``N`` workers vs. total RAM
+            makes an OOM death easy to judge.
+
     Returns:
         WorkerCrashedError:    Stamped with the ambient context.
     """
@@ -477,9 +809,44 @@ def _worker_crashed(items, exc: Exception) -> "WorkerCrashedError":
     ctx = get_error_context()
     err = WorkerCrashedError(
         f"A worker process died during step {ctx.step_name!r} without "
-        f"reporting an error ({exc!r})."
+        f"reporting an error ({exc!r}).",
+        step_name=ctx.step_name,
     )
+    # ``step_name`` also goes in ``details`` so it survives into the
+    # sidecar even if the queryable column is ever dropped; the attribute
+    # above is what the persistence layer writes to ``error.step_name``,
+    # which crash-report log-collection resolves the run/step logs from.
+    err.details["step_name"] = ctx.step_name
     err.details["pool_error"] = repr(exc)
+    if exit_signal:
+        err.details["exit_signal"] = exit_signal
+    # Machine memory at crash time (+ the worker count): the tell for an
+    # OOM/jetsam kill, especially paired with a SIGKILL and no native dump.
+    resources = collect_resource_snapshot()
+    if num_processes is not None:
+        resources["num_processes"] = num_processes
+    if resources:
+        err.details["resources"] = resources
+    if inflight is not None:
+        try:
+            in_flight = list(inflight.values())
+        except Exception:  # pylint: disable=broad-except
+            in_flight = []
+        if in_flight:
+            err.details["crashed_inputs"] = [repr(i) for i in in_flight]
+            # Promote to structured related files so the crash links to the
+            # actual artifact (rendered / FK-resolved), not just a string.
+            # ``dict.fromkeys`` dedups (keeping order) so a batch-constant
+            # file the classifier returns for every item -- e.g. the single
+            # photref -- appears once, not once per crashed input.
+            related = []
+            for crashed_item in in_flight:
+                related.extend(
+                    _resolve_related_files(related_files, crashed_item)
+                )
+            related = list(dict.fromkeys(related))
+            if related:
+                err.related_files = tuple(related)
     try:
         items_list = list(items)
         err.details["num_inputs"] = len(items_list)
@@ -528,6 +895,7 @@ def run_pool(
     component: Component = Component.STEP,
     max_tasks_per_child=None,
     stream_consumer=None,
+    related_files=None,
 ):
     """Map ``worker`` over ``items`` in a process pool, stamping errors.
 
@@ -567,6 +935,12 @@ def run_pool(
             the pool block) instead of returning a materialised, ordered
             result list.
 
+        related_files(FileKind, Callable, or None):    Classifier that turns
+            each item into the file it is about (a :class:`FileKind` when
+            items are paths, else an ``item -> RelatedFile`` callable), so
+            errors -- including a silent worker death -- carry the artifact
+            they were processing. ``None`` attaches nothing.
+
     Returns:
         list or None:    The ordered results, or ``None`` when a
             ``stream_consumer`` is used.
@@ -581,7 +955,6 @@ def run_pool(
     # pylint: enable=import-outside-toplevel
 
     config["parent_pid"] = os.getpid()
-    wrapped = worker_entry(worker, component)
     executor_kwargs = {
         "max_workers": num_processes,
         "initializer": setup_process_map,
@@ -590,13 +963,34 @@ def run_pool(
     if max_tasks_per_child is not None:
         executor_kwargs["max_tasks_per_child"] = max_tasks_per_child
 
+    # The in-flight map lets a silent worker death name its culprit
+    # input(s). It lives on a Manager server process, and the proxy rides
+    # to each worker on the pickled ``worker_entry`` wrapper; the Manager
+    # is torn down when the pool is done, so nothing leaks.
+    manager = Manager()
     try:
+        inflight = manager.dict()
+        wrapped = worker_entry(worker, component, inflight, related_files)
         with ProcessPoolExecutor(**executor_kwargs) as executor:
-            if stream_consumer is None:
-                return list(executor.map(wrapped, items))
-            stream_consumer(_stream_as_completed(executor, wrapped, items))
-            return None
-    except AutoWISPError:
-        raise
-    except Exception as exc:  # pylint: disable=broad-except
-        raise _worker_crashed(items, exc) from exc
+            try:
+                if stream_consumer is None:
+                    return list(executor.map(wrapped, items))
+                stream_consumer(_stream_as_completed(executor, wrapped, items))
+                return None
+            except AutoWISPError:
+                raise
+            except Exception as exc:  # pylint: disable=broad-except
+                # Synthesise *inside* the ``with`` so the dead worker's OS
+                # exit code is still readable -- ``ProcessPoolExecutor``
+                # clears its process table on shutdown, which the enclosing
+                # ``with`` triggers on the way out.
+                raise _worker_crashed(
+                    items,
+                    exc,
+                    inflight,
+                    related_files,
+                    _pool_exit_signals(executor),
+                    num_processes,
+                ) from exc
+    finally:
+        manager.shutdown()

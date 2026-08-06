@@ -14,6 +14,7 @@ from autowisp.hat.file_parsers import parse_anmatch_transformation
 from autowisp.miscellaneous import RECOGNIZED_HAT_ID_PREFIXES
 
 from autowisp.database.hdf5_file_structure import HDF5FileDatabaseStructure
+from autowisp.exceptions import FileKind
 
 git_id = "$Id$"
 
@@ -45,6 +46,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
     _logger = logging.getLogger(__name__)
     fname_template = None
+    related_file_kind = FileKind.DR_FILE
 
     @classmethod
     def _product(cls):

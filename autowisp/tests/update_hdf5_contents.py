@@ -460,9 +460,10 @@ def main():
         if args.dry_run:
             print(f"[dry-run] Would process: {src_path.name}")
         try:
-            with h5py.File(src_path, "r") as src, h5py.File(
-                dst_path, "r" if args.dry_run else "a"
-            ) as dst:
+            with (
+                h5py.File(src_path, "r") as src,
+                h5py.File(dst_path, "r" if args.dry_run else "a") as dst,
+            ):
                 _apply_operations(spec, src, dst, args)
         except (KeyError, OSError) as exc:
             errors.append(f"{src_path.name}: {exc}")

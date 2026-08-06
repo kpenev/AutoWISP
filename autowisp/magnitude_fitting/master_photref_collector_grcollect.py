@@ -9,6 +9,7 @@ import logging
 import numpy
 from astropy.io import fits
 
+from autowisp.exceptions import FitMagnitudesError
 from autowisp.fit_expression import Interface as FitTermsInterface
 from autowisp.fit_expression import iterative_fit
 from autowisp.iterative_rejection_util import iterative_rejection_average
@@ -607,7 +608,7 @@ class MasterPhotrefCollector:
             max_rej_iter=fit_max_rej_iter,
         )
         if residual_scatter is None:
-            raise RuntimeError(
+            raise FitMagnitudesError(
                 "Failed to generate master photometric reference: "
                 + repr(master_reference_fname)
             )

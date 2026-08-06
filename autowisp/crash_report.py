@@ -12,14 +12,11 @@ enters the report. Scrubbing is mandatory: nothing is written unscrubbed.
 """
 
 import argparse
-import importlib.metadata
 import json
 import logging
 import os
-import platform
 import re
 import shutil
-import socket
 import tempfile
 import zipfile
 from datetime import datetime, timezone
@@ -34,8 +31,14 @@ from autowisp.database.interface import (
     set_project_home,
 )
 from autowisp.database.image_processing import ImageProcessingManager
+from autowisp.database.lightcurve_processing import LightCurveProcessingManager
 from autowisp.error_persistence import load_sidecar
-from autowisp.exceptions import sanitize_for_json
+from autowisp.exceptions import (
+    collect_environment,
+    collect_resource_snapshot,
+    get_hostname,
+    sanitize_for_json,
+)
 from autowisp.miscellaneous import get_code_version_str
 
 # pylint: disable=no-name-in-module
@@ -44,6 +47,7 @@ from autowisp.database.data_model import (
     Error,
     Image,
     ImageProcessingProgress,
+    LightCurveProcessingProgress,
     Parameter,
     PipelineRun,
     Step,
@@ -167,13 +171,16 @@ def scrub_config_values(db_session):
 
 
 def find_error_progress(error_row, db_session=None):
-    """Return the ``ImageProcessingProgress`` an error belongs to, or None.
+    """Return the processing-progress row an error belongs to, or None.
 
     Resolves a step error to its processing record via run + step (and the
     image's type, when the error names an image), so the BUI can link the
-    error to the matching log-review page. A pipeline/BUI error -- or a
-    step with no recorded progress -- yields ``None`` rather than a wrong
-    match.
+    error to the matching log-review page. Handles both image steps
+    (``ImageProcessingProgress``) and lightcurve steps
+    (``LightCurveProcessingProgress``, which record in a different table);
+    a step only writes one, so whichever has a row for the run+step wins.
+    A pipeline/BUI error -- or a step with no recorded progress -- yields
+    ``None`` rather than a wrong match.
 
     Args:
         error_row:    The ``Error`` row.
@@ -181,7 +188,7 @@ def find_error_progress(error_row, db_session=None):
         db_session:    Optional active session; one is opened if omitted.
 
     Returns:
-        ImageProcessingProgress or None
+        ImageProcessingProgress, LightCurveProcessingProgress, or None
     """
 
     if db_session is None:
@@ -210,8 +217,20 @@ def find_error_progress(error_row, db_session=None):
             query = query.where(
                 ImageProcessingProgress.image_type_id == image_type_id
             )
-    return db_session.scalars(
+    progress = db_session.scalars(
         query.order_by(ImageProcessingProgress.id.desc())
+    ).first()
+    if progress is not None:
+        return progress
+
+    # Lightcurve steps (create_lightcurves, epd, tfa, ...) record here.
+    return db_session.scalars(
+        select(LightCurveProcessingProgress)
+        .where(
+            LightCurveProcessingProgress.run_id == error_row.pipeline_run_id,
+            LightCurveProcessingProgress.step_id == step_id,
+        )
+        .order_by(LightCurveProcessingProgress.id.desc())
     ).first()
     # pylint: enable=no-member
 
@@ -220,12 +239,13 @@ def select_error_logs(error_row, db_session=None):
     """Return the per-process log files relevant to an error.
 
     Reuses the pipeline's own log-locating machinery
-    (``ImageProcessingManager.find_processing_outputs``), so the
-    configured ``logging_fname`` / ``std_out_err_fname`` naming is honored
-    rather than assumed. Only the logs for the error's run and step are
-    returned (the main-process log/outerr and the run's worker logs), not
-    the whole log directory. Best-effort: returns the existing files it
-    finds, or an empty list.
+    (``ProcessingManager.find_processing_outputs``, on whichever manager
+    matches the resolved progress row), so the configured
+    ``logging_fname`` / ``std_out_err_fname`` naming is honored rather than
+    assumed. Only the logs for the error's run and step are returned (the
+    main-process log/outerr and the run's worker logs), not the whole log
+    directory. Best-effort: returns the existing files it finds, or an
+    empty list.
 
     Args:
         error_row:    The ``Error`` row.
@@ -244,8 +264,13 @@ def select_error_logs(error_row, db_session=None):
     if progress is None:
         return []
 
+    manager_class = (
+        LightCurveProcessingManager
+        if isinstance(progress, LightCurveProcessingProgress)
+        else ImageProcessingManager
+    )
     try:
-        main_logs, worker_logs = ImageProcessingManager(
+        main_logs, worker_logs = manager_class(
             pipeline_run_id=None
         ).find_processing_outputs(progress, db_session)
     except Exception:  # pylint: disable=broad-except
@@ -267,28 +292,18 @@ def select_error_logs(error_row, db_session=None):
 # --- Environment provenance. ------------------------------------------
 
 
-def _package_versions(names):
-    """Return ``{name: version}`` for the installed packages among ``names``.
-
-    Packages that are not installed are simply omitted; never raises.
-    """
-
-    versions = {}
-    for name in names:
-        try:
-            versions[name] = importlib.metadata.version(name)
-        except importlib.metadata.PackageNotFoundError:
-            continue
-    return versions
-
-
 def collect_provenance():
     """Return environment provenance for a crash report.
 
-    Captures the machine and software building the report -- hostname, OS,
-    Python and key package versions, and the current code version. The
-    *failed run's* host and code version live on its ``PipelineRun`` row
-    and are added separately by the report builder.
+    Captures the machine and software *building the report* -- hostname,
+    OS, Python and key package versions, code version, and the machine's
+    memory (the box's RAM ceiling, for judging an OOM death). Uses the same
+    ``get_hostname`` / ``collect_environment`` / ``collect_resource_snapshot``
+    helpers the crash-time capture uses, so the report-time environment is
+    directly comparable with the *crash-time* environment recorded in the
+    sidecar -- a difference between the two is the tell that packages were
+    upgraded (or the box changed) between the failure and the report. The
+    failed run's own host / code version live on its ``PipelineRun`` row.
 
     Returns:
         dict:    Provenance fields, all JSON-serializable.
@@ -296,21 +311,10 @@ def collect_provenance():
 
     return {
         "report_generated": datetime.now(timezone.utc).isoformat(),
-        "hostname": socket.gethostname(),
-        "platform": platform.platform(),
-        "python_version": platform.python_version(),
+        "hostname": get_hostname(),
         "code_version": get_code_version_str(),
-        "packages": _package_versions(
-            (
-                "autowisp",
-                "astrowisp",
-                "numpy",
-                "scipy",
-                "pandas",
-                "sqlalchemy",
-                "astropy",
-            )
-        ),
+        "resources": collect_resource_snapshot(),
+        **collect_environment(),
     }
 
 

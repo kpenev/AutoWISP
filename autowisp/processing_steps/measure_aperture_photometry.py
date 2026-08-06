@@ -23,7 +23,7 @@ from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.multiprocessing_util import setup_process_map
 from autowisp.error_context import run_pool
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.exceptions import Component, FileKind
 from autowisp.data_reduction.utils import (
     fill_aperture_photometry_input_tree,
     add_aperture_photometry,
@@ -31,6 +31,9 @@ from autowisp.data_reduction.utils import (
 )
 
 input_type = "calibrated + dr"
+#: This step records only "started" before it finishes, so that is
+#: the only state an interrupted run can leave behind.
+allowed_interrupted_status_values = (0,)
 
 _logger = logging.getLogger(__name__)
 
@@ -164,8 +167,10 @@ def measure_aperture_photometry(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
     """Extract aperture photometry from the given images."""
-
-    assert start_status is None
+    # ``start_status`` is part of the signature the manager calls
+    # with; the values this step accepts are declared in
+    # ``allowed_start_status_values`` and checked there.
+    # pylint: disable=unused-argument
 
     photometer_one = partial(
         photometer_frame,
@@ -190,15 +195,14 @@ def measure_aperture_photometry(
                 configuration["num_parallel_processes"], len(image_collection)
             ),
             max_tasks_per_child=1,
+            related_files=FileKind.CALIBRATED_IMAGE,
         )
 
 
 def cleanup_interrupted(interrupted, configuration):
     """Remove the aperture photometry from a frame that was interrupted."""
 
-    for frame_fname, status in interrupted:
-        assert status == 0
-
+    for frame_fname, _ in interrupted:
         header = get_primary_header(frame_fname)
 
         with DataReductionFile(
@@ -247,7 +251,6 @@ def main():
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
     setup_process_map(cmdline_config)
-
 
     del cmdline_config["task"]
     measure_aperture_photometry(

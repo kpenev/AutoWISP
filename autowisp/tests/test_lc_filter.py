@@ -90,8 +90,6 @@ class TestCatalogSourceListFilter(AutoWISPTestCase):
             "An empty source_id_filter should return no rows.",
         )
 
-        self.successful_test = True
-
     def test_read_source_id_list(self):
         """``read_source_id_list`` reads one ID per line, ignoring blanks."""
 
@@ -102,7 +100,6 @@ class TestCatalogSourceListFilter(AutoWISPTestCase):
             read_source_id_list(list_fname),
             {"808860337475327872", "809305880203284608"},
         )
-        self.successful_test = True
 
 
 class TestLCFilter(H5TestCase):
@@ -148,9 +145,7 @@ class TestLCFilter(H5TestCase):
         generated = path.join(
             self.processing_directory, "LC", f"GDR3_{source_id}.h5"
         )
-        expected = path.join(
-            self.test_directory, "LC", f"GDR3_{source_id}.h5"
-        )
+        expected = path.join(self.test_directory, "LC", f"GDR3_{source_id}.h5")
         for group in groups:
             self.assert_groups_match(generated, expected, group, ignore)
             self.assert_groups_match(expected, generated, group, ignore)
@@ -203,9 +198,7 @@ class TestLCFilter(H5TestCase):
             self._compare_lc(source_id, self._epd_groups, self._epd_ignore)
 
         # 3. EPD statistics -- must be the kept subset of the full statistics.
-        self.run_step(
-            ["wisp-generate-epd-statistics", "-c", "test.cfg", "LC"]
-        )
+        self.run_step(["wisp-generate-epd-statistics", "-c", "test.cfg", "LC"])
         generated_stats, expected_stats = (
             pandas.read_csv(
                 path.join(dirname, "MASTERS", "epd_statistics.txt"),
@@ -225,8 +218,6 @@ class TestLCFilter(H5TestCase):
             generated_stats.loc[kept_int],
             "EPD statistics subset",
         )
-
-        self.successful_test = True
 
     def test_manual_source_list(self):
         """A manual source list keeps only the listed sources."""
@@ -301,9 +292,7 @@ class TestLCFilter(H5TestCase):
         os.chdir(self.processing_directory)
         try:
             full_catalog = Table.read(catalog_fname(12.0))
-            limited = full_catalog[
-                full_catalog["phot_g_mean_mag"] <= mag_limit
-            ]
+            limited = full_catalog[full_catalog["phot_g_mean_mag"] <= mag_limit]
             limited.meta["MAGMAX"] = mag_limit
             limited.write(
                 catalog_fname(mag_limit), format="fits", overwrite=True

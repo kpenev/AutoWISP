@@ -4,6 +4,7 @@ import re
 
 from asteval import Interpreter
 
+from autowisp.exceptions import ConfigurationError
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
 
 
@@ -54,13 +55,16 @@ def _parse_substitutions(substitutions_str_iter):
         r"^(?P<key>\w+)\s*(?P<type>(=|in))\s*(?P<value>\S.*)$"
     )
     try:
-        parsed_substitution = substitution_rex.match(
-            next(substitutions_str_iter)
-        )
+        substitution_str = next(substitutions_str_iter)
     except StopIteration:
         yield {}
         return
-    assert parsed_substitution
+    parsed_substitution = substitution_rex.match(substitution_str)
+    if parsed_substitution is None:
+        raise ConfigurationError(
+            f"Cannot make sense of {substitution_str!r} as a substitution: "
+            "expected ``<name> = <value>`` or ``<name> in <expression>``!"
+        )
     if parsed_substitution["type"] == "in":
         values = Interpreter()(parsed_substitution["value"])
     else:
@@ -86,7 +90,13 @@ def _parse_fit_datasets(argument):
     result = []
     for specification in _split_delimited_string(argument, ";"):
         parsed_dset = dset_specfication_rex.match(specification)
-        assert parsed_dset
+        if parsed_dset is None:
+            raise ConfigurationError(
+                f"Cannot make sense of {specification!r} as a dataset to "
+                "detrend: expected ``<input key> -> <output key>`` optionally "
+                "followed by ``: <name> = <value>`` substitutions joined by "
+                "``&``!"
+            )
         result.extend(
             [
                 (
@@ -117,13 +127,24 @@ def _parse_lc_variables(argument):
     for specification in _split_delimited_string(argument, ";"):
         print(f"Parsing: {specification!r}.")
         parsed_var = var_specfication_rex.match(specification)
-        assert parsed_var
+        if parsed_var is None:
+            raise ConfigurationError(
+                f"Cannot make sense of {specification!r} as a lightcurve "
+                "variable: expected ``<name> = <dataset key>`` optionally "
+                "followed by ``: <name> = <value>`` substitutions joined by "
+                "``&``!"
+            )
         substitutions = list(
             _parse_substitutions(
                 _split_delimited_string(parsed_var["substitutions"], "&")
             )
         )
-        assert len(substitutions) == 1
+        if len(substitutions) != 1:
+            raise ConfigurationError(
+                f"The substitutions in {specification!r} select "
+                f"{len(substitutions)} datasets, but a lightcurve variable "
+                "must name exactly one; use ``=`` rather than ``in``!"
+            )
         result.append(
             (parsed_var["varname"], (parsed_var["dset"], substitutions[0]))
         )
@@ -170,7 +191,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             None
         """
 
-        assert (not geometry) or (geometry in ["circular", "eccentric"])
+        assert (not geometry) or (geometry in ["circular", "eccentric"]), (
+            f"Transit parameters requested for unknown geometry {geometry!r}; "
+            "only 'circular' and 'eccentric' orbits are described!"
+        )
 
         if timing:
             parser.add_argument(

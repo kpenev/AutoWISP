@@ -8,6 +8,13 @@ from sqlalchemy import select, and_, literal, update, sql, delete
 import numpy
 
 from autowisp.multiprocessing_util import setup_process
+from autowisp.error_context import error_context
+from autowisp.exceptions import (
+    FileKind,
+    MasterSelectionError,
+    PipelineError,
+    RelatedFile,
+)
 from autowisp.data_reduction.data_reduction_file import DataReductionFile
 from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp.catalog import read_catalog_file
@@ -59,7 +66,11 @@ class LightCurveProcessingManager(ProcessingManager):
         if isinstance(which, int):
             which = [which]
 
-        assert status > 0
+        assert status > 0, (
+            f"Recording progress of {self.current_step.name} with status "
+            f"{status}; only positive statuses mark work actually done, "
+            "negative ones are set by the manager for failures!"
+        )
         with start_db_session() as db_session:
             for star in which:
                 if isinstance(star, int):
@@ -141,14 +152,18 @@ class LightCurveProcessingManager(ProcessingManager):
             lambda src_id: srcid_formatter.format(
                 lc_fname,
                 *numpy.atleast_1d(src_id),
-                PROJHOME=self._processing_config['project_home']
+                PROJHOME=self._processing_config["project_home"],
             ),
             source_list,
         )
         if previous:
             lc_fnames = list(lc_fnames)
             for check in lc_fnames:
-                assert path.exists(check)
+                if not path.exists(check):
+                    raise PipelineError(
+                        f"Lightcurve {check} was detrended by a previous "
+                        "step but is no longer on disk!"
+                    )
             return lc_fnames
         return [
             lc
@@ -281,7 +296,11 @@ class LightCurveProcessingManager(ProcessingManager):
                 satisfied.
         """
 
-        for required_step_name, required_imtype_id, allow_pending in db_session.execute(
+        for (
+            required_step_name,
+            required_imtype_id,
+            allow_pending,
+        ) in db_session.execute(
             select(
                 Step.name,
                 StepDependencies.blocking_image_type_id,
@@ -295,12 +314,18 @@ class LightCurveProcessingManager(ProcessingManager):
             .where(StepDependencies.blocked_step_id == step.id)
             .where(StepDependencies.blocked_image_type_id == image_type.id)
         ).all():
-            assert required_imtype_id == image_type.id
+            assert required_imtype_id == image_type.id, (
+                f"Dependency of {step.name} on {required_step_name} was "
+                f"selected for image type {image_type.id} but came back for "
+                f"{required_imtype_id}!"
+            )
             if required_step_name not in self.pending:
                 continue
             if image_type.name not in self.pending[required_step_name]:
                 continue
-            pending_phot_refs = self.pending[required_step_name][image_type.name]
+            pending_phot_refs = self.pending[required_step_name][
+                image_type.name
+            ]
             if allow_pending:
                 blocked = single_photref_fname in pending_phot_refs
             else:
@@ -312,7 +337,11 @@ class LightCurveProcessingManager(ProcessingManager):
                     step.name,
                     repr(single_photref_fname),
                     required_step_name,
-                    " for this photref" if allow_pending else " for some photref",
+                    (
+                        " for this photref"
+                        if allow_pending
+                        else " for some photref"
+                    ),
                 )
                 return False
         return True
@@ -372,13 +401,44 @@ class LightCurveProcessingManager(ProcessingManager):
                 db_session=db_session,
             )
 
+    #: Lightcurve processing records progress here; drives the shared
+    #: ``find_processing_outputs`` in the base class.
+    _progress_model = LightCurveProcessingProgress
+
     def __init__(self, *args, **kwargs):
         """Initialize self._current_image_type in addition to normali init."""
 
         self._current_image_type = None
         super().__init__(*args, **kwargs)
-        with start_db_session() as db_session:
-            self.set_pending(db_session)
+        # A review-only manager (pipeline_run_id=None, e.g. crash-report
+        # log lookup) performs no processing, so skip the DR-file-reading
+        # pending scan.
+        if self._pipeline_run_id is not None:
+            with start_db_session() as db_session:
+                self.set_pending(db_session)
+
+    def _progress_image_type(self, processing_progress, db_session):
+        """Derive the image type from the row's single photref.
+
+        A lightcurve progress row has no image type of its own; when the
+        step ran, its logs were keyed on the image type of the single
+        photometric reference's source frame (``_current_image_type``).
+        Reproduce that here so the log names match: the photref DR's
+        ``RAWFNAME`` -> the ``Image`` -> its type.
+        """
+
+        with DataReductionFile(
+            processing_progress.sphotref.filename, "r"
+        ) as sphotref_dr:
+            raw_fname = sphotref_dr.get_frame_header()["RAWFNAME"]
+        image = db_session.scalar(
+            select(Image).where(
+                # pylint: disable=no-member
+                Image.raw_fname.contains(raw_fname + ".fits")
+                # pylint: enable=no-member
+            )
+        )
+        return image.image_type.name
 
     @staticmethod
     def select_step_sphotref(db_session, pending=True, full_objects=False):
@@ -484,7 +544,12 @@ class LightCurveProcessingManager(ProcessingManager):
         catalog = create_lc_cofig["lightcurve_catalog_fname"].format_map(
             sphotref_header
         )
-        assert path.exists(catalog)
+        if not path.exists(catalog):
+            raise MasterSelectionError(
+                f"The lightcurve catalog {catalog} that create_lightcurves "
+                "should have produced is missing, so the detrending "
+                "configuration cannot be completed!"
+            )
 
         step_config = self.get_config(
             matched_expressions, db_session, db_step=step
@@ -530,9 +595,25 @@ class LightCurveProcessingManager(ProcessingManager):
                 )
 
                 step_module = getattr(processing_steps, step_name)
-                new_masters = getattr(step_module, step_name)(
-                    lc_fnames, 0, configuration, self._mark_progress
-                )
+                # Scope the step's config and its single photometric
+                # reference for the whole step (create_lightcurves / epd /
+                # tfa / the statistics generators) so any main-process error
+                # carries both; the parallel workers additionally scope each
+                # light curve.
+                with error_context(
+                    config=configuration,
+                    related_files=[
+                        RelatedFile(
+                            FileKind.DR_FILE,
+                            single_photref_fname,
+                            role="single_photref",
+                        )
+                    ],
+                ):
+                    self.check_start_status(step_module, step_name, 0)
+                    new_masters = getattr(step_module, step_name)(
+                        lc_fnames, 0, configuration, self._mark_progress
+                    )
                 with start_db_session() as db_session:
                     # False positive
                     # pylint: disable=not-callable

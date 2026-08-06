@@ -14,7 +14,8 @@ from sqlalchemy import func, select
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_cli import cli_entry_point
-from autowisp.exceptions import Component
+from autowisp.error_context import error_context
+from autowisp.exceptions import Component, FileKind, RelatedFile
 from autowisp import magnitude_fitting
 from autowisp.astrometry.transformation import (
     Transformation,
@@ -36,6 +37,19 @@ from autowisp.database.data_model import MasterFile
 # pylint: enable=no-name-in-module
 
 input_type = "dr"
+#: ``None`` because this step does not merely check the status -- it
+#: derives the magfit iteration to continue from out of it (see
+#: ``fit_magnitudes``), so it validates the value itself.
+allowed_start_status_values = None
+#: Likewise: an interrupted magfit can be at any iteration, and
+#: ``cleanup_interrupted`` reads the iteration out of the statuses and
+#: checks their consistency itself.
+# Name is 33 characters; the constant regex caps at 30. It only trips here
+# because pylint treats the ``None`` as a constant while the tuples the
+# other steps assign count as variables.
+# pylint: disable=invalid-name
+allowed_interrupted_status_values = None
+# pylint: enable=invalid-name
 _logger = logging.getLogger(__name__)
 
 
@@ -263,7 +277,10 @@ def fit_magnitudes(
     if start_status is None:
         start_status = -1
     else:
-        assert start_status % 2 == 1
+        assert start_status % 2 == 1, (
+            f"Magnitude fitting recorded an even status {start_status}; only "
+            "odd ones mark a completed iteration it could resume from!"
+        )
 
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r"
@@ -274,63 +291,79 @@ def fit_magnitudes(
         dr_collection, configuration, sphotref_header, mark_start, mark_end
     )
 
-    kwargs = {
-        "fit_dr_filenames": dr_fnames,
-        "configuration": SimpleNamespace(
-            **configuration,
-            continue_from_iteration=(start_status + 1) // 2,
-            source_name_format="{0:d}",
-        ),
-        "mark_start": mark_start,
-        "mark_end": mark_end,
-        "path_substitutions": get_path_substitutions(
-            configuration, sphotref_header
-        ),
-    }
+    # Everything below consumes the catalog, so name it on any error
+    # raised while it does. The scope belongs here rather than in
+    # ``ensure_catalog``, which returns long before the fitting starts.
+    with error_context(
+        related_files=[
+            RelatedFile(FileKind.CATALOG, catalog_fname, role="input")
+        ]
+    ):
+        kwargs = {
+            "fit_dr_filenames": dr_fnames,
+            "configuration": SimpleNamespace(
+                **configuration,
+                continue_from_iteration=(start_status + 1) // 2,
+                source_name_format="{0:d}",
+            ),
+            "mark_start": mark_start,
+            "mark_end": mark_end,
+            "path_substitutions": get_path_substitutions(
+                configuration, sphotref_header
+            ),
+        }
 
-    if configuration["master_photref_fname"] is not None:
+        if configuration["master_photref_fname"] is not None:
+            _logger.info(
+                "Using existing master photometric reference: %s with\n\t%s",
+                configuration["master_photref_fname"],
+                "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
+            )
+            assert start_status == -1, (
+                f"Magnitude fitting was asked to resume from {start_status} "
+                "against an existing master photometric reference, which "
+                "takes a single pass and so can only start from scratch!"
+            )
+            magnitude_fitting.single_iteration(
+                photref=magnitude_fitting.get_master_photref(
+                    configuration["master_photref_fname"]
+                ),
+                **kwargs,
+            )
+            return None
+
         _logger.info(
-            "Using existing master photometric reference: %s with\n\t%s",
-            configuration["master_photref_fname"],
+            "Starting iterative magfit for single photref: %s with\n\t%s",
+            configuration["single_photref_dr_fname"],
             "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
         )
-        assert start_status == -1
-        magnitude_fitting.single_iteration(
-            photref=magnitude_fitting.get_master_photref(
-                configuration["master_photref_fname"]
-            ),
-            **kwargs,
+
+        master_photref_fname, magfit_stat_fname = (
+            magnitude_fitting.iterative_refit(
+                single_photref_dr_fname=configuration[
+                    "single_photref_dr_fname"
+                ],
+                catalog_sources=catalog_sources,
+                **kwargs,
+            )
         )
-        return None
-
-    _logger.info(
-        "Starting iterative magfit for single photref: %s with\n\t%s",
-        configuration["single_photref_dr_fname"],
-        "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
-    )
-
-    master_photref_fname, magfit_stat_fname = magnitude_fitting.iterative_refit(
-        single_photref_dr_fname=configuration["single_photref_dr_fname"],
-        catalog_sources=catalog_sources,
-        **kwargs,
-    )
-    return [
-        {
-            "filename": master_photref_fname,
-            "preference_order": None,
-            "type": "master_photref",
-        },
-        {
-            "filename": magfit_stat_fname,
-            "preference_order": None,
-            "type": "magfit_stat",
-        },
-        {
-            "filename": catalog_fname,
-            "preference_order": None,
-            "type": "magfit_catalog",
-        },
-    ]
+        return [
+            {
+                "filename": master_photref_fname,
+                "preference_order": None,
+                "type": "master_photref",
+            },
+            {
+                "filename": magfit_stat_fname,
+                "preference_order": None,
+                "type": "magfit_stat",
+            },
+            {
+                "filename": catalog_fname,
+                "preference_order": None,
+                "type": "magfit_catalog",
+            },
+        ]
 
 
 def delete_master(filename, master_type):
@@ -471,7 +504,12 @@ def cleanup_interrupted(interrupted, configuration):
                     master_type + "_fname_format"
                 ].format_map(fname_substitutions)
                 _logger.debug("Checking existence of %s", repr(check_fname))
-                assert os.path.exists(check_fname)
+                assert os.path.exists(check_fname), (
+                    f"Magnitude fitting recorded reaching iteration "
+                    f"{max_status // 2}, but the {master_type} it should "
+                    f"have produced at iteration {iteration} "
+                    f"({check_fname}) is missing!"
+                )
             fname_substitutions["magfit_iteration"] = max_status // 2 + 1
             check_no_master(
                 configuration[master_type + "_fname_format"].format_map(
