@@ -154,18 +154,21 @@ class TestStepEntryEndToEnd(_CliTestCase):
         from unittest import mock
         from autowisp.processing_steps import calibrate as calibrate_step
 
-        with mock.patch.object(
-            calibrate_step,
-            "parse_command_line",
-            return_value={"raw_images": [], "calibrate_only_if": None},
-        ), mock.patch.object(
-            calibrate_step, "setup_process"
-        ), mock.patch.object(
-            calibrate_step, "find_fits_fnames", return_value=[]
-        ), mock.patch.object(
-            calibrate_step,
-            "calibrate",
-            side_effect=ValueError("calibration blew up"),
+        with (
+            mock.patch.object(
+                calibrate_step,
+                "parse_command_line",
+                return_value={"raw_images": [], "calibrate_only_if": None},
+            ),
+            mock.patch.object(calibrate_step, "setup_process"),
+            mock.patch.object(
+                calibrate_step, "find_fits_fnames", return_value=[]
+            ),
+            mock.patch.object(
+                calibrate_step,
+                "calibrate",
+                side_effect=ValueError("calibration blew up"),
+            ),
         ):
             with contextlib.redirect_stderr(io.StringIO()):
                 with self.assertRaises(SystemExit) as ctx:

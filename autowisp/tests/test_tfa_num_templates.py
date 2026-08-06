@@ -92,9 +92,7 @@ class TestTemplateSourceIdsVlen(unittest.TestCase):
             for template_ids in template_id_sets:
                 light_curve.add_configurations(
                     component="shapefit.tfa",
-                    configurations=(
-                        ((key, HashableArray(template_ids)),),
-                    ),
+                    configurations=(((key, HashableArray(template_ids)),),),
                     config_indices=numpy.zeros(num_frames, dtype=numpy.uint),
                 )
 

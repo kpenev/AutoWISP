@@ -18,6 +18,6 @@ class TestTFA(H5TestCase):
             ],
             output_type="LC",
             ignore=lambda name: name.endswith(
-               "/TFA/FitProperties/PointsFilterExpression"
+                "/TFA/FitProperties/PointsFilterExpression"
             ),
         )
