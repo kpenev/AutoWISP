@@ -727,6 +727,11 @@ class TestPoolPropagation(_ContextTestCase):
         self.assertTrue(crashed, "expected a non-empty crashed_inputs")
         self.assertTrue(set(crashed) <= {repr(item) for item in items})
 
+    @unittest.skipUnless(
+        os.name == "posix",
+        "no way to provoke a segfault: ctypes.string_at(0) raises a "
+        "catchable OSError on Windows rather than killing the worker",
+    )
     def test_faulthandler_dumps_native_traceback(self):
         """A segfaulting worker leaves a native dump in its own log.
 

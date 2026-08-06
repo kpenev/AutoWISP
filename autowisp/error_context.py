@@ -24,6 +24,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from multiprocessing import Manager
+from time import monotonic, sleep
 from traceback import format_exc
 from typing import Optional, Sequence
 
@@ -730,7 +731,7 @@ def decode_exit_signals(exitcodes):
     return result
 
 
-def _pool_exit_signals(executor):
+def _pool_exit_signals(executor, wait_seconds=5.0):
     """Decode a broken pool's worker exit codes (best-effort, private API).
 
     ``ProcessPoolExecutor`` hides a worker death behind
@@ -742,15 +743,22 @@ def _pool_exit_signals(executor):
     Args:
         executor(ProcessPoolExecutor):    The broken executor.
 
+        wait_seconds(float):    How long to wait for the exit codes to be
+            collected before giving up on decoding them. Only ever paid on
+            the crash path, and only until the reaper wins.
+
     Returns:
         list[dict]:    Decoded abnormal worker exits.
     """
 
     try:
-        processes = getattr(executor, "_processes", None) or {}
-        return decode_exit_signals(
-            proc.exitcode for proc in list(processes.values())
-        )
+        processes = list((getattr(executor, "_processes", None) or {}).values())
+        deadline = monotonic() + wait_seconds
+        while monotonic() < deadline and any(
+            proc.exitcode is None for proc in processes
+        ):
+            sleep(0.05)
+        return decode_exit_signals(proc.exitcode for proc in processes)
     except Exception:  # pylint: disable=broad-except
         return []
 
