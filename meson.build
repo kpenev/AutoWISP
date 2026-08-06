@@ -1,6 +1,6 @@
 project(
     'autowisp',
-    version: '1.3.1',
+    version: '1.4.0',
     meson_version: '>= 1.4.0',
 )
 
