@@ -42,7 +42,6 @@ class TestCatalog(FITSTestCase):
         )
         create_catalog_file(generated_fname, **query_config, verbose=True)
         self.assert_fits_match(expected_fname, generated_fname)
-        self.successful_test = False
 
     def test_catalog_queries(self):
         """Verify each of the queries for which expected results are known."""

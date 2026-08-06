@@ -206,11 +206,10 @@ class H5TestCase(AutoWISPTestCase):
                         f"Object {dr_fname2!r}/{obj2.name!r} is not a dataset!",
                     )
                     if obj1.name == "/FITSHeader":
-                        with DataReductionFile(
-                            dr_fname1, "r"
-                        ) as dr1_file, DataReductionFile(
-                            dr_fname2, "r"
-                        ) as dr2_file:
+                        with (
+                            DataReductionFile(dr_fname1, "r") as dr1_file,
+                            DataReductionFile(dr_fname2, "r") as dr2_file,
+                        ):
                             self._compare_headers(
                                 dr_fname1,
                                 dr_fname2,
@@ -285,8 +284,6 @@ class H5TestCase(AutoWISPTestCase):
             for group in compare:
                 self.assert_groups_match(gen_fname, exp_fname, group, ignore)
                 self.assert_groups_match(exp_fname, gen_fname, group, ignore)
-
-        self.successful_test = True
 
     # pylint: enable=too-many-arguments
 

@@ -86,8 +86,6 @@ class TestProvenanceResolver(AutoWISPTestCase):
             self.assertEqual(session.target.name, "G10124500_139")
             self.assertEqual(session.label, "G10124500_139")
 
-        self.successful_test = True
-
     def test_missing_survey_row_raises(self):
         """Resolver raises NoResultFound when a survey row is missing.
 
@@ -104,5 +102,3 @@ class TestProvenanceResolver(AutoWISPTestCase):
                 get_or_create_observing_session(
                     "object", evaluator, configuration, db_session
                 )
-
-        self.successful_test = True

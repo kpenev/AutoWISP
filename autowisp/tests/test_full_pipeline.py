@@ -165,8 +165,6 @@ class TestFullPipeline(H5TestCase, FITSTestCase):
         self._assert_h5_dir_match("DR")
         self._assert_h5_dir_match("LC")
 
-        self.successful_test = True
-
     def _register_photref(self):
         """Mimic the BUI's ``record_photref_selection`` for the test photref.
 

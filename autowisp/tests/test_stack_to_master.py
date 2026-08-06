@@ -25,13 +25,10 @@ class TestStackToMaster(FITSTestCase):
             self.processing_directory, "MASTERS", master_type + "_R.fits"
         )
         self.assert_fits_match(
-            path.join(
-                self.test_directory, "MASTERS", master_type + "_R.fits"
-            ),
+            path.join(self.test_directory, "MASTERS", master_type + "_R.fits"),
             generated_master,
         )
         remove(generated_master)
-        self.successful_test = True
 
     def test_stack_master_bias(self):
         """Check if creating master bias works as expected."""
