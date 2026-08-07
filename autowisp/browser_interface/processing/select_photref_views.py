@@ -2,6 +2,7 @@
 
 from io import StringIO
 from os import path
+import logging
 
 # from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
@@ -32,6 +33,8 @@ from autowisp.database.data_model import (
 # pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
 from .display_fits_util import update_fits_display
+
+_logger = logging.getLogger(__name__)
 
 
 def get_photref_merit_info(photref_group, db_session, merit_function):
@@ -115,7 +118,7 @@ def _get_merit_data(request, target_index):
     if "merit_info" not in request.session:
         request.session["merit_info"] = {}
     if str(target_index) not in request.session["merit_info"]:
-        print("Calculating merit for target " + str(target_index))
+        _logger.debug("Calculating merit for target %s", target_index)
         batch = request.session["need_photref"]["master_values"][target_index][
             2
         ]
@@ -285,14 +288,18 @@ def select_photref_image(request, *, target_index, recalculate=False):
     assert request.method == "GET"
     if "need_photref" not in request.session:
         return redirect("processing:select_photref_target")
-    print("Image view with request: " + repr(request))
+    _logger.debug("Image view with request: %s", repr(request))
     update_fits_display(request)
     image_index = request.session["fits_display"]["image_index"]
     if recalculate:
-        print("Deleting merit info")
-        del request.session["merit_info"]
+        _logger.debug("Deleting merit info")
+        # Recalculating before any merit info was computed is legitimate;
+        # ``del`` would raise KeyError on that session.
+        request.session.pop("merit_info", None)
     _get_merit_data(request, target_index)
-    print("Merit info keys: " + repr(request.session["merit_info"].keys()))
+    _logger.debug(
+        "Merit info keys: %s", repr(request.session["merit_info"].keys())
+    )
 
     merit_data = pandas.read_json(
         StringIO(request.session["merit_info"][str(target_index)])
@@ -363,9 +370,9 @@ def select_photref_target(request, recalc=False):
     if "need_photref" not in request.session:
         _get_missing_photref(request)
 
-    print(
-        "Request master values: "
-        + repr(request.session["need_photref"]["master_values"])
+    _logger.debug(
+        "Request master values: %s",
+        repr(request.session["need_photref"]["master_values"]),
     )
     return render(
         request,
@@ -388,10 +395,19 @@ def select_photref_target(request, recalc=False):
 def record_photref_selection(request, target_index, image_index):
     """Record a single photometric reference frame selected by the user."""
 
+    # The selection is recorded by following a plain link, so the browser can
+    # re-issue this GET (refresh, back button, double click). The keys popped
+    # at the end are gone by then, hence both the guard and re-deriving the
+    # merit info below instead of assuming the session still holds it.
+    if "need_photref" not in request.session:
+        return redirect("processing:select_photref_target")
     if request.session["demo"]:
-        print("Demo only! Not saving selected reference!")
-        return None
-    print("Merit info keys: " + repr(request.session["merit_info"].keys()))
+        _logger.info("Demo only! Not saving selected reference!")
+        return redirect("processing:select_photref_target")
+    _get_merit_data(request, target_index)
+    _logger.debug(
+        "Merit info keys: %s", repr(request.session["merit_info"].keys())
+    )
     merit_data = pandas.read_json(
         StringIO(request.session["merit_info"][str(target_index)])
     )
