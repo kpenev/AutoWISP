@@ -21,8 +21,8 @@ mechanism and be implemented as stand-alone functions.
 Code layout
 ===========
 
-Each main-level step in :doc:`../processing_steps` (i.e. those with a single
-number) sit in separate python modules, with first level sub-steps implemented
+Each main-level step of the pipeline (see :doc:`../test_data`) sits in a
+separate python module, with first level sub-steps implemented
 as classes each sitting in its own ``.py`` file. In order to avoid excessively
 long import statements the ``__init__.py`` files for each main-level module
 should import the individual classes from their respective python files and

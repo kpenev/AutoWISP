@@ -13,7 +13,6 @@ Welcome to AutoWISP's documentation!
 
     installation
     test_data
-    processing_steps
     wisp_options
     implementation/autowisp
 

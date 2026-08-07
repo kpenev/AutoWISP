@@ -88,8 +88,9 @@ its own right -- ``wisp-calibrate``, ``wisp-find-stars``,
 ``wisp-solve-astrometry`` and so on. These exist for running a single
 stage by hand, or for stringing together a sequence of your own in a
 script; you can ignore them entirely if you work through the browser
-interface. See :doc:`processing_steps` for what each stage does, and
-:doc:`wisp_options` for the settings they have in common.
+interface. :doc:`test_data` walks through the whole sequence one command
+at a time, explaining what each stage does and which of its settings
+matter; :doc:`wisp_options` lists every setting there is.
 
 Installing from source
 ----------------------
