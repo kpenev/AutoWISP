@@ -11,7 +11,9 @@ class TestEPD(H5TestCase):
 
         self.run_step_test(
             "epd",
-            "LC",
+            # The single photref DR is needed to derive the datasets to
+            # detrend when ``epd-datasets`` is not configured.
+            ["LC", "DR"],
             [
                 f"AperturePhotometry/Aperture{ap_ind:03d}/EPD"
                 for ap_ind in range(4)

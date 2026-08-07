@@ -19,8 +19,177 @@ from autowisp.light_curves.apply_correction import (
     recalculate_correction_statistics,
 )
 from autowisp.evaluator import Evaluator
+from autowisp.processing_steps.lc_detrending_argument_parser import (
+    parse_fit_datasets,
+)
 
 _logger = logging.getLogger(__name__)
+
+
+def _shape_fit_varies(sphotref_dr, shapefit_version):
+    """
+    Whether star shape was fit rather than assumed constant accross each star.
+
+    Shape fitting is performed on a grid (see the ``shape-grid`` option of
+    ``wisp-fit-star-shape``). If only the outer boundaries of that grid are
+    specified, the PSF/PRF is assumed not to vary accross the star, so the
+    shape fitted magnitudes carry no information beyond aperture photometry and
+    detrending them is a waste of time.
+
+    Args:
+        sphotref_dr(DataReductionFile):    The single photometric reference,
+            opened for reading.
+
+        shapefit_version(int):    The version of the shape fit to inspect.
+
+    Returns:
+        bool:
+            Whether the grid the shape was fit on has any internal splits.
+    """
+
+    return any(
+        len(
+            sphotref_dr.get_attribute(
+                f"shapefit.cfg.psf.bicubic.grid.{axis}",
+                default_value=(),
+                shapefit_version=shapefit_version,
+            )
+        )
+        > 2
+        for axis in ["x", "y"]
+    )
+
+
+def _get_default_fit_datasets(
+    sphotref_dr, detrending_mode, apphot_version=0, shapefit_version=0
+):
+    """
+    Return the datasets to detrend if the user did not specify any.
+
+    Args:
+        sphotref_dr(DataReductionFile):    The single photometric reference,
+            opened for reading.
+
+        detrending_mode(str):    Either ``'epd'`` or ``'tfa'``.
+
+        apphot_version(int):    The version of the aperture photometry whose
+            apertures to detrend.
+
+        shapefit_version(int):    See _shape_fit_varies().
+
+    Returns:
+        [(str, dict, str)]:
+            The same format the ``--<mode>-datasets`` argument parses to.
+    """
+
+    # EPD corrects the magnitude fitted magnitudes, TFA the EPD corrected ones.
+    source_mode = "magfit" if detrending_mode == "epd" else "epd"
+
+    num_apertures = sphotref_dr.get_num_apertures(
+        apphot_version=apphot_version
+    )
+    if not num_apertures:
+        raise ConfigurationError(
+            f"The single photometric reference {sphotref_dr.filename!r} "
+            "contains no aperture photometry, so the datasets to detrend "
+            f"cannot be determined. Set the {detrending_mode}-datasets "
+            "configuration explicitly."
+        )
+
+    specification = (
+        f"apphot.{source_mode}.magnitude -> "
+        f"apphot.{detrending_mode}.magnitude"
+        f" : aperture_index in range({num_apertures})"
+    )
+    if _shape_fit_varies(sphotref_dr, shapefit_version):
+        specification = (
+            f"shapefit.{source_mode}.magnitude -> "
+            f"shapefit.{detrending_mode}.magnitude; " + specification
+        )
+
+    _logger.info(
+        "No %s-datasets configured; detrending %s",
+        detrending_mode,
+        repr(specification),
+    )
+    return parse_fit_datasets(specification)
+
+
+def _check_fit_datasets_available(lc_fname, fit_datasets, detrending_mode):
+    """
+    Raise ConfigurationError if an input dataset is missing from a lightcurve.
+
+    Without this, a mismatch between the datasets EPD produced and the ones TFA
+    was configured to correct only surfaces deep inside the fitting, as a
+    confusing error about the lightcurve structure.
+
+    Args:
+        lc_fname(str):    The lightcurve to check.
+
+        fit_datasets([]):    See Correction.__init__().
+
+        detrending_mode(str):    Either ``'epd'`` or ``'tfa'``.
+
+    Returns:
+        None
+    """
+
+    with LightCurveFile(lc_fname, "r") as lightcurve:
+        for original_key, substitutions, _ in fit_datasets:
+            try:
+                lightcurve.check_for_dataset(original_key, **substitutions)
+            except (IOError, KeyError) as error:
+                raise ConfigurationError(
+                    f"The dataset {original_key!r} ({substitutions!r}) that "
+                    f"{detrending_mode.upper()} is configured to correct is "
+                    f"not available in {lc_fname!r}. Check that the step which "
+                    f"generates it ran with a matching "
+                    f"{detrending_mode}-datasets configuration."
+                ) from error
+
+
+def resolve_fit_datasets(configuration, detrending_mode, lc_fnames):
+    """
+    Return the datasets to detrend, filling in a default if none were set.
+
+    The relevant entry is removed from `configuration`.
+
+    Args:
+        configuration(dict):    The configuration of the detrending step. The
+            ``<mode>_datasets`` entry is consumed.
+
+        detrending_mode(str):    Either ``'epd'`` or ``'tfa'``.
+
+        lc_fnames([str]):    The lightcurves about to be corrected. The first
+            one is used to verify the datasets to correct actually exist.
+
+    Returns:
+        [(str, dict, str)]:
+            See Correction.__init__().
+    """
+
+    fit_datasets = configuration.pop(detrending_mode + "_datasets")
+
+    if fit_datasets is None:
+        sphotref_dr_fname = configuration.get("single_photref_dr_fname")
+        if sphotref_dr_fname is None:
+            raise ConfigurationError(
+                f"Neither {detrending_mode}-datasets nor "
+                "single-photref-dr-fname is configured, so the datasets to "
+                "detrend can neither be read from the configuration nor "
+                "determined from the single photometric reference."
+            )
+        with DataReductionFile(sphotref_dr_fname, "r") as sphotref_dr:
+            fit_datasets = _get_default_fit_datasets(
+                sphotref_dr, detrending_mode
+            )
+
+    if lc_fnames:
+        _check_fit_datasets_available(
+            lc_fnames[0], fit_datasets, detrending_mode
+        )
+
+    return fit_datasets
 
 
 def extract_target_lc(lc_fnames, target_id):
@@ -181,6 +350,9 @@ def calculate_detrending_performance(
     # pylint: disable=unused-argument
 
     lc_fnames = list(lc_fnames)
+    configuration["fit_datasets"] = resolve_fit_datasets(
+        configuration, detrending_mode, lc_fnames
+    )
 
     _logger.debug(
         "Generating %s performance statistics for %d light_curves",
@@ -246,7 +418,7 @@ def _generate_statistics(
 
     statistics = recalculate_correction_statistics(
         lc_fnames,
-        fit_datasets=configuration[f"{detrending_mode}_datasets"],
+        fit_datasets=configuration["fit_datasets"],
         variables=configuration["variables"],
         lc_points_filter_expression=configuration[
             "lc_points_filter_expression"

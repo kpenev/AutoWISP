@@ -10,7 +10,10 @@ from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import (
     LCDetrendingArgumentParser,
 )
-from autowisp.processing_steps.lc_detrending import detrend_light_curves
+from autowisp.processing_steps.lc_detrending import (
+    detrend_light_curves,
+    resolve_fit_datasets,
+)
 from autowisp.processing_steps.manual_util import ignore_progress
 
 
@@ -34,7 +37,10 @@ def epd(lc_collection, start_status, configuration, mark_progress):
     # ``allowed_start_status_values`` and checked there.
     # pylint: disable=unused-argument
 
-    configuration["fit_datasets"] = configuration.pop("epd_datasets")
+    lc_collection = list(lc_collection)
+    configuration["fit_datasets"] = resolve_fit_datasets(
+        configuration, "epd", lc_collection
+    )
 
     detrend_light_curves(
         lc_collection,

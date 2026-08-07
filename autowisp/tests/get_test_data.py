@@ -22,7 +22,7 @@ def download_zip(destination):
     print("Downloading test data from Zenodo ...")
     result = path.join(destination, "test_data.zip")
     req = requests.get(
-        "https://zenodo.org/records/21539385/files/test_data.zip",
+        "https://zenodo.org/records/21838572/files/test_data.zip",
         timeout=60,
     )
     if not req.ok:

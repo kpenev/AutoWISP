@@ -75,7 +75,7 @@ def _parse_substitutions(substitutions_str_iter):
             yield dict(result)
 
 
-def _parse_fit_datasets(argument):
+def parse_fit_datasets(argument):
     """Parse the fit datasets argument (see help for details)."""
 
     dset_specfication_rex = re.compile(
@@ -472,13 +472,13 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             add_lc_fname_arg=(self._mode == "tfa"),
         )
 
-        if self._mode != "epd":
-            self.add_argument(
-                "--single-photref-dr-fname",
-                default=None,
-                help="The filename of the single photometric reference DR file."
-                " Used for string substitutions of command line arguments.",
-            )
+        self.add_argument(
+            "--single-photref-dr-fname",
+            default=None,
+            help="The filename of the single photometric reference DR file."
+            " Used for string substitutions of command line arguments and to "
+            "determine the default set of datasets to detrend.",
+        )
         self.add_argument(
             "--variables",
             type=_parse_lc_variables,
@@ -517,9 +517,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         self.add_argument(
             f"--{self._mode[:3]!s}-datasets",
-            type=_parse_fit_datasets,
+            type=parse_fit_datasets,
             default=None,
-            help="A ``;`` separated list of the datasets to detrend. Each entry"
+            help="A ``;`` separated list of the datasets to detrend. If left "
+            "unspecified, every aperture found in the single photometric "
+            "reference is detrended, along with the shape fitted magnitudes if "
+            "the PSF/PRF grid used for :option:`shape-grid` has internal "
+            "splits (i.e. the shape was actually fit rather than assumed "
+            "constant accross each star). Each entry"
             " should be formatted as: ``<input-key> -> <output-key> "
             "[: <substitution> (= <value>| in <expression>) "
             "[& <substitution> (= <value> | in <expression>) ...]]``. "
