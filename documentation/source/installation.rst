@@ -75,6 +75,18 @@ page at a particular address, pass ``--hostname [<host>:]<port>``;
 otherwise a free port is picked for you.) Nothing else in this section is
 required to get going.
 
+The first time you open it, the interface offers to walk you through
+producing your first light curve, and it is worth saying yes. The
+walkthrough is built into the interface rather than written down here: it
+highlights the control to use next and says what it is for, one click at
+a time, from creating a project through to plotting a light curve at the
+end. It works on the same published test images used throughout this
+documentation, and links you to them when you need them, so you can
+follow it before you have data of your own. Your progress is remembered,
+so you can stop part way and pick it up later, and the **Tutorial**
+button on the project list starts it again whenever you want it --
+either continuing where you left off or from the beginning.
+
 **The pipeline.** This is the part that does the real work on your
 images: correcting them for the behaviour of the camera, finding the
 stars, working out where each image points, measuring how bright every
