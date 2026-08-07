@@ -6,7 +6,7 @@ import logging
 
 from autowisp.multiprocessing_util import setup_process
 from autowisp.error_context import error_context
-from autowisp.exceptions import ConfigurationError, FileKind, RelatedFile
+from autowisp.exceptions import FileKind, RelatedFile
 from autowisp.evaluator import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser
@@ -40,9 +40,11 @@ def parse_command_line(*args):
     parser.add_argument(
         "--image-type",
         default=None,
-        help="Header expression that evaluates to the image type. If it is not "
-        "one of the image types listed in the database, the image is ignored. "
-        "If not specified, the individual checks below are used instead.",
+        help="Header expression that evaluates to the type of the image, which "
+        "must be one of the image types defined for the project. Images whose "
+        "type is not one of those are rejected, unless "
+        "``--ignore-unknown-image-types`` is passed. If not specified, every "
+        "image is treated as an object frame.",
     )
     parser.add_argument(
         "--ignore-unknown-image-types",
@@ -51,16 +53,6 @@ def parse_command_line(*args):
         help="If this option is passed and an image of an unknown type is "
         "encountered it will not be added tot he database.",
     )
-    with start_db_session() as db_session:
-        for image_type in [
-            record[0] for record in db_session.query(ImageType.name).all()
-        ]:
-            parser.add_argument(
-                f"--{image_type}-check",
-                default=str(image_type == "object"),
-                help="Header expression that evaluates to True if the image is "
-                f"a {image_type} frame.",
-            )
 
     return parser.parse_args(*args)
 
@@ -81,16 +73,13 @@ def create_image(image_fname, header_eval, configuration, db_session):
                 f"(expected one of {recognized_image_types})"
             )
     else:
-        image_type = None
-        for test_image_type in recognized_image_types:
-            if header_eval(configuration[f"{test_image_type}_check"]):
-                if image_type is not None:
-                    raise ConfigurationError(
-                        f"{image_fname} satisfies both the {image_type} and "
-                        f"the {test_image_type} check, so what kind of frame "
-                        "it is cannot be decided!"
-                    )
-                image_type = test_image_type
+        # With nothing to classify by, every frame is a science frame. This
+        # preserves what the per-type ``--<type>-check`` expressions worked out
+        # in practice: ``object`` was the only one defaulting to true, and they
+        # could never be set, since they were created from the image types
+        # found in the database, which are not yet visible when a new project
+        # seeds its parameters.
+        image_type = "object"
     image_type_id = (
         db_session.query(ImageType.id).filter_by(name=image_type).one()[0]
     )
