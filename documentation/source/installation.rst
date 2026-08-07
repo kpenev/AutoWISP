@@ -4,8 +4,12 @@ Installation
 Requirements
 ------------
 
-AutoWISP is a Python program, so Python has to be on your computer before
-you can install it:
+On Windows there is a second way in that needs none of what follows --
+no Python, and nothing else to install but Docker. If that appeals, skip
+ahead to `A ready-made setup for Windows`_.
+
+Otherwise, AutoWISP is a Python program, so Python has to be on your
+computer before you can install it:
 
 * **Python 3.11 or newer** -- any newer version will do. To find out
   whether you already have it, open a terminal and run ``python3
@@ -92,6 +96,84 @@ interface. :doc:`test_data` walks through the whole sequence one command
 at a time, explaining what each stage does and which of its settings
 matter; :doc:`wisp_options` lists every setting there is.
 
+A ready-made setup for Windows
+------------------------------
+
+Everything above assumes you install AutoWISP into a Python of your own.
+On Windows there is an alternative that avoids all of it: AutoWISP is
+also published as a Docker image, ``kpenev/wisp:latest``, with AutoWISP
+and the astrometry.net solver already installed inside it, together with
+a small launcher program that configures and starts that image for you.
+The one thing you do need is `Docker Desktop
+<https://www.docker.com/products/docker-desktop/>`_, installed and
+running.
+
+.. TODO: link the Zenodo record for the launcher download here once it
+   is published, in place of the sentence below.
+
+The launcher is distributed through Zenodo, as two files which have to
+stay in the same folder as one another:
+
+``compose.yaml``
+    A description of how the container should be run: which folders on
+    your computer it is allowed to see, and which port it serves the
+    browser interface on.
+
+the launcher itself
+    A small window that fills that file in for you and starts
+    everything.
+
+Run the launcher. The first time, it notices that ``compose.yaml`` has
+not been filled in yet and asks you to choose a **storage folder** before
+letting you do anything else. This is the choice that matters: it is
+where AutoWISP will keep your images and everything derived from them,
+and it is the only part of your computer the container can see. Pick a
+disk with room on it.
+
+Choosing it fills in four more folders underneath, creating them if they
+do not exist:
+
+======================================  =====================================
+``<storage>\tmp``                       scratch space during processing
+``<storage>\BUI``                       the interface's own data and logs
+``<storage>\astrometry\narrow``         narrow-field astrometry.net indices
+``<storage>\astrometry\wide``           wide-field astrometry.net indices
+======================================  =====================================
+
+Any of these can be pointed elsewhere -- the two index folders in
+particular, if you already have index files and would rather not copy
+them. There is also a box for the port to serve on, in case something
+else on your machine is already using the one picked for you. Each
+change is written into ``compose.yaml`` as you make it, so the launcher
+can be closed and reopened without losing anything.
+
+Then press **Start AutoWISP**. A terminal window opens running ``docker
+compose up``; the launcher waits until the interface answers and then
+opens it in your browser. The first run has to download the image, so
+expect it to take a while. Leave that terminal open -- closing it stops
+AutoWISP.
+
+The **Check for Update** button stops the container and fetches the
+newest published image. It is worth pressing occasionally: it is what
+takes the place of ``pip install --upgrade autowisp``.
+
+Two consequences of running in a container are worth knowing:
+
+* AutoWISP can only reach the folders listed above. Images kept anywhere
+  else are invisible to it, so either put them under the storage folder
+  or add a folder of your own to ``compose.yaml``.
+* The astrometry.net solver comes already installed in the image, so
+  `Solving locally`_ below is simpler than it reads: there is nothing to
+  install, and all you have to do is put index files into those two
+  folders. The launcher has already told AutoWISP where they are.
+
+The launcher is built with `PyInstaller <https://pyinstaller.org/>`_ from
+``docker/compose_gui.py`` in the repository. Nothing in it is specific to
+Windows -- it is simply where this route is most useful -- so you can
+equally well run that script with Python on any machine that has Docker,
+keeping ``compose.yaml`` beside it. Note that the published image is
+built for x86-64.
+
 Installing from source
 ----------------------
 
@@ -143,6 +225,10 @@ Solving locally
 Solving on your own computer is far faster, and puts no limit on how many
 images you may solve, so it is the better choice for anything beyond a
 handful. It needs two things.
+
+(If you took the Docker route above, the first of the two is already
+done for you and the second has a folder waiting for it -- skip to **The
+reference maps**.)
 
 **The solver itself**, which your operating system can install for you:
 
