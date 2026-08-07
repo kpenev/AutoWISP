@@ -12,6 +12,7 @@ Welcome to AutoWISP's documentation!
     :caption: Contents:
 
     installation
+    bringing_your_own_data
     test_data
     wisp_options
     implementation/autowisp
