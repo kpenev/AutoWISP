@@ -14,6 +14,7 @@ Welcome to AutoWISP's documentation!
     installation
     bringing_your_own_data
     test_data
+    configuration
     wisp_options
     implementation/autowisp
 
