@@ -24,6 +24,36 @@ Not every failure stops everything. A run that comes to grief part way
 through has still recorded everything it finished, so setting processing
 going again carries on from where it stopped rather than starting over.
 
+Picking up after an interrupted run
+===================================
+
+Carrying on is not merely a matter of skipping what was finished. A run
+that stops without warning -- a crash, a power cut, a job killed by hand
+-- leaves whatever it was in the middle of half done, and a half-written
+result is worse than none, because nothing downstream can tell it apart
+from a complete one.
+
+Rather than trying to undo everything centrally, each stage is
+responsible for its own leavings. A stage says which states it can be
+caught in and which it is able to resume from, and the ones that write
+results in pieces provide a way to undo a partial attempt. When
+processing next starts, anything recorded as begun but not finished is
+handed back to the stage that began it, which clears up and reports the
+state it has left things in; that state has to be one the stage can
+resume from, and the pipeline refuses it otherwise. Aperture photometry,
+for instance, deletes the measurements it had started writing into the
+data reduction file, so the next attempt begins from a clean one.
+
+Most stages are simple in this respect: they record only that they had
+begun, so there is one state to be caught in and clearing up is
+straightforward. Building light curves is the exception worth knowing
+about, since it adds its points first and marks the files complete
+afterwards, and so can be interrupted between the two -- in which case
+the work is not thrown away, only finished off.
+
+None of this needs anything from you. It happens as processing starts,
+and the only sign is a warning in the log saying what was cleaned up.
+
 The logs
 ========
 
