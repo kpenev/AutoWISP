@@ -2,9 +2,15 @@
 Low Level Image Calibration Interface
 *************************************
 
+.. note::
+
+   A design note, describing how image calibration was intended to work
+   rather than the code as it stands. Check it against the code before
+   relying on any detail.
+
 In the first release of the pipeline all images are assumed to be in FITS format
-and only FITS images are produced. As described in the image calibration step of
-the :doc:`../processing_steps` image calibration produces two images for each
+and only FITS images are produced. As described under the image calibration
+step of the command line example, image calibration produces two images for each
 input image. Those are stored as a two-extension FITS files. The first extension
 is the calibrated image and the second extension are the error estimates for
 each pixel. While the input images can be either integer or floating point, the

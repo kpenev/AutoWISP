@@ -60,6 +60,13 @@ extensions = [
     "nbsphinx",
 ]
 
+# nbsphinx rewrites a notebook link to <page>.rst#<anchor> into
+# <page>.html#<anchor> and only then checks whether the target exists in the
+# *source* directory. Deep links from the walkthrough into the generated
+# options page therefore report a missing file even though they resolve
+# correctly in the built HTML, so this class of warning is turned off.
+suppress_warnings = ["nbsphinx.localfile"]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 

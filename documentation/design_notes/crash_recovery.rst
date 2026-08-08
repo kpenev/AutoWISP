@@ -2,6 +2,18 @@
 Crash  Recovery
 ***************
 
+.. note::
+
+   **Abandoned.** This design was never built and is kept only as a record
+   of what was considered. The ``RecoveryInformation`` table and the copies
+   of in-flight files it describes do not exist.
+
+   What the pipeline does instead is per-step cleanup: each step declares
+   the states an interrupted run can be found in, and those that leave
+   partial results behind provide a ``cleanup_interrupted`` that undoes
+   them, returning the state the step should resume from. See "Picking up
+   after an interrupted run" in the user documentation.
+
 It is imperative that the pipeline is robust against potential crashes at any
 point during processing. Here we outline the mechanism (to be) used to
 accomplish this.

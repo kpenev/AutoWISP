@@ -2,6 +2,13 @@
 GAIA Based Astrometry
 *********************
 
+.. note::
+
+   A design note, kept for the findings that motivated how source
+   extraction and astrometry ended up working. It records what was
+   established at the time rather than describing the code as it stands,
+   so check it against the code before relying on any detail.
+
 Querying the GAIA Catalogue
 ===========================
 
