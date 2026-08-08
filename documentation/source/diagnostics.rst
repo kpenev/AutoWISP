@@ -316,10 +316,37 @@ Looking at them
 Getting there
 -------------
 
-The way in is the processing progress page. Each stage has a progress bar
-per image type and channel, and those bars are links: clicking one opens
-the diagnostics for that stage. Hovering first shows you what you are
-about to get -- "Review astrometry diagnostics", and so on.
+The way in is the processing progress page, which is more of a hub than
+its name suggests: most of what you can see on that table is a link, and
+hovering over any of them says where it goes.
+
+Each row is a stage, and the three parts of it lead to three different
+places:
+
+**The name of the stage** opens its configuration -- the settings that
+stage uses, with the editor already narrowed to them. Convenient, but
+remember from :doc:`configuration` that narrowing the editor does not
+narrow the effect: many settings are shared, and changing one there
+changes it for every stage that uses it.
+
+**The image type beside it** depends on the stage and its state:
+
+* if the stage has recorded errors, it turns red with a warning sign and
+  goes to those errors;
+* otherwise, for finding stars, it opens the sandbox for tuning source
+  extraction, where thresholds can be tried against real frames instead
+  of guessed at;
+* otherwise, for magnitude fitting, it opens the page for choosing the
+  photometric reference -- the frame everything else is calibrated
+  against, and the one place diagnostics are used to make a decision
+  rather than to inform one;
+* for every other stage it is plain text and goes nowhere.
+
+Errors take precedence, so a red cell where you expected the tuning
+sandbox means there are failures to deal with first.
+
+**The progress bars**, one per image type and channel, open the
+diagnostics for that stage -- "Review astrometry diagnostics", and so on.
 
 Each stage lands you on the diagnostic that is usually the most telling
 for it, which is as good a hint as any about which to look at first:
