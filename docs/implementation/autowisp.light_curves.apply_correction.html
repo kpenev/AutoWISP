@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,24 +148,51 @@
 <span id="autowisp-light-curves-apply-correction-module"></span><h1>autowisp.light_curves.apply_correction module<a class="headerlink" href="#module-autowisp.light_curves.apply_correction" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-75950345935cca2ff3e1f03f32a5862b65ae1893.png" alt="Inheritance diagram of DataReductionFile, EPDCorrection, LightCurveFile, ReconstructiveCorrectionTransit" usemap="#inheritance7366116487" class="inheritance graphviz" /></div>
-<map id="inheritance7366116487" name="inheritance7366116487">
+<div class="graphviz"><img src="../_images/inheritance-548fa15ed9706fb3047509e4116e87896e5a5bcb.png" alt="Inheritance diagram of DataReductionFile, EPDCorrection, FileKind, LightCurveFile, ReconstructiveCorrectionTransit, RelatedFile, partial" usemap="#inheritanceb6a7f8036e" class="inheritance graphviz" /></div>
+<map id="inheritanceb6a7f8036e" name="inheritanceb6a7f8036e">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
 <area shape="rect" id="node4" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
 <area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
 <area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node8" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
-<area shape="rect" id="node6" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="975,5,1247,32"/>
-<area shape="rect" id="node7" href="autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="947,80,1275,107"/>
-<area shape="rect" id="node9" href="autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit" target="_top" title="Class for corrections that protect known or suspected transit signals." alt="" coords="1272,5,1804,32"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="596,80,767,107"/>
-<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="601,155,762,181"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="434,5,580,32"/>
-<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="604,5,759,32"/>
-<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="783,5,951,32"/>
-<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="467,229,675,256"/>
+<area shape="rect" id="node11" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="975,5,1066,32"/>
+<area shape="rect" id="node9" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" target="_top" title="Functionality and interface shared by all LC de&#45;trending corrections." alt="" coords="1324,5,1596,32"/>
+<area shape="rect" id="node10" href="autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection" target="_top" title="Class for deriving and applying EPD corrections to lightcurves." alt="" coords="1296,80,1624,107"/>
+<area shape="rect" id="node12" href="autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit" target="_top" title="Class for corrections that protect known or suspected transit signals." alt="" coords="1621,5,2153,32"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="596,80,767,107"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="601,155,762,181"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="434,5,580,32"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="604,5,759,32"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="783,5,951,32"/>
+<area shape="rect" id="node18" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="467,229,675,256"/>
 </map><p>Unified interface to the detrending algorithms.</p>
 </section>
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.light_curves.apply_correction._detrending_related_files">
+<span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">_detrending_related_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_photref_dr_fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#_detrending_related_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction._detrending_related_files" title="Link to this definition"></a></dt>
+<dd><p>Related files for a detrending work item: the LC + its photref.</p>
+<p>Module-level (so a <code class="docutils literal notranslate"><span class="pre">partial</span></code> of it is picklable to the workers) and
+passed as the <code class="docutils literal notranslate"><span class="pre">run_pool</span></code> <code class="docutils literal notranslate"><span class="pre">related_files</span></code> classifier, so any error –
+a config-vs-LC mismatch or a silent crash – carries both the light
+curve being corrected and the single photometric reference the whole
+batch is detrended against.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lc_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The light curve work item.</p></li>
+<li><p><strong>single_photref_dr_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>None</em>) – The batch’s single
+photometric reference DR file, if configured.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">RelatedFile</span></code> entries for this item.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.apply_parallel_correction">
 <span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">apply_parallel_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_parallel_processes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#apply_parallel_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.apply_parallel_correction" title="Link to this definition"></a></dt>
@@ -153,11 +200,11 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lc_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – The filenames of the light curves to correct.</p></li>
+<li><p><strong>lc_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The filenames of the light curves to correct.</p></li>
 <li><p><strong>correct</strong> (<a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" title="autowisp.light_curves.correction.Correction"><em>Correction</em></a>) – The underlying correction to apply in parallel.</p></li>
-<li><p><strong>num_parallel_processes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The maximum number of parallel processes
+<li><p><strong>num_parallel_processes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of parallel processes
 to use.</p></li>
-<li><p><strong>statistics_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Filename to use for saving the statistics.</p></li>
+<li><p><strong>statistics_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Filename to use for saving the statistics.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -172,7 +219,7 @@ lc_fnames.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.apply_reconstructive_correction_transit">
-<span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">apply_reconstructive_correction_transit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">transit_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transit_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_parameter_flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_limbdark_coef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#apply_reconstructive_correction_transit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.apply_reconstructive_correction_transit" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">apply_reconstructive_correction_transit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lc_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transit_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transit_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_parameter_flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_limbdark_coef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#apply_reconstructive_correction_transit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.apply_reconstructive_correction_transit" title="Link to this definition"></a></dt>
 <dd><p>Perform a reconstructive correction on a LC assuming it contains a transit.</p>
 <p>The corrected lightcurve, preserving the best-fit transit is saved in the
 lightcurve just like for non-reconstructive corrections.</p>
@@ -186,7 +233,7 @@ required by the transit model’s evaluate() method.</p></li>
 <li><p><strong>fit_parameter_flags</strong> (<em>scipy bool array</em>) – Flags indicating parameters
 whose values should be fit for (by having a corresponding entry of
 True). Must match exactly the shape of transit_parameters.</p></li>
-<li><p><strong>num_limbdark_coef</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – How many of the transit parameters are limb
+<li><p><strong>num_limbdark_coef</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – How many of the transit parameters are limb
 darkening coefficinets? Those need to be passed to the model
 separately.</p></li>
 <li><p><strong>correct</strong> (<a class="reference internal" href="autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction" title="autowisp.light_curves.correction.Correction"><em>Correction</em></a>) – Instance of one of the correction algarithms to
@@ -209,7 +256,7 @@ the best-fit transit parameters.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.calculate_iterative_rejection_scatter">
-<span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">calculate_iterative_rejection_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_average</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_scatter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_outlier_rejections</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#calculate_iterative_rejection_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.calculate_iterative_rejection_scatter" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">calculate_iterative_rejection_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_average</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_scatter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_outlier_rejections</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#calculate_iterative_rejection_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.calculate_iterative_rejection_scatter" title="Link to this definition"></a></dt>
 <dd><p>Calculate the scatter for a dataset, with outlier rejectio iterations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -220,11 +267,11 @@ the data aroung which the scatter will be calculated.</p></li>
 <li><p><strong>calculate_scatter</strong> (<em>callable</em>) – The scatter is defined as the square
 root of whatever get_scatter calculates from the square deviations
 of the data from the average.</p></li>
-<li><p><strong>outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – In units of the scatter, how far away
+<li><p><strong>outlier_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – In units of the scatter, how far away
 should a point be from the average to be considered an outlier.</p></li>
-<li><p><strong>max_outlier_rejections</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The maximum number of iterations between
+<li><p><strong>max_outlier_rejections</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum number of iterations between
 outlier rejection and re-calculating the scatter to perform.</p></li>
-<li><p><strong>return_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should the average of the poinst also be
+<li><p><strong>return_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the average of the poinst also be
 returned?</p></li>
 </ul>
 </dd>
@@ -233,7 +280,7 @@ returned?</p></li>
 last scatter calculation.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -242,12 +289,8 @@ last scatter calculation.</p>
 <dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.load_correction_statistics">
 <span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">load_correction_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#load_correction_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.load_correction_statistics" title="Link to this definition"></a></dt>
 <dd><p>Read a previously stored statistics from a file.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.pool_init">
-<span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">pool_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#pool_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.pool_init" title="Link to this definition"></a></dt>
-<dd><p>Setup pool process.</p>
+<p>The returned array is sorted by <code class="docutils literal notranslate"><span class="pre">ID</span></code> regardless of the row order
+on disk; see <a class="reference internal" href="#autowisp.light_curves.apply_correction.save_correction_statistics" title="autowisp.light_curves.apply_correction.save_correction_statistics"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_correction_statistics()</span></code></a> for the motivation.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -257,7 +300,7 @@ last scatter calculation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lc_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – The filenames of the light curves that were
+<li><p><strong>lc_fnames</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – The filenames of the light curves that were
 corrected.</p></li>
 <li><p><strong>fit_datasets</strong> – See Correction.__init__().</p></li>
 <li><p><strong>extra_predictors</strong> – See EPDCorrection.__init__().</p></li>
@@ -275,6 +318,13 @@ calculate_iterative_rejection_scatter().</p></li>
 <dt class="sig sig-object py" id="autowisp.light_curves.apply_correction.save_correction_statistics">
 <span class="sig-prename descclassname"><span class="pre">autowisp.light_curves.apply_correction.</span></span><span class="sig-name descname"><span class="pre">save_correction_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">correction_statistics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/light_curves/apply_correction.html#save_correction_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.light_curves.apply_correction.save_correction_statistics" title="Link to this definition"></a></dt>
 <dd><p>Save the given statistics (result of apply_parallel_correction).</p>
+<p>Rows are written sorted by <code class="docutils literal notranslate"><span class="pre">ID</span></code> so the on-disk order is
+independent of the order in which the parallel correction returned
+the lightcurves. Downstream consumers (notably TFA template
+selection) therefore see the same source ordering regardless of
+whether the upstream EPD ran via <code class="docutils literal notranslate"><span class="pre">wisp-epd</span></code> or <code class="docutils literal notranslate"><span class="pre">run_pipeline</span></code>,
+which keeps the QR decomposition of the template matrix bit-for-bit
+identical between the two paths.</p>
 </dd></dl>
 
 </section>

@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,46 +148,47 @@
 <span id="autowisp-processing-steps-manual-util-module"></span><h1>autowisp.processing_steps.manual_util module<a class="headerlink" href="#module-autowisp.processing_steps.manual_util" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-2c17976569742070a262af19e2a355de306ff730.png" alt="Inheritance diagram of ArgumentParser, DefaultsFormatter, ManualStepArgumentParser" usemap="#inheritance755be013df" class="inheritance graphviz" /></div>
-<map id="inheritance755be013df" name="inheritance755be013df">
+<div class="graphviz"><img src="../_images/inheritance-a374a255686d5f0b39cd4059764cdf533f042300.png" alt="Inheritance diagram of ArgumentParser, ConfigurationError, DefaultsFormatter, ManualStepArgumentParser, WISPGaia" usemap="#inheritance379d919fe4" class="inheritance graphviz" /></div>
+<map id="inheritance379d919fe4" name="inheritance379d919fe4">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="5,80,269,107"/>
 <area shape="rect" id="node3" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="310,5,479,32"/>
-<area shape="rect" id="node4" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="186,155,602,181"/>
+<area shape="rect" id="node7" href="autowisp.catalog.html#autowisp.catalog.WISPGaia" target="_top" title="Extend queries with condition and sorting." alt="" coords="635,229,820,256"/>
+<area shape="rect" id="node11" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="186,155,602,181"/>
 </map><p>Collection of functions used by many processing steps.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ManualStepArgumentParser">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">ManualStepArgumentParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_component_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_photref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs_help_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_parallel_processing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lc_fname_arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_exposure_timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_io</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">ManualStepArgumentParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_component_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_photref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs_help_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_parallel_processing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lc_fname_arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_exposure_timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_provenance_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_io</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ArgumentParser</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-0edb1bfd4c8d576d4ce65aefa9f9d2f753288651.png" alt="Inheritance diagram of autowisp.processing_steps.manual_util.ManualStepArgumentParser" usemap="#inheritance457570dd78" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-565df242336189cbc50d6296374ff44244054095.png" alt="Inheritance diagram of autowisp.processing_steps.manual_util.ManualStepArgumentParser" usemap="#inheritance457570dd78" class="inheritance graphviz" /></div>
 <map id="inheritance457570dd78" name="inheritance457570dd78">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="129,5,298,32"/>
 <area shape="rect" id="node2" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="5,155,422,181"/>
 </map><p>Incorporate boiler plate handling of command line arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ManualStepArgumentParser.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_component_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_photref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs_help_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_parallel_processing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lc_fname_arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_exposure_timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_io</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_component_versions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_catalog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_photref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs_help_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_parallel_processing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_lc_fname_arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_exposure_timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_provenance_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_io</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize the praser with options common to all manual steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – What kind of files does the step process.
+<li><p><strong>input_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – What kind of files does the step process.
 Possible values are <code class="docutils literal notranslate"><span class="pre">'raw'</span></code>, <code class="docutils literal notranslate"><span class="pre">'calibrated'</span></code>, <code class="docutils literal notranslate"><span class="pre">'dr'</span></code>,
 or <code class="docutils literal notranslate"><span class="pre">'calibrated</span> <span class="pre">+</span> <span class="pre">dr'</span></code>.</p></li>
-<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The description of the processing step to add
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The description of the processing step to add
 to the help message.</p></li>
 <li><p><strong>add_component_versions</strong> (<em>str iterable</em>) – A list of DR file version
 numbers the step needs to know. For example <code class="docutils literal notranslate"><span class="pre">('srcextract',)</span></code>.</p></li>
-<li><p><strong>add_catalog</strong> (<em>False</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Whether to add an arguments to
+<li><p><strong>add_catalog</strong> (<em>False</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Whether to add an arguments to
 specify a catalog query. If not False should specify defaults
 for some or all of the option values and a prefix for the
 option names.</p></li>
-<li><p><strong>inputs_help_extra</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Additional text to append to the help
+<li><p><strong>inputs_help_extra</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Additional text to append to the help
 string for the input files. Usually describing what requirements
 they must satisfy.</p></li>
-<li><p><strong>allow_parallel_processing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should an argument be added to
+<li><p><strong>allow_parallel_processing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should an argument be added to
 specify the number of paralllel processes to use.</p></li>
-<li><p><strong>convert_to_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to return the parsed configuration
+<li><p><strong>convert_to_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to return the parsed configuration
 as a dictionary (True) or attributes of a namespace (False).</p></li>
 </ul>
 </dd>
@@ -190,6 +211,20 @@ as a dictionary (True) or attributes of a namespace (False).</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_provenance_args">
+<span class="sig-name descname"><span class="pre">_add_provenance_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser._add_provenance_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_provenance_args" title="Link to this definition"></a></dt>
+<dd><p>Add provenance flags mirroring <code class="docutils literal notranslate"><span class="pre">wisp-add-images-to-db</span></code>.</p>
+<p>These let a manual step resolve a FITS header to the survey-database
+rows (<code class="docutils literal notranslate"><span class="pre">Camera</span></code>, <code class="docutils literal notranslate"><span class="pre">Telescope</span></code>, <code class="docutils literal notranslate"><span class="pre">Mount</span></code>, <code class="docutils literal notranslate"><span class="pre">Observatory</span></code>, <code class="docutils literal notranslate"><span class="pre">Observer</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Target</span></code>) via
+<code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.provenance_resolver.get_or_create_observing_session()</span></code>,
+so that the <code class="docutils literal notranslate"><span class="pre">/Provenance</span></code> group can be written to the DR file
+without requiring <code class="docutils literal notranslate"><span class="pre">wisp-add-images-to-db</span></code> to have been run.</p>
+<p>Flag names and defaults intentionally mirror
+<code class="docutils literal notranslate"><span class="pre">wisp-add-images-to-db</span></code> so a shared config file works for both.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_version_args">
 <span class="sig-name descname"><span class="pre">_add_version_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser._add_version_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_version_args" title="Link to this definition"></a></dt>
 <dd><p>Add arguments to select versions of the given components.</p>
@@ -199,6 +234,28 @@ as a dictionary (True) or attributes of a namespace (False).</p></li>
 <dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ManualStepArgumentParser.add_argument">
 <span class="sig-name descname"><span class="pre">add_argument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser.add_argument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser.add_argument" title="Link to this definition"></a></dt>
 <dd><p>Store each argument’s description in self.argument_descriptions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ManualStepArgumentParser.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ManualStepArgumentParser.error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ManualStepArgumentParser.error" title="Link to this definition"></a></dt>
+<dd><p>Report a parse error, honouring <a class="reference internal" href="#autowisp.processing_steps.manual_util.raise_config_parse_errors" title="autowisp.processing_steps.manual_util.raise_config_parse_errors"><code class="xref py py-func docutils literal notranslate"><span class="pre">raise_config_parse_errors()</span></code></a>.</p>
+<p>argparse’s default reports a bad value by printing usage to stderr
+and calling <code class="docutils literal notranslate"><span class="pre">sys.exit(2)</span></code>. During pipeline config generation that
+<code class="docutils literal notranslate"><span class="pre">SystemExit</span></code> would escape the error-handling machinery (it is a
+<code class="docutils literal notranslate"><span class="pre">BaseException</span></code>, not caught by <code class="docutils literal notranslate"><span class="pre">capture_errors</span></code> /
+<code class="docutils literal notranslate"><span class="pre">run_pipeline.main</span></code>) and silently end a detached run, so there we
+raise a recordable <code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurationError</span></code>
+instead. Interactive CLI parsing keeps argparse’s helpful
+usage-and-exit behaviour.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The argparse-formatted error description.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -216,15 +273,50 @@ as a dictionary (True) or attributes of a namespace (False).</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.get_catalog_config">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">get_catalog_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmdline_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#get_catalog_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.get_catalog_config" title="Link to this definition"></a></dt>
-<dd><p>Return the configuration for querrying a catalog per command line.</p>
+<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ignore_progress">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">ignore_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ignore_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ignore_progress" title="Link to this definition"></a></dt>
+<dd><p>Dummy function to replace progress tracking of auto processing.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.ignore_progress">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">ignore_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#ignore_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.ignore_progress" title="Link to this definition"></a></dt>
-<dd><p>Dummy function to replace progress tracking of auto processing.</p>
+<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.parse_iers_max_age">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">parse_iers_max_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#parse_iers_max_age"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.parse_iers_max_age" title="Link to this definition"></a></dt>
+<dd><p>Parse the <code class="docutils literal notranslate"><span class="pre">--iers-auto-max-age</span></code> value into what astropy expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – The command line value: a number of days, or one of
+<code class="docutils literal notranslate"><span class="pre">none</span></code>/<code class="docutils literal notranslate"><span class="pre">off</span></code>/<code class="docutils literal notranslate"><span class="pre">disable</span></code> (case insensitive) to switch off the
+staleness check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The maximum age in days, or <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable the</dt><dd><p>check (and hence the automatic IERS download) entirely. A
+non-positive number is also treated as <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.manual_util.raise_config_parse_errors">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.manual_util.</span></span><span class="sig-name descname"><span class="pre">raise_config_parse_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/manual_util.html#raise_config_parse_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.manual_util.raise_config_parse_errors" title="Link to this definition"></a></dt>
+<dd><p>Make <code class="docutils literal notranslate"><span class="pre">ManualStepArgumentParser</span></code> raise on bad input, not exit.</p>
+<p>Use around programmatic parsing of stored configuration, where there
+is no interactive user to read an argparse usage message and the
+process may be a detached pipeline run. A parse failure then becomes a
+catchable, recordable
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurationError</span></code> instead of
+<code class="docutils literal notranslate"><span class="pre">SystemExit</span></code>. Nestable; restores the previous mode on exit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

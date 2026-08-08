@@ -1,0 +1,12 @@
+<map id="inheritance39d073bf75" name="inheritance39d073bf75">
+<area shape="rect" id="node1" title="create an asteval Interpreter: a restricted, simplified interpreter" alt="" coords="5,5,178,32"/>
+<area shape="rect" id="node2" title="Test case involving floating point comparisons." alt="" coords="157,80,402,107"/>
+<area shape="rect" id="node4" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="165,155,394,181"/>
+<area shape="rect" id="node3" title="A class whose instances are single test cases." alt="" coords="201,5,358,32"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="548,80,718,107"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" target="_top" title="All the operations on a read&#45;only sequence." alt="" coords="645,155,815,181"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="382,5,527,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="748,5,904,32"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Reversible" target="_top" title="collections.abc.Reversible" alt="" coords="742,80,916,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="551,5,720,32"/>
+</map>

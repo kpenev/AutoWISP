@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -123,10 +143,10 @@
 <span></span><span class="sd">&quot;&quot;&quot;Implement shared argument parsing for LC detrending processing steps.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">asteval</span><span class="w"> </span><span class="kn">import</span> <span class="n">Interpreter</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManualStepArgumentParser</span>
 
 
@@ -191,13 +211,16 @@
         <span class="sa">r</span><span class="s2">&quot;^(?P&lt;key&gt;\w+)\s*(?P&lt;type&gt;(=|in))\s*(?P&lt;value&gt;\S.*)$&quot;</span>
     <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">parsed_substitution</span> <span class="o">=</span> <span class="n">substitution_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
-            <span class="nb">next</span><span class="p">(</span><span class="n">substitutions_str_iter</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">substitution_str</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">substitutions_str_iter</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
         <span class="k">yield</span> <span class="p">{}</span>
         <span class="k">return</span>
-    <span class="k">assert</span> <span class="n">parsed_substitution</span>
+    <span class="n">parsed_substitution</span> <span class="o">=</span> <span class="n">substitution_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">substitution_str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed_substitution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot make sense of </span><span class="si">{</span><span class="n">substitution_str</span><span class="si">!r}</span><span class="s2"> as a substitution: &quot;</span>
+            <span class="s2">&quot;expected ``&lt;name&gt; = &lt;value&gt;`` or ``&lt;name&gt; in &lt;expression&gt;``!&quot;</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">parsed_substitution</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;in&quot;</span><span class="p">:</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">Interpreter</span><span class="p">()(</span><span class="n">parsed_substitution</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
@@ -209,9 +232,9 @@
 
 
 
-<div class="viewcode-block" id="_parse_fit_datasets">
-<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._parse_fit_datasets">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_parse_fit_datasets</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_fit_datasets">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.parse_fit_datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_fit_datasets</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the fit datasets argument (see help for details).&quot;&quot;&quot;</span>
 
     <span class="n">dset_specfication_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
@@ -226,7 +249,13 @@
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">specification</span> <span class="ow">in</span> <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">):</span>
         <span class="n">parsed_dset</span> <span class="o">=</span> <span class="n">dset_specfication_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">parsed_dset</span>
+        <span class="k">if</span> <span class="n">parsed_dset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot make sense of </span><span class="si">{</span><span class="n">specification</span><span class="si">!r}</span><span class="s2"> as a dataset to &quot;</span>
+                <span class="s2">&quot;detrend: expected ``&lt;input key&gt; -&gt; &lt;output key&gt;`` optionally &quot;</span>
+                <span class="s2">&quot;followed by ``: &lt;name&gt; = &lt;value&gt;`` substitutions joined by &quot;</span>
+                <span class="s2">&quot;``&amp;``!&quot;</span>
+            <span class="p">)</span>
         <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="p">(</span>
@@ -260,13 +289,24 @@
     <span class="k">for</span> <span class="n">specification</span> <span class="ow">in</span> <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parsing: </span><span class="si">{</span><span class="n">specification</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="n">parsed_var</span> <span class="o">=</span> <span class="n">var_specfication_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">parsed_var</span>
+        <span class="k">if</span> <span class="n">parsed_var</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot make sense of </span><span class="si">{</span><span class="n">specification</span><span class="si">!r}</span><span class="s2"> as a lightcurve &quot;</span>
+                <span class="s2">&quot;variable: expected ``&lt;name&gt; = &lt;dataset key&gt;`` optionally &quot;</span>
+                <span class="s2">&quot;followed by ``: &lt;name&gt; = &lt;value&gt;`` substitutions joined by &quot;</span>
+                <span class="s2">&quot;``&amp;``!&quot;</span>
+            <span class="p">)</span>
         <span class="n">substitutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
             <span class="n">_parse_substitutions</span><span class="p">(</span>
                 <span class="n">_split_delimited_string</span><span class="p">(</span><span class="n">parsed_var</span><span class="p">[</span><span class="s2">&quot;substitutions&quot;</span><span class="p">],</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The substitutions in </span><span class="si">{</span><span class="n">specification</span><span class="si">!r}</span><span class="s2"> select &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span><span class="si">}</span><span class="s2"> datasets, but a lightcurve variable &quot;</span>
+                <span class="s2">&quot;must name exactly one; use ``=`` rather than ``in``!&quot;</span>
+            <span class="p">)</span>
         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span><span class="n">parsed_var</span><span class="p">[</span><span class="s2">&quot;varname&quot;</span><span class="p">],</span> <span class="p">(</span><span class="n">parsed_var</span><span class="p">[</span><span class="s2">&quot;dset&quot;</span><span class="p">],</span> <span class="n">substitutions</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="p">)</span>
@@ -282,7 +322,7 @@
 <div class="viewcode-block" id="LCDetrendingArgumentParser.add_transit_parameters">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_transit_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_transit_parameters</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="n">parser</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">timing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -318,7 +358,10 @@
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="p">(</span><span class="ow">not</span> <span class="n">geometry</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">geometry</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;circular&quot;</span><span class="p">,</span> <span class="s2">&quot;eccentric&quot;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="ow">not</span> <span class="n">geometry</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">geometry</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;circular&quot;</span><span class="p">,</span> <span class="s2">&quot;eccentric&quot;</span><span class="p">]),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Transit parameters requested for unknown geometry </span><span class="si">{</span><span class="n">geometry</span><span class="si">!r}</span><span class="s2">; &quot;</span>
+            <span class="s2">&quot;only &#39;circular&#39; and &#39;eccentric&#39; orbits are described!&quot;</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
             <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -484,7 +527,8 @@
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stars are not allowed to be in the template if their RMS is &quot;</span>
             <span class="s2">&quot;more than this many sigma away from the mag-rms fit. This is also &quot;</span>
             <span class="s2">&quot;the threshold used for rejecting outliers when doing the iterative&quot;</span>
-            <span class="s2">&quot; fit for the rms as a function of magnutude. Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot; fit for the rms as a function of magnitude.&quot;</span>
+            <span class="s2">&quot; Default: </span><span class="si">%(default)s</span><span class="s2">.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--tfa-mag-rms-max-rej-iter&quot;</span><span class="p">,</span>
@@ -551,7 +595,7 @@
         <span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--epd-statistics-fname&quot;</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;epd_statistics.txt&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{PROJHOME}</span><span class="s2">/MASTERS/epd_statistics.txt&quot;</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The statistics filename for the results of the EPD fit. &quot;</span>
             <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -576,7 +620,7 @@
 
 <div class="viewcode-block" id="LCDetrendingArgumentParser.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
@@ -604,13 +648,13 @@
             <span class="n">add_lc_fname_arg</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;tfa&quot;</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">!=</span> <span class="s2">&quot;epd&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-                <span class="s2">&quot;--single-photref-dr-fname&quot;</span><span class="p">,</span>
-                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The filename of the single photometric reference DR file.&quot;</span>
-                <span class="s2">&quot; Used for string substitutions of command line arguments.&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--single-photref-dr-fname&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The filename of the single photometric reference DR file.&quot;</span>
+            <span class="s2">&quot; Used for string substitutions of command line arguments and to &quot;</span>
+            <span class="s2">&quot;determine the default set of datasets to detrend.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--variables&quot;</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">_parse_lc_variables</span><span class="p">,</span>
@@ -618,18 +662,14 @@
                 <span class="s2">&quot;sphotref = apphot.magfit.cfg.single_photref : &quot;</span>
                 <span class="s2">&quot;aperture_index = 0&quot;</span>
                 <span class="o">+</span> <span class="p">(</span>
-                    <span class="p">(</span>
-                        <span class="s2">&quot;; x = srcproj.columns : &quot;</span>
-                        <span class="s2">&quot;srcproj_column_name = &#39;x&#39; &amp; srcproj_version = 0; &quot;</span>
-                        <span class="s2">&quot;y = srcproj.columns : &quot;</span>
-                        <span class="s2">&quot;srcproj_column_name = &#39;y&#39; &amp; srcproj_version = 0; &quot;</span>
-                        <span class="s2">&quot;bg = bg.value; &quot;</span>
-                        <span class="s2">&quot;z = skypos.zenith_distance; &quot;</span>
-                        <span class="s2">&quot;S = srcextract.psf_map.eval: &quot;</span>
-                        <span class="s2">&quot;srcextract_psf_param = &#39;s&#39;&quot;</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;epd&quot;</span>
-                    <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                    <span class="s2">&quot;; x = srcproj.columns : &quot;</span>
+                    <span class="s2">&quot;srcproj_column_name = &#39;x&#39; &amp; srcproj_version = 0; &quot;</span>
+                    <span class="s2">&quot;y = srcproj.columns : &quot;</span>
+                    <span class="s2">&quot;srcproj_column_name = &#39;y&#39; &amp; srcproj_version = 0; &quot;</span>
+                    <span class="s2">&quot;bg = bg.value; &quot;</span>
+                    <span class="s2">&quot;z = skypos.zenith_distance; &quot;</span>
+                    <span class="s2">&quot;S = srcextract.psf_map.eval: &quot;</span>
+                    <span class="s2">&quot;srcextract_psf_param = &#39;s&#39;&quot;</span>
                 <span class="p">)</span>
             <span class="p">),</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Define variables&quot;</span>
@@ -653,9 +693,14 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">!s}</span><span class="s2">-datasets&quot;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="n">_parse_fit_datasets</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">parse_fit_datasets</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A ``;`` separated list of the datasets to detrend. Each entry&quot;</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A ``;`` separated list of the datasets to detrend. If left &quot;</span>
+            <span class="s2">&quot;unspecified, every aperture found in the single photometric &quot;</span>
+            <span class="s2">&quot;reference is detrended, along with the shape fitted magnitudes if &quot;</span>
+            <span class="s2">&quot;the PSF/PRF grid used for :option:`shape-grid` has internal &quot;</span>
+            <span class="s2">&quot;splits (i.e. the shape was actually fit rather than assumed &quot;</span>
+            <span class="s2">&quot;constant accross each star). Each entry&quot;</span>
             <span class="s2">&quot; should be formatted as: ``&lt;input-key&gt; -&gt; &lt;output-key&gt; &quot;</span>
             <span class="s2">&quot;[: &lt;substitution&gt; (= &lt;value&gt;| in &lt;expression&gt;) &quot;</span>
             <span class="s2">&quot;[&amp; &lt;substitution&gt; (= &lt;value&gt; | in &lt;expression&gt;) ...]]``. &quot;</span>
@@ -690,7 +735,8 @@
             <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How far away from the fit should a point be before &quot;</span>
-            <span class="s2">&quot;it is rejected in units of detrend_error_avg. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;it is rejected in units of detrend_error_avg.&quot;</span>
+            <span class="s2">&quot; Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--detrend-max-rej-iter&quot;</span><span class="p">,</span>
@@ -699,6 +745,17 @@
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The maximum number of rejection/re-fitting iterations to &quot;</span>
             <span class="s2">&quot;perform. If the fit has not converged by then, the latest &quot;</span>
             <span class="s2">&quot;iteration is accepted. Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--detrend-reject-scale-floor&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Floor on the residual scale (in the units of the fitted &quot;</span>
+            <span class="s2">&quot;quantity) used for outlier rejection. Without it, a (near-)perfect &quot;</span>
+            <span class="s2">&quot;fit has a residual ~0, collapsing the rejection threshold to ~0 so &quot;</span>
+            <span class="s2">&quot;that points get rejected on floating-point noise -- which can, &quot;</span>
+            <span class="s2">&quot;platform-dependently, reject enough points to fail the fit. &quot;</span>
+            <span class="s2">&quot;Default: </span><span class="si">%(default)s</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">add_reconstructive</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -731,7 +788,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;stat&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">-statistics-fname&quot;</span><span class="p">,</span>
-                <span class="n">default</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_statistics.txt&quot;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">PROJHOME</span><span class="se">}}</span><span class="s2">/MASTER/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_statistics.txt&quot;</span><span class="p">,</span>
                 <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The statistics filename for the results of the &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> fit.&quot;</span><span class="p">,</span>
             <span class="p">)</span>

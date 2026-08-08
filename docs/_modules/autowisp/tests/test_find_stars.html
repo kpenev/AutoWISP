@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -123,14 +143,21 @@
   <h1>Source code for autowisp.tests.test_find_stars</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Unit tests for the find_stars step.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.h5_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5TestCase</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FindStarsError</span><span class="p">,</span> <span class="n">NoSourcesFoundError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.find_stars</span><span class="w"> </span><span class="kn">import</span> <span class="n">fail_reasons</span><span class="p">,</span> <span class="n">find_stars_single</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.tests.h5_test_case</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRTestCase</span>
 
 
 <div class="viewcode-block" id="TestFindStars">
 <a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TestFindStars</span><span class="p">(</span><span class="n">H5TestCase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFindStars</span><span class="p">(</span><span class="n">DRTestCase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests of the find_stars step.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestFindStars.test_find_stars">
@@ -141,10 +168,102 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">run_step_test</span><span class="p">(</span>
             <span class="s2">&quot;find_stars&quot;</span><span class="p">,</span>
             <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;CAL&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">[</span><span class="s2">&quot;SourceExtraction/Version000/Sources&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">&quot;SourceExtraction/Version000/Sources&quot;</span><span class="p">,</span> <span class="s2">&quot;Provenance&quot;</span><span class="p">,</span> <span class="s2">&quot;FITSHeader&quot;</span><span class="p">],</span>
         <span class="p">)</span></div>
 </div>
 
+
+
+<div class="viewcode-block" id="TestStarlessFrameHandling">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestStarlessFrameHandling</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A starless frame must fail on its own, not take the batch down.</span>
+
+<span class="sd">    A frame that is clouded over or badly defocused yields no extracted</span>
+<span class="sd">    sources. That is a property of the frame, not a pipeline fault, so</span>
+<span class="sd">    ``find_stars_single`` records it as a failed frame and returns;</span>
+<span class="sd">    every *other* find_stars failure still propagates and stops the run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TestStarlessFrameHandling.setUp">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.setUp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record ``mark_start`` / ``mark_end`` calls in ``self.calls``.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="TestStarlessFrameHandling._mark_start">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mark_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stand-in for the manager&#39;s progress-start callback.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestStarlessFrameHandling._mark_end">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_end">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mark_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stand-in for the manager&#39;s progress-end callback.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">input_fname</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestStarlessFrameHandling._run_with_extractor">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._run_with_extractor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_with_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">extractor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run ``find_stars_single`` on a throwaway frame with ``extractor``.&quot;&quot;&quot;</span>
+
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s2">&quot;frame.fits&quot;</span><span class="p">)</span>
+        <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)))</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">find_stars_single</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">extractor</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame</span></div>
+
+
+<div class="viewcode-block" id="TestStarlessFrameHandling.test_no_sources_marks_frame_failed">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_no_sources_marks_frame_failed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_sources_marks_frame_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``NoSourcesFoundError`` is recorded as a failure, not re-raised.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">extract_nothing</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Stand in for a source finder that extracts nothing.&quot;&quot;&quot;</span>
+
+            <span class="k">raise</span> <span class="n">NoSourcesFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no sources in </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_with_extractor</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">extract_nothing</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="p">{}),</span>
+                <span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;no sources extracted&quot;</span><span class="p">],</span> <span class="p">{}),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertLess</span><span class="p">(</span><span class="n">fail_reasons</span><span class="p">[</span><span class="s2">&quot;no sources extracted&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestStarlessFrameHandling.test_other_failures_still_propagate">
+<a class="viewcode-back" href="../../../implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_other_failures_still_propagate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_other_failures_still_propagate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Any other find_stars failure must still stop the run.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">extract_broken</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Stand in for a source finder that cannot run at all.&quot;&quot;&quot;</span>
+
+            <span class="k">raise</span> <span class="n">FindStarsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cannot run the extractor on </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="n">FindStarsError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_with_extractor</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">extract_broken</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calls</span><span class="p">,</span> <span class="p">[])</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 
            </div>

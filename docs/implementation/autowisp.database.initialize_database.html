@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,30 +148,33 @@
 <span id="autowisp-database-initialize-database-module"></span><h1>autowisp.database.initialize_database module<a class="headerlink" href="#module-autowisp.database.initialize_database" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-f20a99f6e62c9e33a0ae87cc910b16650c0dda27.png" alt="Inheritance diagram of ArgumentParser, Condition, ConditionExpression, Configuration, DataModelBase, DefaultsFormatter, ImageType, InputMasterTypes, MasterType, MetaData, Parameter, ProcessingSequence, Step, StepCreator, StepDependencies" usemap="#inheritancedbfd5a4b55" class="inheritance graphviz" /></div>
-<map id="inheritancedbfd5a4b55" name="inheritancedbfd5a4b55">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="1365,80,1628,107"/>
-<area shape="rect" id="node3" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="1670,5,1839,32"/>
-<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1825,229,2155,256"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="5,304,322,331"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="346,304,797,331"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="821,304,1181,331"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1205,304,1546,331"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="1570,304,1997,331"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2021,304,2370,331"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="2394,304,2853,331"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="2877,304,3308,331"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="3332,304,3734,331"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="3758,304,4126,331"/>
-<area shape="rect" id="node16" href="#autowisp.database.initialize_database.StepCreator" target="_top" title="Add steps to the database one by one." alt="" coords="2804,5,3120,32"/>
-<area shape="rect" id="node20" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1938,5,2043,32"/>
-</map><p>Create all datbase tables and define default configuration.</p>
+<div class="graphviz"><img src="../_images/inheritance-423100ce4b1a608a676ad22fd9d703b6873cbb40.png" alt="Inheritance diagram of AlternateParameterName, ArgumentParser, Condition, ConditionExpression, Configuration, DataModelBase, DefaultsFormatter, DiagnosticType, ImageType, InputMasterTypes, MasterType, MetaData, Parameter, ProcessingSequence, Step, StepCreator, StepDependencies" usemap="#inheritance171fa9f904" class="inheritance graphviz" /></div>
+<map id="inheritance171fa9f904" name="inheritance171fa9f904">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="1990,80,2254,107"/>
+<area shape="rect" id="node3" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="2295,5,2464,32"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2256,304,2586,331"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="5,379,322,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="346,379,797,405"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="821,379,1181,405"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="1205,379,1612,405"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1636,379,1976,405"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="2000,379,2428,405"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2452,379,2800,405"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="2825,379,3283,405"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="3308,379,3739,405"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName" target="_top" title="Table describing alternate names for parameters." alt="" coords="3763,379,4252,405"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="4276,379,4678,405"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="4702,379,5070,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="2439,229,2792,256"/>
+<area shape="rect" id="node20" href="#autowisp.database.initialize_database.StepCreator" target="_top" title="Add steps to the database one by one." alt="" coords="3588,5,3904,32"/>
+<area shape="rect" id="node25" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2563,5,2668,32"/>
+</map><p>Create all database tables and define default configuration.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.initialize_database.StepCreator">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">StepCreator</span></span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#StepCreator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.StepCreator" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-09d9209d82aaaa9febb4907a46d8b9ec90a128ea.png" alt="Inheritance diagram of autowisp.database.initialize_database.StepCreator" usemap="#inheritance30bb9c2be6" class="inheritance graphviz" /></div>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">StepCreator</span></span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#StepCreator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.StepCreator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-fcfcf7517b18e3655a24cb828f187eb3788bab16.png" alt="Inheritance diagram of autowisp.database.initialize_database.StepCreator" usemap="#inheritance30bb9c2be6" class="inheritance graphviz" /></div>
 <map id="inheritance30bb9c2be6" name="inheritance30bb9c2be6">
 <area shape="rect" id="node1" href="#autowisp.database.initialize_database.StepCreator" target="_top" title="Add steps to the database one by one." alt="" coords="5,5,321,32"/>
 </map><p>Add steps to the database one by one.</p>
@@ -170,30 +193,20 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.database.initialize_database._overwrite_defaults">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">_overwrite_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_defaults</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#_overwrite_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database._overwrite_defaults" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.database.initialize_database._init_diagnostic_types">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">_init_diagnostic_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#_init_diagnostic_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database._init_diagnostic_types" title="Link to this definition"></a></dt>
+<dd><p>Pre-populate the diagnostic_names table with known diagnostics.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.initialize_database._overwrite_default_config">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">_overwrite_default_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_default_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#_overwrite_default_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database._overwrite_default_config" title="Link to this definition"></a></dt>
 <dd><p>Overwrite default values from what is defined in the steps.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="autowisp.database.initialize_database.add_default_hdf5_structures">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">add_default_hdf5_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_curve</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#add_default_hdf5_structures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.add_default_hdf5_structures" title="Link to this definition"></a></dt>
-<dd><p>Add a default HDF5 structure to the database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should the structure of data reduction files be
-initialized?</p></li>
-<li><p><strong>light_curve</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should the structure of light curve files be
-initialized?</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.initialize_database.add_master_dependencies">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">add_master_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#add_master_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.add_master_dependencies" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">add_master_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#add_master_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.add_master_dependencies" title="Link to this definition"></a></dt>
 <dd><p>Fill the master_types table.</p>
 </dd></dl>
 
@@ -211,13 +224,13 @@ initialized?</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.initialize_database.init_processing">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">init_processing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#init_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.init_processing" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">init_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_dependencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#init_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.init_processing" title="Link to this definition"></a></dt>
 <dd><p>Initialize the tables controlling how processing is to be done.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.initialize_database.initialize_database">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">initialize_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmdline_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#initialize_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.initialize_database" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.initialize_database.</span></span><span class="sig-name descname"><span class="pre">initialize_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmdline_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_dependencies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_default_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/initialize_database.html#initialize_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.initialize_database.initialize_database" title="Link to this definition"></a></dt>
 <dd><p>Initialize the database as specified on the command line.</p>
 </dd></dl>
 

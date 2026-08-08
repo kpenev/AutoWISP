@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -140,7 +160,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkyCoord</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">AltAz</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.magnitude_fitting.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_master_catalog</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_hat_source_id_str</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_source_extracted_psf_map</span>
 
@@ -283,7 +303,10 @@
                         <span class="p">[</span>
                             <span class="sa">r</span><span class="s2">&quot;skytoframe\.(sky_center|residual|unitarity)$&quot;</span><span class="p">,</span>
                             <span class="sa">r</span><span class="s2">&quot;^shapefit\.global_chi2$&quot;</span><span class="p">,</span>
-                            <span class="sa">r</span><span class="s2">&quot;magfit\.(num_input_src|num_fit_src|fit_residual)$&quot;</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="sa">r</span><span class="s2">&quot;magfit\.&quot;</span>
+                                <span class="sa">r</span><span class="s2">&quot;(num_input_src|num_fit_src|fit_residual)$&quot;</span>
+                            <span class="p">),</span>
                             <span class="sa">r</span><span class="s2">&quot;^fitsheader\.(?!cfg\.)&quot;</span><span class="p">,</span>
                             <span class="sa">r</span><span class="s2">&quot;\.cfg_index$&quot;</span><span class="p">,</span>
                             <span class="sa">r</span><span class="s2">&quot;^catalogue\.cfg\.(epoch|fov|orientation)$&quot;</span><span class="p">,</span>
@@ -399,7 +422,7 @@
 <div class="viewcode-block" id="LCDataIO.create">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.create">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">catalog_sources</span><span class="p">,</span>
@@ -750,7 +773,7 @@
 <div class="viewcode-block" id="LCDataIO._set_field_entry">
 <a class="viewcode-back" href="../../../implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_set_field_entry</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_field_entry</span><span class="p">(</span> <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">,</span> <span class="n">dim_values</span><span class="p">,</span> <span class="n">source_index</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -919,9 +942,6 @@
             <span class="k">for</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="n">component_dsets</span><span class="p">:</span>
                 <span class="n">dset_dtype</span> <span class="o">=</span> <span class="n">get_lc_dtype</span><span class="p">(</span><span class="n">dset_key</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="c1">#                    if dset_key.endswith(&#39;.magfit.cfg.single_photref&#39;):</span>
-                    <span class="c1">#                        value = self._config[&#39;single_photref_dr_fname&#39;]</span>
-                    <span class="c1">#                    el</span>
                     <span class="k">if</span> <span class="n">dset_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="p">:</span>
                         <span class="n">value</span> <span class="o">=</span> <span class="n">frame_header</span><span class="p">[</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">header_datasets</span><span class="p">[</span><span class="n">dset_key</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -1208,6 +1228,8 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Fill all datasets with pipeline key prefix `&#39;skypos&#39;`.&quot;&quot;&quot;</span>
 
             <span class="n">num_sources</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">num_sources</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span>
 
             <span class="c1"># False positive, pylint does not see units attributes</span>
             <span class="c1"># pylint: disable=no-member</span>
@@ -1222,8 +1244,8 @@
             <span class="p">)</span>
 
             <span class="n">source_coords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
-                <span class="n">ra</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-                <span class="n">dec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">ra</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                <span class="n">dec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
                 <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -1244,7 +1266,7 @@
             <span class="c1"># pylint: disable=no-member</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hour_angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">obs_time</span><span class="o">.</span><span class="n">sidereal_time</span><span class="p">(</span><span class="s2">&quot;apparent&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">hourangle</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">15.0</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">]</span> <span class="o">/</span> <span class="mf">15.0</span>
             <span class="p">)</span>
             <span class="c1"># pylint: enable=no-member</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;per_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_sources</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
@@ -1295,24 +1317,28 @@
         <span class="p">]</span>
 
         <span class="n">skipped_sources</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">present_source_indices</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">skip_src</span><span class="p">,</span> <span class="n">slice_ind</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
             <span class="n">source_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">data_slice_source_indices</span>
         <span class="p">):</span>
             <span class="k">if</span> <span class="n">slice_ind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">skipped_sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skip_src</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">present_source_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slice_ind</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">skipped_sources</span><span class="p">:</span>
             <span class="n">source_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">skipped_sources</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">fill_direct_from_dr</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
-        <span class="n">fill_sky_position_datasets</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">)</span>
-        <span class="n">fill_srcextract_psf_map</span><span class="p">(</span><span class="n">source_data</span><span class="p">,</span> <span class="n">data_slice_source_indices</span><span class="p">)</span>
-        <span class="n">fill_source_field</span><span class="p">(</span>
-            <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;source_in_frame&quot;</span><span class="p">,</span>
-            <span class="n">values</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_slice_source_indices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
-            <span class="n">dim_values</span><span class="o">=</span><span class="p">(),</span>
-            <span class="n">data_slice_source_indices</span><span class="o">=</span><span class="n">data_slice_source_indices</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">present_source_indices</span><span class="p">:</span>
+            <span class="n">fill_sky_position_datasets</span><span class="p">(</span><span class="n">present_source_indices</span><span class="p">)</span>
+            <span class="n">fill_srcextract_psf_map</span><span class="p">(</span><span class="n">source_data</span><span class="p">,</span> <span class="n">present_source_indices</span><span class="p">)</span>
+            <span class="n">fill_source_field</span><span class="p">(</span>
+                <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;source_in_frame&quot;</span><span class="p">,</span>
+                <span class="n">values</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">present_source_indices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+                <span class="n">dim_values</span><span class="o">=</span><span class="p">(),</span>
+                <span class="n">data_slice_source_indices</span><span class="o">=</span><span class="n">present_source_indices</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">skipped_sources</span></div>
 
@@ -1406,7 +1432,6 @@
         <span class="n">light_curve</span><span class="p">,</span>
         <span class="n">source_index</span><span class="p">,</span>
         <span class="n">defined_indices</span><span class="p">,</span>
-        <span class="n">resolve_lc_size</span><span class="o">=</span><span class="s2">&quot;confirmed&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add all configurations to the LC and fix their config_ids in slice.</span>
@@ -1580,7 +1605,6 @@
                     <span class="n">light_curve</span><span class="p">,</span>
                     <span class="n">source_index</span><span class="p">,</span>
                     <span class="n">defined_indices</span><span class="p">,</span>
-                    <span class="n">resolve_lc_size</span><span class="o">=</span><span class="s2">&quot;confirmed&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_write_slice_data</span><span class="p">(</span>
                     <span class="n">light_curve</span><span class="p">,</span>

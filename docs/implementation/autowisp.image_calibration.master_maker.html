@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,7 +148,7 @@
 <span id="autowisp-image-calibration-master-maker-module"></span><h1>autowisp.image_calibration.master_maker module<a class="headerlink" href="#module-autowisp.image_calibration.master_maker" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-a998a1eca3391b39aeedf36fb512534f0a471bed.png" alt="Inheritance diagram of MasterMaker, Processor" usemap="#inheritancec9e318a87b" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-8626df78aaf2ff5b32274c12be3addeb62b0ef48.png" alt="Inheritance diagram of MasterMaker, Processor" usemap="#inheritancec9e318a87b" class="inheritance graphviz" /></div>
 <map id="inheritancec9e318a87b" name="inheritancec9e318a87b">
 <area shape="rect" id="node1" href="#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="5,80,351,107"/>
 <area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="79,5,277,32"/>
@@ -136,9 +156,9 @@
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.master_maker.</span></span><span class="sig-name descname"><span class="pre">MasterMaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask=('BAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress=16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords=()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.image_calibration.master_maker.</span></span><span class="sig-name descname"><span class="pre">MasterMaker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask=('BAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords=()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.processor.html#autowisp.processor.Processor" title="autowisp.processor.Processor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Processor</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-83d61281ae04ae07774f0b224b7754f6545c0af4.png" alt="Inheritance diagram of autowisp.image_calibration.master_maker.MasterMaker" usemap="#inheritance8380b27702" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-0a12c2427f1d741b897adaf90a9e6abea2eda042.png" alt="Inheritance diagram of autowisp.image_calibration.master_maker.MasterMaker" usemap="#inheritance8380b27702" class="inheritance graphviz" /></div>
 <map id="inheritance8380b27702" name="inheritance8380b27702">
 <area shape="rect" id="node1" href="#autowisp.image_calibration.master_maker.MasterMaker" target="_top" title="Implement the simplest &amp; fully generalizable procedure for making a master." alt="" coords="5,80,351,107"/>
 <area shape="rect" id="node2" href="autowisp.processor.html#autowisp.processor.Processor" target="_top" title="Providing and enforcing uniform interface for config, recovery, and logging." alt="" coords="79,5,277,32"/>
@@ -171,7 +191,7 @@ only arguments of the <a class="reference internal" href="#autowisp.image_calibr
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">stacking_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.__call__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">stacking_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.__call__" title="Link to this definition"></a></dt>
 <dd><p>Create a master by stacking the given frames.</p>
 <p>The header of the craeted frame contains all keywords that are
 common and with consistent value from the input frames. In addition the
@@ -185,7 +205,7 @@ substitutions of any header keywords of the generated file.</p></li>
 <li><p><strong>compress</strong> – See <a class="reference internal" href="#autowisp.image_calibration.master_maker.MasterMaker.__init__" title="autowisp.image_calibration.master_maker.MasterMaker.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a></p></li>
 <li><p><strong>allow_overwrite</strong> – See same name argument
 to autowisp.image_calibration.fits_util.create_result.</p></li>
-<li><p><strong>custom_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A collection of keywords to use in addition
+<li><p><strong>custom_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A collection of keywords to use in addition
 to/instead of what is in the input frames header.</p></li>
 <li><p><strong>stacking_options</strong> – Keyword only arguments allowing overriding the
 stacking configuration specified at construction for this
@@ -201,14 +221,14 @@ stack only.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask=('BAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress=16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords=()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold=5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func=&lt;function</span> <span class="pre">nanmedian&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter=inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask=('BAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords=()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create a master maker with the given default stacking configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
@@ -253,7 +273,7 @@ image should be excluded.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.image_calibration.master_maker.MasterMaker.stack">
-<span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.stack" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlier_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_valid_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_averaged_keywords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/image_calibration/master_maker.html#MasterMaker.stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.image_calibration.master_maker.MasterMaker.stack" title="Link to this definition"></a></dt>
 <dd><p>Create a master by stacking a list of frames.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -307,7 +327,7 @@ self.prepare_for_stacking().</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)</p>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>)</p>
 </dd>
 </dl>
 </dd></dl>

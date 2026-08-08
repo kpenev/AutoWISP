@@ -1,0 +1,21 @@
+<map id="inheritance56ac12f866" name="inheritance56ac12f866">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1937,304,2268,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="5,379,429,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="452,379,822,405"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="846,379,1276,405"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount" target="_top" title="The table describing the mounts specified" alt="" coords="1300,379,1652,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType" target="_top" title="The table describing the different mount types" alt="" coords="1676,379,2088,405"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="2113,379,2532,405"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer" target="_top" title="The table describing the observers" alt="" coords="2556,379,2939,405"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope" target="_top" title="The table describing the telescopes specified" alt="" coords="2963,379,3359,405"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType" target="_top" title="The table describing the different telescope types." alt="" coords="3383,379,3838,405"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target" target="_top" title="The table describing the target." alt="" coords="3862,379,4140,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1718,229,2097,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="2120,229,2474,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="2165,155,2429,181"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/datetime.html#datetime.date" target="_top" title="date(year, month, day) &#45;&#45;&gt; date object" alt="" coords="2444,5,2544,32"/>
+<area shape="rect" id="node16" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" target="_top" title="datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])" alt="" coords="2432,80,2557,107"/>
+<area shape="rect" id="node17" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="1743,155,2072,181"/>
+<area shape="rect" id="node18" title="define a class as inspectable." alt="" coords="2187,80,2407,107"/>
+<area shape="rect" id="node19" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2244,5,2350,32"/>
+</map>

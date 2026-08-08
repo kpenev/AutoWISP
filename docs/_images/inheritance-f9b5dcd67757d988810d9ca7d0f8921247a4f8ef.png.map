@@ -1,0 +1,11 @@
+<map id="inheritancefd6a19f1f4" name="inheritancefd6a19f1f4">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
+<area shape="rect" id="node5" title="Base class for all per&#45;image diagnostics." alt="" coords="166,379,612,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,229,384,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="407,229,760,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="452,155,716,181"/>
+<area shape="rect" id="node6" href="#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="162,453,616,480"/>
+<area shape="rect" id="node7" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="30,155,359,181"/>
+<area shape="rect" id="node8" title="define a class as inspectable." alt="" coords="474,80,694,107"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="531,5,636,32"/>
+</map>

@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -129,6 +149,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">exc_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">sleep</span>
 
 <span class="c1"># from ast import literal_eval</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exception</span>
@@ -137,11 +159,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.pipeline_exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDF5LayoutError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">error_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDF5LayoutError</span><span class="p">,</span> <span class="n">RelatedFile</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 0b6d6e5b656d6c627eac0797338c78208ce9d7d5 $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: d82b5626e6c891077b2f39bc4b650d9411021f83 $&quot;</span>
 
 
 <span class="c1"># This is a h5py issue not an issue with this module</span>
@@ -161,6 +185,11 @@
 <span class="sd">    of files.</span>
 
 <span class="sd">    Attributes:</span>
+<span class="sd">        related_file_kind:    The :class:`FileKind` this product is</span>
+<span class="sd">            reported as when it is attached to an error (see</span>
+<span class="sd">            :meth:`__enter__`). ``None`` (the default) attaches nothing,</span>
+<span class="sd">            so a product only participates once it declares its kind.</span>
+
 <span class="sd">        _file_structure:    See the first entry returned by get_file_structure.</span>
 
 <span class="sd">        _file_structure_version:    See the second entry returned by</span>
@@ -170,6 +199,8 @@
 <span class="sd">            HAT-ID prefixes, with the correct data type ready for adding as a</span>
 <span class="sd">            dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">related_file_kind</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="HDF5File._get_root_tag_name">
 <a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._get_root_tag_name">[docs]</a>
@@ -348,7 +379,8 @@
 <span class="sd">        The inverse of :meth:`write_fitsheader_to_dataset`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            h5dset:    The dataset containing the header to read.</span>
+<span class="sd">            dataset_key:    The key identifying the dataset</span>
+<span class="sd">                containing the header.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            fits.Header:</span>
@@ -456,6 +488,7 @@
 <span class="sd">                A string giving the path the element does/will have in the file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">path_template</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">element_type</span><span class="p">,</span> <span class="n">recognized</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">element_id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recognized</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">element_type</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span><span class="p">:</span>
@@ -465,6 +498,8 @@
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">path_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure</span><span class="p">[</span><span class="n">element_id</span><span class="p">]</span><span class="o">.</span><span class="n">abspath</span>
+
+        <span class="k">assert</span> <span class="n">path_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">substitutions</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">path_template</span> <span class="o">%</span> <span class="n">substitutions</span>
@@ -614,6 +649,12 @@
         <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
+        <span class="c1"># ``numpy.string_`` was removed in NumPy 2.0 in favor of the identical</span>
+        <span class="c1"># ``numpy.bytes_``. Databases created before the migration still store</span>
+        <span class="c1"># the legacy token, so normalize it before eval to keep them working.</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;numpy.string_&quot;</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;numpy.bytes_&quot;</span>
+
         <span class="c1"># Used only on input defined by us.</span>
         <span class="c1"># pylint: disable=eval-used</span>
         <span class="n">result</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -636,7 +677,8 @@
 <span class="sd">        Return all arguments to pass to create_dataset() except the content.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dataset_key:    The key identifying the dataset to delete.</span>
+<span class="sd">            dataset_key:    The key identifying the dataset to</span>
+<span class="sd">                get creation args for.</span>
 
 <span class="sd">            path_substitutions:    In theory the dataset creation arguments can</span>
 <span class="sd">                depend on the full dataset path (c.f. srcextract.sources).</span>
@@ -830,12 +872,12 @@
         <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_config</span><span class="o">.</span><span class="n">name</span> <span class="o">%</span> <span class="n">substitutions</span>
         <span class="k">if</span> <span class="n">attribute_name</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
             <span class="c1"># TODO: handle  multi-valued attributes correctly.</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span>
-                <span class="ow">or</span> <span class="p">(</span>
-                    <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
-                    <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">],</span>
+                <span class="n">attribute_value</span><span class="p">,</span>
+                <span class="n">equal_nan</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span>
+                    <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">float</span>
+                <span class="p">),</span>
             <span class="p">):</span>
                 <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
@@ -846,7 +888,7 @@
                 <span class="p">)</span>
             <span class="k">assert</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;overwrite&quot;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">string_</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span><span class="p">)):</span>
             <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
                 <span class="n">attribute_name</span><span class="p">,</span>
                 <span class="p">(</span>
@@ -1008,8 +1050,14 @@
 
         <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_repack_dataset</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting </span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">dataset_path</span><span class="p">]</span>
             <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Target dataset </span><span class="si">{</span><span class="n">dataset_path</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;skipping deletion.&quot;</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">False</span></div>
 
@@ -1263,11 +1311,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_replace_nonfinite</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">expected_dtype</span><span class="p">,</span> <span class="n">replace_nonfinite</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return (copy of) data with non-finite values replaced.&quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span>
-            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">string_</span>
-            <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span>
-        <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">expected_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">expected_dtype</span><span class="p">)</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span>
@@ -1294,7 +1338,7 @@
 
 <div class="viewcode-block" id="HDF5File.add_dataset">
 <a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_dataset">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dataset</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dataset_key</span><span class="p">,</span>
         <span class="n">data</span><span class="p">,</span>
@@ -1349,7 +1393,7 @@
                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">if_exists</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">ing!&#39;</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
-                <span class="k">return</span>
+                <span class="k">return</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Dataset (&#39;</span><span class="si">{</span><span class="n">dataset_key</span><span class="si">}</span><span class="s2">&#39;) &#39;</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">&#39; already exists&quot;</span>
@@ -1389,7 +1433,7 @@
             <span class="n">creation_args</span><span class="p">[</span><span class="s2">&quot;maxshape&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">+</span> <span class="n">shape_tail</span>
 
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">string_</span>
+            <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span>
             <span class="ow">or</span> <span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span>
         <span class="p">):</span>
             <span class="k">assert</span> <span class="n">creation_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bytes_</span>
@@ -1442,13 +1486,17 @@
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
                             <span class="k">raise</span>
 
-            <span class="k">try</span><span class="p">:</span>
-                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">details</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Problem opening </span><span class="si">{</span><span class="n">fname</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> in mode=</span><span class="si">{</span><span class="n">mode</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">()))</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">details</span>
+            <span class="k">for</span> <span class="n">retry</span> <span class="ow">in</span> <span class="n">count</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">details</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">retry</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Problem opening </span><span class="si">{</span><span class="n">fname</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2"> in mode=</span><span class="si">{</span><span class="n">mode</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">()))</span>
+                        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">details</span>
+                    <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
 
         <span class="n">layout_version_path</span><span class="p">,</span> <span class="n">layout_version_attr</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_layout_version_attribute</span>
@@ -1468,7 +1516,83 @@
         <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">old_file</span><span class="p">:</span>
             <span class="bp">self</span><span class="p">[</span><span class="n">layout_version_path</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span>
                 <span class="n">layout_version_attr</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure_version</span></div>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_structure_version</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error_scopes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_related_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">related_file_kind</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">RelatedFile</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">related_file_kind</span><span class="p">,</span>
+                <span class="n">fname</span><span class="p">,</span>
+                <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;r&quot;</span> <span class="k">else</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.__enter__">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.__enter__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open the file *and* attach it to any error raised while open.</span>
+
+<span class="sd">        Every pipeline product opened through a ``with`` block therefore</span>
+<span class="sd">        names itself on errors raised below it, without each call site</span>
+<span class="sd">        having to scope it explicitly. Files with no name on disk (the</span>
+<span class="sd">        ``memory_only`` in-memory products) attach nothing.</span>
+
+<span class="sd">        The scope is entered *before* delegating, so a failure in the</span>
+<span class="sd">        underlying ``__enter__`` is covered too. Note this does not</span>
+<span class="sd">        extend to the file *open* itself: ``h5py.File`` opens in the</span>
+<span class="sd">        constructor, which runs before any of this (the open-failure path</span>
+<span class="sd">        names the file in its ``HDF5LayoutError`` instead).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HDF5File:    This file. Returned as ``self`` rather than as</span>
+<span class="sd">                whatever ``super().__enter__()`` hands back (which is the</span>
+<span class="sd">                same object) so static analysis keeps seeing the concrete</span>
+<span class="sd">                product type instead of ``h5py.File``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_related_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># A stack, not a single slot: nothing stops the same object</span>
+            <span class="c1"># being entered more than once, and each entry owns the</span>
+            <span class="c1"># ContextVar token its exit must reset.</span>
+            <span class="n">scope</span> <span class="o">=</span> <span class="n">error_context</span><span class="p">(</span><span class="n">related_files</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_related_file</span><span class="p">])</span>
+            <span class="n">scope</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error_scopes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+            <span class="c1"># ``__exit__`` is not called when ``__enter__`` raises, so the</span>
+            <span class="c1"># scope has to be unwound here or its token leaks into</span>
+            <span class="c1"># everything that follows.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_release_error_scope</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">())</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="HDF5File.__exit__">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.__exit__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the file, then drop it from the ambient error context.</span>
+
+<span class="sd">        The scope is released *after* the close so a failure while</span>
+<span class="sd">        flushing or closing still carries the file it was closing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="o">*</span><span class="n">exception</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_release_error_scope</span><span class="p">(</span><span class="o">*</span><span class="n">exception</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HDF5File._release_error_scope">
+<a class="viewcode-back" href="../../implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._release_error_scope">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_release_error_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exit the innermost error scope this file entered, if any.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_scopes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_error_scopes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="o">*</span><span class="n">exception</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="HDF5File.collect_columns">

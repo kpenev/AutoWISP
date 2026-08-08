@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,31 +148,19 @@
 <span id="autowisp-processing-steps-add-images-to-db-module"></span><h1>autowisp.processing_steps.add_images_to_db module<a class="headerlink" href="#module-autowisp.processing_steps.add_images_to_db" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-30ffccf2ec6a3861d707a8e4f895a42cd17eebcc.png" alt="Inheritance diagram of Camera, EarthLocation, Evaluator, Image, ImageType, ManualStepArgumentParser, Mount, Observatory, Observer, ObservingSession, SkyCoord, Target, Telescope, Time, timedelta" usemap="#inheritance07ece315ad" class="inheritance graphviz" /></div>
-<map id="inheritance07ece315ad" name="inheritance07ece315ad">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="348,5,517,32"/>
-<area shape="rect" id="node22" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="559,80,748,107"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="1526,229,1856,256"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="5,304,286,331"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="310,304,650,331"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="674,304,1097,331"/>
-<area shape="rect" id="node16" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="1121,304,1490,331"/>
-<area shape="rect" id="node17" href="autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount" target="_top" title="The table describing the mounts specified" alt="" coords="1515,304,1867,331"/>
-<area shape="rect" id="node18" href="autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory" target="_top" title="The table describing the observatory" alt="" coords="1891,304,2309,331"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer" target="_top" title="The table describing the observers" alt="" coords="2334,304,2717,331"/>
-<area shape="rect" id="node20" href="autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope" target="_top" title="The table describing the telescopes specified" alt="" coords="2741,304,3136,331"/>
-<area shape="rect" id="node21" href="autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target" target="_top" title="The table dsecribing the target." alt="" coords="3161,304,3439,331"/>
-<area shape="rect" id="node23" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="224,155,640,181"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" target="_top" title="Difference between two datetime values." alt="" coords="1768,5,1896,32"/>
-<area shape="rect" id="node27" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="1638,5,1744,32"/>
+<div class="graphviz"><img src="../_images/inheritance-05f0bd2092ee435cc781b0dd61108a0a3ed31d6e.png" alt="Inheritance diagram of Evaluator, FileKind, Image, ImageType, ManualStepArgumentParser, RelatedFile" usemap="#inheritanceb6c1b3ad5f" class="inheritance graphviz" /></div>
+<map id="inheritanceb6c1b3ad5f" name="inheritanceb6c1b3ad5f">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="129,5,298,32"/>
+<area shape="rect" id="node9" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="508,80,698,107"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="640,304,971,331"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="499,379,779,405"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="803,379,1144,405"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="824,229,1177,256"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="1184,5,1275,32"/>
+<area shape="rect" id="node13" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="5,155,422,181"/>
+<area shape="rect" id="node17" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="948,5,1053,32"/>
 </map><p>Register new images with the database.</p>
 </section>
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.add_images_to_db._match_observatory">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.add_images_to_db.</span></span><span class="sig-name descname"><span class="pre">_match_observatory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_observatory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/add_images_to_db.html#_match_observatory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.add_images_to_db._match_observatory" title="Link to this definition"></a></dt>
-<dd><p>True iff the observatory matches the image location.</p>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.processing_steps.add_images_to_db.add_images_to_db">
 <span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.add_images_to_db.</span></span><span class="sig-name descname"><span class="pre">add_images_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/add_images_to_db.html#add_images_to_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.add_images_to_db.add_images_to_db" title="Link to this definition"></a></dt>
@@ -163,24 +171,6 @@
 <dt class="sig sig-object py" id="autowisp.processing_steps.add_images_to_db.create_image">
 <span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.add_images_to_db.</span></span><span class="sig-name descname"><span class="pre">create_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/add_images_to_db.html#create_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.add_images_to_db.create_image" title="Link to this definition"></a></dt>
 <dd><p>Create the database Image entry corresponding to the given file.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.add_images_to_db.get_observatory">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.add_images_to_db.</span></span><span class="sig-name descname"><span class="pre">get_observatory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/add_images_to_db.html#get_observatory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.add_images_to_db.get_observatory" title="Link to this definition"></a></dt>
-<dd><p>Return the observatory corresponding to the image (must exist).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.add_images_to_db.get_or_create_observing_session">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.add_images_to_db.</span></span><span class="sig-name descname"><span class="pre">get_or_create_observing_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/add_images_to_db.html#get_or_create_observing_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.add_images_to_db.get_or_create_observing_session" title="Link to this definition"></a></dt>
-<dd><p>Return the observing session the image is part of (create if needed).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.add_images_to_db.get_or_create_target">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.add_images_to_db.</span></span><span class="sig-name descname"><span class="pre">get_or_create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_of_view</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/add_images_to_db.html#get_or_create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.add_images_to_db.get_or_create_target" title="Link to this definition"></a></dt>
-<dd><p>Return the target corresponding to the image (create if necessary).</p>
 </dd></dl>
 
 <dl class="py function">

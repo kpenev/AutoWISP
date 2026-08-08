@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -124,34 +144,22 @@
 
 <span class="sd">&quot;&quot;&quot;Register new images with the database.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">SkyCoord</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">error_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileKind</span><span class="p">,</span> <span class="n">RelatedFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_fits_fnames</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManualStepArgumentParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.provenance_resolver</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_or_create_observing_session</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># false positive due to unusual importing</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Observer</span><span class="p">,</span>
-    <span class="n">Camera</span><span class="p">,</span>
-    <span class="n">Telescope</span><span class="p">,</span>
-    <span class="n">Mount</span><span class="p">,</span>
-    <span class="n">Observatory</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Image</span><span class="p">,</span>
-    <span class="n">ImageType</span><span class="p">,</span>
-    <span class="n">ObservingSession</span><span class="p">,</span>
-    <span class="n">Target</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageType</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
@@ -169,102 +177,18 @@
         <span class="n">inputtype</span> <span class="o">=</span> <span class="s2">&quot;raw&quot;</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ManualStepArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="n">inputtype</span><span class="p">,</span> <span class="n">add_exposure_timing</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--observer&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ORIGIN&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the observer who/which collected the images. Can &quot;</span>
-        <span class="s2">&quot;be arbitrary expression involving header keywords. Must already have &quot;</span>
-        <span class="s2">&quot;an entry in the ``observer`` table.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--camera-serial-number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--cam-sn&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;CAMSN&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The serial number of the camera which collected the images. Can &quot;</span>
-        <span class="s2">&quot;be arbitrary expression involving header keywords. Must already have &quot;</span>
-        <span class="s2">&quot;an entry in the ``camera`` table.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--telescope-serial-number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--tel-sn&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;INTSN&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The serial number of the telescope (lens) which collected the &quot;</span>
-        <span class="s2">&quot;images (or some other unique and persistent identifier of it). Can &quot;</span>
-        <span class="s2">&quot;be arbitrary expression involving header keywords. Must already have &quot;</span>
-        <span class="s2">&quot;an entry in the ``telescope`` table.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--mount-serial-number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--mount-sn&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;OBSERVER&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The serial number of the mount which collected the &quot;</span>
-        <span class="s2">&quot;images (or some other unique and persistent identifier of it). Can &quot;</span>
-        <span class="s2">&quot;be arbitrary expression involving header keywords. &quot;</span>
-        <span class="s2">&quot;Must already have an entry in the ``mount`` table.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--observatory&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the observatory from where the images were collected.&quot;</span>
-        <span class="s2">&quot; Can be arbitrary expression involving header keywords. Must already &quot;</span>
-        <span class="s2">&quot;have an entry in the ``observatory`` table. If not specified, &quot;</span>
-        <span class="s2">&quot;--observatory-location is used to determine the observatory.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--observatory-location&quot;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LATITUDE&quot;</span><span class="p">,</span> <span class="s2">&quot;LONGITUDE&quot;</span><span class="p">,</span> <span class="s2">&quot;ALTITUDE&quot;</span><span class="p">),</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LAT_OBS&quot;</span><span class="p">,</span> <span class="s2">&quot;LONG_OBS&quot;</span><span class="p">,</span> <span class="s2">&quot;ALT_OBS&quot;</span><span class="p">],</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The latitude and longitude of the observatory from where the &quot;</span>
-        <span class="s2">&quot;images were collected. Can be arbitrary expression involving header &quot;</span>
-        <span class="s2">&quot;keywords. Must already have an entry in the ``observatory`` table &quot;</span>
-        <span class="s2">&quot;within approximately 100km. Only used if --observatory is not &quot;</span>
-        <span class="s2">&quot;specified.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--target-ra&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--ra&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;RA_MNT&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The RA targetted by the observations in degrees. Can be arbitrary&quot;</span>
-        <span class="s2">&quot; expression involving header keywords. If target table already &quot;</span>
-        <span class="s2">&quot;contains an entry for this target, the RA must match within 1</span><span class="si">%%</span><span class="s2"> of the&quot;</span>
-        <span class="s2">&quot; field of view or an error is raised. It can be left unspecified if &quot;</span>
-        <span class="s2">&quot;the target is already in the target table, in which case it will be &quot;</span>
-        <span class="s2">&quot;identified by name.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--target-dec&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--dec&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;DEC_MNT&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The Dec targetted by the observations. See --target-ra for &quot;</span>
-        <span class="s2">&quot;details.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--target-name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the targetted area of the sky. Can be arbitrary &quot;</span>
-        <span class="s2">&quot;expression involving header keywords. If not already in the target &quot;</span>
-        <span class="s2">&quot;table it is automatically added.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--observing-session-label&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--session-label&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--session&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;SEQID&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Unique label for the observing session. Can be arbitrary &quot;</span>
-        <span class="s2">&quot;expression involving header keywords. If not already in the &quot;</span>
-        <span class="s2">&quot;observing_session table it is automatically added. It will also be &quot;</span>
-        <span class="s2">&quot;added as ``OBS-SESN`` keyword to the calibrated images.&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
+        <span class="n">input_type</span><span class="o">=</span><span class="n">inputtype</span><span class="p">,</span>
+        <span class="n">add_provenance_args</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--image-type&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Header expression that evaluates to the image type. If it is not &quot;</span>
-        <span class="s2">&quot;one of the image types listed in the database, the image is ignored. &quot;</span>
-        <span class="s2">&quot;If not specified, the individual checks below are used instead.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Header expression that evaluates to the type of the image, which &quot;</span>
+        <span class="s2">&quot;must be one of the image types defined for the project. Images whose &quot;</span>
+        <span class="s2">&quot;type is not one of those are rejected, unless &quot;</span>
+        <span class="s2">&quot;``--ignore-unknown-image-types`` is passed. If not specified, every &quot;</span>
+        <span class="s2">&quot;image is treated as an object frame.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--ignore-unknown-image-types&quot;</span><span class="p">,</span>
@@ -273,237 +197,8 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If this option is passed and an image of an unknown type is &quot;</span>
         <span class="s2">&quot;encountered it will not be added tot he database.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># False positivie</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
-        <span class="k">for</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-        <span class="p">]:</span>
-            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">image_type</span><span class="si">}</span><span class="s2">-check&quot;</span><span class="p">,</span>
-                <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">image_type</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Header expression that evaluates to True if the image is &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;a </span><span class="si">{</span><span class="n">image_type</span><span class="si">}</span><span class="s2"> frame.&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="get_or_create_target">
-<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.get_or_create_target">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_target</span><span class="p">(</span>
-    <span class="n">image_type</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">field_of_view</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the target corresponding to the image (create if necessary).&quot;&quot;&quot;</span>
-
-    <span class="n">target_name</span> <span class="o">=</span> <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;target_name&quot;</span><span class="p">])</span>
-    <span class="n">db_target</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Target</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target_name</span><span class="p">)</span><span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">no_pointing_imtypes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="n">no_pointing_imtypes</span><span class="p">:</span>
-        <span class="n">image_target</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ra&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;dec&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">image_target</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ra&quot;</span><span class="p">:</span> <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;target_ra&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;dec&quot;</span><span class="p">:</span> <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;target_dec&quot;</span><span class="p">]),</span>
-        <span class="p">}</span>
-
-    <span class="k">if</span> <span class="n">db_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># False positive</span>
-        <span class="c1"># pylint: disable=not-callable</span>
-        <span class="n">db_target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span>
-            <span class="o">**</span><span class="n">image_target</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;target_name&quot;</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="c1"># pylint: enable=not-callable</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_target</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">image_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">no_pointing_imtypes</span><span class="p">:</span>
-        <span class="n">image_target</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
-            <span class="n">image_target</span><span class="p">[</span><span class="s2">&quot;ra&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">image_target</span><span class="p">[</span><span class="s2">&quot;dec&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
-        <span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Checking target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">image_type</span><span class="si">!r}</span><span class="s2"> image. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;From DB: </span><span class="si">{</span><span class="n">db_target</span><span class="si">!r}</span><span class="s2"> vs image: </span><span class="si">{</span><span class="n">image_target</span><span class="si">!r}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">image_target</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span>
-                <span class="n">SkyCoord</span><span class="p">(</span>
-                    <span class="n">ra</span><span class="o">=</span><span class="n">db_target</span><span class="o">.</span><span class="n">ra</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="n">db_target</span><span class="o">.</span><span class="n">dec</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-            <span class="o">&lt;</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">field_of_view</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">db_target</span></div>
-
-
-
-<div class="viewcode-block" id="_match_observatory">
-<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db._match_observatory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_match_observatory</span><span class="p">(</span><span class="n">db_observatory</span><span class="p">,</span> <span class="n">image_location</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;True iff the observatory matches the image location.&quot;&quot;&quot;</span>
-
-    <span class="n">db_location</span> <span class="o">=</span> <span class="n">EarthLocation</span><span class="p">(</span>
-        <span class="n">lat</span><span class="o">=</span><span class="n">db_observatory</span><span class="o">.</span><span class="n">latitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-        <span class="n">lon</span><span class="o">=</span><span class="n">db_observatory</span><span class="o">.</span><span class="n">longitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-        <span class="n">height</span><span class="o">=</span><span class="n">db_observatory</span><span class="o">.</span><span class="n">altitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">image_location</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">db_location</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-        <span class="o">+</span> <span class="p">(</span><span class="n">image_location</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">db_location</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-        <span class="o">+</span> <span class="p">(</span><span class="n">image_location</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">db_location</span><span class="o">.</span><span class="n">z</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-    <span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">km</span></div>
-
-
-
-<div class="viewcode-block" id="get_observatory">
-<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.get_observatory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_observatory</span><span class="p">(</span><span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the observatory corresponding to the image (must exist).&quot;&quot;&quot;</span>
-
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Observatory location: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observatory_location&quot;</span><span class="p">])</span>
-    <span class="p">)</span>
-    <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">altitude</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">header_eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observatory_location&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">image_location</span> <span class="o">=</span> <span class="n">EarthLocation</span><span class="p">(</span>
-        <span class="n">lat</span><span class="o">=</span><span class="n">latitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-        <span class="n">lon</span><span class="o">=</span><span class="n">longitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
-        <span class="n">height</span><span class="o">=</span><span class="n">altitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observatory&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">observatory</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">db_observatory</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Observatory</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">_match_observatory</span><span class="p">(</span><span class="n">db_observatory</span><span class="p">,</span> <span class="n">image_location</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="n">observatory</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="n">observatory</span> <span class="o">=</span> <span class="n">db_observatory</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">observatory</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Observatory</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observatory&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">one</span><span class="p">()</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">_match_observatory</span><span class="p">(</span><span class="n">observatory</span><span class="p">,</span> <span class="n">image_location</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">observatory</span></div>
-
-
-
-<div class="viewcode-block" id="get_or_create_observing_session">
-<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.get_or_create_observing_session">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_observing_session</span><span class="p">(</span>
-    <span class="n">image_type</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the observing session the image is part of (create if needed).&quot;&quot;&quot;</span>
-
-    <span class="n">observer</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Observer</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observer&quot;</span><span class="p">]))</span>
-        <span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">camera</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Camera</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
-            <span class="n">serial_number</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;camera_serial_number&quot;</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">telescope</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Telescope</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
-            <span class="n">serial_number</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;telescope_serial_number&quot;</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">mount</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Mount</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
-            <span class="n">serial_number</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;mount_serial_number&quot;</span><span class="p">])</span>
-        <span class="p">)</span>
-        <span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="n">observatory</span> <span class="o">=</span> <span class="n">get_observatory</span><span class="p">(</span><span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
-    <span class="n">field_of_view</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="nb">max</span><span class="p">(</span><span class="n">camera</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">x_resolution</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">y_resolution</span><span class="p">)</span>
-        <span class="o">*</span> <span class="n">camera</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">pixel_size</span>
-        <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">um</span>
-        <span class="o">/</span> <span class="p">(</span><span class="n">telescope</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">focal_length</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
-    <span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">rad</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="n">get_or_create_target</span><span class="p">(</span>
-        <span class="n">image_type</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">field_of_view</span>
-    <span class="p">)</span>
-    <span class="n">exposure_start</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">for</span> <span class="n">time_format</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;utc&quot;</span><span class="p">,</span> <span class="s2">&quot;jd&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;exposure_start_</span><span class="si">{</span><span class="n">time_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]:</span>
-            <span class="n">exposure_start</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
-                <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;exposure_start_</span><span class="si">{</span><span class="n">time_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]),</span>
-                <span class="nb">format</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">time_format</span> <span class="o">==</span> <span class="s2">&quot;utc&quot;</span> <span class="k">else</span> <span class="n">time_format</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exposure_start</span><span class="o">.</span><span class="n">jd</span> <span class="o">+</span> <span class="n">header_eval</span><span class="p">(</span>
-                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;exposure_seconds&quot;</span><span class="p">]</span>
-            <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="mf">3600.0</span><span class="p">)</span>
-            <span class="n">exposure_start</span> <span class="o">=</span> <span class="n">exposure_start</span><span class="o">.</span><span class="n">utc</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;datetime&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">exposure_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="n">exposure_end</span> <span class="o">=</span> <span class="n">exposure_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span>
-        <span class="n">seconds</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;exposure_seconds&quot;</span><span class="p">])</span>
-    <span class="p">)</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ObservingSession</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observing_session_label&quot;</span><span class="p">]))</span>
-        <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">ObservingSession</span><span class="p">(</span>
-            <span class="n">observer_id</span><span class="o">=</span><span class="n">observer</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">camera_id</span><span class="o">=</span><span class="n">camera</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">telescope_id</span><span class="o">=</span><span class="n">telescope</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">mount_id</span><span class="o">=</span><span class="n">mount</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">observatory_id</span><span class="o">=</span><span class="n">observatory</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">target_id</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;observing_session_label&quot;</span><span class="p">]),</span>
-            <span class="n">start_time_utc</span><span class="o">=</span><span class="n">exposure_start</span><span class="p">,</span>
-            <span class="n">end_time_utc</span><span class="o">=</span><span class="n">exposure_end</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">observer_id</span> <span class="o">!=</span> <span class="n">observer</span><span class="o">.</span><span class="n">id</span>
-            <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">camera_id</span> <span class="o">!=</span> <span class="n">camera</span><span class="o">.</span><span class="n">id</span>
-            <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">telescope_id</span> <span class="o">!=</span> <span class="n">telescope</span><span class="o">.</span><span class="n">id</span>
-            <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">mount_id</span> <span class="o">!=</span> <span class="n">mount</span><span class="o">.</span><span class="n">id</span>
-            <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">observatory_id</span> <span class="o">!=</span> <span class="n">observatory</span><span class="o">.</span><span class="n">id</span>
-            <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">target_id</span> <span class="o">!=</span> <span class="n">target</span><span class="o">.</span><span class="n">id</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;Mismatch between observing session and other header &quot;</span>
-                <span class="s2">&quot;information:</span><span class="se">\n\t</span><span class="s2">&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s1"> ID: header = </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">what</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;_id&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> &#39;</span>
-                        <span class="sa">f</span><span class="s2">&quot;session = </span><span class="si">{</span><span class="nb">locals</span><span class="p">()[</span><span class="n">what</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span>
-                            <span class="s2">&quot;observer&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;camera&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;telescope&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;mount&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;observatory&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;target&quot;</span><span class="p">,</span>
-                        <span class="p">]</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">exposure_start</span> <span class="o">&lt;</span> <span class="n">result</span><span class="o">.</span><span class="n">start_time_utc</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">start_time_utc</span> <span class="o">=</span> <span class="n">exposure_start</span>
-        <span class="k">if</span> <span class="n">exposure_end</span> <span class="o">&gt;</span> <span class="n">result</span><span class="o">.</span><span class="n">end_time_utc</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">end_time_utc</span> <span class="o">=</span> <span class="n">exposure_end</span>
-
-    <span class="k">return</span> <span class="n">result</span></div>
 
 
 
@@ -525,11 +220,13 @@
                 <span class="sa">f</span><span class="s2">&quot;(expected one of </span><span class="si">{</span><span class="n">recognized_image_types</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">image_type</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">test_image_type</span> <span class="ow">in</span> <span class="n">recognized_image_types</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">header_eval</span><span class="p">(</span><span class="n">configuration</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_image_type</span><span class="si">}</span><span class="s2">_check&quot;</span><span class="p">]):</span>
-                <span class="k">assert</span> <span class="n">image_type</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="n">image_type</span> <span class="o">=</span> <span class="n">test_image_type</span>
+        <span class="c1"># With nothing to classify by, every frame is a science frame. This</span>
+        <span class="c1"># preserves what the per-type ``--&lt;type&gt;-check`` expressions worked out</span>
+        <span class="c1"># in practice: ``object`` was the only one defaulting to true, and they</span>
+        <span class="c1"># could never be set, since they were created from the image types</span>
+        <span class="c1"># found in the database, which are not yet visible when a new project</span>
+        <span class="c1"># seeds its parameters.</span>
+        <span class="n">image_type</span> <span class="o">=</span> <span class="s2">&quot;object&quot;</span>
     <span class="n">image_type_id</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">image_type</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="p">)</span>
@@ -548,42 +245,55 @@
 
     <span class="k">for</span> <span class="n">image_fname</span> <span class="ow">in</span> <span class="n">image_collection</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding image </span><span class="si">%s</span><span class="s2"> to database&quot;</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">)</span>
-        <span class="n">header_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
-        <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;FULLPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_fname</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Defining evaluator with keys: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="nb">repr</span><span class="p">(</span><span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-        <span class="p">)</span>
-        <span class="c1"># False positivie</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="c1"># pylint: enable=no-member</span>
-            <span class="n">image</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">create_image</span><span class="p">(</span>
-                <span class="n">image_fname</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
+        <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
+            <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">RAW_IMAGE</span><span class="p">,</span> <span class="n">image_fname</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">header_eval</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">image_fname</span><span class="p">)</span>
+            <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="p">[</span><span class="s2">&quot;FULLPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">image_fname</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Defining evaluator with keys: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">existing_image</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">raw_fname</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span> <span class="o">=</span> <span class="n">get_or_create_observing_session</span><span class="p">(</span>
-                <span class="n">image_type</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">existing_image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Image </span><span class="si">%s</span><span class="s2"> already in the database with ID: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span>
-                    <span class="n">existing_image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+                <span class="n">image</span><span class="p">,</span> <span class="n">image_type</span> <span class="o">=</span> <span class="n">create_image</span><span class="p">(</span>
+                    <span class="n">image_fname</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
                 <span class="p">)</span>
-                <span class="k">assert</span> <span class="n">existing_image</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span>
-                <span class="k">assert</span> <span class="p">(</span>
-                    <span class="n">existing_image</span><span class="o">.</span><span class="n">observing_session_id</span>
-                    <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">id</span>
-                <span class="p">)</span></div>
+                <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">existing_image</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">db_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">raw_fname</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">one_or_none</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span> <span class="o">=</span> <span class="n">get_or_create_observing_session</span><span class="p">(</span>
+                    <span class="n">image_type</span><span class="p">,</span> <span class="n">header_eval</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">db_session</span>
+                <span class="p">)</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">jd</span> <span class="o">=</span> <span class="n">header_eval</span><span class="o">.</span><span class="n">symtable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">existing_image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Image </span><span class="si">%s</span><span class="s2"> already in the database with ID: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="p">,</span>
+                        <span class="n">existing_image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">assert</span> <span class="p">(</span>
+                        <span class="n">existing_image</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span>
+                    <span class="p">),</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is already in the database as &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;image type </span><span class="si">{</span><span class="n">existing_image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2"> but now &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;looks like type </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">image_type_id</span><span class="si">}</span><span class="s2">!&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">assert</span> <span class="p">(</span>
+                        <span class="n">existing_image</span><span class="o">.</span><span class="n">observing_session_id</span>
+                        <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">id</span>
+                    <span class="p">),</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">raw_fname</span><span class="si">}</span><span class="s2"> is already in the database under &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;observing session </span><span class="si">{</span><span class="n">existing_image</span><span class="o">.</span><span class="n">observing_session_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; but now resolves to </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">observing_session</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">!&quot;</span>
+                    <span class="p">)</span></div>
 
 
 

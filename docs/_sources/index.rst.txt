@@ -12,12 +12,12 @@ Welcome to AutoWISP's documentation!
     :caption: Contents:
 
     installation
+    bringing_your_own_data
     test_data
-    processing_steps
+    configuration
+    when_things_go_wrong
     wisp_options
     implementation/autowisp
-
-..    PythonModules/contents
 
 Indices and tables
 ==================

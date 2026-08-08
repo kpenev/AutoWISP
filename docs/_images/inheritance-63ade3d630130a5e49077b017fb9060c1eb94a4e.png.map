@@ -1,0 +1,13 @@
+<map id="inheritancef1c1df458f" name="inheritancef1c1df458f">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="630,304,960,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute" target="_top" title="The table describing how to add attributes in HDF5 files." alt="" coords="5,379,385,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.hdf5_datasets.html#autowisp.database.data_model.hdf5_datasets.HDF5DataSet" target="_top" title="The table describing how to include datasets in HDF5 files." alt="" coords="409,379,784,405"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.hdf5_products.html#autowisp.database.data_model.hdf5_products.HDF5Product" target="_top" title="The types of pipeline products stored as HDF5 files." alt="" coords="808,379,1179,405"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.hdf5_structure_versions.html#autowisp.database.data_model.hdf5_structure_versions.HDF5StructureVersion" target="_top" title="The versions of structures for the HDF5 pipeline products." alt="" coords="1203,379,1683,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="411,229,790,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="813,229,1166,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="858,155,1122,181"/>
+<area shape="rect" id="node9" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="436,155,765,181"/>
+<area shape="rect" id="node10" title="define a class as inspectable." alt="" coords="880,80,1100,107"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="937,5,1042,32"/>
+</map>

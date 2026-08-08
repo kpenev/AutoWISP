@@ -25,6 +25,10 @@ Configuration Options
 
 	How to format date and time as part of filenames (e.g. when creating output files for multiprocessing.
 
+.. option:: iers-auto-max-age (--iers-auto-max-age on command line)
+
+	Maximum age (in days) of the bundled/cached astropy IERS table before astropy tries to download a fresh copy for time transformations. Pass ``none`` (or a non-positive number) to disable the staleness check entirely, so the existing table is used without ever triggering a download. Useful when the IERS download location is unreliable.
+
 .. option:: exposure-start-utc (--exposure-start-utc on command line)
 
 	The UTC time at which the exposure started. Can be arbitrary expression involving header keywords.
@@ -47,39 +51,47 @@ Configuration Options
 
 .. option:: telescope-serial-number (--telescope-serial-number on command line)
 
-	The serial number of the telescope (lens) which collected the images (or some other unique and persistent identifier of it). Can be arbitrary expression involving header keywords. Must already have an entry in the ``telescope`` table.
+	The serial number of the telescope (lens) which collected the images. Can be arbitrary expression involving header keywords. Must already have an entry in the ``telescope`` table.
 
 .. option:: mount-serial-number (--mount-serial-number on command line)
 
-	The serial number of the mount which collected the images (or some other unique and persistent identifier of it). Can be arbitrary expression involving header keywords. Must already have an entry in the ``mount`` table.
+	The serial number of the mount which collected the images. Can be arbitrary expression involving header keywords. Must already have an entry in the ``mount`` table.
 
 .. option:: observatory (--observatory on command line)
 
-	The name of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the ``observatory`` table. If not specified, --observatory-location is used to determine the observatory.
+	The name of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the ``observatory`` table. If not specified, ``--observatory-location`` is used to determine the observatory.
 
 .. option:: observatory-location (--observatory-location on command line)
 
-	The latitude and longitude of the observatory from where the images were collected. Can be arbitrary expression involving header keywords. Must already have an entry in the ``observatory`` table within approximately 100km. Only used if --observatory is not specified.
+	The latitude, longitude, and altitude of the observatory. Can be arbitrary expressions involving header keywords. The matching ``observatory`` row must be within ~100km. Only used if ``--observatory`` is not specified.
 
 .. option:: target-ra (--target-ra on command line)
 
-	The RA targetted by the observations in degrees. Can be arbitrary expression involving header keywords. If target table already contains an entry for this target, the RA must match within 1%% of the field of view or an error is raised. It can be left unspecified if the target is already in the target table, in which case it will be identified by name.
+	The RA targeted by the observations in degrees. Can be arbitrary expression involving header keywords.
 
 .. option:: target-dec (--target-dec on command line)
 
-	The Dec targetted by the observations. See --target-ra for details.
+	The Dec targeted by the observations in degrees. Can be arbitrary expression involving header keywords.
 
 .. option:: target-name (--target-name on command line)
 
-	The name of the targetted area of the sky. Can be arbitrary expression involving header keywords. If not already in the target table it is automatically added.
+	The name of the targeted area of the sky. Can be arbitrary expression involving header keywords.
+
+.. option:: target-match-tolerance (--target-match-tolerance on command line)
+
+	Maximum allowed separation between image and target as a fraction of the field of view (default: 0.05 = 5%%).
 
 .. option:: observing-session-label (--observing-session-label on command line)
 
-	Unique label for the observing session. Can be arbitrary expression involving header keywords. If not already in the observing_session table it is automatically added. It will also be added as ``OBS-SESN`` keyword to the calibrated images.
+	Unique label for the observing session. Can be arbitrary expression involving header keywords.
+
+.. option:: no-provenance (--no-provenance on command line)
+
+	Skip resolving and writing the ``/Provenance`` HDF5 group. Use when the survey database has not been populated via ``wisp-survey import``. ``wisp-add-images-to-db`` ignores this flag and always resolves provenance.
 
 .. option:: image-type (--image-type on command line)
 
-	Header expression that evaluates to the image type. If it is not one of the image types listed in the database, the image is ignored. If not specified, the individual checks below are used instead.
+	Header expression that evaluates to the type of the image, which must be one of the image types defined for the project. Images whose type is not one of those are rejected, unless ``--ignore-unknown-image-types`` is passed. If not specified, every image is treated as an object frame.
 
 .. option:: ignore-unknown-image-types (--ignore-unknown-image-types on command line)
 
@@ -141,6 +153,10 @@ Configuration Options
 
 	Format string to generate the filenames for saving the calibrated images. Replacement fields can be anything from the header of the generated image (including {CLRCHNL} - name of channel if channel splitting is done, and {RAWFNAME} - the name of the corresponding input FITS file without directories or `.fits` and `.fits.fz` extension).
 
+.. option:: diagnostic-quantiles (--diagnostic-quantiles on command line)
+
+	Quantiles of calibrated pixel values to record as diagnostics for each image and channel.
+
 .. option:: average-func (--average-func on command line)
 
 	The function to use for calculating the average of pixel values accross images. For quantile and percentile, the desired level is specified by adding ``:<q>`` at the end of the function name(e.g.``quantile:0.7``).
@@ -163,7 +179,7 @@ Configuration Options
 
 .. option:: compress (--compress on command line)
 
-	If zero, the final result is not compressed. Otherwise,this is the quantization level used for compressing the image (see `astropy.io.fits` documentation).
+	Quantization level used for compressing the image (see `astropy.io.fits` documentation). If not specified, the final result is not compressed.
 
 .. option:: add-averaged-keywords (--add-averaged-keywords on command line)
 
@@ -343,7 +359,7 @@ Configuration Options
 
 .. option:: brightness-threshold (--brightness-threshold on command line)
 
-	The minimum brightness to require of extracted sources. It shouldbe tuned to a value that picks out as many stars as possible, without resulting in an appreciable number of spurious detections. Two additional parameters (:option:`filter-sources` and :option:`srcextract-max-sources`) are sometimes useful to eliminate false positives.
+	The minimum brightness to require of extracted sources. If not specified, it will be automatically calculated from the image using brightness-quantile and brightness-quantile-scale parameters. It should be tuned to a value that picks out as many stars as possible, without resulting in an appreciable number of spurious detections. Two additional parameters (:option:`filter-sources` and :option:`srcextract-max-sources`) are sometimes useful to eliminate false positives.
 
 .. option:: filter-sources (--filter-sources on command line)
 
@@ -352,6 +368,22 @@ Configuration Options
 .. option:: srcextract-max-sources (--srcextract-max-sources on command line)
 
 	If more than this many sources are extracted, the list is sorted by flux and truncated to this number.
+
+.. option:: brightness-quantile (--brightness-quantile on command line)
+
+	The quantile to use for the brightness threshold.
+
+.. option:: brightness-quantile-scale (--brightness-quantile-scale on command line)
+
+	The scale factor to use for the brightness quantile.
+
+.. option:: gaia-user (--gaia-user on command line)
+
+	The username to use for Gaia archive queries. If not specified, queries are submitted without logging in.
+
+.. option:: gaia-password (--gaia-password on command line)
+
+	The password to use for Gaia archive queries. If not specified, queries are submitted without logging in.
 
 .. option:: astrometry-catalog (--astrometry-catalog on command line)
 
@@ -380,6 +412,10 @@ Configuration Options
 .. option:: astrometry-catalog-filter (--astrometry-catalog-filter on command line)
 
 	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
+
+.. option:: astrometry-catalog-source-list (--astrometry-catalog-source-list on command line)
+
+	Path to a file listing the GAIA source IDs (one per line) to keep in the catalog. When given, the catalog is restricted to these sources at read time, so the full cached catalog query is reused. If not specified, all sources in the catalog are kept.
 
 .. option:: astrometry-catalog-epoch (--astrometry-catalog-epoch on command line)
 
@@ -433,10 +469,6 @@ Configuration Options
 
 	The astrometry.net API key to use if web solver is used to find initial match to catalog. You can get it by signing in to the web service and selecting ``Profile``.
 
-.. option:: frame-center-estimate (--frame-center-estimate on command line)
-
-	The approximate right ascention and declination of the center of the frame in degrees. Can be an expression involving header keywords. If not specified, the center of the catalog is used (assuming the catalog is not being generated on-the-fly).
-
 .. option:: frame-fov-estimate (--frame-fov-estimate on command line)
 
 	Approximate field of view of the frame in degrees. Can be an expression involving header keywords. If not specified, the field of view of the catalog divided by ``--image-scale-factor`` is used.
@@ -477,6 +509,10 @@ Configuration Options
 
 	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
 
+.. option:: photometry-catalog-source-list (--photometry-catalog-source-list on command line)
+
+	Path to a file listing the GAIA source IDs (one per line) to keep in the catalog. When given, the catalog is restricted to these sources at read time, so the full cached catalog query is reused. If not specified, all sources in the catalog are kept.
+
 .. option:: photometry-catalog-epoch (--photometry-catalog-epoch on command line)
 
 	An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.
@@ -500,6 +536,22 @@ Configuration Options
 .. option:: background-annulus (--background-annulus on command line)
 
 	The annulus to use when estimating the background under sources. The first number is the inner radius and should be large enough to avoid picking up light from the brightest stars from which reliable photometry is desired. The second number is the width of the annulus (i.e inner radius + width is the outer radius). It should be large enough to contain many tens of pixels.
+
+.. option:: bg-map-fit-terms-expression (--bg-map-fit-terms-expression on command line)
+
+	An expression involving the x and y source coordinates for the terms to include when fitting a smooth function to the background measurements.
+
+.. option:: bg-map-error-avg (--bg-map-error-avg on command line)
+
+	How to average fitting residuals for outlier rejection during background smoothing.
+
+.. option:: bg-map-rej-level (--bg-map-rej-level on command line)
+
+	How far away from the fit should a point be before it is rejected in units of error_avg.
+
+.. option:: bg-map-max-rej-iter (--bg-map-max-rej-iter on command line)
+
+	The maximum number of outlier rejection/refit iterations allowed when fitting for the smooth background of an image.
 
 .. option:: shapefit-disable-cover-grid (--shapefit-disable-cover-grid on command line)
 
@@ -673,6 +725,10 @@ Configuration Options
 
 	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
 
+.. option:: magfit-catalog-source-list (--magfit-catalog-source-list on command line)
+
+	Path to a file listing the GAIA source IDs (one per line) to keep in the catalog. When given, the catalog is restricted to these sources at read time, so the full cached catalog query is reused. If not specified, all sources in the catalog are kept.
+
 .. option:: magfit-catalog-epoch (--magfit-catalog-epoch on command line)
 
 	An expression to evaluate for each catalog source to determine the epoch to which to propagate star positions.
@@ -692,6 +748,10 @@ Configuration Options
 .. option:: single-photref-dr-fname (--single-photref-dr-fname on command line)
 
 	The name of the data reduction file of the single photometric reference to use or used to start the magnitude fitting iterations.
+
+.. option:: max-photref-separation (--max-photref-separation on command line)
+
+	The maximum angular separation between the center of an image and the center of the photometric reference, expressed in units of the image's diagonal field of view (mean angular distance from the image center to its four corners on the sky, stored as the ``diagonal_fov`` astrometry diagnostic). Images whose centers lie farther than this multiple of their diagonal FOV from the photref center are excluded.
 
 .. option:: master-photref-fname (--master-photref-fname on command line)
 
@@ -753,6 +813,14 @@ Configuration Options
 
 	The maximum number of iterations of deriving a master photometric referene and re-fitting to allow.
 
+.. option:: tempstore-dir (--tempstore-dir on command line)
+
+	Directory under which to create temporary storage used when creating master photometric references.
+
+.. option:: stat-rej-level (--stat-rej-level on command line)
+
+	Outlier rejection threshold for the cross-frame statistics collection (used to build the master photometric reference). Points deviating by more than this many times the median absolute deviation from the median across frames are rejected. Default: %(default)s
+
 .. option:: lc-fname (--lc-fname on command line)
 
 	The light curve dumping filename pattern to use.
@@ -784,6 +852,10 @@ Configuration Options
 .. option:: lc-catalog-filter (--lc-catalog-filter on command line)
 
 	An expression to evaluate for each catalog source to determine if the source should be used for astrometry of a given channel. If filter for a given channel is not specified, the full catalog is used for that channel.
+
+.. option:: lc-catalog-source-list (--lc-catalog-source-list on command line)
+
+	Path to a file listing the GAIA source IDs (one per line) to keep in the catalog. When given, the catalog is restricted to these sources at read time, so the full cached catalog query is reused. If not specified, all sources in the catalog are kept.
 
 .. option:: lc-catalog-epoch (--lc-catalog-epoch on command line)
 
@@ -837,22 +909,6 @@ Configuration Options
 
 	The filename of the master catalog to create, possibly with substitutions from the header of the single photometric reference.
 
-.. option:: bg-map-fit-terms-expression (--bg-map-fit-terms-expression on command line)
-
-	An expression involving the x and y source coordinates for the terms to include when fitting a smooth function to the background measurements.
-
-.. option:: bg-map-error-avg (--bg-map-error-avg on command line)
-
-	How to average fitting residuals for outlier rejection during background smoothing.
-
-.. option:: bg-map-rej-level (--bg-map-rej-level on command line)
-
-	How far away from the fit should a point be before it is rejected in units of error_avg.
-
-.. option:: bg-map-max-rej-iter (--bg-map-max-rej-iter on command line)
-
-	The maximum number of outlier rejection/refit iterations allowed when fitting for the smooth background of an image.
-
 .. option:: merit-function (--merit-function on command line)
 
 	The merit function to use. High values should indicate a better candidate to serve as photometric reference. The function may use any PSF parameter as well as the following frame properties:
@@ -873,7 +929,7 @@ Configuration Options
 
 .. option:: epd-datasets (--epd-datasets on command line)
 
-	A ``;`` separated list of the datasets to detrend. Each entry should be formatted as: ``<input-key> -> <output-key> [: <substitution> (= <value>| in <expression>) [& <substitution> (= <value> | in <expression>) ...]]``. For example: ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` can be used in the specification of a dataset as ``;;`` and ``&&`` respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding ``".cfg." + <parameter name>`` for configurations and just `` + <parameter name>`` for fitting statistics. For example, if the output dataset key is``"shapefit.epd.magnitude"``, the configuration datasets will looklike ``"shapefit.epd.cfg.fit_terms"``, and ``"shapefit.epd.residual"``.
+	A ``;`` separated list of the datasets to detrend. If left unspecified, every aperture found in the single photometric reference is detrended, along with the shape fitted magnitudes if the PSF/PRF grid used for :option:`shape-grid` has internal splits (i.e. the shape was actually fit rather than assumed constant accross each star). Each entry should be formatted as: ``<input-key> -> <output-key> [: <substitution> (= <value>| in <expression>) [& <substitution> (= <value> | in <expression>) ...]]``. For example: ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` can be used in the specification of a dataset as ``;;`` and ``&&`` respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding ``".cfg." + <parameter name>`` for configurations and just `` + <parameter name>`` for fitting statistics. For example, if the output dataset key is``"shapefit.epd.magnitude"``, the configuration datasets will looklike ``"shapefit.epd.cfg.fit_terms"``, and ``"shapefit.epd.residual"``.
 
 .. option:: detrend-reference-avg (--detrend-reference-avg on command line)
 
@@ -890,6 +946,10 @@ Configuration Options
 .. option:: detrend-max-rej-iter (--detrend-max-rej-iter on command line)
 
 	The maximum number of rejection/re-fitting iterations to perform. If the fit has not converged by then, the latest iteration is accepted. Default: %(default)s
+
+.. option:: detrend-reject-scale-floor (--detrend-reject-scale-floor on command line)
+
+	Floor on the residual scale (in the units of the fitted quantity) used for outlier rejection. Without it, a (near-)perfect fit has a residual ~0, collapsing the rejection threshold to ~0 so that points get rejected on floating-point noise -- which can, platform-dependently, reject enough points to fail the fit. Default: %(default)s
 
 .. option:: target-id (--target-id on command line)
 
@@ -953,7 +1013,7 @@ Configuration Options
 
 .. option:: tfa-datasets (--tfa-datasets on command line)
 
-	A ``;`` separated list of the datasets to detrend. Each entry should be formatted as: ``<input-key> -> <output-key> [: <substitution> (= <value>| in <expression>) [& <substitution> (= <value> | in <expression>) ...]]``. For example: ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` can be used in the specification of a dataset as ``;;`` and ``&&`` respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding ``".cfg." + <parameter name>`` for configurations and just `` + <parameter name>`` for fitting statistics. For example, if the output dataset key is``"shapefit.epd.magnitude"``, the configuration datasets will looklike ``"shapefit.epd.cfg.fit_terms"``, and ``"shapefit.epd.residual"``.
+	A ``;`` separated list of the datasets to detrend. If left unspecified, every aperture found in the single photometric reference is detrended, along with the shape fitted magnitudes if the PSF/PRF grid used for :option:`shape-grid` has internal splits (i.e. the shape was actually fit rather than assumed constant accross each star). Each entry should be formatted as: ``<input-key> -> <output-key> [: <substitution> (= <value>| in <expression>) [& <substitution> (= <value> | in <expression>) ...]]``. For example: ``"apphot.magfit.magnitude -> apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in range(39)"``. White space is ignored. Literal ``;`` and ``&`` can be used in the specification of a dataset as ``;;`` and ``&&`` respectively. Configurations of how the fitting was done and the resulting residual and non-rejected points are added to configuration datasets generated by removing the tail of the destination and adding ``".cfg." + <parameter name>`` for configurations and just `` + <parameter name>`` for fitting statistics. For example, if the output dataset key is``"shapefit.epd.magnitude"``, the configuration datasets will looklike ``"shapefit.epd.cfg.fit_terms"``, and ``"shapefit.epd.residual"``.
 
 .. option:: saturation-magnitude (--saturation-magnitude on command line)
 
@@ -969,7 +1029,7 @@ Configuration Options
 
 .. option:: tfa-mag-rms-outlier-threshold (--tfa-mag-rms-outlier-threshold on command line)
 
-	Stars are not allowed to be in the template if their RMS is more than this many sigma away from the mag-rms fit. This is also the threshold used for rejecting outliers when doing the iterative fit for the rms as a function of magnutude. Default: %(default)s.
+	Stars are not allowed to be in the template if their RMS is more than this many sigma away from the mag-rms fit. This is also the threshold used for rejecting outliers when doing the iterative fit for the rms as a function of magnitude. Default: %(default)s.
 
 .. option:: tfa-mag-rms-max-rej-iter (--tfa-mag-rms-max-rej-iter on command line)
 

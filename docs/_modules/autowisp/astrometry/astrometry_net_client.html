@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -169,7 +189,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">quote</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
     <span class="c1"># py2</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">urllib</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">quote</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">urllib2</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">Request</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
@@ -182,6 +202,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">email.encoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">encode_noop</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolveAstrometryError</span>
 
 
 <div class="viewcode-block" id="json2python">
@@ -200,15 +222,15 @@
 
 <div class="viewcode-block" id="MalformedResponse">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.MalformedResponse">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MalformedResponse</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<span class="k">class</span><span class="w"> </span><span class="nc">MalformedResponse</span><span class="p">(</span><span class="n">SolveAstrometryError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The astrometry.net server returned an unparseable response.&quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="RequestError">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.RequestError">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">RequestError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<span class="k">class</span><span class="w"> </span><span class="nc">RequestError</span><span class="p">(</span><span class="n">SolveAstrometryError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The astrometry.net server reported an error for a request.&quot;&quot;&quot;</span></div>
 
 
 
@@ -245,7 +267,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending to URL: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
 
         <span class="c1"># If we&#39;re sending a file, format a multipart/form-data</span>
-        <span class="k">if</span> <span class="n">file_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">file_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
 
             <span class="n">boundary_key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -291,10 +313,10 @@
 
         <span class="c1"># Add session cookie if available</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s1">&#39;Cookie&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;session=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s2">&quot;Cookie&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;session=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># Optionally add Referer header as well</span>
-        <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s1">&#39;Referer&#39;</span><span class="p">,</span> <span class="s1">&#39;https://nova.astrometry.net/api/login&#39;</span><span class="p">)</span>
-        
+        <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s2">&quot;Referer&quot;</span><span class="p">,</span> <span class="s2">&quot;https://nova.astrometry.net/api/login&quot;</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">f</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
@@ -312,7 +334,7 @@
             <span class="k">except</span> <span class="p">(</span><span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;HTTPError:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">print_exc</span><span class="p">())</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Retrying...&quot;</span><span class="p">)</span>
-                <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span></div>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Client.login">
@@ -396,7 +418,7 @@
 
 <div class="viewcode-block" id="Client.overlay_plot">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.overlay_plot">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">overlay_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">overlay_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">astrometry.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">util</span> <span class="k">as</span> <span class="n">anutil</span>
 
         <span class="n">wcs</span> <span class="o">=</span> <span class="n">anutil</span><span class="o">.</span><span class="n">Tan</span><span class="p">(</span><span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="p">)</span>
@@ -422,19 +444,19 @@
 
 <div class="viewcode-block" id="Client.sdss_plot">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.sdss_plot">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sdss_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sdss_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlay_plot</span><span class="p">(</span><span class="s2">&quot;sdss_image_for_wcs&quot;</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Client.galex_plot">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.galex_plot">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">galex_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">galex_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlay_plot</span><span class="p">(</span><span class="s2">&quot;galex_image_for_wcs&quot;</span><span class="p">,</span> <span class="n">outfn</span><span class="p">,</span> <span class="n">wcsfn</span><span class="p">,</span> <span class="n">wcsext</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Client.myjobs">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.myjobs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">myjobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">myjobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;myjobs/&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span></div>
 
@@ -445,8 +467,8 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">justdict</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">result</span>
-        <span class="n">stat</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/calibration&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calibration: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/tags&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
@@ -460,12 +482,12 @@
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;jobs/</span><span class="si">%s</span><span class="s2">/info&quot;</span> <span class="o">%</span> <span class="n">job_id</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calibration: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">stat</span></div>
+        <span class="k">return</span> <span class="n">stat</span>  <span class="c1"># pragma: no cover</span></div>
 
 
 <div class="viewcode-block" id="Client.annotate_data">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.annotate_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">annotate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param job_id: id of job</span>
 <span class="sd">        :return: return data for annotations</span>
@@ -485,7 +507,7 @@
 
 <div class="viewcode-block" id="Client.jobs_by_tag">
 <a class="viewcode-back" href="../../../implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.jobs_by_tag">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">jobs_by_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">jobs_by_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">exact</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="n">exact_option</span> <span class="o">=</span> <span class="s2">&quot;exact=yes&quot;</span> <span class="k">if</span> <span class="n">exact</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span>
             <span class="s2">&quot;jobs_by_tag?query=</span><span class="si">%s</span><span class="s2">&amp;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">quote</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span> <span class="n">exact_option</span><span class="p">),</span>
@@ -496,7 +518,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running with args </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">optparse</span>
 

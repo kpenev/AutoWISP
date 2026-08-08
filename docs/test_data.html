@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Example Usage: Processing the test data &mdash; AutoWISP  documentation</title>
+  <title>Example: processing the test data one command line step at a time &mdash; AutoWISP  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -20,11 +20,13 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Pipeline Steps" href="processing_steps.html" />
-    <link rel="prev" title="Installation" href="installation.html" /> 
+    <link rel="next" title="How a setting gets its value" href="configuration.html" />
+    <link rel="prev" title="Bringing your own data" href="bringing_your_own_data.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,12 +51,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -76,23 +95,26 @@
 <li class="toctree-l2"><a class="reference internal" href="#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -113,7 +135,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Example Usage: Processing the test data</li>
+      <li class="breadcrumb-item active">Example: processing the test data one command line step at a time</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/test_data.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -123,404 +145,266 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Example-Usage:-Processing-the-test-data">
-<h1>Example Usage: Processing the test data<a class="headerlink" href="#Example-Usage:-Processing-the-test-data" title="Link to this heading"></a></h1>
-<p>The following will walk you through processing a very small collection of images to lightcurves.</p>
-<p>We use a jupyter notebook format for this description to allow this to be closer to a living document that updates along with AutoWISP, however it is meant to demonstrate the usage of AutoWISP from the command line. All commands starting with <code class="docutils literal notranslate"><span class="pre">!</span></code> or <code class="docutils literal notranslate"><span class="pre">%</span></code> are shell commands, meaning you can execute them in your operating system’s terminal (command prompt in Windows).</p>
-<section id="Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">
-<h2>Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path<a class="headerlink" href="#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+  <section id="Example:-processing-the-test-data-one-command-line-step-at-a-time">
+<h1>Example: processing the test data one command line step at a time<a class="headerlink" href="#Example:-processing-the-test-data-one-command-line-step-at-a-time" title="Link to this heading"></a></h1>
+<p>This walks you through processing a very small collection of images all the way to lightcurves, running each stage of the pipeline yourself as a separate command.</p>
+<p><strong>This is not the usual way to use AutoWISP.</strong> Most users work through the browser interface, <code class="docutils literal notranslate"><span class="pre">wisp-bui</span></code>, which is where you set the configuration and press start; behind it the pipeline works out which stages still need running for which images, does them in the right order, and keeps track of what has already been done. See the <a class="reference internal" href="installation.html"><span class="doc">installation instructions</span></a> for how to start it. The browser interface carries its own walkthrough of the same test data used here, one button
+click at a time; it offers it the first time you open the interface, and the <strong>Tutorial</strong> button on the project list starts it again at any point.</p>
+<p>Driving the <code class="docutils literal notranslate"><span class="pre">wisp-*</span></code> commands by hand, as below, was the only way to use AutoWISP in the beginning. It is still worth doing once, because it shows exactly what each stage takes in and what it produces, and it remains the way to re-run a single stage on its own or to build a processing sequence of your own in a script.</p>
+<p>We use a jupyter notebook format for this description to allow this to be closer to a living document that updates along with AutoWISP. All commands starting with <code class="docutils literal notranslate"><span class="pre">!</span></code> or <code class="docutils literal notranslate"><span class="pre">%</span></code> are shell commands, meaning you can execute them in your operating system’s terminal (command prompt in Windows) after dropping the leading <code class="docutils literal notranslate"><span class="pre">!</span></code> or <code class="docutils literal notranslate"><span class="pre">%</span></code>.</p>
+<section id="Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">
+<h2>Create a temporary directory to work in (remember to delete it at the end) and enter it<a class="headerlink" href="#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">mkdir</span> autowisp_test
-<span class="o">%</span><span class="k">cd</span> autowisp_test
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%mkdir autowisp_test
+%cd autowisp_test
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-mkdir: autowisp_test: File exists
-/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data/autowisp_test
-</pre></div></div>
 </div>
 </section>
 <section id="Download-the-test-data">
 <h2>Download the test data<a class="headerlink" href="#Download-the-test-data" title="Link to this heading"></a></h2>
-<p>The raw images processed in this example as well as the expected files that processing will produce can be downloaded from: (<a class="reference external" href="https://zenodo.org/records/15786531/files/test_data.zip?download=1">https://zenodo.org/records/15786531/files/test_data.zip?download=1</a>)</p>
-<p>Download the zip file from zenodo and unpack it. This will produce several directories called: <code class="docutils literal notranslate"><span class="pre">CAL</span></code>, <code class="docutils literal notranslate"><span class="pre">DR</span></code>, <code class="docutils literal notranslate"><span class="pre">Gaia</span></code>, <code class="docutils literal notranslate"><span class="pre">LC</span></code>, <code class="docutils literal notranslate"><span class="pre">MASTERS</span></code>, and <code class="docutils literal notranslate"><span class="pre">RAW</span></code>. It should also produce several files, one of which is called <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code>.</p>
-<p>Move <code class="docutils literal notranslate"><span class="pre">RAW</span></code> and <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> to the directory we just created.</p>
-<p>The remaining directories contain the files that processing should produce. You can compare what you get to those files.</p>
+<p>The raw images processed in this example, along with the files that processing should produce, are published on Zenodo:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.5281/zenodo.15727355">https://doi.org/10.5281/zenodo.15727355</a> always takes you to the newest version;</p></li>
+<li><p>the version this page was written against is <a class="reference external" href="https://zenodo.org/records/21539385/files/test_data.zip?download=1">record 21539385</a>.</p></li>
+</ul>
+<p>The download is around 220 MB. Unpacking it gives you the images to process (<code class="docutils literal notranslate"><span class="pre">RAW</span></code>), the configuration used throughout this example (<code class="docutils literal notranslate"><span class="pre">test.cfg</span></code>), the reference maps needed to work out where the images point (<code class="docutils literal notranslate"><span class="pre">anet_indices</span></code>), and several directories holding the results a successful run should produce: <code class="docutils literal notranslate"><span class="pre">CAL</span></code>, <code class="docutils literal notranslate"><span class="pre">DR</span></code>, <code class="docutils literal notranslate"><span class="pre">LC</span></code>, <code class="docutils literal notranslate"><span class="pre">MASTERS</span></code> and <code class="docutils literal notranslate"><span class="pre">Gaia</span></code>. There are a few other odds and ends (<code class="docutils literal notranslate"><span class="pre">catalog_tests</span></code>, <code class="docutils literal notranslate"><span class="pre">logs</span></code>, <code class="docutils literal notranslate"><span class="pre">autowisp.db</span></code>, <code class="docutils literal notranslate"><span class="pre">master_config.json</span></code>, <code class="docutils literal notranslate"><span class="pre">survey_instruments.json</span></code>) which
+this example does not use.</p>
+<p>Move <code class="docutils literal notranslate"><span class="pre">RAW</span></code>, <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">anet_indices</span></code> into the directory we just created. Leave the rest where they are: those are what you can compare your own results against.</p>
+</section>
+<section id="How-the-images-are-organized,-and-what-processing-produces">
+<h2>How the images are organized, and what processing produces<a class="headerlink" href="#How-the-images-are-organized,-and-what-processing-produces" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">RAW</span></code> is split into four subdirectories, one per kind of image, and this is how AutoWISP expects your own data to be arranged as well. Sorting your images this way before you start is worth the trouble, and a good deal easier than untangling them afterwards.</p>
+<ul class="simple">
+<li><p><strong>``zero``</strong> – bias frames: exposures of as near zero length as the camera allows, measuring the level every pixel starts from even when no light has fallen on it.</p></li>
+<li><p><strong>``dark``</strong> – dark frames: exposures as long as the science ones but with no light reaching the detector, measuring the charge that collects in each pixel by itself.</p></li>
+<li><p><strong>``flat``</strong> – flat frames: images of something as uniformly bright as can be managed, measuring how sensitive the system is to light arriving from each direction.</p></li>
+<li><p><strong>``object``</strong> – the images of the night sky you actually want photometry from. If these are not all alike – different exposure times, a change of filter, anything in the optical path that was altered part way through – it is usually better to split them further still and process each group on its own.</p></li>
+</ul>
+<p>Processing then fills in three kinds of file, and the commands below produce them in this order:</p>
+<ul class="simple">
+<li><p><strong>Calibrated images</strong>, under <code class="docutils literal notranslate"><span class="pre">CAL</span></code>, in FITS format, each holding three things: the corrected pixel values, an estimate of the uncertainty on each value, and a mask flagging pixels not to be trusted – saturated ones, ones that received charge spilling over from a saturated neighbor, and so on.</p></li>
+<li><p><strong>Data reduction files</strong>, under <code class="docutils literal notranslate"><span class="pre">DR</span></code>, one per calibrated image, in <a class="reference external" href="https://www.hdfgroup.org/solutions/hdf5/">HDF5</a> format. Each accumulates everything measured about the stars in that one image: their positions, their shapes, their flux measurements, the transformation between sky and image coordinates.</p></li>
+<li><p><strong>Lightcurves</strong>, under <code class="docutils literal notranslate"><span class="pre">LC</span></code>, one per star, also HDF5, each holding the time series of every measurement of that star across all the images.</p></li>
+</ul>
+<p>You will also end up with a <code class="docutils literal notranslate"><span class="pre">MASTERS</span></code> directory holding the combined calibration frames and various summary files, and a <code class="docutils literal notranslate"><span class="pre">logs</span></code> directory. Where those go, and what the files in them are called, <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> decides.</p>
+</section>
+<section id="Adjust-test.cfg-before-you-start">
+<h2>Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start<a class="headerlink" href="#Adjust-test.cfg-before-you-start" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> is a configuration file: a plain text file of settings, which saves giving them on every command below. Every command takes it with <code class="docutils literal notranslate"><span class="pre">--config-file</span></code> (or <code class="docutils literal notranslate"><span class="pre">-c</span></code> for short).</p>
+<p>Two things in it were written for the machine the test data was produced on and have to be changed. Open it in a text editor and find the <code class="docutils literal notranslate"><span class="pre">[astrometry]</span></code> section. Replace the <code class="docutils literal notranslate"><span class="pre">anet-indices</span></code> line with the full path of the <code class="docutils literal notranslate"><span class="pre">anet_indices</span></code> directory you moved across, written twice:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>anet-indices = [/full/path/to/anet_indices, /full/path/to/anet_indices]
+</pre></div>
+</div>
+<p>AutoWISP expects two sets of reference maps, one for images covering a small patch of sky and one for a large patch; the bundled set does for both here. <strong>Take care to get these paths right: if either does not exist, AutoWISP quietly solves over the internet instead</strong>, which is far slower and needs an astrometry.net account of your own.</p>
+<p>The same file also carries a <code class="docutils literal notranslate"><span class="pre">gaia-user</span></code>, a <code class="docutils literal notranslate"><span class="pre">gaia-password</span></code> and an <code class="docutils literal notranslate"><span class="pre">anet-api-key</span></code> belonging to the authors. Replace them with your own or simply delete those three lines: the Gaia archive can be queried without an account, and no astrometry.net key is needed once the reference maps above are found.</p>
+<p>The rest of <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> can be left alone. It is worth a look regardless, as it is a compact summary of how a run is configured; <a class="reference internal" href="wisp_options.html"><span class="doc">the options documentation</span></a> explains what each setting does.</p>
 </section>
 <section id="Perform-the-calibration-for-the-zero-frames">
 <h2>Perform the calibration for the zero frames<a class="headerlink" href="#Perform-the-calibration-for-the-zero-frames" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<p>Three things stand between the raw pixel values and a measurement of how much light actually fell on the detector: the fixed offset the camera adds to every pixel (the bias), the charge that builds up in the detector even in complete darkness (the dark current), and the fact that different pixels turn light into signal with different efficiency (the flat field). Each is measured from its own kind of calibration image, which is what the six commands below do, before the seventh applies all three
+to the images of the sky.</p>
+<p>None of that is compulsory. In many applications – possibly most – collecting calibration data is impractical and one does without. If that is your situation, skip ahead to calibrating the object frames and give no masters on the command line. The photometry will not be as good as it could have been, but it will work perfectly well.</p>
+<p>What is not optional is the calibration step itself, even with nothing to correct for. It converts the pixel values from integers to floating point, adds the information the pipeline needs to the header, separates the colors of a color camera, and so on.</p>
+<p>Here we have the calibration frames, so we will do the full job. We begin with the bias, measured from “zero” frames – exposures of as near zero length as the camera allows. These are themselves calibrated first, with no masters to apply.</p>
+<p><strong>Settings that matter most</strong>, and they apply to all four <code class="docutils literal notranslate"><span class="pre">wisp-calibrate</span></code> commands below: <a class="reference internal" href="wisp_options.html#cmdoption-arg-exposure-start-utc"><span class="std std-ref">exposure-start-utc</span></a> or <a class="reference internal" href="wisp_options.html#cmdoption-arg-exposure-start-jd"><span class="std std-ref">exposure-start-jd</span></a>, <a class="reference internal" href="wisp_options.html#cmdoption-arg-exposure-seconds"><span class="std std-ref">exposure-seconds</span></a>, <a class="reference internal" href="wisp_options.html#cmdoption-arg-saturation-threshold"><span class="std std-ref">saturation-threshold</span></a> and <a class="reference internal" href="wisp_options.html#cmdoption-arg-fnum"><span class="std std-ref">fnum</span></a>. Give <a class="reference internal" href="wisp_options.html#cmdoption-arg-gain"><span class="std std-ref">gain</span></a>
+as well if you know it – the uncertainty estimates depend on it. For a color camera you will need <code class="docutils literal notranslate"><span class="pre">split-channels</span></code> or <a class="reference internal" href="wisp_options.html#cmdoption-arg-raw-hdu"><span class="std std-ref">raw-hdu</span></a>, and if your images contain regions that are not sky, <a class="reference internal" href="wisp_options.html#cmdoption-arg-image-area"><span class="std std-ref">image-area</span></a> says which part is.</p>
+<p>Those non-sky regions can often be put to use rather than simply trimmed away. Many detectors read out extra pixels past the physical edge of the sensor, or keep an area shielded from light, and either measures the bias or dark level <em>as it is at that moment</em> rather than as it was when the masters were taken – which matters, because both drift with temperature. AutoWISP can fit a smooth function to such a region and subtract it from each raw frame before the masters are applied, which you ask
+for with <a class="reference internal" href="wisp_options.html#cmdoption-arg-overscans"><span class="std std-ref">overscans</span></a>. The masters are then left to supply only the pixel-to-pixel differences, which is the part a strip of edge pixels cannot capture. Whether this helps, and which combination works best, depends on the detector.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/zero
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/zero
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 <p>This should produce a directory called <code class="docutils literal notranslate"><span class="pre">CAL</span></code> under which there will be another directory called <code class="docutils literal notranslate"><span class="pre">zero</span></code> which contains the calibrated bias frames.</p>
 </section>
 <section id="Create-a-master-bias-by-stacking-the-calibrated-zero-frames">
 <h2>Create a master bias by stacking the calibrated zero frames<a class="headerlink" href="#Create-a-master-bias-by-stacking-the-calibrated-zero-frames" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<p>Any single bias frame carries the camera’s read noise along with the offset we are after. Combining all of them into one image averages that noise down and leaves a clean measure of the level each pixel starts from. That combined image is the master bias, and it is what gets subtracted from everything calibrated from here on.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-stacked-master-fname"><span class="std std-ref">stacked-master-fname</span></a>, which decides where the master is written and what it is called. It is a pattern rather than a plain name – <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> builds it out of the image type and color channel, which is how the same command knows to produce <code class="docutils literal notranslate"><span class="pre">zero_R.fits</span></code> here and <code class="docutils literal notranslate"><span class="pre">dark_R.fits</span></code> two steps later.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/zero/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-stack-to-master -c test.cfg CAL/zero/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 <p>This should produce a directory called MASTERS containing a single FITS file, which is the master bias.</p>
 </section>
 <section id="Perform-the-calibration-for-the-dark-frames">
 <h2>Perform the calibration for the dark frames<a class="headerlink" href="#Perform-the-calibration-for-the-dark-frames" title="Link to this heading"></a></h2>
+<p>Dark frames are exposures of the same length as the science images taken with no light reaching the detector, so what they record is the charge each pixel accumulates on its own over that length of time.</p>
 <p>Note that when calibrating the dark frames we wish to subtract the master bias generated above. In order to do this, we specify that the master that was generated above should be used as a master bias by adding <code class="docutils literal notranslate"><span class="pre">--master-bias</span> <span class="pre">&quot;R:MASTERS/zero_R.fits.fz&quot;</span></code> to our command line</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/dark/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">&quot;R:MASTERS/zero_R.fits.fz&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/dark/*.fits.fz --master-bias &quot;R:MASTERS/zero_R.fits.fz&quot;
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 <p>There should now be another directory under <code class="docutils literal notranslate"><span class="pre">CAL</span></code>, called <code class="docutils literal notranslate"><span class="pre">dark</span></code> which contains the calibrated dark frames.</p>
 </section>
 <section id="Create-a-master-dark-by-stacking-the-calibrated-dark-images">
 <h2>Create a master dark by stacking the calibrated dark images<a class="headerlink" href="#Create-a-master-dark-by-stacking-the-calibrated-dark-images" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<p>Exactly as for the bias, and for the same reason: combining the individual dark frames averages away their noise and leaves a per-pixel measure of how much dark charge collects during an exposure of this length.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/dark/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-stack-to-master -c test.cfg CAL/dark/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-calibration-for-flat-frames">
 <h2>Perform calibration for flat frames<a class="headerlink" href="#Perform-calibration-for-flat-frames" title="Link to this heading"></a></h2>
+<p>Flat frames are images of something as uniformly bright as one can manage – the twilight sky, or an evenly lit screen. Since the scene itself is featureless, any structure that shows up in them belongs to the instrument: vignetting towards the corners, shadows of dust on the optics, and the differing sensitivity of individual pixels.</p>
 <p>Those should be corrected both with the master bias and the master dark generated in the previous two steps:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/flat/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">&quot;R:MASTERS/zero_R.fits.fz&quot;</span><span class="w"> </span>--master-dark<span class="w"> </span><span class="s2">&quot;R:MASTERS/dark_R.fits.fz&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/flat/*.fits.fz --master-bias &quot;R:MASTERS/zero_R.fits.fz&quot; --master-dark &quot;R:MASTERS/dark_R.fits.fz&quot;
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">
 <h2>Build a master flat out of the individual calibrated flat frames<a class="headerlink" href="#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames" title="Link to this heading"></a></h2>
-<p>Note that creating a master flat uses a different command than creating master bias and dark!</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<p>Note that creating a master flat uses a different command than creating master bias and dark! The reason is that AutoWISP is built to cope with flats taken on the twilight sky, which is not perfectly uniform, fades fast enough that successive frames differ in overall level, and may have clouds drifting across it. Combining those calls for more care than the straight stack that serves for bias and dark.</p>
+<p>Part of that care is separating the well-exposed frames from the faint ones, which is why there are two outputs rather than one: <a class="reference internal" href="wisp_options.html#cmdoption-arg-high-flat-master-fname"><span class="std std-ref">high-flat-master-fname</span></a> and <a class="reference internal" href="wisp_options.html#cmdoption-arg-low-flat-master-fname"><span class="std std-ref">low-flat-master-fname</span></a>. The high-illumination master is only produced at all if at least <a class="reference internal" href="wisp_options.html#cmdoption-arg-min-high-combine"><span class="std std-ref">min-high-combine</span></a> frames survive the checks.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-stack-to-master-flat<span class="w"> </span>-c<span class="w"> </span>test.cfg<span class="w"> </span>CAL/flat/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-stack-to-master-flat -c test.cfg CAL/flat/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-calibration-for-object-frames">
 <h2>Perform calibration for object frames<a class="headerlink" href="#Perform-calibration-for-object-frames" title="Link to this heading"></a></h2>
-<p>Now we use all three masters</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<p>These are the actual images of the night sky, the ones we want photometry from. Now we use all three masters: the bias and the dark are subtracted and what remains is divided by the flat. The result is what every step from here on measures.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-calibrate<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>RAW/object/*.fits.fz<span class="w"> </span>--master-bias<span class="w"> </span><span class="s2">&quot;R:MASTERS/zero_R.fits.fz&quot;</span><span class="w"> </span>--master-dark<span class="w"> </span><span class="s2">&quot;R:MASTERS/dark_R.fits.fz&quot;</span><span class="w"> </span>--master-flat<span class="w"> </span><span class="s2">&quot;R:MASTERS/flat_R.fits.fz&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-calibrate --config-file test.cfg RAW/object/*.fits.fz --master-bias &quot;R:MASTERS/zero_R.fits.fz&quot; --master-dark &quot;R:MASTERS/dark_R.fits.fz&quot; --master-flat &quot;R:MASTERS/flat_R.fits.fz&quot;
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 <p>If you wish to see how your calibrated images look, we recommend using <a class="reference external" href="https://sites.google.com/cfa.harvard.edu/saoimageds9/download">SAO DS9</a>.</p>
 </section>
 <section id="Find-stars-in-the-calibrated-object-frames">
 <h2>Find stars in the calibrated object frames<a class="headerlink" href="#Find-stars-in-the-calibrated-object-frames" title="Link to this heading"></a></h2>
-<p>This will create another directory called <code class="docutils literal notranslate"><span class="pre">DR</span></code> which contains what we call data reduction files. These files are where the pipeline saves the results of processing the calibrated images. So fare, these files will only contain the stars that we find in the images. If you wish to see the contents of HDF5 files, the best tool we are aware of is: <a class="reference external" href="https://www.hdfgroup.org/download-hdfview/">HDFView</a></p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<p>Before any brightness can be measured, AutoWISP needs to know whereabouts on each image the stars actually fell. This step goes through each calibrated image looking for anything standing out above the local background and records, for each thing it finds, an approximate position, a rough flux, and an elliptical Gaussian fitted to the pixels around it as a crude description of its shape. The positions are not yet precise – making them so is the job of the next step – but they are good enough
+to start from. Behind the scenes the search is done by <code class="docutils literal notranslate"><span class="pre">fistar</span></code>, from the <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2012MNRAS.421.1825P/abstract">FITSH</a> package.</p>
+<p>This will create another directory called <code class="docutils literal notranslate"><span class="pre">DR</span></code> which contains what we call data reduction files. These files are where the pipeline saves the results of processing the calibrated images, and every stage from here on adds to them. So far, they will only contain the stars that we find in the images. If you wish to see the contents of HDF5 files, the best tool we are aware of is: <a class="reference external" href="https://www.hdfgroup.org/download-hdfview/">HDFView</a></p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-brightness-threshold"><span class="std std-ref">brightness-threshold</span></a>, which decides how far above the background something has to stand to count as a source, and, if needed, <a class="reference internal" href="wisp_options.html#cmdoption-arg-filter-sources"><span class="std std-ref">filter-sources</span></a> and <a class="reference internal" href="wisp_options.html#cmdoption-arg-srcextract-max-sources"><span class="std std-ref">srcextract-max-sources</span></a> to throw out what you do not want and cap how much is kept.</p>
+<p>Finding a good threshold is a matter of trial and error, and the browser interface has a sandbox for exactly that: it runs source extraction on any calibrated image with whatever values of those three settings you care to try, and shows the result straight away.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-find-stars<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-find-stars --config-file test.cfg CAL/object/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-astrometry-on-DR-files">
 <h2>Perform astrometry on DR files<a class="headerlink" href="#Perform-astrometry-on-DR-files" title="Link to this heading"></a></h2>
-<p>This matches the extracted sources to a catalog of stars from the Gaia space mission and uses that information to figure out how to convert from coordinates on the sky to coordinates within each image. The conversion will also be stored in the DR files.</p>
-<p>Note that this may take a while, since we use an online service to find an initial guess which is often over-subscribed.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<p>This matches the extracted sources to a catalog of stars from the Gaia space mission and uses that information to figure out how to convert from coordinates on the sky to coordinates within each image. The conversion will also be stored in the DR files. Having it is what lets every later step use the catalog’s far more precise positions, and everything else the catalog knows about each star, instead of relying on what can be measured from the images alone.</p>
+<p>It happens in two stages. First astrometry.net matches the few tens to few hundred brightest extracted sources against the sky, which gives a rough transformation to start from. AutoWISP then refines that repeatedly until very nearly every extracted source has been paired with its catalog counterpart – thousands of them in a wide-field image. Having that many pairs to fit is what makes it possible to model the substantial distortion wide-field optics usually have, rather than just a shift, a
+rotation and a scale.</p>
+<p>This is the step that uses the <code class="docutils literal notranslate"><span class="pre">anet_indices</span></code> you configured above. It also asks the Gaia archive, over the internet, which stars ought to be in each image, so a working connection is needed. Each patch of sky is fetched only once and kept under <code class="docutils literal notranslate"><span class="pre">MASTERS/Gaia</span></code>, so running this again is much quicker.</p>
+<p>Do not be alarmed if a frame fails: in this dataset one of the ten object images cannot be solved. That is a normal outcome rather than a fault – AutoWISP records the failure, leaves that image out of everything that follows, and carries on with the other nine.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-anet-indices"><span class="std std-ref">anet-indices</span></a>, and <a class="reference internal" href="wisp_options.html#cmdoption-arg-anet-api-key"><span class="std std-ref">anet-api-key</span></a> if you are solving over the web, both discussed above. Then <a class="reference internal" href="wisp_options.html#cmdoption-arg-astrometry-catalog-max-magnitude"><span class="std std-ref">astrometry-catalog-max-magnitude</span></a>, which should roughly correspond to the brightness threshold used for source extraction, so that the catalog holds about the same stars the images do;
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-frame-fov-estimate"><span class="std std-ref">frame-fov-estimate</span></a>, telling the solver roughly how much sky an image covers; <a class="reference internal" href="wisp_options.html#cmdoption-arg-astrometry-order"><span class="std std-ref">astrometry-order</span></a>, how much distortion the transformation is allowed to describe; and <a class="reference internal" href="wisp_options.html#cmdoption-arg-max-srcmatch-distance"><span class="std std-ref">max-srcmatch-distance</span></a>, <a class="reference internal" href="wisp_options.html#cmdoption-arg-min-match-fraction"><span class="std std-ref">min-match-fraction</span></a> and
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-max-rms-distance"><span class="std std-ref">max-rms-distance</span></a>, which between them decide what counts as a match and when a solution is good enough to accept.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-solve-astrometry<span class="w"> </span>--config-file<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-solve-astrometry --config-file test.cfg DR/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-PSF/PRF-fitting">
 <h2>Perform PSF/PRF fitting<a class="headerlink" href="#Perform-PSF/PRF-fitting" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<p>A star is a point source, but by the time its light has passed through the atmosphere and the optics and landed on the detector it is spread into a small blob of a characteristic shape. This step models that shape, and at the same time finds the factor by which it has to be scaled to reproduce the pixels each star actually covers. That factor is a measure of the star’s brightness, and it is the first of the two kinds of brightness measurement AutoWISP produces.</p>
+<p>The shape is not fitted independently for every star: it is required to vary smoothly across each image and from one image to the next, so that thousands of stars contribute to a model with comparatively few free parameters. The fitting itself is done by <a class="reference external" href="https://kpenev.github.io/AstroWISP/">AstroWISP</a>, the lower-level library AutoWISP is built on, which models the shape as a piecewise bi-cubic function.</p>
+<p>The two names in the heading are not interchangeable:</p>
+<ul class="simple">
+<li><p>The <strong>point spread function</strong>, PSF(dx, dy), is how much light arrives at an offset (dx, dy) from where the star is projected. To predict what a given pixel will record you have to integrate it, multiplied by a map of how sensitivity varies within a pixel, over the area of that pixel.</p></li>
+<li><p>The <strong>pixel response function</strong>, PRF(dx, dy), goes one step further and gives directly what a pixel whose center sits at offset (dx, dy) will register – for any real dx and dy, not just whole pixels. It has the sub-pixel sensitivity map and other detector behaviour already folded into its definition. Being in effect the PSF already convolved with that map, it is the smoother of the two and the easier to model.</p></li>
+</ul>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-shape-mode"><span class="std std-ref">shape-mode</span></a> picks which of the two you are fitting; <a class="reference internal" href="wisp_options.html#cmdoption-arg-shape-grid"><span class="std std-ref">shape-grid</span></a> and <a class="reference internal" href="wisp_options.html#cmdoption-arg-shape-terms-expression"><span class="std std-ref">shape-terms-expression</span></a> set how much freedom the shape has, across a star and across the image respectively; <a class="reference internal" href="wisp_options.html#cmdoption-arg-shapefit-smoothing"><span class="std std-ref">shapefit-smoothing</span></a> and
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-map-variables"><span class="std std-ref">map-variables</span></a> control the fit further; <a class="reference internal" href="wisp_options.html#cmdoption-arg-background-annulus"><span class="std std-ref">background-annulus</span></a> says where the sky level around each star is measured; <a class="reference internal" href="wisp_options.html#cmdoption-arg-photometry-catalog-max-magnitude"><span class="std std-ref">photometry-catalog-max-magnitude</span></a> sets how faint a star still gets measured, and going too deep costs a great deal of time and disk space for very noisy measurements; and
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-subpixmap"><span class="std std-ref">subpixmap</span></a> is needed for a color camera.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-star-shape<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-fit-star-shape --config test.cfg CAL/object/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-Reading model
-Reading grid
-Reading coefficients
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-aperture-photometry">
 <h2>Perform aperture photometry<a class="headerlink" href="#Perform-aperture-photometry" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<p>The second and more direct way of measuring brightness: add up the light inside circles of several sizes drawn around each star’s position – four sizes in this example. Pixels lying only partly inside a circle have to be split correctly, which needs both the shape fitted in the previous step and the sub-pixel sensitivity map.</p>
+<p>Which size works best is not known in advance. A small circle collects less of the sky background but also less of the star, and a large one is more likely to catch a neighbor; the best compromise depends on how sharp the images are and how crowded the field is. So all four are measured, kept side by side, and can be compared later.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-apertures"><span class="std std-ref">apertures</span></a>, the list of radii to measure, and <a class="reference internal" href="wisp_options.html#cmdoption-arg-subpixmap"><span class="std std-ref">subpixmap</span></a> for a color camera.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-measure-aperture-photometry<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>CAL/object/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-measure-aperture-photometry --config test.cfg CAL/object/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Reading backgroundReading background
-
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Reading background
-Setting apertures
-Reading PSF map
-Reading model
-Reading gridSetting apertures
-
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Reading coefficientsCreating flux measuring object
-
-Creating flux measuring object
-Measuring flux for image 0Measuring flux for image
-0
-tree suffix = tree suffix = .0.0
-
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Setting apertures
-Reading PSF map
-Reading model
-Reading grid
-Reading coefficients
-Creating flux measuring object
-Measuring flux for image 0
-tree suffix = .0
-Reading background
-Reading background
-Reading background
-Reading background
-Reading background
-Reading background
-
-</pre></div></div>
 </div>
 </section>
 <section id="Run-fit-source-extracted-PSF-map">
 <h2>Run fit source extracted PSF map<a class="headerlink" href="#Run-fit-source-extracted-PSF-map" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<p>This is not a repeat of the PSF/PRF fitting step above, and the two should not be confused. That step built a detailed model of the shape of a star directly from the pixels. This one works with something much cruder that we already have: back in the find-stars step, <code class="docutils literal notranslate"><span class="pre">fistar</span></code> fitted an elliptical Gaussian to the pixels belonging to each star it found, boiling the shape of that star down to three numbers – here <code class="docutils literal notranslate"><span class="pre">S</span></code>, <code class="docutils literal notranslate"><span class="pre">D</span></code> and <code class="docutils literal notranslate"><span class="pre">K</span></code>, one describing the size and two the elongation. What this
+step does is smooth those three numbers.</p>
+<p>Fitted star by star, they are noisy. But the shape really does vary smoothly across an image, so a smooth function of position – and, if you wish, of catalog properties such as brightness or color – is fitted through all the stars at once, and a much better estimate for each individual star is then read back off it. The steps that remove instrumental trends later on use these smoothed values rather than the noisy per-star ones.</p>
+<p>The detailed PSF/PRF model is not used for this, for two reasons: it does not currently report summary numbers of this kind, and in many setups it is too expensive to run in earnest and is replaced by a dummy fit.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-srcextract-psf-params"><span class="std std-ref">srcextract-psf-params</span></a>, naming which of the extracted shape parameters to smooth – <code class="docutils literal notranslate"><span class="pre">S</span></code>, <code class="docutils literal notranslate"><span class="pre">D</span></code> and <code class="docutils literal notranslate"><span class="pre">K</span></code> here, or <code class="docutils literal notranslate"><span class="pre">fwhm</span></code>, <code class="docutils literal notranslate"><span class="pre">round</span></code> and <code class="docutils literal notranslate"><span class="pre">pa</span></code> where those are what the extractor reports – and <a class="reference internal" href="wisp_options.html#cmdoption-arg-srcextract-psfmap-terms"><span class="std std-ref">srcextract-psfmap-terms</span></a>, which sets what the smooth function is allowed to depend on.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-source-extracted-psf-map<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-fit-source-extracted-psf-map --config test.cfg DR/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-magnitude-fitting">
 <h2>Perform magnitude fitting<a class="headerlink" href="#Perform-magnitude-fitting" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<p>Images taken from the ground are not on a common brightness scale. The amount of atmosphere in the way changes as the target rises and sets, its transparency changes with humidity and cloud, and the instrument contributes effects of its own. All of this makes the same star come out brighter in one frame than another for reasons that have nothing to do with the star. What this step removes is everything of that sort that varies smoothly with the properties of the star – its position on the
+frame, its brightness, its color.</p>
+<p>The way it goes about it is to pick one frame that looks particularly good – sharp images, a transparent sky, a dark background – and take it as the reference. For every other frame a smooth correction is then derived that brings its measurements as close to the reference as they will go. Once all the frames have been corrected they are combined into a reference of much higher signal-to-noise than any single frame could be, and the whole procedure is repeated against that. Here it runs six
+times, which is why <code class="docutils literal notranslate"><span class="pre">MASTERS</span></code> ends up with six <code class="docutils literal notranslate"><span class="pre">mphotref</span></code> files and six sets of statistics.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-single-photref-dr-fname"><span class="std std-ref">single-photref-dr-fname</span></a>, naming the frame to start from; <a class="reference internal" href="wisp_options.html#cmdoption-arg-correction-parametrization"><span class="std std-ref">correction-parametrization</span></a>, which says what the smooth correction is allowed to depend on; and <a class="reference internal" href="wisp_options.html#cmdoption-arg-magfit-catalog-max-magnitude"><span class="std std-ref">magfit-catalog-max-magnitude</span></a>, which usually wants the same value as the photometry catalog.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-fit-magnitudes<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-fit-magnitudes --config test.cfg DR/
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<p>One of the products of this step is a series of magnitude fitting statistics files, which contain store information about most of the stars that are in the images. These are human readable (white-space separated files) that you can view with a text editor or open in your favorite application for manipulating data organized in columns. The inforamtion in this file can be a good guide on how good the photometry is.</p>
+<p>One of the products of this step is a series of magnitude fitting statistics files, which store information about most of the stars that are in the images. These are human readable (white-space separated files) that you can view with a text editor or open in your favorite application for manipulating data organized in columns. The information in these files can be a good guide on how good the photometry is.</p>
 <p>For each star, the first half of the columns in the statistics files are as follows:</p>
 <ul class="simple">
 <li><p>For the first aperture:</p>
@@ -528,7 +412,7 @@ Reading background
 <li><p>The number of brightness measurements of the star</p></li>
 <li><p>The number of brightness measurements that are not outliers (unusually high or low)</p></li>
 <li><p>The median of all non-outlier brightness measurements</p></li>
-<li><p>A first measure of the uncentainty in the brightness measurements, estimated as the root-mean-square deviation from the median</p></li>
+<li><p>A first measure of the uncertainty in the brightness measurements, estimated as the root-mean-square deviation from the median</p></li>
 <li><p>A second measure of the uncertainty in these measurements, estimated as the median of the absolute deviation around the median</p></li>
 </ul>
 </li>
@@ -539,148 +423,90 @@ Reading background
 </section>
 <section id="Create-light-curves">
 <h2>Create light curves<a class="headerlink" href="#Create-light-curves" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<p>Everything so far has been organized by image: one file per frame, holding every star in it. To study how a single star behaves over time you need the opposite arrangement, so this step is essentially a transpose. It gathers each star’s measurements from all the frames into a file of its own under <code class="docutils literal notranslate"><span class="pre">LC</span></code> – a lightcurve. Measurements from earlier runs, perhaps of a slightly different pointing or a different instrument setup, can be added to the same file.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-lc-catalog-max-magnitude"><span class="std std-ref">lc-catalog-max-magnitude</span></a>, which usually wants the same value as the photometry catalog; <a class="reference internal" href="wisp_options.html#cmdoption-arg-latitude-deg"><span class="std std-ref">latitude-deg</span></a>, <a class="reference internal" href="wisp_options.html#cmdoption-arg-longitude-deg"><span class="std std-ref">longitude-deg</span></a> and <a class="reference internal" href="wisp_options.html#cmdoption-arg-altitude-meters"><span class="std std-ref">altitude-meters</span></a>, which say where the observations were made from and are what the barycentric times are computed with; and
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-max-memory"><span class="std std-ref">max-memory</span></a>, which caps how much is held in memory before being written out. That last one matters here in a way it does not elsewhere: this step touches every lightcurve and every data reduction file at once, and a survey can have tens of thousands of them.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-create-lightcurves<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>DR/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-create-lightcurves --config test.cfg DR/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-EPD-on-light-curves">
 <h2>Perform EPD on light curves<a class="headerlink" href="#Perform-EPD-on-light-curves" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<p>EPD stands for External Parameter Decorrelation. Some of the scatter left in a lightcurve is not random: it tracks quantities that have nothing to do with the star, such as where on the detector it happened to fall, how bright the sky background was, how sharp the images were, or how far from overhead the telescope was pointing. This step works out, for each lightcurve on its own, the linear combination of such quantities that accounts for the most of its variation, and subtracts that off.</p>
+<p>Choose those quantities with care. Anything that varies on the same timescale as the signal you are hoping to find will be taken out along with the noise.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-variables"><span class="std std-ref">variables</span></a> gives names to the lightcurve quantities you want to work with, and <a class="reference internal" href="wisp_options.html#cmdoption-arg-epd-terms-expression"><span class="std std-ref">epd-terms-expression</span></a> then builds the terms to fit out of those names – in this example just one, the airmass, written as <code class="docutils literal notranslate"><span class="pre">O1{1/cos(z)}</span></code>. <a class="reference internal" href="wisp_options.html#cmdoption-arg-epd-datasets"><span class="std std-ref">epd-datasets</span></a> says which measurements are corrected and where the corrected version is written.
+<code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> leaves it unset, which is usually what you want: every aperture the photometry produced is then corrected, along with the shape-fitted magnitudes if the star shape was really fit rather than assumed constant across each star. Set it yourself only to correct some smaller selection of the measurements.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-epd<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-epd --config test.cfg LC/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
-Parsing: &#34;x = srcproj.columns : srcproj_column_name = &#39;x&#39; &amp; srcproj_version = 0&#34;.
-Parsing: &#34;y = srcproj.columns : srcproj_column_name = &#39;y&#39; &amp; srcproj_version = 0&#34;.
-Parsing: &#39;bg = bg.value&#39;.
-Parsing: &#39;z = skypos.zenith_distance&#39;.
-Parsing: &#34;S = srcextract.psf_map.eval: srcextract_psf_param = &#39;s&#39;&#34;.
-
-</pre></div></div>
 </div>
 </section>
 <section id="Generate-EPD-statistics-file-for-light-curves">
 <h2>Generate EPD statistics file for light curves<a class="headerlink" href="#Generate-EPD-statistics-file-for-light-curves" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<p>This summarizes how much scatter each lightcurve has left after EPD. Besides being a good way to judge how the processing has gone, the file is what the next step reads in order to pick out the stars that are quiet enough to serve as its templates – so it has to be produced before TFA can be run.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-generate-epd-statistics<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-generate-epd-statistics --config test.cfg LC/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
-
-</pre></div></div>
 </div>
 </section>
 <section id="Perform-TFA-on-light-curves">
 <h2>Perform TFA on light curves<a class="headerlink" href="#Perform-TFA-on-light-curves" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<p>The Trend Filtering Algorithm takes out of each star’s lightcurve whatever it has in common with a set of other stars’ lightcurves. The reasoning is that a real variation belongs to one star alone, whereas anything the instrument or the atmosphere does tends to show up in many stars at once.</p>
+<p>The same warning as for EPD applies, with more force: TFA can distort a genuine signal or remove it altogether. Where the shape of the signal being looked for is known in advance, there are variants of the procedure that preserve it.</p>
+<p><strong>Settings that matter most:</strong> <a class="reference internal" href="wisp_options.html#cmdoption-arg-tfa-sqrt-num-templates"><span class="std std-ref">tfa-sqrt-num-templates</span></a> sets how many stars are used as templates – its square, so 2 here means 4 – and <a class="reference internal" href="wisp_options.html#cmdoption-arg-tfa-faint-mag-limit"><span class="std std-ref">tfa-faint-mag-limit</span></a> keeps stars too faint to be useful out of that selection. <a class="reference internal" href="wisp_options.html#cmdoption-arg-tfa-datasets"><span class="std std-ref">tfa-datasets</span></a> is the counterpart of <code class="docutils literal notranslate"><span class="pre">epd-datasets</span></code>, and by default takes the EPD-corrected measurements as its input.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-tfa<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-tfa --config test.cfg LC/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
-
-</pre></div></div>
 </div>
 </section>
 <section id="Generate-TFA-statistics-file-for-light-curves">
 <h2>Generate TFA statistics file for light curves<a class="headerlink" href="#Generate-TFA-statistics-file-for-light-curves" title="Link to this heading"></a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<p>The same summary as before, this time computed after TFA. Comparing the two files shows how much TFA actually gained, star by star.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-generate-tfa-statistics<span class="w"> </span>--config<span class="w"> </span>test.cfg<span class="w"> </span>LC/
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-generate-tfa-statistics --config test.cfg LC/
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Parsing: &#39;sphotref = apphot.magfit.cfg.single_photref : aperture_index = 0&#39;.
-
-</pre></div></div>
 </div>
 </section>
 <section id="Extract-brightness-vs-time-from-lightcurves">
 <h2>Extract brightness vs time from lightcurves<a class="headerlink" href="#Extract-brightness-vs-time-from-lightcurves" title="Link to this heading"></a></h2>
-<p>The lightcurves generated above are in HDF5 format. You can open the directly using HDFView as before. We have attempted to organze the content in a logical way. However, these files contain my be somewhat cumbersome to work with, and likely contain a lot more entries than typical user would care about. As an example, let us collect all aperture photometry measurements from one of the newly generated lightcurves in a CSV file</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+<p>The lightcurves generated above are in HDF5 format. You can open them directly using HDFView as before. We have attempted to organize the content in a logical way. However, these files may be somewhat cumbersome to work with, and likely contain a lot more entries than a typical user would care about. As an example, let us collect all aperture photometry measurements from one of the newly generated lightcurves in a CSV file.</p>
+<p>Running <code class="docutils literal notranslate"><span class="pre">wisp-get-from-lc</span> <span class="pre">--list-lc-quantities</span></code> prints everything that can be asked for this way, with a short description of each.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wisp-get-from-lc<span class="w"> </span>LC/GDR3_809281106831668736.h5<span class="w"> </span>--expression<span class="w"> </span><span class="nv">bjd</span><span class="o">=</span>skypos.BJD<span class="w"> </span>--expression<span class="w"> </span><span class="s1">&#39;mag{aperture_index}=apphot.magfit.magnitude&#39;</span><span class="w"> </span>-o<span class="w"> </span>GDR3_809281106831668736.csv<span class="w"> </span>--find-best
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!wisp-get-from-lc LC/GDR3_809281106831668736.h5 --expression bjd=skypos.BJD --expression &#39;mag{aperture_index}=apphot.magfit.magnitude&#39; -o GDR3_809281106831668736.csv --find-best
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-/opt/anaconda3/lib/python3.12/site-packages/autowisp/database/hdf5_file_structure.py:74: SAWarning: relationship &#39;Step.prerequisites&#39; will copy column step.id to column step_dependencies.blocked_step_id, which conflicts with relationship(s): &#39;StepDependencies.blocked_step&#39; (copies step.id to step_dependencies.blocked_step_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter &#39;overlaps=&#34;blocked_step&#34;&#39; to the &#39;Step.prerequisites&#39; relationship. (Background on this warning at: https://sqlalche.me/e/20/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
-  db_session.query(HDF5Product)
-Single photref: b&#39;DR/10-465248_2_center.h5&#39;
-Aperture indices:  None
-Evaluating &#39;skypos.BJD&#39; for aperture 0
-Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 0
-Evaluating &#39;skypos.BJD&#39; for aperture 1
-Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 1
-Evaluating &#39;skypos.BJD&#39; for aperture 2
-Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 2
-Evaluating &#39;skypos.BJD&#39; for aperture 3
-Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 3
-Evaluating &#39;skypos.BJD&#39; for aperture 4
-Evaluating &#39;apphot.magfit.magnitude&#39; for aperture 4
-
-</pre></div></div>
 </div>
 <p>You can open this file with your favorite text editor or load it in your favorite software for manipulating column-organized data. The contents of the file should look like:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;GDR3_809281106831668736.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>with open(&#39;GDR3_809281106831668736.csv&#39;, &#39;r&#39;) as f:
+    print(f.read())
 </pre></div>
 </div>
 </div>
@@ -702,11 +528,12 @@ bjd,mag0,mag1,mag2,mag3
 
 </pre></div></div>
 </div>
-<p>There are nine rows in the file corresponding to the nine successfully processed science images in this dataset.</p>
+<p>There are nine rows in the file, one for each of the science images that made it through processing. The tenth is the frame astrometry could not solve, mentioned earlier.</p>
 <ul class="simple">
 <li><p>the first column (bjd) is the Barycentric Julian Date. This is a commonly used way of representing time in astronomy in units of days. It compensates for different light travel time from different stars to the Earth as the Earth revolves around the Sun, compensating for the fact that a given astronomical event will be observed to occur earlier if the earth is closer to the source than the sun and later if it is further.</p></li>
-<li><p>The remaining four columns show the measured and detrended brightness of the star in each of the four apertures used in this example</p></li>
+<li><p>The remaining four columns are the brightness of the star measured through each of the four apertures used in this example, in magnitudes – the scale astronomers use, on which smaller numbers mean brighter – as they come out of the magnitude fitting step, which put all the images on a common scale.</p></li>
 </ul>
+<p>What we asked for above was <code class="docutils literal notranslate"><span class="pre">apphot.magfit.magnitude</span></code>. To see instead what EPD and TFA made of those measurements, ask for <code class="docutils literal notranslate"><span class="pre">apphot.epd.magnitude</span></code> or <code class="docutils literal notranslate"><span class="pre">apphot.tfa.magnitude</span></code> in the same way.</p>
 <p><strong>When you are done reviewing your results, remember to delete the directory you created at the beginning</strong></p>
 </section>
 </section>
@@ -715,8 +542,8 @@ bjd,mag0,mag1,mag2,mag3
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="processing_steps.html" class="btn btn-neutral float-right" title="Pipeline Steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="bringing_your_own_data.html" class="btn btn-neutral float-left" title="Bringing your own data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="configuration.html" class="btn btn-neutral float-right" title="How a setting gets its value" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

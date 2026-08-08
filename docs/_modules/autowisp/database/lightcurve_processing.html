@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -123,24 +143,24 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
 <span class="sd">&quot;&quot;&quot;Define a class that automates the processing of light curves.&quot;&quot;&quot;</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpgid</span><span class="p">,</span> <span class="n">setsid</span><span class="p">,</span> <span class="n">fork</span>
-<span class="c1">#pylint: disable=wrong-import-position</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">getpid</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span><span class="p">,</span> <span class="n">and_</span><span class="p">,</span> <span class="n">literal</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">sql</span><span class="p">,</span> <span class="n">delete</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span><span class="p">,</span> <span class="n">LightCurveFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">error_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FileKind</span><span class="p">,</span>
+    <span class="n">MasterSelectionError</span><span class="p">,</span>
+    <span class="n">PipelineError</span><span class="p">,</span>
+    <span class="n">RelatedFile</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.light_curves.light_curve_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightCurveFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_catalog_file</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.user_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_processing_sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.light_curves.collect_light_curves</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecodingStringFormatter</span>
@@ -162,7 +182,7 @@
 <span class="p">)</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
-<span class="c1">#pylint: enable=wrong-import-position</span>
+<span class="c1"># pylint: enable=wrong-import-position</span>
 
 
 <div class="viewcode-block" id="LightCurveProcessingManager">
@@ -192,11 +212,12 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">which</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">which</span> <span class="o">=</span> <span class="p">[</span><span class="n">which</span><span class="p">]</span>
 
-        <span class="k">assert</span> <span class="n">status</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="c1"># False positivie</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">assert</span> <span class="n">status</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Recording progress of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with status &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">; only positive statuses mark work actually done, &quot;</span>
+            <span class="s2">&quot;negative ones are set by the manager for failures!&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">star</span> <span class="ow">in</span> <span class="n">which</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="n">src_id</span> <span class="o">=</span> <span class="n">star</span>
@@ -224,7 +245,7 @@
 
 <div class="viewcode-block" id="LightCurveProcessingManager._get_lc_fnames">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._get_lc_fnames">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_lc_fnames</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_lc_fnames</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">db_sphotref</span><span class="p">,</span> <span class="n">catalog_fname</span><span class="p">,</span> <span class="n">lc_fname</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the lightcurves to be processed by the current step.&quot;&quot;&quot;</span>
@@ -281,14 +302,20 @@
 
         <span class="n">lc_fnames</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">src_id</span><span class="p">:</span> <span class="n">srcid_formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">lc_fname</span><span class="p">,</span> <span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">src_id</span><span class="p">)</span>
+                <span class="n">lc_fname</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">src_id</span><span class="p">),</span>
+                <span class="n">PROJHOME</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_processing_config</span><span class="p">[</span><span class="s2">&quot;project_home&quot;</span><span class="p">],</span>
             <span class="p">),</span>
             <span class="n">source_list</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">previous</span><span class="p">:</span>
             <span class="n">lc_fnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lc_fnames</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">lc_fnames</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">check</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">PipelineError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Lightcurve </span><span class="si">{</span><span class="n">check</span><span class="si">}</span><span class="s2"> was detrended by a previous &quot;</span>
+                        <span class="s2">&quot;step but is no longer on disk!&quot;</span>
+                    <span class="p">)</span>
             <span class="k">return</span> <span class="n">lc_fnames</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">lc</span>
@@ -299,7 +326,7 @@
 
 <div class="viewcode-block" id="LightCurveProcessingManager._specialize_config">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._specialize_config">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_specialize_config</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_specialize_config</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">step_config</span><span class="p">,</span> <span class="n">db_sphotref</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">db_session</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add parts of configuration for step that depend on database.&quot;&quot;&quot;</span>
@@ -350,7 +377,7 @@
 
 <div class="viewcode-block" id="LightCurveProcessingManager._start_step">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._start_step">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_start_step</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_start_step</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">step</span><span class="p">,</span>
@@ -430,10 +457,15 @@
 <span class="sd">                satisfied.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">for</span> <span class="n">required_step_name</span><span class="p">,</span> <span class="n">required_imtype_id</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+        <span class="k">for</span> <span class="p">(</span>
+            <span class="n">required_step_name</span><span class="p">,</span>
+            <span class="n">required_imtype_id</span><span class="p">,</span>
+            <span class="n">allow_pending</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="n">select</span><span class="p">(</span>
                 <span class="n">Step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">StepDependencies</span><span class="o">.</span><span class="n">blocking_image_type_id</span><span class="p">,</span>
+                <span class="n">StepDependencies</span><span class="o">.</span><span class="n">allow_pending</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">StepDependencies</span><span class="p">)</span>
             <span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -443,21 +475,34 @@
             <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">StepDependencies</span><span class="o">.</span><span class="n">blocked_step_id</span> <span class="o">==</span> <span class="n">step</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">StepDependencies</span><span class="o">.</span><span class="n">blocked_image_type_id</span> <span class="o">==</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="k">assert</span> <span class="n">required_imtype_id</span> <span class="o">==</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">required_step_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span>
-                <span class="ow">and</span> <span class="n">image_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">required_step_name</span><span class="p">]</span>
-                <span class="ow">and</span> <span class="p">(</span>
-                    <span class="n">single_photref_fname</span>
-                    <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">required_step_name</span><span class="p">][</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-                <span class="p">)</span>
-            <span class="p">):</span>
+            <span class="k">assert</span> <span class="n">required_imtype_id</span> <span class="o">==</span> <span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Dependency of </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">required_step_name</span><span class="si">}</span><span class="s2"> was &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;selected for image type </span><span class="si">{</span><span class="n">image_type</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> but came back for &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">required_imtype_id</span><span class="si">}</span><span class="s2">!&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">required_step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">image_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">required_step_name</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">pending_phot_refs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">[</span><span class="n">required_step_name</span><span class="p">][</span>
+                <span class="n">image_type</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">allow_pending</span><span class="p">:</span>
+                <span class="n">blocked</span> <span class="o">=</span> <span class="n">single_photref_fname</span> <span class="ow">in</span> <span class="n">pending_phot_refs</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">blocked</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">pending_phot_refs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">blocked</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="s2">&quot;Not ready for </span><span class="si">%s</span><span class="s2"> of lightcurve points corresponding to &quot;</span>
-                    <span class="s2">&quot;single photometric reference </span><span class="si">%s</span><span class="s2"> because </span><span class="si">%s</span><span class="s2"> is pending.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;single photometric reference </span><span class="si">%s</span><span class="s2"> because </span><span class="si">%s</span><span class="s2"> is pending</span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="nb">repr</span><span class="p">(</span><span class="n">single_photref_fname</span><span class="p">),</span>
                     <span class="n">required_step_name</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot; for this photref&quot;</span>
+                        <span class="k">if</span> <span class="n">allow_pending</span>
+                        <span class="k">else</span> <span class="s2">&quot; for some photref&quot;</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
@@ -478,12 +523,10 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-        <span class="c1"># pylint: disable=no-member</span>
         <span class="k">with</span> <span class="p">(</span>
-            <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">,</span>
+            <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">,</span>
             <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">single_photref_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sphotref_dr</span><span class="p">,</span>
         <span class="p">):</span>
-            <span class="c1"># pylint: enable=no-member</span>
             <span class="n">db_sphotref</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">MasterFile</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                     <span class="n">MasterFile</span><span class="o">.</span><span class="n">filename</span> <span class="o">==</span> <span class="n">single_photref_fname</span>
@@ -493,7 +536,9 @@
             <span class="n">header</span> <span class="o">=</span> <span class="n">sphotref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                    <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.fits&quot;</span><span class="p">)</span>
+                    <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+                        <span class="n">header</span><span class="p">[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.fits&quot;</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_expressions_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
@@ -521,6 +566,10 @@
             <span class="p">)</span></div>
 
 
+    <span class="c1">#: Lightcurve processing records progress here; drives the shared</span>
+    <span class="c1">#: ``find_processing_outputs`` in the base class.</span>
+    <span class="n">_progress_model</span> <span class="o">=</span> <span class="n">LightCurveProcessingProgress</span>
+
 <div class="viewcode-block" id="LightCurveProcessingManager.__init__">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -528,10 +577,38 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_image_type</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="c1"># pylint: enable=no-member</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span></div>
+        <span class="c1"># A review-only manager (pipeline_run_id=None, e.g. crash-report</span>
+        <span class="c1"># log lookup) performs no processing, so skip the DR-file-reading</span>
+        <span class="c1"># pending scan.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline_run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_pending</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LightCurveProcessingManager._progress_image_type">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._progress_image_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_progress_image_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processing_progress</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Derive the image type from the row&#39;s single photref.</span>
+
+<span class="sd">        A lightcurve progress row has no image type of its own; when the</span>
+<span class="sd">        step ran, its logs were keyed on the image type of the single</span>
+<span class="sd">        photometric reference&#39;s source frame (``_current_image_type``).</span>
+<span class="sd">        Reproduce that here so the log names match: the photref DR&#39;s</span>
+<span class="sd">        ``RAWFNAME`` -&gt; the ``Image`` -&gt; its type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span>
+            <span class="n">processing_progress</span><span class="o">.</span><span class="n">sphotref</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">sphotref_dr</span><span class="p">:</span>
+            <span class="n">raw_fname</span> <span class="o">=</span> <span class="n">sphotref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">]</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">raw_fname</span> <span class="o">+</span> <span class="s2">&quot;.fits&quot;</span><span class="p">)</span>
+                <span class="c1"># pylint: enable=no-member</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">image_type</span><span class="o">.</span><span class="n">name</span></div>
 
 
 <div class="viewcode-block" id="LightCurveProcessingManager.select_step_sphotref">
@@ -565,7 +642,9 @@
                         <span class="n">LightCurveProcessingProgress</span><span class="o">.</span><span class="n">single_photref_id</span>
                         <span class="o">==</span> <span class="n">MasterFile</span><span class="o">.</span><span class="n">id</span>
                     <span class="p">),</span>
+                    <span class="c1"># pylint: disable=singleton-comparison</span>
                     <span class="n">LightCurveProcessingProgress</span><span class="o">.</span><span class="n">final</span> <span class="o">==</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="c1"># pylint: enable=singleton-comparison</span>
                 <span class="p">),</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">StepDependencies</span><span class="o">.</span><span class="n">blocking_step_id</span> <span class="o">==</span> <span class="n">create_lc_step_id</span><span class="p">)</span>
@@ -599,7 +678,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">pending</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_step_sphotref</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">sphotref_fname</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">:</span>
             <span class="c1"># pylint: disable=no-member</span>
             <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">sphotref_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sphotref_dr</span><span class="p">:</span>
@@ -609,7 +687,7 @@
                     <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
                     <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">)</span>
                     <span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                        <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+                        <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
                             <span class="n">sphotref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.fits&quot;</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
@@ -624,7 +702,7 @@
 
 <div class="viewcode-block" id="LightCurveProcessingManager.get_step_config">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager.get_step_config">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_step_config</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_step_config</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">step</span><span class="p">,</span>
@@ -645,7 +723,12 @@
         <span class="n">catalog</span> <span class="o">=</span> <span class="n">create_lc_cofig</span><span class="p">[</span><span class="s2">&quot;lightcurve_catalog_fname&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
             <span class="n">sphotref_header</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">catalog</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MasterSelectionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The lightcurve catalog </span><span class="si">{</span><span class="n">catalog</span><span class="si">}</span><span class="s2"> that create_lightcurves &quot;</span>
+                <span class="s2">&quot;should have produced is missing, so the detrending &quot;</span>
+                <span class="s2">&quot;configuration cannot be completed!&quot;</span>
+            <span class="p">)</span>
 
         <span class="n">step_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
             <span class="n">matched_expressions</span><span class="p">,</span> <span class="n">db_session</span><span class="p">,</span> <span class="n">db_step</span><span class="o">=</span><span class="n">step</span>
@@ -665,10 +748,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit_to_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform all the processing for the given steps (all if None).&quot;&quot;&quot;</span>
 
-        <span class="c1"># False positivie</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="n">processing_sequence</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">imtype</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">imtype</span> <span class="ow">in</span> <span class="n">get_processing_sequence</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span>
@@ -697,13 +777,26 @@
                 <span class="p">)</span>
 
                 <span class="n">step_module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">processing_steps</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)</span>
-                <span class="n">new_masters</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)(</span>
-                    <span class="n">lc_fnames</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_progress</span>
-                <span class="p">)</span>
-                <span class="c1"># False positivie</span>
-                <span class="c1"># pylint: disable=no-member</span>
-                <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-                    <span class="c1"># pylint: enable=no-member</span>
+                <span class="c1"># Scope the step&#39;s config and its single photometric</span>
+                <span class="c1"># reference for the whole step (create_lightcurves / epd /</span>
+                <span class="c1"># tfa / the statistics generators) so any main-process error</span>
+                <span class="c1"># carries both; the parallel workers additionally scope each</span>
+                <span class="c1"># light curve.</span>
+                <span class="k">with</span> <span class="n">error_context</span><span class="p">(</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+                    <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">RelatedFile</span><span class="p">(</span>
+                            <span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span>
+                            <span class="n">single_photref_fname</span><span class="p">,</span>
+                            <span class="n">role</span><span class="o">=</span><span class="s2">&quot;single_photref&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">],</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">check_start_status</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">new_masters</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step_module</span><span class="p">,</span> <span class="n">step_name</span><span class="p">)(</span>
+                        <span class="n">lc_fnames</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mark_progress</span>
+                    <span class="p">)</span>
+                <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
                     <span class="c1"># False positive</span>
                     <span class="c1"># pylint: disable=not-callable</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_current_processing</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
@@ -722,48 +815,6 @@
                 <span class="p">)</span></div>
 </div>
 
-
-
-<div class="viewcode-block" id="main">
-<a class="viewcode-back" href="../../../implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid global variables.&quot;&quot;&quot;</span>
-
-    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.engine&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
-    <span class="n">manager</span> <span class="o">=</span> <span class="n">LightCurveProcessingManager</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pending: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">pending</span><span class="p">))</span>
-    <span class="n">manager</span><span class="p">()</span></div>
-
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;posix&quot;</span><span class="p">:</span>  <span class="c1"># Linux/macOS</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">setsid</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pid=</span><span class="si">{</span><span class="n">getpid</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">  pgid=</span><span class="si">{</span><span class="n">getpgid</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="n">pid</span> <span class="o">=</span> <span class="n">fork</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">pid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;fork fail&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">pid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">setsid</span><span class="p">()</span>
-        <span class="n">main</span><span class="p">()</span>  <span class="c1"># Run main function in child process</span>
-
-    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span><span class="p">:</span>  <span class="c1"># Windows</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>  <span class="c1"># Relaunch with same arguments</span>
-                <span class="n">creationflags</span><span class="o">=</span><span class="n">DETACHED_PROCESS</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Exit parent process</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to detach: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
            </div>

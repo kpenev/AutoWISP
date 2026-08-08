@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>When something goes wrong &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration Options" href="wisp_options.html" />
+    <link rel="prev" title="How a setting gets its value" href="configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">When something goes wrong</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/when_things_go_wrong.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="when-something-goes-wrong">
+<h1>When something goes wrong<a class="headerlink" href="#when-something-goes-wrong" title="Link to this heading"></a></h1>
+<p>A stage that fails does not simply print a complaint and vanish. The
+failure is recorded in the project, along with enough of its surroundings
+to work out afterwards what happened – and, if that is not enough, to
+hand the whole situation to someone else.</p>
+<section id="the-error-log">
+<h2>The error log<a class="headerlink" href="#the-error-log" title="Link to this heading"></a></h2>
+<p>A red button appears in the interface’s navigation as soon as there is
+anything to report, and is absent when there is not, so there is no need
+to go looking. It leads to the list of recorded failures.</p>
+<p>Opening one shows what went wrong: the message, the details gathered at
+the moment of failure – which stage was running, on which image, and the
+files it was working with – and the traceback. Once a failure has been
+dealt with it can be marked resolved so it stops drawing attention, or
+deleted outright.</p>
+<p>Not every failure stops everything. A run that comes to grief part way
+through has still recorded everything it finished, so setting processing
+going again carries on from where it stopped rather than starting over.</p>
+</section>
+<section id="picking-up-after-an-interrupted-run">
+<h2>Picking up after an interrupted run<a class="headerlink" href="#picking-up-after-an-interrupted-run" title="Link to this heading"></a></h2>
+<p>Carrying on is not merely a matter of skipping what was finished. A run
+that stops without warning – a crash, a power cut, a job killed by hand
+– leaves whatever it was in the middle of half done, and a half-written
+result is worse than none, because nothing downstream can tell it apart
+from a complete one.</p>
+<p>Rather than trying to undo everything centrally, each stage is
+responsible for its own leavings. A stage says which states it can be
+caught in and which it is able to resume from, and the ones that write
+results in pieces provide a way to undo a partial attempt. When
+processing next starts, anything recorded as begun but not finished is
+handed back to the stage that began it, which clears up and reports the
+state it has left things in; that state has to be one the stage can
+resume from, and the pipeline refuses it otherwise. Aperture photometry,
+for instance, deletes the measurements it had started writing into the
+data reduction file, so the next attempt begins from a clean one.</p>
+<p>Most stages are simple in this respect: they record only that they had
+begun, so there is one state to be caught in and clearing up is
+straightforward. Building light curves is the exception worth knowing
+about, since it adds its points first and marks the files complete
+afterwards, and so can be interrupted between the two – in which case
+the work is not thrown away, only finished off.</p>
+<p>None of this needs anything from you. It happens as processing starts,
+and the only sign is a warning in the log saying what was cleaned up.</p>
+</section>
+<section id="the-logs">
+<h2>The logs<a class="headerlink" href="#the-logs" title="Link to this heading"></a></h2>
+<p>Every process writes two files into <code class="docutils literal notranslate"><span class="pre">logs/</span></code> under the project home: the
+log proper, and a second holding whatever the process wrote to its output
+directly. Their names are built from the stage, the task, the time and
+the process id, so a run leaves a separate trail for each stage rather
+than one tangled file. <a class="reference internal" href="wisp_options.html#cmdoption-arg-logging-fname"><code class="xref std std-option docutils literal notranslate"><span class="pre">logging-fname</span></code></a> and
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-std-out-err-fname"><code class="xref std std-option docutils literal notranslate"><span class="pre">std-out-err-fname</span></code></a> control the naming, and <a class="reference internal" href="wisp_options.html#cmdoption-arg-verbose"><code class="xref std std-option docutils literal notranslate"><span class="pre">verbose</span></code></a>
+decides how much detail goes in.</p>
+<p>Reading these is worthwhile when a stage produced something odd rather
+than failing outright, which is the case the error log cannot help with.</p>
+</section>
+<section id="sending-a-crash-report">
+<h2>Sending a crash report<a class="headerlink" href="#sending-a-crash-report" title="Link to this heading"></a></h2>
+<p>If a failure is not something you can act on, the useful thing to send is
+a crash report: one zip file holding the failure and everything around
+it. The button is on the error’s own page, labelled <strong>Download crash
+report</strong>. The same thing from a terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">crash</span><span class="o">-</span><span class="n">report</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project</span><span class="o">/</span><span class="n">home</span> <span class="o">--</span><span class="n">last</span>
+</pre></div>
+</div>
+<p>Name an error explicitly instead of <code class="docutils literal notranslate"><span class="pre">--last</span></code> to report on an older one;
+the number is the one the error log shows.</p>
+<p>The zip holds the error record, the details sidecar with the full
+traceback, the logs belonging to that run, a copy of the project
+database, and a note of the platform, Python and package versions in use.
+A <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> lists what was gathered. The database copy is what
+makes the report worth sending: it carries the configuration in force,
+what had been processed already, and the equipment involved, which is
+usually the difference between a guess and an answer.</p>
+<p><strong>Credentials are removed.</strong> Scrubbing is not optional and nothing is
+written unscrubbed: values whose names mark them as secret – the Gaia
+archive login, the astrometry.net API key, anything called a password or
+a token – are replaced with <code class="docutils literal notranslate"><span class="pre">***REDACTED***</span></code> wherever they appear, in
+the logs, in the configuration and in the copied database alike.</p>
+<p>Collection is deliberately best-effort. A file that cannot be read, or
+that is not there, is written down as a gap in the manifest rather than
+being allowed to abandon the report – so a report still arrives in the
+case where the missing file is itself the problem. Logs are truncated to
+the beginning and end of each file, half a megabyte in all; pass
+<code class="docutils literal notranslate"><span class="pre">--max-log-bytes</span></code> for more if it is asked for.</p>
+</section>
+<section id="keeping-the-log-from-growing">
+<h2>Keeping the log from growing<a class="headerlink" href="#keeping-the-log-from-growing" title="Link to this heading"></a></h2>
+<p>Recorded failures stay until removed. To prune them:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">cleanup</span><span class="o">-</span><span class="n">errors</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project</span><span class="o">/</span><span class="n">home</span> <span class="o">--</span><span class="n">older</span><span class="o">-</span><span class="n">than</span> <span class="mi">30</span><span class="n">d</span>
+</pre></div>
+</div>
+<p>The cutoff takes days, hours or weeks (<code class="docutils literal notranslate"><span class="pre">30d</span></code>, <code class="docutils literal notranslate"><span class="pre">12h</span></code>, <code class="docutils literal notranslate"><span class="pre">2w</span></code>). Run
+without it, the command leaves the records alone and only tidies up after
+itself, clearing sidecar files with no error still pointing at them and
+references to sidecars that have gone.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configuration.html" class="btn btn-neutral float-left" title="How a setting gets its value" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="wisp_options.html" class="btn btn-neutral float-right" title="Configuration Options" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

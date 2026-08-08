@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autowisp.database.interface &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">autowisp.database.interface</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autowisp.database.interface</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Connect to the database and provide a session scope for queries.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">makedirs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">platformdirs</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">sessionmaker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">inspect</span> <span class="k">as</span> <span class="n">sa_inspect</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">NullPool</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.frozen_row</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenRow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_data_reduction_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_default_data_reduction_structure</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_light_curve_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_default_light_curve_structure</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_db_engine</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># pylint false positive - Session is actually a class name.</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">_Session</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># sessionmaker(db_engine, expire_on_commit=False)</span>
+<span class="c1"># pylint: enable=invalid-name</span>
+
+<span class="n">_project_home</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">DB_URL_FNAME</span> <span class="o">=</span> <span class="s2">&quot;autowisp_db.url&quot;</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Filename (relative to project home) where a non-SQLite connection URL is stored.</span>
+
+<span class="sd">When a project is initialised with a centralised database (MySQL, MariaDB,</span>
+<span class="sd">etc.) the connection URL is written to this file so that subsequent calls to</span>
+<span class="sd">:func:`set_project_home` with only the directory path can reconnect without</span>
+<span class="sd">requiring the caller to supply the URL again.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="apply_additive_migrations">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.apply_additive_migrations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_additive_migrations</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bring an existing project database up to the current schema.</span>
+
+<span class="sd">    A minimal, idempotent stand-in for a migration framework (the project</span>
+<span class="sd">    has none), covering the additive changes that are safe to apply</span>
+<span class="sd">    automatically on connect:</span>
+
+<span class="sd">    - **New tables** (e.g. ``error``) are created via ``create_all``,</span>
+<span class="sd">      which leaves existing tables and their data untouched. This is how a</span>
+<span class="sd">      table added after a project was initialized reaches that project.</span>
+<span class="sd">    - **New nullable columns** on existing tables are added with</span>
+<span class="sd">      ``ALTER TABLE ... ADD COLUMN``. Rows that predate a column keep</span>
+<span class="sd">      NULL -- e.g. ``pipeline_run`` rows from before ``code_version``</span>
+<span class="sd">      existed have no recorded code version, which is correct (it is</span>
+<span class="sd">      genuinely unknown).</span>
+
+<span class="sd">    Freshly initialized databases get everything from ``create_all``</span>
+<span class="sd">    already, so this is effectively a no-op for them. When the pipeline</span>
+<span class="sd">    runs, the main process opens the project first, so by the time workers</span>
+<span class="sd">    connect every table exists and their ``create_all`` does no DDL.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        engine:    The SQLAlchemy engine for the project database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create any tables added since the project was initialized (idempotent;</span>
+    <span class="c1"># existing tables and data are left as-is).</span>
+    <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+    <span class="c1"># Add any nullable columns added to tables that already existed.</span>
+    <span class="n">additive_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;pipeline_run&quot;</span><span class="p">,</span> <span class="s2">&quot;code_version&quot;</span><span class="p">,</span> <span class="s2">&quot;VARCHAR(1000)&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;resolved&quot;</span><span class="p">,</span> <span class="s2">&quot;TIMESTAMP&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">inspector</span> <span class="o">=</span> <span class="n">sa_inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+    <span class="n">present_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspector</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
+    <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">sql_type</span> <span class="ow">in</span> <span class="n">additive_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">table</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">present_tables</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">inspector</span><span class="o">.</span><span class="n">get_columns</span><span class="p">(</span><span class="n">table</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># table/column/type come from the trusted list above, not from</span>
+            <span class="c1"># user input, so the f-string is safe here.</span>
+            <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALTER TABLE </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> ADD COLUMN </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sql_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_db_engine">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.get_db_engine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_db_engine</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the database engine.&quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returning engine </span><span class="si">{</span><span class="n">_db_engine</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_db_engine</span></div>
+
+
+
+<div class="viewcode-block" id="start_db_session">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.start_db_session">[docs]</a>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">start_db_session</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager to start a database session.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">_Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="k">yield</span> <span class="n">db_session</span></div>
+
+
+
+<div class="viewcode-block" id="get_project_home">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.get_project_home">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_project_home</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the project home directory currently being used.&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_project_home</span></div>
+
+
+
+<div class="viewcode-block" id="snapshot_row">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.snapshot_row">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">snapshot_row</span><span class="p">(</span><span class="n">orm_obj</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Freeze all mapped columns of a live ORM instance into a FrozenRow.</span>
+
+<span class="sd">    Must be called while ``orm_obj`` is still attached/loaded (i.e.</span>
+<span class="sd">    inside the ``start_db_session()`` block that produced it), otherwise</span>
+<span class="sd">    touching an expired column would raise ``DetachedInstanceError``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        orm_obj:    A SQLAlchemy ORM instance.</span>
+
+<span class="sd">        exclude(Iterable[str]):    Column keys to omit (e.g. large or</span>
+<span class="sd">            sensitive columns).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        FrozenRow:    Snapshot of the instance&#39;s column values, detached</span>
+<span class="sd">            from the session and safe to pickle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mapper</span> <span class="o">=</span> <span class="n">sa_inspect</span><span class="p">(</span><span class="n">orm_obj</span><span class="p">)</span><span class="o">.</span><span class="n">mapper</span>
+    <span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">FrozenRow</span><span class="p">(</span>
+        <span class="n">table</span><span class="o">=</span><span class="n">mapper</span><span class="o">.</span><span class="n">local_table</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">attr</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">orm_obj</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">mapper</span><span class="o">.</span><span class="n">column_attrs</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span>
+        <span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="initialize_cmdline_database">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.initialize_cmdline_database">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">initialize_cmdline_database</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the current database HDF5 structure tables.&quot;&quot;&quot;</span>
+
+    <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">get_default_data_reduction_structure</span><span class="p">())</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">get_default_light_curve_structure</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="set_project_home">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.interface.html#autowisp.database.interface.set_project_home">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_project_home</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">db_url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the database engine and session for the given project home.</span>
+
+<span class="sd">    On first use with a non-SQLite ``db_url`` the URL is persisted to</span>
+<span class="sd">    ``&lt;project_home&gt;/autowisp_db.url`` so that subsequent calls with only</span>
+<span class="sd">    ``project_home`` reconnect to the same database automatically.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_home:</span>
+<span class="sd">            Directory used as the project home. For SQLite (the default), the</span>
+<span class="sd">            database file ``autowisp.db`` is created here. For centralised</span>
+<span class="sd">            databases the directory is still used for other project files (HDF5</span>
+<span class="sd">            products, etc.). Pass ``None`` to use the platform-appropriate user</span>
+<span class="sd">            data directory.</span>
+
+<span class="sd">        db_url:</span>
+<span class="sd">            SQLAlchemy connection URL. When omitted (or ``None``) the function</span>
+<span class="sd">            first checks for a previously saved URL in</span>
+<span class="sd">            ``&lt;project_home&gt;/autowisp_db.url``; if none is found it falls back</span>
+<span class="sd">            to an SQLite database in ``project_home``:</span>
+<span class="sd">            ``sqlite:///&lt;project_home&gt;/autowisp.db?timeout=100&amp;uri=true``.</span>
+<span class="sd">            To connect to a centralised server pass the full URL, e.g.:</span>
+<span class="sd">            ``&quot;mysql+pymysql://user:password@host:3306/dbname&quot;``</span>
+<span class="sd">            ``&quot;mariadb+pymysql://user:password@host:3306/dbname&quot;``</span>
+<span class="sd">            Passing an explicit URL raises an error if a saved URL is found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">_db_engine</span><span class="p">,</span> <span class="n">_Session</span><span class="p">,</span> <span class="n">_project_home</span>  <span class="c1"># pylint: disable=global-statement</span>
+    <span class="c1"># print(f&quot;Setting project home to {project_home!r}&quot;)</span>
+    <span class="k">if</span> <span class="n">_db_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_db_engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">project_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">project_home</span> <span class="o">=</span> <span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;autowisp&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span>
+            <span class="n">project_home</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Project home </span><span class="si">{</span><span class="n">project_home</span><span class="si">!r}</span><span class="s2"> is not a directory.&quot;</span>
+
+    <span class="c1"># Ensure directory exists</span>
+    <span class="n">makedirs</span><span class="p">(</span><span class="n">project_home</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">_project_home</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">project_home</span><span class="p">)</span>
+
+    <span class="n">url_file</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="n">DB_URL_FNAME</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">db_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url_file</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Attempting to set a new db_url in </span><span class="si">{</span><span class="n">_project_home</span><span class="si">!r}</span><span class="s2"> which already&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; contains </span><span class="si">{</span><span class="n">url_file</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># Persist the URL so future calls without db_url reconnect correctly.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+            <span class="n">fobj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">db_url</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">url_file</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+            <span class="n">db_url</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="n">engine_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;echo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;pool_pre_ping&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;pool_recycle&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">url_file</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="n">DB_URL_FNAME</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">db_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">db_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_project_home</span><span class="p">,</span> <span class="s2">&quot;autowisp.db&quot;</span><span class="p">)</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span><span class="si">}</span><span class="s2">?timeout=600&amp;uri=true&quot;</span>
+    <span class="k">if</span> <span class="n">db_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sqlite&quot;</span><span class="p">):</span>
+        <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">&quot;poolclass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NullPool</span>
+        <span class="n">engine_kwargs</span><span class="p">[</span><span class="s2">&quot;connect_args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">}</span>
+
+    <span class="n">_db_engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="o">**</span><span class="n">engine_kwargs</span><span class="p">)</span>
+    <span class="n">_Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">,</span> <span class="n">expire_on_commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">existing_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sa_inspect</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">existing_tables</span><span class="p">):</span>
+        <span class="n">initialize_cmdline_database</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">apply_additive_migrations</span><span class="p">(</span><span class="n">_db_engine</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

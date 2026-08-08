@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -137,6 +157,8 @@
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span>
+
 <span class="n">_default_paths</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;srcextract&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;/SourceExtraction/Version</span><span class="si">%(srcextract_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -159,7 +181,10 @@
     <span class="s2">&quot;subpixmap&quot;</span><span class="p">:</span> <span class="s2">&quot;/SubPixelMap/Version</span><span class="si">%(subpixmap_version)03d</span><span class="s2">&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">_default_nonfinite</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="s2">&quot;f4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">min</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="c1"># float() the numpy scalar before repr: NumPy 2 (NEP 51) reprs a numpy scalar</span>
+<span class="c1"># as &quot;np.float32(...)&quot;, which is not parseable by the float() applied when this</span>
+<span class="c1"># stored string is read back.</span>
+<span class="n">_default_nonfinite</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="s2">&quot;f4&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="_get_source_extraction_attributes">
@@ -176,7 +201,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.fistar.cmdline&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;FiStarCommandLine&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The command line with which fistar was invoked.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">HDF5Attribute</span><span class="p">(</span>
@@ -190,7 +215,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.terms&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Terms&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An expression expanding to the terms to include when &quot;</span>
             <span class="s2">&quot;smoothing the fistar PSF parameters.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -198,7 +223,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.weights&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An expression that evaluates to the weight for each &quot;</span>
             <span class="s2">&quot;source in the smoothing fit.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -206,7 +231,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.cfg.error_avg&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">map_parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ErrorAveraging&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How are the residuals after the fit averaged to &quot;</span>
             <span class="s2">&quot;detect outlier sources?&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -250,7 +275,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.software_versions&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
             <span class="s2">&quot;software elements and their versions used for source &quot;</span>
             <span class="s2">&quot;extraction.&quot;</span><span class="p">,</span>
@@ -259,7 +284,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;srcextract.psf_map.software_versions&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;srcextract&quot;</span><span class="p">][</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
             <span class="s2">&quot;software elements and their versions used for source &quot;</span>
             <span class="s2">&quot;extraction.&quot;</span><span class="p">,</span>
@@ -324,7 +349,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The catalogue to query.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">HDF5Attribute</span><span class="p">(</span>
@@ -339,7 +364,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;filter&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Filter&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Any filtering applied to the catalogue sources, in &quot;</span>
             <span class="s2">&quot;addition to the field selection and brightness range, before &quot;</span>
             <span class="s2">&quot;using them.&quot;</span><span class="p">,</span>
@@ -394,7 +419,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.software_versions&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
             <span class="s2">&quot;software elements and their versions used for deriving the sky to &quot;</span>
             <span class="s2">&quot;frame transformation.&quot;</span><span class="p">,</span>
@@ -403,7 +428,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.srcextract_filter&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ExtractedSourcesFilter&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Any filtering applied to the extracted sources before &quot;</span>
             <span class="s2">&quot;using them to derive the pre-projected to frame transformation.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -411,7 +436,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.sky_preprojection&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SkyPreProjection&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The pre-projection aronud the central coordinates used&quot;</span>
             <span class="s2">&quot; for the sources when deriving the pre-shrunk sky to frame &quot;</span>
             <span class="s2">&quot;transformation (&#39;arc&#39;, &#39;tan&#39;, ...).&quot;</span><span class="p">,</span>
@@ -437,7 +462,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.cfg.weights_expression&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;WeightsExpression&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An expression involving catalogue and/or source &quot;</span>
             <span class="s2">&quot;extraction columns for the weights to use for various sources &quot;</span>
             <span class="s2">&quot;when deriving the pre-projected to frame transformation.&quot;</span><span class="p">,</span>
@@ -473,7 +498,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.type&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The type of transformation describing the &quot;</span>
             <span class="s2">&quot;pre-projected to frame transformation.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -481,7 +506,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;skytoframe.terms&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">parent</span> <span class="o">+</span> <span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;skytoframe&quot;</span><span class="p">][</span><span class="s2">&quot;coefficients&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Terms&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The terms in the pre-projected to frame &quot;</span>
             <span class="s2">&quot;transformation.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -672,7 +697,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.cfg.model&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How was the backgroun modelled.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">HDF5Attribute</span><span class="p">(</span>
@@ -687,7 +712,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;bg.sofware_versions&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">_default_paths</span><span class="p">[</span><span class="s2">&quot;background&quot;</span><span class="p">],</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
             <span class="s2">&quot;software elements and their versions used for estimating the &quot;</span>
             <span class="s2">&quot;backgrund for each source.&quot;</span><span class="p">,</span>
@@ -775,8 +800,9 @@
         <span class="p">)</span>
         <span class="n">pipeline_key_start</span> <span class="o">=</span> <span class="s2">&quot;apphot.&quot;</span> <span class="o">+</span> <span class="n">pipeline_key_start</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Unrecognized photometry mode: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">photometry_mode</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unrecognized photometry mode </span><span class="si">{</span><span class="n">photometry_mode</span><span class="si">!r}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;(expected &#39;shapefit&#39; or &#39;apphot&#39;).&quot;</span>
         <span class="p">)</span>
     <span class="n">dset_path</span> <span class="o">+=</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="s2">&quot;FittedMagnitudes/Version</span><span class="si">%(magfit_version)03d</span><span class="s2">&quot;</span>
 
@@ -834,7 +860,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;single_photref&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SinglePhotometricReference&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The name of the DR file used as single photometric &quot;</span>
             <span class="s2">&quot;reference to initiate magnitude fitting iterations.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -842,7 +868,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;correction_type&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CorrectionType&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The type of function being fitted for now the &quot;</span>
             <span class="s2">&quot;supported types are: linear (nonlinear and spline in the future).&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -850,7 +876,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;correction&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CorrectionExpression&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The actual parametric expression for the magnitude &quot;</span>
             <span class="s2">&quot;correction.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -858,7 +884,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;require&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SourceFilter&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Any condition imposed on the sources used to derive &quot;</span>
             <span class="s2">&quot;the correction function parameters.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
@@ -905,7 +931,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="n">pipeline_key_start</span> <span class="o">+</span> <span class="s2">&quot;error_avg&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">dset_path</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ErrorAveraging&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How to calculate the scale for rejecting sources.&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">HDF5Attribute</span><span class="p">(</span>
@@ -996,14 +1022,14 @@
                 <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.model&quot;</span><span class="p">,</span>
                 <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The model used to represent the PSF/PRF.&quot;</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">HDF5Attribute</span><span class="p">(</span>
                 <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.cfg.psf.terms&quot;</span><span class="p">,</span>
                 <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Terms&quot;</span><span class="p">,</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The terms the PSF/PRF is allowed to depend &quot;</span>
                 <span class="s2">&quot;on. See AstroWISP documentation for full description.&quot;</span><span class="p">,</span>
             <span class="p">),</span>
@@ -1185,7 +1211,7 @@
                 <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;shapefit.sofware_versions&quot;</span><span class="p">,</span>
                 <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
                 <span class="s2">&quot;software elements and their versions usef during PSF/PRF&quot;</span>
                 <span class="s2">&quot; fitting.&quot;</span><span class="p">,</span>
@@ -1316,7 +1342,7 @@
             <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;apphot.sofware_versions&quot;</span><span class="p">,</span>
             <span class="n">parent</span><span class="o">=</span><span class="n">root_path</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SoftwareVersions&quot;</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;An Nx2 array of strings consisting of &quot;</span>
             <span class="s2">&quot;software elements and their versions used for aperture &quot;</span>
             <span class="s2">&quot;photometry.&quot;</span><span class="p">,</span>
@@ -1423,6 +1449,142 @@
 
 
 
+<div class="viewcode-block" id="_get_provenance_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_provenance_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_provenance_attributes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create attributes storing instrument and observer provenance.&quot;&quot;&quot;</span>
+
+    <span class="n">parent</span> <span class="o">=</span> <span class="s2">&quot;/Provenance&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.camera.serial&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CameraSerialNumber&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The serial number of the camera used to acquire &quot;</span>
+            <span class="s2">&quot;the image.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.camera.make&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CameraMake&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The manufacturer of the camera used to acquire &quot;</span>
+            <span class="s2">&quot;the image.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.camera.model&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CameraModel&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The model name of the camera used to acquire &quot;</span>
+            <span class="s2">&quot;the image.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.mount.serial&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MountSerialNumber&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The serial number of the mount used to track &quot;</span>
+            <span class="s2">&quot;the target.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.mount.make&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MountMake&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The manufacturer of the mount used to track &quot;</span>
+            <span class="s2">&quot;the target.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.mount.model&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MountModel&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The model name of the mount used to track &quot;</span>
+            <span class="s2">&quot;the target.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.telescope.serial&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TelescopeSerialNumber&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The serial number of the telescope through which &quot;</span>
+            <span class="s2">&quot;the image was taken.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.telescope.make&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TelescopeMake&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The manufacturer of the telescope through which &quot;</span>
+            <span class="s2">&quot;the image was taken.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.telescope.model&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TelescopeModel&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The model name of the telescope through which &quot;</span>
+            <span class="s2">&quot;the image was taken.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.observatory.latitude&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ObservatoryLatitude&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Geodetic latitude of the observatory in degrees, &quot;</span>
+            <span class="s2">&quot;positive north.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.observatory.longitude&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ObservatoryLongitude&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Geodetic longitude of the observatory in degrees, &quot;</span>
+            <span class="s2">&quot;positive east.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.observatory.altitude&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ObservatoryAltitude&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Altitude of the observatory above sea level &quot;</span>
+            <span class="s2">&quot;in metres.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.observer.name&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ObserverName&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name of the observer or organisation responsible &quot;</span>
+            <span class="s2">&quot;for acquiring the image.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.target.name&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TargetName&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The name of the target field being observed.&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.target.ra&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TargetRA&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Right ascension of the target in degrees (J2000).&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">HDF5Attribute</span><span class="p">(</span>
+            <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;provenance.cfg.target.dec&quot;</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;TargetDec&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.float64&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Declination of the target in degrees (J2000).&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="_get_attributes">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_attributes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_attributes</span><span class="p">():</span>
@@ -1434,7 +1596,7 @@
                 <span class="n">pipeline_key</span><span class="o">=</span><span class="s2">&quot;repack&quot;</span><span class="p">,</span>
                 <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Repack&quot;</span><span class="p">,</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.string_&quot;</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;numpy.bytes_&quot;</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A list of the datasets deleted from the file since&quot;</span>
                 <span class="s2">&quot; the last re-packing. If not empty, indicates that the file &quot;</span>
                 <span class="s2">&quot;size can be decreased by re-packing.&quot;</span><span class="p">,</span>
@@ -1447,6 +1609,7 @@
         <span class="o">+</span> <span class="n">_get_background_attributes</span><span class="p">()</span>
         <span class="o">+</span> <span class="n">_get_shapefit_attributes</span><span class="p">()</span>
         <span class="o">+</span> <span class="n">_get_apphot_attributes</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">_get_provenance_attributes</span><span class="p">()</span>
     <span class="p">)</span></div>
 
 

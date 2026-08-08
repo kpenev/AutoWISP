@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -120,16 +140,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.database.user_interface</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define interface to the pipeline database.&quot;&quot;&quot;</span>
+<span></span><span class="c1"># pylint: disable=too-many-lines</span>
+<span class="sd">&quot;&quot;&quot;Define interface to the pipeline database.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_exc</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sql</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">delete</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">and_</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">DefaultsFormatter</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sql</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">delete</span><span class="p">,</span> <span class="n">inspect</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">and_</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.orm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnProperty</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaults</span> <span class="k">as</span> <span class="n">database_defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span><span class="p">,</span> <span class="n">set_project_home</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">provenance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
 
 <span class="c1"># False positive</span>
 <span class="c1"># pylint: disable=no-name-in-module</span>
@@ -154,6 +185,7 @@
     <span class="n">ProcessedImages</span><span class="p">,</span>
     <span class="n">ProcessingSequence</span><span class="p">,</span>
     <span class="n">Step</span><span class="p">,</span>
+    <span class="n">StepDependencies</span><span class="p">,</span>
     <span class="n">step_param_association</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -206,12 +238,15 @@
 
 <div class="viewcode-block" id="get_processing_sequence">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_processing_sequence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_processing_sequence</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_processing_sequence</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">no_lc_postprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the sequence of steps in the pipeline.</span>
+<span class="sd">    Return the sequence of (step, image type) the pipeline can run.</span>
 
-<span class="sd">    For image processing this will be a sequence of step/image type pairs, and</span>
-<span class="sd">    for lightcurves it will just be a sequence of steps.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        db_session:    The database session to issue queries.</span>
+
+<span class="sd">        no_lc_postprocessing(bool):    If True, any steps which are blocked by</span>
+<span class="sd">            ``create_lightcurves`` are not included.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">select_seq</span> <span class="o">=</span> <span class="p">(</span>
@@ -220,8 +255,27 @@
         <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ProcessingSequence</span><span class="o">.</span><span class="n">step_id</span> <span class="o">==</span> <span class="n">Step</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
         <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">ProcessingSequence</span><span class="o">.</span><span class="n">image_type_id</span> <span class="o">==</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">no_lc_postprocessing</span><span class="p">:</span>
+        <span class="n">create_lc_step_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">select_postprocessing</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">StepDependencies</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">blocking_step_id</span><span class="o">=</span><span class="n">create_lc_step_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">subquery</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">select_seq</span> <span class="o">=</span> <span class="n">select_seq</span><span class="o">.</span><span class="n">outerjoin</span><span class="p">(</span>
+            <span class="n">select_postprocessing</span><span class="p">,</span>
+            <span class="n">and_</span><span class="p">(</span>
+                <span class="n">select_postprocessing</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">blocked_step_id</span> <span class="o">==</span> <span class="n">Step</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">select_postprocessing</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">blocked_image_type_id</span> <span class="o">==</span> <span class="n">ImageType</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">select_postprocessing</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">blocked_step_id</span>  <span class="c1"># pylint: disable=singleton-comparison</span>
+            <span class="o">==</span> <span class="kc">None</span>
+        <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select_seq</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select_seq</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">ProcessingSequence</span><span class="o">.</span><span class="n">id</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
 
 
 
@@ -299,27 +353,39 @@
         <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CameraChannel</span><span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">processed_select</span> <span class="o">=</span> <span class="n">complete_processed_select</span><span class="p">(</span>
-        <span class="n">select</span><span class="p">(</span>
-            <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
-            <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
-            <span class="c1"># False poisitive</span>
-            <span class="c1"># pylint: disable=not-callable</span>
-            <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">),</span>
-            <span class="c1"># pylint: enable=not-callable</span>
+    <span class="n">processed_subq</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">complete_processed_select</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span>
+                <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+                <span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">),</span>
+                <span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">final</span><span class="p">)</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;final&quot;</span><span class="p">),</span>
+                <span class="c1"># False poisitive</span>
+                <span class="c1"># pylint: disable=not-callable</span>
+                <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span>
+                <span class="c1"># pylint: enable=not-callable</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">image_type_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ImageType</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">image_type_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span> <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">subquery</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">processed_select</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span>
+        <span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+        <span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+        <span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">image_id</span><span class="p">),</span>  <span class="c1"># pylint: disable=not-callable</span>
+    <span class="p">)</span>
+
     <span class="n">final</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="n">processed_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">final</span><span class="p">)</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span>
-            <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+        <span class="n">processed_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">final</span><span class="p">)</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span>
+            <span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">status</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">by_status</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="n">processed_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">final</span><span class="p">)</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span>
-            <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span>
+        <span class="n">processed_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">final</span><span class="p">)</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span>
+            <span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">processed_subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">channel</span>
         <span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">processed_subquery</span> <span class="o">=</span> <span class="p">(</span>
@@ -327,6 +393,7 @@
             <span class="n">select</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span> <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">final</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">ProcessedImages</span><span class="o">.</span><span class="n">image_id</span><span class="p">,</span> <span class="n">ProcessedImages</span><span class="o">.</span><span class="n">channel</span><span class="p">)</span>
         <span class="o">.</span><span class="n">subquery</span><span class="p">()</span>
     <span class="p">)</span>
 
@@ -392,7 +459,7 @@
                             <span class="o">.</span><span class="n">select_from</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span>
                             <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ImageType</span><span class="p">)</span>
                             <span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                                <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+                                <span class="n">Image</span><span class="o">.</span><span class="n">raw_fname</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
                                     <span class="n">header</span><span class="p">[</span><span class="s2">&quot;RAWFNAME&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.fits&quot;</span>
                                 <span class="p">)</span>
                             <span class="p">)</span>
@@ -455,10 +522,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_config_info</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;All&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return info for displaying the configuration with given version.&quot;&quot;&quot;</span>
 
-    <span class="c1"># False positive:</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">step</span> <span class="o">!=</span> <span class="s2">&quot;All&quot;</span><span class="p">:</span>
             <span class="n">restrict_param_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
                 <span class="n">param</span><span class="o">.</span><span class="n">id</span>
@@ -470,7 +534,11 @@
         <span class="n">config_list</span> <span class="o">=</span> <span class="n">get_db_configuration</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
         <span class="n">config_info</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">config_list</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">step</span> <span class="o">!=</span> <span class="s2">&quot;All&quot;</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">restrict_param_ids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">step</span> <span class="o">!=</span> <span class="s2">&quot;All&quot;</span>
+                <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">id</span>
+                <span class="ow">not</span> <span class="ow">in</span> <span class="n">restrict_param_ids</span>  <span class="c1"># pylint: disable=possibly-used-before-assignment</span>
+            <span class="p">):</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_info</span><span class="p">:</span>
                 <span class="n">config_info</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -591,20 +659,44 @@
     <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">expression_list</span> <span class="o">=</span> <span class="p">[]</span>
 
+    <span class="c1"># Rejecting every malformed node shape with its own message is</span>
+    <span class="c1"># inherently branchy; the alternative is one vague error for all of</span>
+    <span class="c1"># them.</span>
+    <span class="c1"># pylint: disable=too-many-branches</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">walk_json</span><span class="p">(</span><span class="n">sub_tree</span><span class="p">,</span> <span class="n">parameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expression_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively walk the JSON configuration tree adding to results.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;parameter&quot;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">parameter</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="k">assert</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
-            <span class="k">assert</span> <span class="n">expression_ids</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="k">assert</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">parameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">expression_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Parameter </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> is nested under parameter &#39;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> in the JSON configuration; parameters must &quot;</span>
+                    <span class="s2">&quot;be at the top level!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Parameter </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> is specified more than &#39;</span>
+                    <span class="s2">&quot;once in the JSON configuration!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Parameter </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> in the JSON configuration &#39;</span>
+                    <span class="s2">&quot;has no value or condition under it!&quot;</span>
+                <span class="p">)</span>
             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
                 <span class="n">walk_json</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="p">())</span>
         <span class="k">elif</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="n">parameter</span>
-            <span class="k">assert</span> <span class="n">expression_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Value </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> of parameter </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s1"> has &#39;</span>
+                    <span class="s2">&quot;further nodes under it in the JSON configuration; &quot;</span>
+                    <span class="s2">&quot;values must be the leaves of the tree!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parameter</span> <span class="ow">or</span> <span class="n">expression_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Value </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> in the JSON configuration is &#39;</span>
+                    <span class="s2">&quot;not under any parameter!&quot;</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">parameter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="nb">print</span><span class="p">(</span>
@@ -617,8 +709,17 @@
                 <span class="p">{</span><span class="s2">&quot;expressions&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">expression_ids</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]}</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;condition&quot;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="n">parameter</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Condition </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> of parameter </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s1"> &#39;</span>
+                    <span class="s2">&quot;has no value or further condition under it in the JSON &quot;</span>
+                    <span class="s2">&quot;configuration!&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parameter</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Condition </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> in the JSON configuration &#39;</span>
+                    <span class="s2">&quot;is not under any parameter!&quot;</span>
+                <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">condition_id</span> <span class="o">=</span> <span class="n">expression_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -627,7 +728,7 @@
             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
                 <span class="n">walk_json</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">expression_ids</span> <span class="o">+</span> <span class="p">(</span><span class="n">condition_id</span><span class="p">,))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Unexpected node type: </span><span class="si">{</span><span class="n">sub_tree</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> in JSON&#39;</span>
                 <span class="s2">&quot; configuration&quot;</span>
             <span class="p">)</span>
@@ -753,10 +854,7 @@
     <span class="n">configuration</span><span class="p">,</span> <span class="n">expressions</span> <span class="o">=</span> <span class="n">_parse_json_config</span><span class="p">(</span>
         <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_config</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
     <span class="p">)</span>
-    <span class="c1"># False positive:</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="n">compare_config</span> <span class="o">=</span> <span class="n">get_db_configuration</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">db_session</span><span class="p">)</span>
 
         <span class="n">_save_conditions</span><span class="p">(</span>
@@ -821,27 +919,634 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">list_steps</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;List the pipeline steps.&quot;&quot;&quot;</span>
 
-    <span class="c1"># False positive:</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Step</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="add_camera_type_channels">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.add_camera_type_channels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_camera_type_channels</span><span class="p">(</span><span class="n">camera_type_id</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">db_session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add channels to the given camera type and return partial channel entries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        camera_type_id(int):    The ID of the camera type to which to add</span>
+<span class="sd">            channels.</span>
+
+<span class="sd">        properties(dict-like):    The information being changed for the survey.</span>
+<span class="sd">            For each channel to add there should be exactly two keywords:</span>
+<span class="sd">            ``&quot;channel-{channel_id}-name&quot;`` and</span>
+<span class="sd">            ``&quot;channel-{channel_id}-slice&quot;``. Where ``{channel_id}`` should be</span>
+<span class="sd">            either an int specifying the identifier of the channel in the</span>
+<span class="sd">            database or ``&quot;new&quot;`` specifying a new channel to add.</span>
+<span class="sd">            ``{channel_id}``entries should be unique (for example only one new</span>
+<span class="sd">            channel can be added). Channel slices have the format:</span>
+<span class="sd">            ``&quot;{x_offset}:{x_step};{y_offset}:{y_step}&quot;``. Anything not related</span>
+<span class="sd">            to channels is ignored.</span>
+
+<span class="sd">        db_session:    The database session to use for updating.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int or None, str or None:</span>
+<span class="sd">            The channel ID and property (one of ``&quot;name&quot;`` or ``&quot;slice&quot;``)</span>
+<span class="sd">            which is not fully specified or is mal-formatted. If more than one,</span>
+<span class="sd">            the one wit the lowest ID is returned. If the new channel is</span>
+<span class="sd">            unspecified, the channel returned is ``None``. If everything is</span>
+<span class="sd">            fully specified ``None, None`` is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_channel_info</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;From the inputs extract the information to add to the database.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;channel-&quot;</span><span class="p">):</span>
+                <span class="n">channel_id</span><span class="p">,</span> <span class="n">channel_property</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">assert</span> <span class="n">channel_property</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;slice&quot;</span><span class="p">,</span>
+                <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized channel property </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">channel_id</span> <span class="o">!=</span> <span class="s2">&quot;new&quot;</span><span class="p">:</span>
+                    <span class="n">channel_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">channel_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">channel_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">channel_property</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="n">channel_id</span><span class="p">],</span> <span class="p">(</span>
+                        <span class="s2">&quot;Duplicate name entry encountered for channel ID &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">channel_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">channel_id</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="n">dir_slice</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">dir_slice</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+                            <span class="p">),</span>
+                            <span class="p">[],</span>
+                        <span class="p">)</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                            <span class="p">[</span><span class="s2">&quot;x_offset&quot;</span><span class="p">,</span> <span class="s2">&quot;x_step&quot;</span><span class="p">,</span> <span class="s2">&quot;y_offset&quot;</span><span class="p">,</span> <span class="s2">&quot;y_step&quot;</span><span class="p">],</span> <span class="n">values</span>
+                        <span class="p">):</span>
+                            <span class="k">assert</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="n">channel_id</span><span class="p">],</span> <span class="p">(</span>
+                                <span class="s2">&quot;Duplicate slice entry encountered for channel &quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;ID </span><span class="si">{</span><span class="n">channel_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+                            <span class="n">result</span><span class="p">[</span><span class="n">channel_id</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_unspecified</span><span class="p">(</span><span class="n">channel_info</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Leave only fully specified channels in update info, return result.&quot;&quot;&quot;</span>
+
+        <span class="n">edit_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">edit_property</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">to_delete</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">required_attributes</span> <span class="o">=</span> <span class="n">get_editable_attributes</span><span class="p">(</span>
+            <span class="n">provenance</span><span class="o">.</span><span class="n">CameraChannel</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">)</span>
+        <span class="n">required_attributes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">channel_attrs</span> <span class="ow">in</span> <span class="n">channel_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">required_attributes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">channel_attrs</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2"> mising. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Deleting channel </span><span class="si">{</span><span class="n">channel_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">edit_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">edit_id</span> <span class="o">&gt;</span> <span class="n">channel_id</span><span class="p">:</span>
+                        <span class="n">edit_id</span> <span class="o">=</span> <span class="n">channel_id</span>
+                        <span class="n">edit_property</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span> <span class="k">else</span> <span class="s2">&quot;slice&quot;</span>
+                    <span class="n">to_delete</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">channel_id</span> <span class="ow">in</span> <span class="n">to_delete</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">channel_info</span><span class="p">[</span><span class="n">channel_id</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">edit_id</span><span class="p">,</span> <span class="n">edit_property</span>
+
+    <span class="n">channel_info</span> <span class="o">=</span> <span class="n">get_channel_info</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">remove_unspecified</span><span class="p">(</span><span class="n">channel_info</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">channel_info</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">camera_type_id</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="p">),</span> <span class="s2">&quot;Attempting to set channels of non-existant camera type&quot;</span>
+
+    <span class="k">for</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">channel_properties</span> <span class="ow">in</span> <span class="n">channel_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">channel_id</span> <span class="o">==</span> <span class="s2">&quot;new&quot;</span><span class="p">:</span>
+            <span class="n">db_channel</span> <span class="o">=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">CameraChannel</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="n">camera_type_id</span><span class="o">=</span><span class="n">camera_type_id</span><span class="p">,</span> <span class="o">**</span><span class="n">channel_properties</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">db_channel</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span>
+                    <span class="n">provenance</span><span class="o">.</span><span class="n">CameraChannel</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">camera_type_id</span><span class="o">=</span><span class="n">camera_type_id</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">channel_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">db_channel</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">channel_id</span> <span class="o">==</span> <span class="s2">&quot;new&quot;</span><span class="p">:</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_channel</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="get_editable_attributes">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_editable_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_editable_attributes</span><span class="p">(</span><span class="n">db_class</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List the user-editable attributes for the given component DB class.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">sort_key</span><span class="p">(</span><span class="n">colname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define the order in which attributes should be displayed.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">colname</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;serial_number&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">colname</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">colname</span> <span class="o">==</span> <span class="s2">&quot;notes&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">inspect</span><span class="p">(</span><span class="n">db_class</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ColumnProperty</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;type&quot;</span> <span class="k">if</span> <span class="n">col_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_type_id&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">col_name</span>
+        <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">columns</span>
+        <span class="k">if</span> <span class="n">col_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">db_class</span> <span class="o">==</span> <span class="n">provenance</span><span class="o">.</span><span class="n">CameraType</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">sort_key</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_human_name">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_human_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_human_name</span><span class="p">(</span><span class="n">column_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return human friendly name for the given column.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">column_name</span> <span class="o">==</span> <span class="s2">&quot;serial_number&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;serial no&quot;</span>
+    <span class="k">if</span> <span class="n">column_name</span> <span class="o">==</span> <span class="s2">&quot;f_ratio&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;focal ratio&quot;</span>
+    <span class="k">if</span> <span class="n">column_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_type_id&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;type&quot;</span>
+    <span class="k">return</span> <span class="n">column_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="update_db_entry">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.update_db_entry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_db_entry</span><span class="p">(</span>
+    <span class="n">db_session</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">db_class</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">,</span> <span class="n">component_type</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add/update a survey component or type, return its ID and what to autofocus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">incomplete</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">entry_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">entry_id</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">db_item</span> <span class="o">=</span> <span class="n">db_class</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">db_item</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="n">select</span><span class="p">(</span><span class="n">db_class</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">db_class</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">entry_id</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">attribute_names</span> <span class="o">=</span> <span class="n">get_editable_attributes</span><span class="p">(</span><span class="n">db_class</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">&quot;channels&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">db_class</span> <span class="o">==</span> <span class="n">provenance</span><span class="o">.</span><span class="n">CameraType</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="p">),</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attempting to set channels for </span><span class="si">{</span><span class="n">db_class</span><span class="si">}</span><span class="s2"> (not a camera &quot;</span>
+                <span class="s2">&quot;type)!&quot;</span>
+            <span class="p">)</span>
+            <span class="n">channel_incomplete</span> <span class="o">=</span> <span class="n">add_camera_type_channels</span><span class="p">(</span>
+                <span class="n">entry_id</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">db_session</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">channel_incomplete</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="n">channel_incomplete</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">):</span>
+                <span class="n">incomplete</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;channel&quot;</span><span class="p">:</span> <span class="n">channel_incomplete</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="n">attr</span> <span class="o">!=</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">db_item</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">properties</span><span class="p">[</span><span class="n">get_human_name</span><span class="p">(</span><span class="n">attr</span><span class="p">)])</span>
+
+    <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">:</span>
+        <span class="n">type_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type-id&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">type_id</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">component_type</span><span class="si">}</span><span class="s2"> type selected (got type ID &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">type_id</span><span class="si">}</span><span class="s2">)!&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">db_item</span><span class="p">,</span> <span class="n">component_type</span> <span class="o">+</span> <span class="s2">&quot;_type_id&quot;</span><span class="p">,</span> <span class="n">type_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">entry_id</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">db_item</span><span class="p">)</span>
+    <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">db_item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">incomplete</span></div>
+
+
+
+<div class="viewcode-block" id="import_json_to_survey">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.import_json_to_survey">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">import_json_to_survey</span><span class="p">(</span><span class="n">json_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add to the survey configuration from given JSON encoding string.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_equipment_type</span><span class="p">(</span><span class="n">type_class</span><span class="p">,</span> <span class="n">item_class</span><span class="p">,</span> <span class="n">type_properties</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a single equipment type and all its devices.&quot;&quot;&quot;</span>
+
+        <span class="n">type_id</span><span class="p">,</span> <span class="n">incomplete</span> <span class="o">=</span> <span class="n">update_db_entry</span><span class="p">(</span>
+            <span class="n">db_session</span><span class="p">,</span> <span class="n">type_properties</span><span class="p">,</span> <span class="n">type_class</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">incomplete</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">incomplete</span>
+
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">type_properties</span><span class="p">[</span><span class="s2">&quot;devices&quot;</span><span class="p">]:</span>
+            <span class="n">component</span><span class="p">[</span><span class="s2">&quot;type-id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">type_id</span>
+            <span class="n">update_db_entry</span><span class="p">(</span>
+                <span class="n">db_session</span><span class="p">,</span>
+                <span class="n">component</span><span class="p">,</span>
+                <span class="n">item_class</span><span class="p">,</span>
+                <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">item_class</span><span class="o">.</span><span class="n">__tablename__</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">type_class</span> <span class="o">==</span> <span class="n">provenance</span><span class="o">.</span><span class="n">CameraType</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-member</span>
+            <span class="k">for</span> <span class="n">channel_name</span><span class="p">,</span> <span class="n">channel_config</span> <span class="ow">in</span> <span class="n">type_properties</span><span class="p">[</span>
+                <span class="s2">&quot;channels&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">channel_config</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel_name</span>
+                <span class="n">channel_config</span><span class="p">[</span><span class="s2">&quot;type-id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">type_id</span>
+                <span class="n">incomplete</span> <span class="o">=</span> <span class="n">update_db_entry</span><span class="p">(</span>
+                    <span class="n">db_session</span><span class="p">,</span>
+                    <span class="n">channel_config</span><span class="p">,</span>
+                    <span class="n">provenance</span><span class="o">.</span><span class="n">CameraChannel</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+                    <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;camera&quot;</span><span class="p">,</span>
+                <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">incomplete</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">incomplete</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="nb">dict</span>
+    <span class="p">),</span> <span class="s2">&quot;Malformatted JSON file encountered during import&quot;</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
+                <span class="s2">&quot;s&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Survey class </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> does not end with &#39;s&#39;.&quot;</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Observers&quot;</span><span class="p">,</span> <span class="s2">&quot;Observatories&quot;</span><span class="p">]:</span>
+                <span class="n">db_class</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">provenance</span><span class="o">.</span><span class="n">Observer</span>  <span class="c1"># pylint: disable=no-member</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;Observers&quot;</span>
+                    <span class="k">else</span> <span class="n">provenance</span><span class="o">.</span><span class="n">Observatory</span>  <span class="c1"># pylint: disable=no-member</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">properties</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">incomplete</span> <span class="o">=</span> <span class="n">update_db_entry</span><span class="p">(</span>
+                        <span class="n">db_session</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">db_class</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">component_type</span> <span class="o">=</span> <span class="n">key</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">type_properties</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">incomplete</span> <span class="o">=</span> <span class="n">add_equipment_type</span><span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">provenance</span><span class="p">,</span> <span class="n">component_type</span> <span class="o">+</span> <span class="s2">&quot;Type&quot;</span><span class="p">),</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">provenance</span><span class="p">,</span> <span class="n">component_type</span><span class="p">),</span>
+                        <span class="n">type_properties</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">assert</span> <span class="n">incomplete</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Mal-formatted or not fully specified configuration for &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="master_config_json_to_settings">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.master_config_json_to_settings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">master_config_json_to_settings</span><span class="p">(</span><span class="n">json_obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate a ``master_config.json`` structure into master settings.</span>
+
+<span class="sd">    The JSON has the shape</span>
+<span class="sd">    ``{master_type: {&quot;enabled&quot;: ..., &quot;split&quot;: [...], &quot;match&quot;: [...]}, ...}``,</span>
+<span class="sd">    where ``master_type`` is ``&quot;zero&quot;``, ``&quot;dark&quot;``, ``&quot;flat&quot;``, etc. The</span>
+<span class="sd">    returned mapping uses ``&quot;master-&lt;type&gt;-&lt;param&gt;&quot;`` keys for every</span>
+<span class="sd">    ``(type, param)`` pair iterated over by the BUI -- ``master_info`` is</span>
+<span class="sd">    the canonical iteration order, with both ``highflat`` and ``lowflat``</span>
+<span class="sd">    collapsed onto ``flat`` so the keys produced here match what the BUI&#39;s</span>
+<span class="sd">    session storage uses.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json_obj: The result of ``json.load(...)`` on a master-config file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, str | list[str]]: Suitable as ``master_settings`` for</span>
+<span class="sd">        :func:`apply_master_config`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">master_settings</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">database_defaults</span><span class="o">.</span><span class="n">master_info</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;highflat&quot;</span><span class="p">,</span> <span class="s2">&quot;lowflat&quot;</span><span class="p">):</span>
+            <span class="n">master_type</span> <span class="o">=</span> <span class="s2">&quot;flat&quot;</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;split&quot;</span><span class="p">,</span> <span class="s2">&quot;match&quot;</span><span class="p">):</span>
+            <span class="n">master_settings</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_obj</span><span class="p">[</span>
+                <span class="n">master_type</span>
+            <span class="p">][</span><span class="n">param</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">master_settings</span></div>
+
+
+
+<div class="viewcode-block" id="apply_master_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.apply_master_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_master_config</span><span class="p">(</span><span class="n">master_settings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply user-supplied master settings to the default step / master info.</span>
+
+<span class="sd">    This is the pure-Python core of what the BUI uses to take the user&#39;s</span>
+<span class="sd">    chosen master configuration and produce the ``step_dependencies`` /</span>
+<span class="sd">    ``master_info`` arguments for</span>
+<span class="sd">    :func:`autowisp.database.initialize_database.initialize_database`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        master_settings: Mapping keyed by ``&quot;master-&lt;type&gt;-&lt;param&gt;&quot;``,</span>
+<span class="sd">            with values:</span>
+
+<span class="sd">            * ``&quot;&lt;type&gt;-enabled&quot;``: ``&quot;always&quot;`` or an int-as-string</span>
+<span class="sd">              (``&quot;0&quot;`` to disable, ``&quot;1&quot;`` to enable).</span>
+<span class="sd">            * ``&quot;&lt;type&gt;-split&quot;``, ``&quot;&lt;type&gt;-match&quot;``: iterables of header</span>
+<span class="sd">              expressions.</span>
+
+<span class="sd">            Both plain ``dict`` and Django ``QueryDict`` are accepted; the</span>
+<span class="sd">            list-valued keys are read via ``.getlist(...)`` when available</span>
+<span class="sd">            and otherwise via ``mapping[key]``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple of (step_dependencies, master_info): deep copies of the</span>
+<span class="sd">        ``database.defaults`` values with disabled masters pruned and the</span>
+<span class="sd">        ``must_match`` / ``split_by`` sets replaced from ``master_settings``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_list</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">master_settings</span><span class="p">,</span> <span class="s2">&quot;getlist&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">master_settings</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">master_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="n">step_dependencies</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">database_defaults</span><span class="o">.</span><span class="n">step_dependencies</span><span class="p">)</span>
+    <span class="n">master_info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">database_defaults</span><span class="o">.</span><span class="n">master_info</span><span class="p">)</span>
+
+    <span class="n">disabled_masters</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">master_type</span>
+        <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">master_settings</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-enabled&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">step_dependencies</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;calibrate&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">disabled_masters</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="s2">&quot;zero&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;dark&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="p">),</span> <span class="p">(</span>
+                    <span class="s2">&quot;The built-in step dependencies have calibrate consuming &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;an unknown master type: </span><span class="si">{</span><span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">!&quot;</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">disabled_masters</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;stack_to_master&quot;</span>
+                                <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;_flat&quot;</span> <span class="k">if</span> <span class="n">master_type</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                                <span class="n">master_type</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">disabled_masters</span>
+        <span class="p">):</span>
+            <span class="k">del</span> <span class="n">step_dependencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="n">disabled_masters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">master_type</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">master_info</span><span class="p">[</span><span class="s2">&quot;highflat&quot;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">master_info</span><span class="p">[</span><span class="s2">&quot;lowflat&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">master_info</span><span class="p">[</span><span class="n">master_type</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">master_type</span><span class="p">,</span> <span class="n">master_config</span> <span class="ow">in</span> <span class="n">master_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">master_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;highflat&quot;</span><span class="p">,</span> <span class="s2">&quot;lowflat&quot;</span><span class="p">):</span>
+            <span class="n">master_type</span> <span class="o">=</span> <span class="s2">&quot;flat&quot;</span>
+        <span class="n">enabled</span> <span class="o">=</span> <span class="n">master_settings</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-enabled&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">enabled</span> <span class="o">==</span> <span class="s2">&quot;always&quot;</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Master </span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2"> is set to </span><span class="si">{</span><span class="n">enabled</span><span class="si">!r}</span><span class="s2"> yet survived the &quot;</span>
+            <span class="s2">&quot;removal of the masters the user disabled!&quot;</span>
+        <span class="p">)</span>
+        <span class="n">master_config</span><span class="p">[</span><span class="s2">&quot;must_match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_list</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-match&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">master_config</span><span class="p">[</span><span class="s2">&quot;split_by&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_list</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;master-</span><span class="si">{</span><span class="n">master_type</span><span class="si">}</span><span class="s2">-split&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">step_dependencies</span><span class="p">,</span> <span class="n">master_info</span></div>
+
+
+
+<div class="viewcode-block" id="parse_config_overwrites">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.parse_config_overwrites">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_config_overwrites</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse plain-text configuration lines into an overwrites dict.</span>
+
+<span class="sd">    Each non-blank, non-comment, non-section line is parsed as ``key`` or</span>
+<span class="sd">    ``key = value`` (``:`` is also accepted as the separator). Trailing</span>
+<span class="sd">    ``#`` comments are stripped. ``;`` is *not* a comment marker --</span>
+<span class="sd">    semicolons in unquoted values are preserved as data. Quoted values</span>
+<span class="sd">    keep their inner content (the surrounding quotes are removed).</span>
+<span class="sd">    Section headers (``[name]``) and blank lines are skipped.</span>
+
+<span class="sd">    Keys that are never valid as DB parameter overrides are silently</span>
+<span class="sd">    dropped, mirroring what the BUI&#39;s</span>
+<span class="sd">    ``static/home/js/create.project.js`` does before populating the</span>
+<span class="sd">    textarea: ``project-home`` (the project directory itself) and</span>
+<span class="sd">    ``split-channels`` (generated from camera information). The list is</span>
+<span class="sd">    a subset of what</span>
+<span class="sd">    :class:`autowisp.database.initialize_database.StepCreator` already</span>
+<span class="sd">    refuses to insert as a Parameter row.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lines: Iterable of strings, one per config line. Trailing</span>
+<span class="sd">            newlines are tolerated.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, list[tuple[None, str | None]]]:</span>
+<span class="sd">            Suitable for the ``overwrite_default_config`` argument of</span>
+<span class="sd">            :func:`autowisp.database.initialize_database.initialize_database`.</span>
+<span class="sd">            Keys without a value are stored as ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">line_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;^\s*(?P&lt;key&gt;[A-Za-z_][\w\-.]*)\s*&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(?:[:=]\s*&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(?:(?P&lt;q&gt;[&#39;</span><span class="se">\&quot;</span><span class="s2">])(?P&lt;quoted&gt;.*?)(?P=q)|(?P&lt;value&gt;[^#\n]*?))&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;\s*)?&quot;</span>
+        <span class="sa">r</span><span class="s2">&quot;(?:#.*)?$&quot;</span>
+    <span class="p">)</span>
+    <span class="n">non_parameter_keys</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;project-home&quot;</span><span class="p">,</span> <span class="s2">&quot;split-channels&quot;</span><span class="p">})</span>
+    <span class="n">overwrites</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">stripped</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stripped</span> <span class="ow">or</span> <span class="n">stripped</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">)):</span>
+            <span class="k">continue</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">line_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">non_parameter_keys</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;quoted&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="n">overwrites</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">overwrites</span></div>
+
+
+
+<div class="viewcode-block" id="plural">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.plural">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plural</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mostly working pluralization.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">word</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;ies&quot;</span>
+    <span class="k">return</span> <span class="n">word</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="export_survey_to_json">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.export_survey_to_json">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_survey_to_json</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="o">**</span><span class="n">limit_to</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create JSON file storing selected survey information.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_export_objects</span><span class="p">(</span><span class="n">equipment_class</span><span class="p">,</span> <span class="n">db_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of DB types of equipment of given class to export.&quot;&quot;&quot;</span>
+
+        <span class="n">is_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">equipment_class</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Observer&quot;</span><span class="p">,</span> <span class="s2">&quot;Observatory&quot;</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">db_type</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">export_limit</span> <span class="o">=</span> <span class="n">limit_to</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">equipment_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;_type&quot;</span> <span class="k">if</span> <span class="n">is_type</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">export_limit</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">db_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">provenance</span><span class="p">,</span> <span class="n">equipment_class</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;Type&quot;</span> <span class="k">if</span> <span class="n">is_type</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">export_select</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">db_class</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">db_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">export_select</span> <span class="o">=</span> <span class="n">export_select</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">equipment_class</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_type_id&quot;</span><span class="p">:</span> <span class="n">db_type</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">export_limit</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="n">export_select</span> <span class="o">=</span> <span class="n">export_select</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">db_class</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">export_limit</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">export_select</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="n">equipment_class</span><span class="p">,</span> <span class="n">db_class</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configuration of the given class, including children.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">db_class</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">equipment_class</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Observer&quot;</span><span class="p">,</span> <span class="s2">&quot;Observatory&quot;</span><span class="p">]:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;devices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">device</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">get_export_objects</span><span class="p">(</span><span class="n">equipment_class</span><span class="p">,</span> <span class="n">db_class</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">equipment_class</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;Camera&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Telescope&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Mount&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Observer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Observatory&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="n">export_list</span> <span class="o">=</span> <span class="n">get_export_objects</span><span class="p">(</span><span class="n">equipment_class</span><span class="p">)</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">plural</span><span class="p">(</span><span class="n">equipment_class</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">get_config</span><span class="p">(</span><span class="n">equipment_class</span><span class="p">,</span> <span class="n">export</span><span class="p">)</span> <span class="k">for</span> <span class="n">export</span> <span class="ow">in</span> <span class="n">export_list</span>
+            <span class="p">]</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_command_line">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.parse_command_line">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_command_line</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parsed command line configuration.&quot;&quot;&quot;</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Import or export survey configuration to/from JSON.&quot;</span><span class="p">,</span>
+        <span class="n">default_config_files</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">DefaultsFormatter</span><span class="p">,</span>
+        <span class="n">ignore_unknown_config_file_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;project_home&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the project home directory.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;import&quot;</span><span class="p">,</span> <span class="s2">&quot;export&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether to import JSON into the survey database or export &quot;</span>
+        <span class="s2">&quot;survey data to JSON.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--filename&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File to read from (import) or write to (export). &quot;</span>
+        <span class="s2">&quot;Defaults to stdin for import and stdout for export.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
 
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Avoid polluting the global namespace.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the import or export action specified on the command line.&quot;&quot;&quot;</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.engine&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-    <span class="c1"># False positive:</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Channels: &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">list_channels</span><span class="p">(</span><span class="n">db_session</span><span class="p">)))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">get_progress</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">db_session</span><span class="p">))</span></div>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
+    <span class="n">set_project_home</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">project_home</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;import&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">import_json_to_survey</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+                <span class="n">import_json_to_survey</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">export_survey_to_json</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+                <span class="n">export_survey_to_json</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span></div>
 
 
 

@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -122,6 +142,8 @@
   <h1>Source code for autowisp.source_finder</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Uniform interface for source extractoin using several methods.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
@@ -133,6 +155,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">source_finder_util</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoSourcesFoundError</span>
 
 
 <span class="c1"># This still makes sense as a class</span>
@@ -140,7 +163,7 @@
 <div class="viewcode-block" id="SourceFinder">
 <a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SourceFinder</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find sources in an image of the night sky and repor properties.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find sources in an image of the night sky and report properties.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SourceFinder._create_mock_source_list">
 <a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder._create_mock_source_list">[docs]</a>
@@ -221,11 +244,13 @@
 
 <div class="viewcode-block" id="SourceFinder.__init__">
 <a class="viewcode-back" href="../../implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">tool</span><span class="o">=</span><span class="s2">&quot;hatphot&quot;</span><span class="p">,</span>
         <span class="n">brightness_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">brightness_quantile</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span>
+        <span class="n">brightness_quantile_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">filter_sources</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span>
         <span class="n">max_sources</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -237,6 +262,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="n">tool</span><span class="p">,</span>
             <span class="s2">&quot;brightness_threshold&quot;</span><span class="p">:</span> <span class="n">brightness_threshold</span><span class="p">,</span>
+            <span class="s2">&quot;brightness_quantile&quot;</span><span class="p">:</span> <span class="n">brightness_quantile</span><span class="p">,</span>
+            <span class="s2">&quot;brightness_quantile_scale&quot;</span><span class="p">:</span> <span class="n">brightness_quantile_scale</span><span class="p">,</span>
             <span class="s2">&quot;allow_overwrite&quot;</span><span class="p">:</span> <span class="n">allow_overwrite</span><span class="p">,</span>
             <span class="s2">&quot;allow_dir_creation&quot;</span><span class="p">:</span> <span class="n">allow_dir_creation</span><span class="p">,</span>
             <span class="s2">&quot;always_return_sources&quot;</span><span class="p">:</span> <span class="n">always_return_sources</span><span class="p">,</span>
@@ -264,14 +291,39 @@
 <span class="sd">                The extracted source from the image, if source_fname was None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="n">configuration</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mock&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_mock_source_list</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
+
+        <span class="c1"># Calculate brightness_threshold from image quantile if not specified</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">]:</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">fits_file</span><span class="p">:</span>
+                <span class="n">hdu_index</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">fits_file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="n">image_data</span> <span class="o">=</span> <span class="n">fits_file</span><span class="p">[</span><span class="n">hdu_index</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span>
+                    <span class="s2">&quot;brightness_quantile_scale&quot;</span>
+                <span class="p">]</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span>
+                    <span class="n">image_data</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_quantile&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Computed brightness_threshold = </span><span class="si">%r</span><span class="s2"> from </span><span class="si">%r</span><span class="s2"> quantile &quot;</span>
+                    <span class="s2">&quot;with scale </span><span class="si">%r</span><span class="s2"> for </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">],</span>
+                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_quantile&quot;</span><span class="p">],</span>
+                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_quantile_scale&quot;</span><span class="p">],</span>
+                    <span class="n">fits_fname</span><span class="p">,</span>
+                <span class="p">)</span>
 
         <span class="n">start_extraction</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
             <span class="n">source_finder_util</span><span class="p">,</span> <span class="s2">&quot;start_&quot;</span> <span class="o">+</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">get_unpacked_fits</span><span class="p">(</span><span class="n">fits_fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">unpacked_fname</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Extracting sources from </span><span class="si">%r</span><span class="s2"> to </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">unpacked_fname</span><span class="p">,</span>
+                <span class="n">source_fname</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">extraction_args</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">unpacked_fname</span><span class="p">,</span>
                 <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;brightness_threshold&quot;</span><span class="p">],</span>
@@ -288,8 +340,12 @@
                     <span class="k">return</span> <span class="kc">None</span>
                 <span class="n">sources_file</span> <span class="o">=</span> <span class="n">source_fname</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating extraction process.&quot;</span><span class="p">)</span>
                 <span class="n">extraction_process</span> <span class="o">=</span> <span class="n">start_extraction</span><span class="p">(</span><span class="o">*</span><span class="n">extraction_args</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Extraction process started.&quot;</span><span class="p">)</span>
                 <span class="n">sources_file</span> <span class="o">=</span> <span class="n">extraction_process</span><span class="o">.</span><span class="n">stdout</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Parsing source list from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">unpacked_fname</span><span class="p">))</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span>
                 <span class="n">sources_file</span><span class="p">,</span>
@@ -298,21 +354,84 @@
                 <span class="p">),</span>
                 <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">deletechars</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">missing_values</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="c1"># A single extracted source comes back from genfromtxt as a 0-d</span>
+            <span class="c1"># array, which the finite-value mask below cannot index.</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">source_fname</span><span class="p">:</span>
+                    <span class="c1"># stdout is already at EOF, so this only reaps the</span>
+                    <span class="c1"># extractor rather than leaving it behind on the raise.</span>
+                    <span class="n">extraction_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="n">NoSourcesFoundError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Source extraction with </span><span class="si">{</span><span class="n">configuration</span><span class="p">[</span><span class="s1">&#39;tool&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2"> found &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;no sources in </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">!r}</span><span class="s2"> using brightness threshold &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">configuration</span><span class="p">[</span><span class="s1">&#39;brightness_threshold&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="n">user_message</span><span class="o">=</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No stars were found in </span><span class="si">{</span><span class="n">fits_fname</span><span class="si">}</span><span class="s2">. The image may &quot;</span>
+                        <span class="s2">&quot;be clouded over or badly out of focus, or the &quot;</span>
+                        <span class="s2">&quot;brightness threshold may be set too high.&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">details</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">fits_fname</span><span class="p">,</span>
+                        <span class="s2">&quot;srcfind_tool&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;brightness_threshold&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span>
+                            <span class="s2">&quot;brightness_threshold&quot;</span>
+                        <span class="p">],</span>
+                        <span class="s2">&quot;brightness_quantile&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span>
+                            <span class="s2">&quot;brightness_quantile&quot;</span>
+                        <span class="p">],</span>
+                        <span class="s2">&quot;brightness_quantile_scale&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span>
+                            <span class="s2">&quot;brightness_quantile_scale&quot;</span>
+                        <span class="p">],</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+            <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                    <span class="n">finite</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">colname</span><span class="p">])</span>
+                <span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Extracted </span><span class="si">%d</span><span class="s2"> stars from </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">fits_fname</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;tool&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hatphot&quot;</span><span class="p">:</span>
                 <span class="n">result</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">0.5</span>
                 <span class="n">result</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">0.5</span>
             <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter_sources&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span>
-                    <span class="n">Evaluator</span><span class="p">(</span><span class="n">result</span><span class="p">)(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter_sources&quot;</span><span class="p">])</span>
+                    <span class="n">Evaluator</span><span class="p">(</span>
+                        <span class="n">result</span><span class="p">,</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;brightness_threshold&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span>
+                                <span class="s2">&quot;brightness_threshold&quot;</span>
+                            <span class="p">]</span>
+                        <span class="p">},</span>
+                    <span class="p">)(</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;filter_sources&quot;</span><span class="p">])</span>
                 <span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Sorting </span><span class="si">%d</span><span class="s2"> filtered sources from </span><span class="si">%r</span><span class="s2"> (</span><span class="si">%r</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">fits_fname</span><span class="p">,</span>
+                <span class="n">unpacked_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+
             <span class="n">result</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_sources&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_sources&quot;</span><span class="p">]]</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">source_fname</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Waiting for source extraction process for </span><span class="si">%s</span><span class="s2"> to finish&quot;</span><span class="p">,</span>
+                    <span class="nb">repr</span><span class="p">(</span><span class="n">unpacked_fname</span><span class="p">),</span>
+                <span class="p">)</span>
                 <span class="n">extraction_process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Adding saturation flags for </span><span class="si">%d</span><span class="s2"> sources from </span><span class="si">%r</span><span class="s2"> &quot;</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">fits_fname</span><span class="p">,</span>
+            <span class="p">)</span>
+
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_saturation_flags</span><span class="p">(</span><span class="n">unpacked_fname</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
 </div>
 

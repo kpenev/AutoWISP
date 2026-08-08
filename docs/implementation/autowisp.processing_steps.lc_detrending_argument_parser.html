@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,19 +148,19 @@
 <span id="autowisp-processing-steps-lc-detrending-argument-parser-module"></span><h1>autowisp.processing_steps.lc_detrending_argument_parser module<a class="headerlink" href="#module-autowisp.processing_steps.lc_detrending_argument_parser" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-a11f559ec04bce111a6bd9fd9c0443ca9ed5d886.png" alt="Inheritance diagram of DetrendDatasetIter, Interpreter, LCDetrendingArgumentParser, ManualStepArgumentParser" usemap="#inheritancead92c08b0c" class="inheritance graphviz" /></div>
-<map id="inheritancead92c08b0c" name="inheritancead92c08b0c">
+<div class="graphviz"><img src="../_images/inheritance-2f89cc2feff3406096f665849c61a81dc45a0d4a.png" alt="Inheritance diagram of ConfigurationError, DetrendDatasetIter, Interpreter, LCDetrendingArgumentParser, ManualStepArgumentParser" usemap="#inheritance3bb7e0fd09" class="inheritance graphviz" /></div>
+<map id="inheritance3bb7e0fd09" name="inheritance3bb7e0fd09">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="192,5,361,32"/>
-<area shape="rect" id="node3" href="#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" target="_top" title="Iterate over the detrending datasets specified in a cmdline argument." alt="" coords="581,5,1060,32"/>
-<area shape="rect" id="node4" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,229,548,256"/>
-<area shape="rect" id="node5" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="68,155,485,181"/>
+<area shape="rect" id="node6" href="#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" target="_top" title="Iterate over the detrending datasets specified in a cmdline argument." alt="" coords="841,5,1320,32"/>
+<area shape="rect" id="node7" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,229,548,256"/>
+<area shape="rect" id="node8" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" target="_top" title="Incorporate boiler plate handling of command line arguments." alt="" coords="68,155,485,181"/>
 </map><p>Implement shared argument parsing for LC detrending processing steps.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">DetrendDatasetIter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#DetrendDatasetIter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-d6e8e9fa1660e0da0fb9cc24be83bc3bd917eadb.png" alt="Inheritance diagram of autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" usemap="#inheritance396707dfe6" class="inheritance graphviz" /></div>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">DetrendDatasetIter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#DetrendDatasetIter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-f31ef687292db6498986174600f0409c4ed2d103.png" alt="Inheritance diagram of autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" usemap="#inheritance396707dfe6" class="inheritance graphviz" /></div>
 <map id="inheritance396707dfe6" name="inheritance396707dfe6">
 <area shape="rect" id="node1" href="#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter" target="_top" title="Iterate over the detrending datasets specified in a cmdline argument." alt="" coords="5,5,485,32"/>
 </map><p>Iterate over the detrending datasets specified in a cmdline argument.</p>
@@ -160,9 +180,9 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">LCDetrendingArgumentParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_reconstructive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">LCDetrendingArgumentParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_reconstructive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser" title="autowisp.processing_steps.manual_util.ManualStepArgumentParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManualStepArgumentParser</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-a4066fb534a5f185f117e2ea14e9519b1b858833.png" alt="Inheritance diagram of autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" usemap="#inheritance5092a6efaf" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-a40d407fe74df76fb7cdb7cab149dc9c12e96535.png" alt="Inheritance diagram of autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" usemap="#inheritance5092a6efaf" class="inheritance graphviz" /></div>
 <map id="inheritance5092a6efaf" name="inheritance5092a6efaf">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="192,5,361,32"/>
 <area shape="rect" id="node2" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser" target="_top" title="Boiler plate handling of LC detrending command line arguments." alt="" coords="5,229,548,256"/>
@@ -170,7 +190,7 @@
 </map><p>Boiler plate handling of LC detrending command line arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_reconstructive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_reconstructive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert_to_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize the parser with options common to all LC detrending steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -184,28 +204,28 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_epd_arguments">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_add_epd_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser._add_epd_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_epd_arguments" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_add_epd_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser._add_epd_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_epd_arguments" title="Link to this definition"></a></dt>
 <dd><p>Add parameters required for EPD only.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_tfa_arguments">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_add_tfa_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser._add_tfa_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_tfa_arguments" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_add_tfa_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser._add_tfa_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser._add_tfa_arguments" title="Link to this definition"></a></dt>
 <dd><p>Add parameters required for TFA only.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_transit_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limb_darkening</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser.add_transit_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_transit_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limb_darkening</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_flags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#LCDetrendingArgumentParser.add_transit_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters" title="Link to this definition"></a></dt>
 <dd><p>Add command line parameters to the current parser to specify a transit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should arguments specifying the timing of the
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should arguments specifying the timing of the
 transit be included, i.e. period, ephemerides, duration?</p></li>
-<li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Sholud a potentially redundant argument for
+<li><p><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Sholud a potentially redundant argument for
 transit duration be added?</p></li>
-<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – <p>Should arguments specifying the geometry
+<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – <p>Should arguments specifying the geometry
 of the transit be included. If the value converts to False,
 nothing is included. Otherwise this argument should be either:</p>
 <blockquote>
@@ -217,7 +237,7 @@ eccentricity and argument of periastron.</p></li>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>limb_darkening</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should arguments for specifying the stellar
+<li><p><strong>limb_darkening</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should arguments for specifying the stellar
 limb-darkening be included?</p></li>
 </ul>
 </dd>
@@ -227,12 +247,6 @@ limb-darkening be included?</p></li>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser._parse_fit_datasets">
-<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">_parse_fit_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#_parse_fit_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser._parse_fit_datasets" title="Link to this definition"></a></dt>
-<dd><p>Parse the fit datasets argument (see help for details).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -251,6 +265,12 @@ limb-darkening be included?</p></li>
 <dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser._split_delimited_string">
 <span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">_split_delimited_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#_split_delimited_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser._split_delimited_string" title="Link to this definition"></a></dt>
 <dd><p>Split the detrending dataset argument at <cite>;</cite>, handling <cite>;;</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.processing_steps.lc_detrending_argument_parser.parse_fit_datasets">
+<span class="sig-prename descclassname"><span class="pre">autowisp.processing_steps.lc_detrending_argument_parser.</span></span><span class="sig-name descname"><span class="pre">parse_fit_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argument</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/processing_steps/lc_detrending_argument_parser.html#parse_fit_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.processing_steps.lc_detrending_argument_parser.parse_fit_datasets" title="Link to this definition"></a></dt>
+<dd><p>Parse the fit datasets argument (see help for details).</p>
 </dd></dl>
 
 </section>

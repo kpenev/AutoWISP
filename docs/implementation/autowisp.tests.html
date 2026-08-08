@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -127,24 +147,83 @@
 <span id="autowisp-tests-package"></span><h1>autowisp.tests package<a class="headerlink" href="#module-autowisp.tests" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-4bc0fbd0a982375eb9b7b9e7f1b474fb6a529c0f.png" alt="Inheritance diagram of AutoWISPTestCase, FloatTestCase" usemap="#inheritance868cfd8fd4" class="inheritance graphviz" /></div>
-<map id="inheritance868cfd8fd4" name="inheritance868cfd8fd4">
-<area shape="rect" id="node3" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="13,155,242,181"/>
+<div class="graphviz"><img src="../_images/inheritance-3f1eee3478f0c129d795ca77b1a56d3ce372efe3.png" alt="Inheritance diagram of AutoWISPTestCase, FloatTestCase, Interpreter, Sequence" usemap="#inheritance39d073bf75" class="inheritance graphviz" /></div>
+<map id="inheritance39d073bf75" name="inheritance39d073bf75">
+<area shape="rect" id="node4" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="165,155,394,181"/>
+<area shape="rect" id="node5" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="548,80,718,107"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" target="_top" title="All the operations on a read&#45;only sequence." alt="" coords="645,155,815,181"/>
+<area shape="rect" id="node6" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="382,5,527,32"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="748,5,904,32"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Reversible" target="_top" title="collections.abc.Reversible" alt="" coords="742,80,916,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="551,5,720,32"/>
 </map><p>Autowisp unit-test init.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">AutoWISPTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.tests.</span></span><span class="sig-name descname"><span class="pre">AutoWISPTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FloatTestCase</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-2dc293707063b095970b56b1b3809473a7ffaf22.png" alt="Inheritance diagram of autowisp.tests.AutoWISPTestCase" usemap="#inheritancedf3369b4cf" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-34c33108b60c3bf0e0f93678c7d65fb2c706a79f.png" alt="Inheritance diagram of autowisp.tests.AutoWISPTestCase" usemap="#inheritancedf3369b4cf" class="inheritance graphviz" /></div>
 <map id="inheritancedf3369b4cf" name="inheritancedf3369b4cf">
 <area shape="rect" id="node3" href="#autowisp.tests.AutoWISPTestCase" target="_top" title="Base class for AutoWISP tests." alt="" coords="13,155,242,181"/>
 </map><p>Base class for AutoWISP tests.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase._compare_headers">
+<span class="sig-name descname"><span class="pre">_compare_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase._compare_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase._compare_headers" title="Link to this definition"></a></dt>
+<dd><p>Assert that the two FITS headers match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of the files (for messages).</p></li>
+<li><p><strong>fname2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Names of the files (for messages).</p></li>
+<li><p><strong>header1</strong> – The <code class="docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code> objects.</p></li>
+<li><p><strong>header2</strong> – The <code class="docutils literal notranslate"><span class="pre">astropy.io.fits.Header</span></code> objects.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase._test_failed">
+<span class="sig-name descname"><span class="pre">_test_failed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase._test_failed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase._test_failed" title="Link to this definition"></a></dt>
+<dd><p>Whether <em>this</em> test has just failed or errored.</p>
+<p>Read off the result rather than a flag the test sets, so nothing
+has to be remembered at the end of every test method. Two things
+make the obvious shortcuts wrong: <code class="docutils literal notranslate"><span class="pre">_outcome.success</span></code> is still
+True here (it is reset per test <em>part</em>, and <code class="docutils literal notranslate"><span class="pre">tearDown</span></code> is its
+own part), and <code class="docutils literal notranslate"><span class="pre">result.errors</span></code> / <code class="docutils literal notranslate"><span class="pre">result.failures</span></code> accumulate
+over the whole run – so the entries have to be matched against
+this test rather than merely counted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if this test recorded a failure or an error.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.get_inputs">
 <span class="sig-name descname"><span class="pre">get_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.get_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.get_inputs" title="Link to this definition"></a></dt>
 <dd><p>Get the input files for the test step and return what to clean up.</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.preserve_failed_processing">
+<span class="sig-name descname"><span class="pre">preserve_failed_processing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.preserve_failed_processing" title="Link to this definition"></a></dt>
+<dd><p>Set False by a test that does not want its processing directory
+kept even when it fails (nothing does at present). Failure is
+detected from the test result, so a passing test never has to say
+anything – the previous arrangement, where each test opted in by
+setting <code class="docutils literal notranslate"><span class="pre">successful_test</span></code>, silently preserved the directory of
+every test that forgot to.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.preserve_processing_dir">
+<span class="sig-name descname"><span class="pre">preserve_processing_dir</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.preserve_processing_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.run_step">
@@ -160,13 +239,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.set_test_directory">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_test_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processing_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_test_dirname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.set_test_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.set_test_directory" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_test_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processing_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failed_test_dirname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_processing_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/tests.html#AutoWISPTestCase.set_test_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.set_test_directory" title="Link to this definition"></a></dt>
 <dd><p>Set the directory where data to test against is located.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.successful_test">
-<span class="sig-name descname"><span class="pre">successful_test</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.successful_test" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="autowisp.tests.AutoWISPTestCase.stage_catalog_cache">
+<span class="sig-name descname"><span class="pre">stage_catalog_cache</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#autowisp.tests.AutoWISPTestCase.stage_catalog_cache" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -184,7 +263,9 @@
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.fits_test_case.html">autowisp.tests.fits_test_case module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.fits_test_case.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase"><code class="docutils literal notranslate"><span class="pre">FITSTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase._compare_data"><code class="docutils literal notranslate"><span class="pre">FITSTestCase._compare_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase.assert_fits_match"><code class="docutils literal notranslate"><span class="pre">FITSTestCase.assert_fits_match()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase.assert_fits_tables_match"><code class="docutils literal notranslate"><span class="pre">FITSTestCase.assert_fits_tables_match()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -197,7 +278,14 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autowisp.tests.h5_test_case.html">autowisp.tests.h5_test_case module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.h5_test_case.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase"><code class="docutils literal notranslate"><span class="pre">DRTestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase._build_srcextract_reorder"><code class="docutils literal notranslate"><span class="pre">DRTestCase._build_srcextract_reorder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase._find_sources_group"><code class="docutils literal notranslate"><span class="pre">DRTestCase._find_sources_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase.assert_groups_match"><code class="docutils literal notranslate"><span class="pre">DRTestCase.assert_groups_match()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase"><code class="docutils literal notranslate"><span class="pre">H5TestCase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase._project_relative"><code class="docutils literal notranslate"><span class="pre">H5TestCase._project_relative()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.assert_groups_match"><code class="docutils literal notranslate"><span class="pre">H5TestCase.assert_groups_match()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.run_step_test"><code class="docutils literal notranslate"><span class="pre">H5TestCase.run_step_test()</span></code></a></li>
 </ul>
@@ -247,6 +335,15 @@
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_find_stars.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars"><code class="docutils literal notranslate"><span class="pre">TestFindStars</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestFindStars.test_find_stars"><code class="docutils literal notranslate"><span class="pre">TestFindStars.test_find_stars()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_end"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling._mark_end()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_start"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling._mark_start()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._run_with_extractor"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling._run_with_extractor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.setUp"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_no_sources_marks_frame_failed"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling.test_no_sources_marks_frame_failed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_other_failures_still_propagate"><code class="docutils literal notranslate"><span class="pre">TestStarlessFrameHandling.test_other_failures_still_propagate()</span></code></a></li>
 </ul>
 </li>
 </ul>

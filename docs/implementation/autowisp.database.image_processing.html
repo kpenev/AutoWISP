@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,46 +148,53 @@
 <span id="autowisp-database-image-processing-module"></span><h1>autowisp.database.image_processing module<a class="headerlink" href="#module-autowisp.database.image_processing" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-16a3fbe5301826ee11aeebee8248d4e75f686ef5.png" alt="Inheritance diagram of ArgumentParser, Camera, CameraChannel, CameraType, Condition, ConditionExpression, DataReductionFile, DefaultsFormatter, ExpressionMatcher, Image, ImageProcessingManager, ImageProcessingProgress, InputMasterTypes, MasterType, NoMasterError, ObservingSession, ProcessedImages, ProcessingManager, Step, StepDependencies" usemap="#inheritance8de88b7df8" class="inheritance graphviz" /></div>
-<map id="inheritance8de88b7df8" name="inheritance8de88b7df8">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="465,453,540,480"/>
-<area shape="rect" id="node22" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="192,528,378,555"/>
-<area shape="rect" id="node25" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="440,528,757,555"/>
-<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="1186,80,1449,107"/>
-<area shape="rect" id="node4" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="2340,5,2510,32"/>
-<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
-<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2921,229,3252,256"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="547,304,863,331"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="888,304,1339,331"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="1362,304,1643,331"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1666,304,2064,331"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2088,304,2437,331"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="2461,304,2888,331"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2912,304,3261,331"/>
-<area shape="rect" id="node16" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="3284,304,3708,331"/>
-<area shape="rect" id="node17" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="3731,304,4100,331"/>
-<area shape="rect" id="node18" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="4125,304,4594,331"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="4618,304,5048,331"/>
-<area shape="rect" id="node20" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="5072,304,5504,331"/>
-<area shape="rect" id="node21" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="5528,304,5896,331"/>
-<area shape="rect" id="node23" href="#autowisp.database.image_processing.ExpressionMatcher" target="_top" title="Compare condition expressions for an image/channel to a target." alt="" coords="3164,5,3519,32"/>
-<area shape="rect" id="node24" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="440,603,834,629"/>
-<area shape="rect" id="node26" href="#autowisp.database.image_processing.NoMasterError" target="_top" title="Raised when no suitable master can be found for a batch of frames." alt="" coords="3542,5,3871,32"/>
-<area shape="rect" id="node28" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="432,80,602,107"/>
-<area shape="rect" id="node32" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="436,155,598,181"/>
-<area shape="rect" id="node29" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="270,5,415,32"/>
-<area shape="rect" id="node30" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="440,5,595,32"/>
-<area shape="rect" id="node31" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="618,5,787,32"/>
-<area shape="rect" id="node33" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="302,229,509,256"/>
-<area shape="rect" id="node41" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3034,5,3139,32"/>
+<div class="graphviz"><img src="../_images/inheritance-f88e64b415d1b9191bc3da2037ccd668b03c2169.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, Component, Condition, ConditionExpression, DataReductionFile, DiagnosticType, Evaluator, ExpressionMatcher, Image, ImageDiagnostics, ImageMasterSelection, ImageProcessingManager, ImageProcessingProgress, InputMasterTypes, MasterFile, MasterSelectionError, MasterType, NoMasterError, ObservingSession, PhotometryDiagnostics, PipelineError, ProcessedImages, ProcessingManager, SkyCoord, Step, StepDependencies, Transformation" usemap="#inheritanceb6049958c9" class="inheritance graphviz" /></div>
+<map id="inheritanceb6049958c9" name="inheritanceb6049958c9">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
+<area shape="rect" id="node33" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
+<area shape="rect" id="node39" href="autowisp.evaluator.html#autowisp.evaluator.Evaluator" target="_top" title="Evaluator for expressions involving fields of numpy array or headers." alt="" coords="1560,80,1749,107"/>
+<area shape="rect" id="node7" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="3519,5,3835,32"/>
+<area shape="rect" id="node8" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
+<area shape="rect" id="node9" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="3436,304,3766,331"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="368,379,685,405"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="709,379,1160,405"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="1184,379,1464,405"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1488,379,1885,405"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="1909,379,2258,405"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType" target="_top" title="The table listing available diagnostic quantities." alt="" coords="2283,379,2690,405"/>
+<area shape="rect" id="node24" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="3184,379,3611,405"/>
+<area shape="rect" id="node25" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="3634,379,3976,405"/>
+<area shape="rect" id="node26" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4000,379,4349,405"/>
+<area shape="rect" id="node27" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4372,379,4796,405"/>
+<area shape="rect" id="node28" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="4819,379,5188,405"/>
+<area shape="rect" id="node29" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="5213,379,5682,405"/>
+<area shape="rect" id="node30" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="5706,379,6136,405"/>
+<area shape="rect" id="node31" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="6160,379,6592,405"/>
+<area shape="rect" id="node32" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="6616,379,6984,405"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="3834,229,4187,256"/>
+<area shape="rect" id="node23" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection" target="_top" title="Records the resolved master file selected for each image/channel/type." alt="" coords="3790,304,4271,331"/>
+<area shape="rect" id="node21" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics" target="_top" title="Floating point diagnostics associated with a calibrated image." alt="" coords="2495,453,2918,480"/>
+<area shape="rect" id="node22" href="autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics" target="_top" title="Floating point diagnostics for each photometry in each image." alt="" coords="2941,453,3394,480"/>
+<area shape="rect" id="node34" href="#autowisp.database.image_processing.ExpressionMatcher" target="_top" title="Compare condition expressions for an image/channel to a target." alt="" coords="4088,5,4443,32"/>
+<area shape="rect" id="node35" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="4428,80,4822,107"/>
+<area shape="rect" id="node36" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="4467,5,4783,32"/>
+<area shape="rect" id="node37" href="#autowisp.database.image_processing.NoMasterError" target="_top" title="Raised when no suitable master can be found for a batch of frames." alt="" coords="4792,229,5120,256"/>
+<area shape="rect" id="node42" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="5149,5,5240,32"/>
+<area shape="rect" id="node45" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="411,80,581,107"/>
+<area shape="rect" id="node49" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="415,155,576,181"/>
+<area shape="rect" id="node46" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="248,5,394,32"/>
+<area shape="rect" id="node47" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="418,5,574,32"/>
+<area shape="rect" id="node48" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="597,5,765,32"/>
+<area shape="rect" id="node50" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="280,229,488,256"/>
+<area shape="rect" id="node58" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3958,5,4063,32"/>
 </map><p>Handle data processing DB interactions.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ExpressionMatcher">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">ExpressionMatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluated_expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_image_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_expression_ids</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ExpressionMatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ExpressionMatcher" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-b01b50aa3f18d997a751c3a1053ffaedfd60c4c4.png" alt="Inheritance diagram of autowisp.database.image_processing.ExpressionMatcher" usemap="#inheritanced3184418cc" class="inheritance graphviz" /></div>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">ExpressionMatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluated_expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_image_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_expression_ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ExpressionMatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ExpressionMatcher" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-65d39f0014383322ba7f8c0076c4de2bbfea49f3.png" alt="Inheritance diagram of autowisp.database.image_processing.ExpressionMatcher" usemap="#inheritanced3184418cc" class="inheritance graphviz" /></div>
 <map id="inheritanced3184418cc" name="inheritanced3184418cc">
 <area shape="rect" id="node1" href="#autowisp.database.image_processing.ExpressionMatcher" target="_top" title="Compare condition expressions for an image/channel to a target." alt="" coords="5,5,361,32"/>
 </map><p>Compare condition expressions for an image/channel to a target.</p>
@@ -181,7 +208,7 @@ identical, but also handles special case of calibrate step.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ExpressionMatcher.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluated_expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_image_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_expression_ids</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ExpressionMatcher.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ExpressionMatcher.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluated_expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_image_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_expression_ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ExpressionMatcher.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ExpressionMatcher.__init__" title="Link to this definition"></a></dt>
 <dd><p>Set up comparison to the given evaluated expressions.</p>
 </dd></dl>
 
@@ -195,13 +222,12 @@ identical, but also handles special case of calibrate step.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">ImageProcessingManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">ImageProcessingManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" title="autowisp.database.processing.ProcessingManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingManager</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-cbc139bf0c04ce959bd7a27cc108c05e49425ede.png" alt="Inheritance diagram of autowisp.database.image_processing.ImageProcessingManager" usemap="#inheritance8c3e5c0700" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-ab1c5151955d402be614c2d045a781a4d3a7281a.png" alt="Inheritance diagram of autowisp.database.image_processing.ImageProcessingManager" usemap="#inheritance8c3e5c0700" class="inheritance graphviz" /></div>
 <map id="inheritance8c3e5c0700" name="inheritance8c3e5c0700">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="165,5,240,32"/>
-<area shape="rect" id="node3" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="44,80,361,107"/>
-<area shape="rect" id="node2" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="5,155,400,181"/>
+<area shape="rect" id="node1" href="#autowisp.database.image_processing.ImageProcessingManager" target="_top" title="Read configuration and record processing progress in the database." alt="" coords="5,80,400,107"/>
+<area shape="rect" id="node2" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="44,5,361,32"/>
 </map><p>Read configuration and record processing progress in the database.</p>
 <dl>
 <dt>Attrs:</dt><dd><p>See <cite>ProcessingManager</cite>.</p>
@@ -219,7 +245,7 @@ step.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit_to_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.__call__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit_to_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_imtype_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.__call__" title="Link to this definition"></a></dt>
 <dd><p>Perform all the processing for the given steps (all if None).</p>
 </dd></dl>
 
@@ -227,6 +253,18 @@ step.</p>
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize self._failed_dependencies in addition to normali init.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._bind_photref_for_pending">
+<span class="sig-name descname"><span class="pre">_bind_photref_for_pending</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pending_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._bind_photref_for_pending"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._bind_photref_for_pending" title="Link to this definition"></a></dt>
+<dd><p>Bind unbound fit_magnitudes pending images to photrefs.</p>
+<p>For each pending image/channel without an ImageMasterSelection entry,
+assigns it to the best registered single_photref (condition expressions
+match + image center within max_photref_separation * photref
+diagonal_fov + most existing bindings). Returns only the images that
+have a valid binding; the rest are silently left pending until a
+suitable photref is registered via the BUI.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -249,7 +287,7 @@ step.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -268,12 +306,25 @@ step.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._end_processing">
-<span class="sig-name descname"><span class="pre">_end_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._end_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._end_processing" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_end_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry_diagnostics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._end_processing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._end_processing" title="Link to this definition"></a></dt>
 <dd><p>Record that the current step has finished processing the given file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>input_fname</strong> – The filename of the input (DR or FITS) that was
-processed.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_fname</strong> – The filename of the input (DR or FITS) that was
+processed.</p></li>
+<li><p><strong>status</strong> – The status code to record.</p></li>
+<li><p><strong>final</strong> – Whether this is the final status for this processing.</p></li>
+<li><p><strong>diagnostics</strong> – An optional list of <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code> tuples to
+record in the <code class="docutils literal notranslate"><span class="pre">image_diagnostics</span></code> table for each
+image/channel processed from <em>input_fname</em>, or a dict
+mapping channel names to such lists for per-channel
+diagnostics.</p></li>
+<li><p><strong>photometry_diagnostics</strong> – An optional list of
+<code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value,</span> <span class="pre">photometry_id)</span></code> tuples to record in the
+<code class="docutils literal notranslate"><span class="pre">photometry_diagnostics</span></code> table for each image/channel
+processed from <em>input_fname</em>.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -299,7 +350,7 @@ Only splits batches by the best master for each image.</p>
 <li><p><strong>batch</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image"><em>Image</em></a><em>, </em><em>channel</em><em>, </em><em>status</em><em>]</em>) – List of database image instances
 and for channels which to find the configuration(s). The channel
 should be <code class="docutils literal notranslate"><span class="pre">None</span></code> for the <code class="docutils literal notranslate"><span class="pre">calibrate</span></code> step</p></li>
-<li><p><strong>master_expression_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a>) – The values the expressions
+<li><p><strong>master_expression_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a>) – The values the expressions
 required to select input masters or to guarantee a unique output
 master. Should be provided in consistent order for all batches
 processed by the same step.</p></li>
@@ -324,7 +375,7 @@ that end up with the same key.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -342,6 +393,43 @@ that end up with the same key.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_photref_binding_counts">
+<span class="sig-name descname"><span class="pre">_get_photref_binding_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photref_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_photref_binding_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_photref_binding_counts" title="Link to this definition"></a></dt>
+<dd><p>Return the number of images bound to each single photometric reference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>MasterFile.id: count of existing ImageMasterSelection rows per</dt><dd><p>photometric reference.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_photref_diagnostics">
+<span class="sig-name descname"><span class="pre">_get_photref_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photrefs_by_expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_photref_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_photref_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Return {pf.id: {name: value}} of astrometry diagnostics per photref.</p>
+<p>Each photref DR file’s FITS header contains RAWFNAME and CLRCHNL which
+identify the source Image row. ra_center, dec_center, and diagonal_fov
+are then read from ImageDiagnostics for that image/channel.
+Photrefs whose source image or diagnostics cannot be found are logged
+and omitted from the result.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._get_photrefs_for_condition">
+<span class="sig-name descname"><span class="pre">_get_photrefs_for_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photref_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._get_photrefs_for_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._get_photrefs_for_condition" title="Link to this definition"></a></dt>
+<dd><p>Return {expr_values: [MasterFile]} for all enabled single_photrefs.</p>
+<p>Evaluates the condition expressions against each photref’s filename
+(same logic as _get_master) to group them by their expression values.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._init_processed_ids">
 <span class="sig-name descname"><span class="pre">_init_processed_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_input_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._init_processed_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._init_processed_ids" title="Link to this definition"></a></dt>
 <dd><p>Prepare to record processing of the given image by current step.</p>
@@ -355,8 +443,99 @@ that end up with the same key.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._process_batch">
-<span class="sig-name descname"><span class="pre">_process_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._process_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._process_batch" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_process_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._process_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._process_batch" title="Link to this definition"></a></dt>
 <dd><p>Run the current step for a batch of images given configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._progress_image_type">
+<span class="sig-name descname"><span class="pre">_progress_image_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processing_progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._progress_image_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._progress_image_type" title="Link to this definition"></a></dt>
+<dd><p>The image type is carried directly on an image progress row.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._require_blocking_complete">
+<span class="sig-name descname"><span class="pre">_require_blocking_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._require_blocking_complete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._require_blocking_complete" title="Link to this definition"></a></dt>
+<dd><p>Restrict query to images where allow_pending blocking steps are done.</p>
+<p>For same-type dependencies marked allow_pending=True, inner-join the
+query so only images for which the blocking step has successfully
+completed are included. Images where the blocking step is pending or
+in-progress are silently deferred; images where it failed are handled
+separately by the failed_prereq subquery in set_pending.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> – The base SQLAlchemy select to restrict.</p></li>
+<li><p><strong>step</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" title="autowisp.database.data_model.Step"><em>Step</em></a>) – The blocked step being prepared.</p></li>
+<li><p><strong>image_type</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" title="autowisp.database.data_model.ImageType"><em>ImageType</em></a>) – The blocked image type.</p></li>
+<li><p><strong>db_session</strong> – Active database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The query with zero or more inner joins added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._run_step">
+<span class="sig-name descname"><span class="pre">_run_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._run_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._run_step" title="Link to this definition"></a></dt>
+<dd><p>Invoke the step’s entry function for a batch of images.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._save_diagnostics">
+<span class="sig-name descname"><span class="pre">_save_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">finished_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._save_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._save_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Save diagnostic values for a single image/channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>finished_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Must contain <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>
+keys identifying the processed image and channel.</p></li>
+<li><p><strong>diagnostics</strong> – A list of <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code> tuples where <em>name</em>
+must match a <code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticType</span></code> row.</p></li>
+<li><p><strong>db_session</strong> – Active database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a diagnostic name is not found in the
+    <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> table.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._save_photometry_diagnostics">
+<span class="sig-name descname"><span class="pre">_save_photometry_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">finished_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photometry_diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._save_photometry_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._save_photometry_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Save per-photometry diagnostic values for a single image/channel.</p>
+<p>If a row already exists for the same image, channel, photometry,
+and diagnostic type, its value is updated (this supports iterative
+steps like magnitude fitting).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>finished_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Must contain <code class="docutils literal notranslate"><span class="pre">image_id</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>
+keys identifying the processed image and channel.</p></li>
+<li><p><strong>photometry_diagnostics</strong> – A list of
+<code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value,</span> <span class="pre">photometry_id)</span></code> tuples where <em>name</em> must
+match a <code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticType</span></code> row.</p></li>
+<li><p><strong>db_session</strong> – Active database session.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a diagnostic name is not found in the
+    <code class="docutils literal notranslate"><span class="pre">diagnostic_type</span></code> table.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image">
+<span class="sig-name descname"><span class="pre">_select_photref_for_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expressions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photrefs_by_expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photref_diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binding_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager._select_photref_for_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image" title="Link to this definition"></a></dt>
+<dd><p>Pick and record the best photref binding for one image/channel.</p>
+<p>Returns True if bound (either pre-existing or newly written), False if
+no suitable photref is found.
+The distance threshold is max_sep * diagonal_fov of the photref.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -408,7 +587,7 @@ processing.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[(<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>)]</p>
+<dd class="field-odd"><p>[(<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>)]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -420,12 +599,6 @@ processing.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager.find_processing_outputs">
-<span class="sig-name descname"><span class="pre">find_processing_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processing_progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.find_processing_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.find_processing_outputs" title="Link to this definition"></a></dt>
-<dd><p>Return all logging and output filenames for given processing ID.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager.get_step_input">
 <span class="sig-name descname"><span class="pre">get_step_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_input_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.get_step_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.get_step_input" title="Link to this definition"></a></dt>
 <dd><p>Return the name of the file required by the current step.</p>
@@ -433,17 +606,17 @@ processing.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.ImageProcessingManager.group_pending_by_conditions">
-<span class="sig-name descname"><span class="pre">group_pending_by_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pending_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_observing_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.group_pending_by_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.group_pending_by_conditions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">group_pending_by_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pending_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_observing_session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masters_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#ImageProcessingManager.group_pending_by_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.ImageProcessingManager.group_pending_by_conditions" title="Link to this definition"></a></dt>
 <dd><p>Group pendig_images by condition expression values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pending_images</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image"><em>Image</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – A list of the images (instance of
+<li><p><strong>pending_images</strong> (<em>[</em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image"><em>Image</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>) – A list of the images (instance of
 Image DB class) and channels to group.</p></li>
 <li><p><strong>db_session</strong> – Database session to use for querries.</p></li>
 <li><p><strong>match_observing_session</strong> – Whether each group of images needs to
 be from the same observing session.</p></li>
-<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The ID of the step for which to group the pending
+<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the step for which to group the pending
 images. If not specified, defaults to the current step.</p></li>
 <li><p><strong>masters_only</strong> – If True, grouping is done only by the values
 expressions required to determine the input or output masters
@@ -456,7 +629,7 @@ matching a unique set of conditions and the second entry is the
 master expression values for all images in the list.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[([<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>)]</p>
+<dd class="field-odd"><p>[([<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Image" title="autowisp.database.data_model.Image">Image</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>)]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -476,7 +649,7 @@ current configuration.</p>
 <li><p><strong>steps_imtypes</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" title="autowisp.database.data_model.Step"><em>Step</em></a><em>, </em><a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.ImageType" title="autowisp.database.data_model.ImageType"><em>ImageType</em></a>) – The step image type combinations
 to determine pending images for. If unspecified, the full
 processing sequence defined in the database is used.</p></li>
-<li><p><strong>invert</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True, returns successfully completed (not
+<li><p><strong>invert</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, returns successfully completed (not
 failed) instead of pending.</p></li>
 </ul>
 </dd>
@@ -490,8 +663,8 @@ failed) instead of pending.</p></li>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="autowisp.database.image_processing.NoMasterError">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">NoMasterError</span></span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#NoMasterError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.NoMasterError" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a></p>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">NoMasterError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RelatedFile</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenRow</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crashed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprocess_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#NoMasterError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.NoMasterError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MasterSelectionError</span></code></p>
 <p>Raised when no suitable master can be found for a batch of frames.</p>
 </dd></dl>
 
@@ -502,9 +675,9 @@ failed) instead of pending.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The ID of the step for which to return the master
+<li><p><strong>step_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the step for which to return the master
 expression IDs.</p></li>
-<li><p><strong>image_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The type of images being processed by the step
+<li><p><strong>image_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The type of images being processed by the step
 for which to return the master expression IDs.</p></li>
 </ul>
 </dd>
@@ -514,21 +687,9 @@ masters can be used for the given step or which masters will be
 created by it.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.database.image_processing.main">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.main" title="Link to this definition"></a></dt>
-<dd><p>Avoid global variables.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.database.image_processing.parse_command_line">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.image_processing.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/image_processing.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.image_processing.parse_command_line" title="Link to this definition"></a></dt>
-<dd><p>Return the command line configuration.</p>
 </dd></dl>
 
 <dl class="py function">

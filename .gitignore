@@ -128,3 +128,6 @@ documentation/.DS_Store
 
 # Auto-generated at build time (autowisp/_write_version.py)
 autowisp/_version.py
+
+# Sphinx build cache written alongside the published HTML
+docs/.doctrees/

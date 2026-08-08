@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,46 +148,47 @@
 <span id="autowisp-database-lightcurve-processing-module"></span><h1>autowisp.database.lightcurve_processing module<a class="headerlink" href="#module-autowisp.database.lightcurve_processing" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-0e16a19571d8e685b2f34a0d04a5c9fef83cd1c8.png" alt="Inheritance diagram of DataReductionFile, DecodingStringFormatter, Image, ImageType, InputMasterTypes, LightCurveFile, LightCurveProcessingManager, LightCurveProcessingProgress, LightCurveStatus, MasterFile, MasterType, ProcessingManager, ProcessingSequence, Step, StepDependencies" usemap="#inheritancee6a9210ca9" class="inheritance graphviz" /></div>
-<map id="inheritancee6a9210ca9" name="inheritancee6a9210ca9">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="660,453,735,480"/>
-<area shape="rect" id="node16" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="383,528,570,555"/>
-<area shape="rect" id="node18" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="638,528,954,555"/>
+<div class="graphviz"><img src="../_images/inheritance-c569564c98776900a738aa4591fc1c75ab56a49f.png" alt="Inheritance diagram of DataReductionFile, DecodingStringFormatter, FileKind, Image, ImageType, InputMasterTypes, LightCurveFile, LightCurveProcessingManager, LightCurveProcessingProgress, LightCurveStatus, MasterFile, MasterSelectionError, MasterType, PipelineError, ProcessingManager, ProcessingSequence, RelatedFile, Step, StepDependencies" usemap="#inheritancef9b70e6b76" class="inheritance graphviz" /></div>
+<map id="inheritancef9b70e6b76" name="inheritancef9b70e6b76">
+<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="291,453,366,480"/>
+<area shape="rect" id="node18" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="296,528,483,555"/>
 <area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="5,677,393,704"/>
 <area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="184,603,595,629"/>
-<area shape="rect" id="node22" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
-<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2706,229,3036,256"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="738,304,1018,331"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="1042,304,1382,331"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="1407,304,1834,331"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="1859,304,2438,331"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.light_curve_status.html#autowisp.database.data_model.light_curve_status.LightCurveStatus" target="_top" title="Table tracking the status of lightcurves for interrupted steps." alt="" coords="2462,304,2878,331"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="2902,304,3243,331"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="3268,304,3616,331"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="3640,304,4099,331"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="4123,304,4555,331"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="4579,304,4947,331"/>
-<area shape="rect" id="node17" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="619,603,1062,629"/>
-<area shape="rect" id="node20" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="3005,80,3420,107"/>
-<area shape="rect" id="node21" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="3156,5,3269,32"/>
-<area shape="rect" id="node23" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="623,80,794,107"/>
-<area shape="rect" id="node27" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="628,155,789,181"/>
-<area shape="rect" id="node24" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="461,5,606,32"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="631,5,786,32"/>
-<area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="810,5,978,32"/>
-<area shape="rect" id="node28" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="493,229,700,256"/>
-<area shape="rect" id="node35" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2818,5,2924,32"/>
+<area shape="rect" id="node30" href="autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile" target="_top" title="Interface for working with the pipeline generated light curve files." alt="" coords="417,677,744,704"/>
+<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="2276,304,2607,331"/>
+<area shape="rect" id="node8" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="547,379,827,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="852,379,1192,405"/>
+<area shape="rect" id="node10" href="autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="1216,379,1643,405"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="1668,379,2247,405"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="2271,379,2612,405"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="2637,379,2985,405"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="3010,379,3468,405"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="3493,379,3924,405"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="3948,379,4316,405"/>
+<area shape="rect" id="node6" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="2658,229,3012,256"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.light_curve_status.html#autowisp.database.data_model.light_curve_status.LightCurveStatus" target="_top" title="Table tracking the status of lightcurves for interrupted steps." alt="" coords="2631,304,3047,331"/>
+<area shape="rect" id="node19" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="2970,80,3412,107"/>
+<area shape="rect" id="node20" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="3033,5,3349,32"/>
+<area shape="rect" id="node23" href="https://docs.python.org/3/library/enum.html#enum.Enum" target="_top" title="Create a collection of name/value pairs." alt="" coords="3729,5,3821,32"/>
+<area shape="rect" id="node28" href="autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter" target="_top" title="Add one more conversion type: ``&#39;d&#39;`` that calls decode on the arg." alt="" coords="3927,80,4343,107"/>
+<area shape="rect" id="node29" href="https://docs.python.org/3/library/string.html#string.Formatter" target="_top" title="string.Formatter" alt="" coords="4078,5,4192,32"/>
+<area shape="rect" id="node31" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="590,80,760,107"/>
+<area shape="rect" id="node35" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="594,155,756,181"/>
+<area shape="rect" id="node32" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="428,5,573,32"/>
+<area shape="rect" id="node33" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="597,5,753,32"/>
+<area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="776,5,944,32"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="459,229,667,256"/>
+<area shape="rect" id="node44" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="2782,5,2888,32"/>
 </map><p>Define a class that automates the processing of light curves.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.lightcurve_processing.</span></span><span class="sig-name descname"><span class="pre">LightCurveProcessingManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.database.lightcurve_processing.</span></span><span class="sig-name descname"><span class="pre">LightCurveProcessingManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" title="autowisp.database.processing.ProcessingManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingManager</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-940041cb14f38d58dee698ace0f15532a7d2a7b0.png" alt="Inheritance diagram of autowisp.database.lightcurve_processing.LightCurveProcessingManager" usemap="#inheritanced3545314e3" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-243da558e8725cd3b9e32ff3bf373a6655af441b.png" alt="Inheritance diagram of autowisp.database.lightcurve_processing.LightCurveProcessingManager" usemap="#inheritanced3545314e3" class="inheritance graphviz" /></div>
 <map id="inheritanced3545314e3" name="inheritanced3545314e3">
-<area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="189,5,264,32"/>
-<area shape="rect" id="node3" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="68,80,385,107"/>
-<area shape="rect" id="node2" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="5,155,448,181"/>
+<area shape="rect" id="node1" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager" target="_top" title="Utilities for automated processing of lightcurves." alt="" coords="5,80,448,107"/>
+<area shape="rect" id="node2" href="autowisp.database.processing.html#autowisp.database.processing.ProcessingManager" target="_top" title="Utilities for automated processing of images or lightcurves." alt="" coords="68,5,385,32"/>
 </map><p>Utilities for automated processing of lightcurves.</p>
 <dl>
 <dt>Attrs:</dt><dd><p>See <cite>ProcessingManager</cite>.</p>
@@ -198,9 +219,9 @@ detrending step is pending.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>step</strong> (<a class="reference internal" href="autowisp.database.data_model.html#autowisp.database.data_model.Step" title="autowisp.database.data_model.Step"><em>Step</em></a>) – The step to check for readiness.</p></li>
-<li><p><strong>image_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The ID of the type of image to check for
+<li><p><strong>image_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the type of image to check for
 readiness (the image type of the single photometric reference).</p></li>
-<li><p><strong>single_photref_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename of the single photometric
+<li><p><strong>single_photref_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The filename of the single photometric
 reference identifying light curve points to process.</p></li>
 <li><p><strong>db_session</strong> (<em>Session</em>) – The database session to use.</p></li>
 </ul>
@@ -213,7 +234,7 @@ reference identifying light curve points to process.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -226,7 +247,7 @@ reference identifying light curve points to process.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager._get_lc_fnames">
-<span class="sig-name descname"><span class="pre">_get_lc_fnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._get_lc_fnames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._get_lc_fnames" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_get_lc_fnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lc_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._get_lc_fnames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._get_lc_fnames" title="Link to this definition"></a></dt>
 <dd><p>Return the lightcurves to be processed by the current step.</p>
 </dd></dl>
 
@@ -248,14 +269,25 @@ reference identifying light curve points to process.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager._progress_image_type">
+<span class="sig-name descname"><span class="pre">_progress_image_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processing_progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._progress_image_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._progress_image_type" title="Link to this definition"></a></dt>
+<dd><p>Derive the image type from the row’s single photref.</p>
+<p>A lightcurve progress row has no image type of its own; when the
+step ran, its logs were keyed on the image type of the single
+photometric reference’s source frame (<code class="docutils literal notranslate"><span class="pre">_current_image_type</span></code>).
+Reproduce that here so the log names match: the photref DR’s
+<code class="docutils literal notranslate"><span class="pre">RAWFNAME</span></code> -&gt; the <code class="docutils literal notranslate"><span class="pre">Image</span></code> -&gt; its type.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager._specialize_config">
-<span class="sig-name descname"><span class="pre">_specialize_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._specialize_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._specialize_config" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_specialize_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._specialize_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._specialize_config" title="Link to this definition"></a></dt>
 <dd><p>Add parts of configuration for step that depend on database.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager._start_step">
-<span class="sig-name descname"><span class="pre">_start_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._start_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._start_step" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">_start_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager._start_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager._start_step" title="Link to this definition"></a></dt>
 <dd><p>Record start of processing and return the LCs and configuration to use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -287,13 +319,13 @@ corresponding to the single photometric reference.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager.get_step_config">
-<span class="sig-name descname"><span class="pre">get_step_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager.get_step_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager.get_step_config" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_step_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_sphotref_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphotref_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager.get_step_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager.get_step_config" title="Link to this definition"></a></dt>
 <dd><p>Return the configuration to use for the given step/sphotref combo.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.LightCurveProcessingManager.select_step_sphotref">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_step_sphotref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager.select_step_sphotref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager.select_step_sphotref" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_step_sphotref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pending</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#LightCurveProcessingManager.select_step_sphotref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.LightCurveProcessingManager.select_step_sphotref" title="Link to this definition"></a></dt>
 <dd><p>Return pening or non-pending step/single photref combinations.</p>
 </dd></dl>
 
@@ -320,12 +352,6 @@ performend yet.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="autowisp.database.lightcurve_processing.main">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.lightcurve_processing.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/lightcurve_processing.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.lightcurve_processing.main" title="Link to this definition"></a></dt>
-<dd><p>Avoid global variables.</p>
 </dd></dl>
 
 </section>

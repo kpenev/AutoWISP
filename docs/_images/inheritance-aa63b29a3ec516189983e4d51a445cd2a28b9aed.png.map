@@ -1,0 +1,4 @@
+<map id="inheritanceef20eb0292" name="inheritanceef20eb0292">
+<area shape="rect" id="node1" href="#autowisp.tests.test_find_stars.TestStarlessFrameHandling" target="_top" title="A starless frame must fail on its own, not take the batch down." alt="" coords="5,80,367,107"/>
+<area shape="rect" id="node2" title="A class whose instances are single test cases." alt="" coords="108,5,264,32"/>
+</map>

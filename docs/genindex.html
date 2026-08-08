@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -156,8 +176,6 @@
       <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation.__call__">__call__() (autowisp.astrometry.anmatch_transformation.AnmatchTransformation method)</a>
 
       <ul>
-        <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.AnmatchTransformation.__call__">(autowisp.astrometry.AnmatchTransformation method)</a>
-</li>
         <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.Transformation.__call__">(autowisp.astrometry.Transformation method)</a>
 </li>
         <li><a href="implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation.__call__">(autowisp.astrometry.transformation.Transformation method)</a>
@@ -230,9 +248,17 @@
       <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.__delitem__">__delitem__() (autowisp.image_smoothing.ChainSmoother method)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__enter__">__enter__() (autowisp.astrometry.astrometry.TempAstrometryFiles method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.__enter__">(autowisp.hdf5_file.HDF5File method)</a>
 </li>
+      </ul></li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__exit__">__exit__() (autowisp.astrometry.astrometry.TempAstrometryFiles method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.__exit__">(autowisp.hdf5_file.HDF5File method)</a>
 </li>
+      </ul></li>
       <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.LightCurveLookUp.__getattr__">__getattr__() (autowisp.evaluator.LightCurveLookUp method)</a>
 </li>
       <li><a href="implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder.__getitem__">__getitem__() (autowisp.fit_expression.used_var_finder.UsedVarFinder method)</a>
@@ -240,8 +266,6 @@
       <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation.__init__">__init__() (autowisp.astrometry.anmatch_transformation.AnmatchTransformation method)</a>
 
       <ul>
-        <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.AnmatchTransformation.__init__">(autowisp.astrometry.AnmatchTransformation method)</a>
-</li>
         <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__init__">(autowisp.astrometry.astrometry.TempAstrometryFiles method)</a>
 </li>
         <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.Transformation.__init__">(autowisp.astrometry.Transformation method)</a>
@@ -395,6 +419,8 @@
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._add_fit_to_db">_add_fit_to_db() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
+      <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_provenance_args">_add_provenance_args() (autowisp.processing_steps.manual_util.ManualStepArgumentParser method)</a>
+</li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._add_repack_dataset">_add_repack_dataset() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
       <li><a href="implementation/autowisp.source_finder.html#autowisp.source_finder.SourceFinder._add_saturation_flags">_add_saturation_flags() (autowisp.source_finder.SourceFinder method)</a>
@@ -406,6 +432,8 @@
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._add_to_data_slice">_add_to_data_slice() (autowisp.light_curves.lc_data_io.LCDataIO method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser._add_version_args">_add_version_args() (autowisp.processing_steps.manual_util.ManualStepArgumentParser method)</a>
+</li>
+      <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry._ansvr_bash">_ansvr_bash() (in module autowisp.astrometry.astrometry)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._apply_fit">_apply_fit() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
@@ -431,6 +459,12 @@
 </li>
       <li><a href="implementation/autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._auto_delete_tree_quantities">_auto_delete_tree_quantities() (in module autowisp.data_reduction.utils)</a>
 </li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._bind_photref_for_pending">_bind_photref_for_pending() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._build_magfit_diagnostics">_build_magfit_diagnostics() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase._build_srcextract_reorder">_build_srcextract_reorder() (autowisp.tests.h5_test_case.DRTestCase method)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._calculate_statistics">_calculate_statistics() (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector method)</a>
 
       <ul>
@@ -443,7 +477,13 @@
         <li><a href="implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator._calib_mask_from_master">(autowisp.image_calibration.calibrator.Calibrator static method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate._calibration_related_files">_calibration_related_files() (in module autowisp.processing_steps.calibrate)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves._catalog_related_files">_catalog_related_files() (in module autowisp.processing_steps.create_lightcurves)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._catalogue">_catalogue (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending._check_fit_datasets_available">_check_fit_datasets_available() (in module autowisp.processing_steps.lc_detrending)</a>
 </li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._check_ready">_check_ready() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 
@@ -451,8 +491,6 @@
         <li><a href="implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._check_ready">(autowisp.database.lightcurve_processing.LightCurveProcessingManager method)</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._check_running_processing">_check_running_processing() (autowisp.database.processing.ProcessingManager method)</a>
-</li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._classify_datasets">_classify_datasets() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._classify_from_stamps">_classify_from_stamps() (autowisp.image_calibration.master_flat_maker.MasterFlatMaker method)</a>
@@ -471,7 +509,27 @@
         <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._cleanup_interrupted">(autowisp.database.processing.ProcessingManager method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._collect_astrometry_diagnostics">_collect_astrometry_diagnostics() (in module autowisp.processing_steps.solve_astrometry)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map._collect_psf_map_diagnostics">_collect_psf_map_diagnostics() (in module autowisp.processing_steps.fit_source_extracted_psf_map)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._combine_fit_statistics">_combine_fit_statistics() (autowisp.magnitude_fitting.base.MagnitudeFit static method)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase._compare_data">_compare_data() (autowisp.tests.fits_test_case.FITSTestCase method)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase._compare_headers">_compare_headers() (autowisp.tests.AutoWISPTestCase method)</a>
+</li>
+      <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._compute_mag_offset">_compute_mag_offset() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.magnitude_fitting.linear.html#autowisp.magnitude_fitting.linear.LinearMagnitudeFit._compute_mag_offset">(autowisp.magnitude_fitting.linear.LinearMagnitudeFit method)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._compute_mag_zeropt">_compute_mag_zeropt() (in module autowisp.processing_steps.solve_astrometry)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._compute_pointing_offset">_compute_pointing_offset() (in module autowisp.processing_steps.solve_astrometry)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._compute_zenith_distance">_compute_zenith_distance() (in module autowisp.processing_steps.solve_astrometry)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._config">_config (autowisp.light_curves.lc_data_io.LCDataIO attribute)</a>
 </li>
@@ -497,6 +555,8 @@
         <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._create_reference">(autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction._detrending_related_files">_detrending_related_files() (in module autowisp.light_curves.apply_correction)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._dimensions">_dimensions (autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector attribute)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator._document_in_header">_document_in_header() (autowisp.image_calibration.Calibrator static method)</a>
@@ -510,6 +570,8 @@
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._dr_fname">_dr_fname (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._dtype_dr_to_io_tree">_dtype_dr_to_io_tree (autowisp.data_reduction.data_reduction_file.DataReductionFile attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util._enable_faulthandler">_enable_faulthandler() (in module autowisp.multiprocessing_util)</a>
 </li>
       <li><a href="implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor._end_cross_product_expansion">_end_cross_product_expansion() (autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor method)</a>
 </li>
@@ -539,8 +601,10 @@
       </ul></li>
       <li><a href="implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources._find_mag_splits">_find_mag_splits() (autowisp.split_sources.SplitSources method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase._find_sources_group">_find_sources_group() (autowisp.tests.h5_test_case.DRTestCase method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars._find_stars_worker">_find_stars_worker() (in module autowisp.processing_steps.find_stars)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._fit">_fit() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._fit_scatter">_fit_scatter() (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector static method)</a>
@@ -551,9 +615,15 @@
       </ul></li>
       <li><a href="implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._fix_substitutions">_fix_substitutions() (autowisp.light_curves.correction.Correction method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._flag_required_attribute_parents">_flag_required_attribute_parents() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.ParseChannelDependentAction._format_result">_format_result() (autowisp.processing_steps.calibrate.ParseChannelDependentAction static method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape._frame_set_related_files">_frame_set_related_files() (in module autowisp.processing_steps.fit_star_shape)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending._generate_statistics">_generate_statistics() (in module autowisp.processing_steps.lc_detrending)</a>
 </li>
       <li><a href="implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_apphot_attributes">_get_apphot_attributes() (in module autowisp.database.initialize_data_reduction_structure)</a>
 </li>
@@ -627,6 +697,8 @@
       </ul></li>
       <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface._get_db_conditions">_get_db_conditions() (in module autowisp.database.user_interface)</a>
 </li>
+      <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending._get_default_fit_datasets">_get_default_fit_datasets() (in module autowisp.processing_steps.lc_detrending)</a>
+</li>
       <li><a href="implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure._get_detrended_datasets">_get_detrended_datasets() (in module autowisp.database.initialize_light_curve_structure)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_dimensions_iterator">_get_dimensions_iterator() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
@@ -640,6 +712,8 @@
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._get_enough_count_flags">_get_enough_count_flags() (autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector method)</a>
 </li>
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_evaluated_entry">_get_evaluated_entry() (autowisp.database.processing.ProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._get_extra_header">_get_extra_header() (autowisp.database.processing.ProcessingManager static method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._get_field_index">_get_field_index() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
 </li>
@@ -687,9 +761,17 @@
 </li>
       <li><a href="implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._get_observation_ids">_get_observation_ids() (autowisp.light_curves.tfa_correction.TFACorrection method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_photref_binding_counts">_get_photref_binding_counts() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_photref_diagnostics">_get_photref_diagnostics() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes._get_photref_pointing">_get_photref_pointing() (in module autowisp.processing_steps.fit_magnitudes)</a>
+</li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._get_photrefs_for_condition">_get_photrefs_for_condition() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
       <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals">_get_powerlaw_pixel_integrals() (autowisp.image_smoothing.PolynomialImageSmoother static method)</a>
 </li>
-      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia._get_result">_get_result() (autowisp.catalog.WISPGaia method)</a>
+      <li><a href="implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure._get_provenance_attributes">_get_provenance_attributes() (in module autowisp.database.initialize_data_reduction_structure)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._get_root_tag_name">_get_root_tag_name() (autowisp.data_reduction.data_reduction_file.DataReductionFile class method)</a>
 
@@ -767,6 +849,8 @@
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._init_data">_init_data() (autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._init_diagnostic_types">_init_diagnostic_types() (in module autowisp.database.initialize_database)</a>
+</li>
       <li><a href="implementation/autowisp.magnitude_fitting.util.html#autowisp.magnitude_fitting.util._init_magfit_sources">_init_magfit_sources() (in module autowisp.magnitude_fitting.util)</a>
 </li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._init_processed_ids">_init_processed_ids() (autowisp.database.image_processing.ImageProcessingManager method)</a>
@@ -779,7 +863,13 @@
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._magfit_collector">_magfit_collector (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
 </li>
+      <li><a href="implementation/autowisp.magnitude_fitting.iterative_refit.html#autowisp.magnitude_fitting.iterative_refit._magfit_related_files">_magfit_related_files() (in module autowisp.magnitude_fitting.iterative_refit)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_end">_mark_end() (autowisp.tests.test_find_stars.TestStarlessFrameHandling method)</a>
+</li>
       <li><a href="implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._mark_progress">_mark_progress() (autowisp.database.lightcurve_processing.LightCurveProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._mark_start">_mark_start() (autowisp.tests.test_find_stars.TestStarlessFrameHandling method)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.master_flat_maker.html#autowisp.image_calibration.master_flat_maker.MasterFlatMaker._master_large_scale">_master_large_scale (autowisp.image_calibration.master_flat_maker.MasterFlatMaker attribute)</a>
 
@@ -787,17 +877,15 @@
         <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.MasterFlatMaker._master_large_scale">(autowisp.image_calibration.MasterFlatMaker attribute)</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db._match_observatory">_match_observatory() (in module autowisp.processing_steps.add_images_to_db)</a>
-</li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._match_to_reference">_match_to_reference() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.html#autowisp.processing_steps._NON_STEP_MODULES">_NON_STEP_MODULES (in module autowisp.processing_steps)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._num_photometries">_num_photometries (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector attribute)</a>
 </li>
       <li><a href="implementation/autowisp.fit_expression.interface.html#autowisp.fit_expression.interface.Interface._number_terms">_number_terms (autowisp.fit_expression.interface.Interface attribute)</a>
 </li>
-      <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._overwrite_defaults">_overwrite_defaults() (in module autowisp.database.initialize_database)</a>
-</li>
-      <li><a href="implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser._parse_fit_datasets">_parse_fit_datasets() (in module autowisp.processing_steps.lc_detrending_argument_parser)</a>
+      <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._overwrite_default_config">_overwrite_default_config() (in module autowisp.database.initialize_database)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.utils.html#autowisp.data_reduction.utils._parse_grid_str">_parse_grid_str() (in module autowisp.data_reduction.utils)</a>
 </li>
@@ -812,6 +900,8 @@
       <li><a href="implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._plot_template_selection">_plot_template_selection() (autowisp.light_curves.tfa_correction.TFACorrection method)</a>
 </li>
       <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._pow_transform">_pow_transform() (in module autowisp.bui_util)</a>
+</li>
+      <li><a href="implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves._prepare_lc_collection">_prepare_lc_collection() (in module autowisp.light_curves.collect_light_curves)</a>
 </li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._prepare_processing">_prepare_processing() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 
@@ -841,23 +931,49 @@
 </li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._product">_product() (autowisp.hdf5_file.HDF5File class method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._progress_image_type">_progress_image_type() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.LightCurveProcessingManager._progress_image_type">(autowisp.database.lightcurve_processing.LightCurveProcessingManager method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._progress_image_type">(autowisp.database.processing.ProcessingManager method)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase._project_relative">_project_relative() (autowisp.tests.h5_test_case.H5TestCase method)</a>
+</li>
       <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.SourceListCreator._project_sources">_project_sources() (autowisp.processing_steps.fit_star_shape.SourceListCreator method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._read_statistics">_read_statistics() (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._reference">_reference (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
 </li>
+      <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._release_error_scope">_release_error_scope() (autowisp.hdf5_file.HDF5File method)</a>
+</li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File._replace_nonfinite">_replace_nonfinite() (autowisp.hdf5_file.HDF5File static method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector._report_grcollect_crash">_report_grcollect_crash() (autowisp.magnitude_fitting.master_photref_collector_grcollect.MasterPhotrefCollector method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._require_blocking_complete">_require_blocking_complete() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars._resolve_observing_session_ids">_resolve_observing_session_ids() (in module autowisp.processing_steps.find_stars)</a>
+</li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._run_step">_run_step() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling._run_with_extractor">_run_with_extractor() (autowisp.tests.test_find_stars.TestStarlessFrameHandling method)</a>
+</li>
       <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface._save_conditions">_save_conditions() (in module autowisp.database.user_interface)</a>
 </li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._save_diagnostics">_save_diagnostics() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+</li>
       <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface._save_expressions">_save_expressions() (in module autowisp.database.user_interface)</a>
+</li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._save_photometry_diagnostics">_save_photometry_diagnostics() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction._save_result">_save_result() (autowisp.light_curves.correction.Correction method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_zarr.html#autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector._save_statistics">_save_statistics() (autowisp.magnitude_fitting.master_photref_collector_zarr.MasterPhotrefCollector method)</a>
+</li>
+      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager._select_photref_for_image">_select_photref_for_image() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._select_template_stars">_select_template_stars() (autowisp.light_curves.tfa_correction.TFACorrection method)</a>
 </li>
@@ -866,6 +982,8 @@
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._set_field_entry">_set_field_entry() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._set_group">_set_group() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending._shape_fit_varies">_shape_fit_varies() (in module autowisp.processing_steps.lc_detrending)</a>
 </li>
       <li><a href="implementation/autowisp.bui_util.html#autowisp.bui_util._sinh_transform">_sinh_transform() (in module autowisp.bui_util)</a>
 </li>
@@ -919,15 +1037,21 @@
 </li>
       <li><a href="implementation/autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate._test_calibration">_test_calibration() (autowisp.tests.test_calibrate.TestCalibrate method)</a>
 </li>
+      <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase._test_failed">_test_failed() (autowisp.tests.AutoWISPTestCase method)</a>
+</li>
       <li><a href="implementation/autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster._test_stack_to_master">_test_stack_to_master() (autowisp.tests.test_stack_to_master.TestStackToMaster method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit._update_calib_status">_update_calib_status() (autowisp.magnitude_fitting.base.MagnitudeFit method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.tfa_correction.html#autowisp.light_curves.tfa_correction.TFACorrection._verify_template_data">_verify_template_data() (autowisp.light_curves.tfa_correction.TFACorrection method)</a>
 </li>
+      <li><a href="implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes._within_photref_range">_within_photref_range() (in module autowisp.processing_steps.fit_magnitudes)</a>
+</li>
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager._write_config_file">_write_config_file() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._write_configurations">_write_configurations() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
+</li>
+      <li><a href="implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves._write_lightcurves">_write_lightcurves() (in module autowisp.light_curves.collect_light_curves)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO._write_slice_data">_write_slice_data() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
 </li>
@@ -988,6 +1112,8 @@
         <li><a href="implementation/autowisp.fake_image.raw.html#autowisp.fake_image.raw.FakeRawImage.add_bias">(autowisp.fake_image.raw.FakeRawImage method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.add_camera_type_channels">add_camera_type_channels() (in module autowisp.database.user_interface)</a>
+</li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_channel_keywords">add_channel_keywords() (in module autowisp.image_calibration.fits_util)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.add_configurations">add_configurations() (autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
@@ -996,13 +1122,9 @@
 </li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_dataset">add_dataset() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
-      <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.add_default_hdf5_structures">add_default_hdf5_structures() (in module autowisp.database.initialize_database)</a>
-</li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.add_file_dump">add_file_dump() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_fitting_options">add_fitting_options() (in module autowisp.processing_steps.fit_star_shape)</a>
-</li>
-      <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_frame_header">add_frame_header() (autowisp.data_reduction.data_reduction_file.DataReductionFile method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.add_grouping_options">add_grouping_options() (in module autowisp.processing_steps.fit_star_shape)</a>
 </li>
@@ -1026,6 +1148,8 @@
 </li>
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.add_masters">add_masters() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
+      <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_provenance">add_provenance() (autowisp.data_reduction.data_reduction_file.DataReductionFile method)</a>
+</li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.add_raw_images">add_raw_images() (autowisp.database.image_processing.ImageProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.add_required_keywords">add_required_keywords() (in module autowisp.image_calibration.fits_util)</a>
@@ -1040,6 +1164,58 @@
 </li>
       <li><a href="implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser.add_transit_parameters">add_transit_parameters() (autowisp.processing_steps.lc_detrending_argument_parser.LCDetrendingArgumentParser static method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies.allow_pending">allow_pending (autowisp.database.data_model.step_dependencies.StepDependencies attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.allow_pending">(autowisp.database.data_model.StepDependencies attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.allowed_interrupted_status_values">allowed_interrupted_status_values (in module autowisp.processing_steps.calibrate)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves.allowed_interrupted_status_values">(in module autowisp.processing_steps.create_lightcurves)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.find_stars.html#autowisp.processing_steps.find_stars.allowed_interrupted_status_values">(in module autowisp.processing_steps.find_stars)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.allowed_interrupted_status_values">(in module autowisp.processing_steps.fit_source_extracted_psf_map)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.allowed_interrupted_status_values">(in module autowisp.processing_steps.fit_star_shape)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.measure_aperture_photometry.html#autowisp.processing_steps.measure_aperture_photometry.allowed_interrupted_status_values">(in module autowisp.processing_steps.measure_aperture_photometry)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.allowed_interrupted_status_values">(in module autowisp.processing_steps.solve_astrometry)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.allowed_interrupted_status_values">(in module autowisp.processing_steps.stack_to_master)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.stack_to_master_flat.html#autowisp.processing_steps.stack_to_master_flat.allowed_interrupted_status_values">(in module autowisp.processing_steps.stack_to_master_flat)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves.allowed_start_status_values">allowed_start_status_values (in module autowisp.processing_steps.create_lightcurves)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.processing_steps.epd.html#autowisp.processing_steps.epd.allowed_start_status_values">(in module autowisp.processing_steps.epd)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.allowed_start_status_values">(in module autowisp.processing_steps.fit_magnitudes)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.generate_epd_statistics.html#autowisp.processing_steps.generate_epd_statistics.allowed_start_status_values">(in module autowisp.processing_steps.generate_epd_statistics)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.generate_tfa_statistics.html#autowisp.processing_steps.generate_tfa_statistics.allowed_start_status_values">(in module autowisp.processing_steps.generate_tfa_statistics)</a>
+</li>
+        <li><a href="implementation/autowisp.processing_steps.tfa.html#autowisp.processing_steps.tfa.allowed_start_status_values">(in module autowisp.processing_steps.tfa)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.AlternateParameterName.alt_name">alt_name (autowisp.database.data_model.AlternateParameterName attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName.alt_name">(autowisp.database.data_model.steps_and_parameters.AlternateParameterName attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.AlternateParameterName">AlternateParameterName (class in autowisp.database.data_model)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName">(class in autowisp.database.data_model.steps_and_parameters)</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Observatory.altitude">altitude (autowisp.database.data_model.provenance.Observatory attribute)</a>
 
       <ul>
@@ -1067,12 +1243,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-anet-indices">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.AnmatchTransformation">AnmatchTransformation (class in autowisp.astrometry)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation">(class in autowisp.astrometry.anmatch_transformation)</a>
+      <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation">AnmatchTransformation (class in autowisp.astrometry.anmatch_transformation)</a>
 </li>
-      </ul></li>
       <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.annotate_data">annotate_data() (autowisp.astrometry.astrometry_net_client.Client method)</a>
 </li>
       <li>
@@ -1090,16 +1262,28 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.applied_to">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.apply_additive_migrations">apply_additive_migrations() (in module autowisp.database.interface)</a>
+</li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.apply_master_config">apply_master_config() (in module autowisp.database.user_interface)</a>
+</li>
       <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.apply_parallel_correction">apply_parallel_correction() (in module autowisp.light_curves.apply_correction)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.apply_reconstructive_correction_transit">apply_reconstructive_correction_transit() (in module autowisp.light_curves.apply_correction)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves.MasterCatalog.as_related_file">as_related_file() (autowisp.processing_steps.create_lightcurves.MasterCatalog method)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.assemble_channels">assemble_channels() (in module autowisp.image_calibration.fits_util)</a>
 </li>
       <li><a href="implementation/autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase.assert_fits_match">assert_fits_match() (autowisp.tests.fits_test_case.FITSTestCase method)</a>
 </li>
-      <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.assert_groups_match">assert_groups_match() (autowisp.tests.h5_test_case.H5TestCase method)</a>
+      <li><a href="implementation/autowisp.tests.fits_test_case.html#autowisp.tests.fits_test_case.FITSTestCase.assert_fits_tables_match">assert_fits_tables_match() (autowisp.tests.fits_test_case.FITSTestCase method)</a>
 </li>
+      <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase.assert_groups_match">assert_groups_match() (autowisp.tests.h5_test_case.DRTestCase method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.H5TestCase.assert_groups_match">(autowisp.tests.h5_test_case.H5TestCase method)</a>
+</li>
+      </ul></li>
       <li>
     astrometry-catalog
 
@@ -1168,6 +1352,13 @@
 
       <ul>
         <li><a href="wisp_options.html#cmdoption-arg-astrometry-catalog-pointing-precision">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    astrometry-catalog-source-list
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-astrometry-catalog-source-list">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1527,6 +1718,8 @@
         <li><a href="implementation/autowisp.database.data_model.step_dependencies.html#module-autowisp.database.data_model.step_dependencies">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     autowisp.database.data_model.steps_and_parameters
 
@@ -1576,8 +1769,6 @@
         <li><a href="implementation/autowisp.database.initialize_light_curve_structure.html#module-autowisp.database.initialize_light_curve_structure">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     autowisp.database.interface
 
@@ -1985,13 +2176,6 @@
 </li>
       </ul></li>
       <li>
-    autowisp.pipeline_exceptions
-
-      <ul>
-        <li><a href="implementation/autowisp.pipeline_exceptions.html#module-autowisp.pipeline_exceptions">module</a>
-</li>
-      </ul></li>
-      <li>
     autowisp.processing_steps
 
       <ul>
@@ -2300,8 +2484,6 @@
         <li><a href="wisp_options.html#cmdoption-arg-background-annulus">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.BadImageError">BadImageError</a>
-</li>
       <li><a href="implementation/autowisp.image_calibration.overscan_methods.html#autowisp.image_calibration.overscan_methods.Base">Base (class in autowisp.image_calibration.overscan_methods)</a>
 </li>
       <li>
@@ -2349,14 +2531,14 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocked_image_type_id">(autowisp.database.data_model.StepDependencies attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies.blocked_imtype">blocked_imtype (autowisp.database.data_model.step_dependencies.StepDependencies attribute)</a>
 
       <ul>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocked_imtype">(autowisp.database.data_model.StepDependencies attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies.blocked_step">blocked_step (autowisp.database.data_model.step_dependencies.StepDependencies attribute)</a>
 
       <ul>
@@ -2391,6 +2573,20 @@
 
       <ul>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.blocking_step_id">(autowisp.database.data_model.StepDependencies attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    brightness-quantile
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-brightness-quantile">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    brightness-quantile-scale
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-brightness-quantile-scale">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -2509,6 +2705,12 @@
       <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages.channel">channel (autowisp.database.data_model.image.ProcessedImages attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.channel">(autowisp.database.data_model.ImageDiagnostics attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection.channel">(autowisp.database.data_model.ImageMasterSelection attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.channel">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.channel">(autowisp.database.data_model.ProcessedImages attribute)</a>
 </li>
       </ul></li>
@@ -2534,7 +2736,11 @@
 </li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.check_for_dataset">check_for_dataset() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.check_interrupted_statuses">check_interrupted_statuses() (autowisp.database.processing.ProcessingManager static method)</a>
+</li>
       <li><a href="implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.check_no_master">check_no_master() (in module autowisp.processing_steps.fit_magnitudes)</a>
+</li>
+      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.check_start_status">check_start_status() (autowisp.database.processing.ProcessingManager static method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.clean_dr">clean_dr() (in module autowisp.processing_steps.fit_magnitudes)</a>
 </li>
@@ -2598,6 +2804,8 @@
         <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.MasterFlatMaker.cloud_check_smoother">(autowisp.image_calibration.MasterFlatMaker attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.code_version">code_version (autowisp.database.data_model.PipelineRun attribute)</a>
+</li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.collect_columns">collect_columns() (autowisp.hdf5_file.HDF5File static method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.collect_light_curves">collect_light_curves() (in module autowisp.light_curves.collect_light_curves)</a>
@@ -2638,6 +2846,8 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-astrometry-catalog-pointing-precision">astrometry-catalog-pointing-precision</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-astrometry-catalog-source-list">astrometry-catalog-source-list</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-astrometry-order">astrometry-order</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-average-func">average-func</a>
@@ -2653,6 +2863,10 @@
         <li><a href="wisp_options.html#cmdoption-arg-bg-map-rej-level">bg-map-rej-level</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-bias-level-adu">bias-level-adu</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-brightness-quantile">brightness-quantile</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-brightness-quantile-scale">brightness-quantile-scale</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-brightness-threshold">brightness-threshold</a>
 </li>
@@ -2684,7 +2898,11 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-detrend-rej-level">detrend-rej-level</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-detrend-reject-scale-floor">detrend-reject-scale-floor</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-detrending-catalog">detrending-catalog</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-diagnostic-quantiles">diagnostic-quantiles</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-discard-faint">discard-faint</a>
 </li>
@@ -2716,9 +2934,11 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-fnum">fnum</a>
 </li>
-        <li><a href="wisp_options.html#cmdoption-arg-frame-center-estimate">frame-center-estimate</a>
-</li>
         <li><a href="wisp_options.html#cmdoption-arg-frame-fov-estimate">frame-fov-estimate</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-gaia-password">gaia-password</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-gaia-user">gaia-user</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-gain">gain</a>
 </li>
@@ -2727,6 +2947,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-grouping-frame">grouping-frame</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-high-flat-master-fname">high-flat-master-fname</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-iers-auto-max-age">iers-auto-max-age</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-ignore-unknown-image-types">ignore-unknown-image-types</a>
 </li>
@@ -2790,6 +3012,8 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-lc-catalog-pointing-precision">lc-catalog-pointing-precision</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-lc-catalog-source-list">lc-catalog-source-list</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-lc-fname">lc-fname</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-lc-points-filter-expression">lc-points-filter-expression</a>
@@ -2832,6 +3056,8 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-magfit-catalog-pointing-precision">magfit-catalog-pointing-precision</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-magfit-catalog-source-list">magfit-catalog-source-list</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-magfit-stat-fname-format">magfit-stat-fname-format</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-magnitude-1adu">magnitude-1adu</a>
@@ -2864,6 +3090,8 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-max-photref-change">max-photref-change</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-max-photref-separation">max-photref-separation</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-max-rej-iter">max-rej-iter</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-max-rms-distance">max-rms-distance</a>
@@ -2895,6 +3123,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-mphotref-scatter-fit-terms">mphotref-scatter-fit-terms</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-mutable-transit-params">mutable-transit-params</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-no-provenance">no-provenance</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-noise-offset">noise-offset</a>
 </li>
@@ -2937,6 +3167,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-photometry-catalog-min-magnitude">photometry-catalog-min-magnitude</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-photometry-catalog-pointing-precision">photometry-catalog-pointing-precision</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-photometry-catalog-source-list">photometry-catalog-source-list</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-radius-ratio">radius-ratio</a>
 </li>
@@ -3058,6 +3290,8 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-stamp-smoothing-outlier-threshold">stamp-smoothing-outlier-threshold</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-stat-rej-level">stat-rej-level</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-std-out-err-fname">std-out-err-fname</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-subpixmap">subpixmap</a>
@@ -3066,11 +3300,15 @@
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-target-id">target-id</a>
 </li>
+        <li><a href="wisp_options.html#cmdoption-arg-target-match-tolerance">target-match-tolerance</a>
+</li>
         <li><a href="wisp_options.html#cmdoption-arg-target-name">target-name</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-target-ra">target-ra</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-telescope-serial-number">telescope-serial-number</a>
+</li>
+        <li><a href="wisp_options.html#cmdoption-arg-tempstore-dir">tempstore-dir</a>
 </li>
         <li><a href="wisp_options.html#cmdoption-arg-tfa-datasets">tfa-datasets</a>
 </li>
@@ -3115,6 +3353,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.component">component (autowisp.database.data_model.Error attribute)</a>
+</li>
       <li>
     compress
 
@@ -3141,6 +3381,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.compression_options">(autowisp.database.data_model.HDF5DataSet attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.compute_diagonal_fov">compute_diagonal_fov() (in module autowisp.astrometry.transformation)</a>
+</li>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Condition">Condition (class in autowisp.database.data_model)</a>
 
       <ul>
@@ -3223,8 +3465,6 @@
 </li>
       <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.construct_transformation">construct_transformation() (in module autowisp.processing_steps.solve_astrometry)</a>
 </li>
-      <li><a href="implementation/autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ConvergenceError">ConvergenceError</a>
-</li>
       <li><a href="implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.DecodingStringFormatter.convert_field">convert_field() (autowisp.light_curves.collect_light_curves.DecodingStringFormatter method)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending.correct_target_lc">correct_target_lc() (in module autowisp.processing_steps.lc_detrending)</a>
@@ -3264,6 +3504,8 @@
 </li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.create_sources_file">create_sources_file() (in module autowisp.astrometry.astrometry)</a>
 </li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.created">created (autowisp.database.data_model.Error attribute)</a>
+</li>
       <li><a href="implementation/autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.CROSSPRODUCT">CROSSPRODUCT (autowisp.fit_expression.FitTermsLexer.FitTermsLexer attribute)</a>
 
       <ul>
@@ -3287,6 +3529,8 @@
       </ul></li>
       <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase">DataModelBase (class in autowisp.database.data_model.base)</a>
 </li>
+      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase">DataModelSubBase (class in autowisp.database.data_model.base)</a>
+</li>
       <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile">DataReductionFile (class in autowisp.data_reduction.data_reduction_file)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.dataset_dimensions">dataset_dimensions (autowisp.light_curves.lc_data_io.LCDataIO attribute)</a>
@@ -3297,6 +3541,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5StructureVersion.datasets">(autowisp.database.data_model.HDF5StructureVersion attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.DB_URL_FNAME">DB_URL_FNAME (in module autowisp.database.interface)</a>
+</li>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Target.dec">dec (autowisp.database.data_model.Target attribute)</a>
 
       <ul>
@@ -3343,11 +3589,13 @@
 </li>
       <li><a href="implementation/autowisp.data_reduction.utils.html#autowisp.data_reduction.utils.delete_star_shape_fit">delete_star_shape_fit() (in module autowisp.data_reduction.utils)</a>
 </li>
-      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.describe_table">describe_table() (autowisp.database.data_model.base.DataModelBase method)</a>
+      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase.describe_table">describe_table() (autowisp.database.data_model.base.DataModelSubBase method)</a>
 </li>
-      <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.description">description (autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType.description">description (autowisp.database.data_model.DiagnosticType attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.description">(autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.hdf5_datasets.html#autowisp.database.data_model.hdf5_datasets.HDF5DataSet.description">(autowisp.database.data_model.hdf5_datasets.HDF5DataSet attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.hdf5_links.html#autowisp.database.data_model.hdf5_links.HDF5Link.description">(autowisp.database.data_model.hdf5_links.HDF5Link attribute)</a>
@@ -3413,6 +3661,13 @@
         <li><a href="wisp_options.html#cmdoption-arg-detrend-rej-level">command line option</a>
 </li>
       </ul></li>
+      <li>
+    detrend-reject-scale-floor
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-detrend-reject-scale-floor">command line option</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending.detrend_light_curves">detrend_light_curves() (in module autowisp.processing_steps.lc_detrending)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.DetrendDatasetIter">DetrendDatasetIter (class in autowisp.processing_steps.lc_detrending_argument_parser)</a>
@@ -3424,6 +3679,27 @@
         <li><a href="wisp_options.html#cmdoption-arg-detrending-catalog">command line option</a>
 </li>
       </ul></li>
+      <li>
+    diagnostic-quantiles
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-diagnostic-quantiles">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.diagnostic_id">diagnostic_id (autowisp.database.data_model.ImageDiagnostics attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.diagnostic_id">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Image.diagnostics">diagnostics (autowisp.database.data_model.Image attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image.diagnostics">(autowisp.database.data_model.image.Image attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType">DiagnosticType (class in autowisp.database.data_model)</a>
+</li>
       <li>
     discard-faint
 
@@ -3440,6 +3716,8 @@
       <li><a href="implementation/autowisp.tests.get_test_data.html#autowisp.tests.get_test_data.download_zip">download_zip() (in module autowisp.tests.get_test_data)</a>
 </li>
       <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.drop_tables_matching">drop_tables_matching() (in module autowisp.database.initialize_database)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.h5_test_case.html#autowisp.tests.h5_test_case.DRTestCase">DRTestCase (class in autowisp.tests.h5_test_case)</a>
 </li>
       <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.dtype">dtype (autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
 
@@ -3542,6 +3820,10 @@
       </ul></li>
       <li><a href="implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection">EPDCorrection (class in autowisp.light_curves.epd_correction)</a>
 </li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error">Error (class in autowisp.database.data_model)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.ManualStepArgumentParser.error">error() (autowisp.processing_steps.manual_util.ManualStepArgumentParser method)</a>
+</li>
       <li>
     error-avg
 
@@ -3556,6 +3838,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-error-offset">command line option</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.estimate_fov_corners">estimate_fov_corners() (autowisp.catalog.WISPGaia static method)</a>
+</li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.estimate_transformation">estimate_transformation() (in module autowisp.astrometry.astrometry)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.estimate_transformation_from_corr">estimate_transformation_from_corr() (in module autowisp.astrometry.astrometry)</a>
@@ -3567,11 +3851,7 @@
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.evaluate_expressions_image">evaluate_expressions_image() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation.evaluate_polynomial">evaluate_polynomial() (autowisp.astrometry.anmatch_transformation.AnmatchTransformation method)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.AnmatchTransformation.evaluate_polynomial">(autowisp.astrometry.AnmatchTransformation method)</a>
 </li>
-      </ul></li>
       <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.Transformation.evaluate_transformation">evaluate_transformation (autowisp.astrometry.Transformation attribute)</a>
 
       <ul>
@@ -3581,6 +3861,8 @@
       <li><a href="implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor">EvaluateTermsVisitor (class in autowisp.fit_expression.evaluate_terms_visitor)</a>
 </li>
       <li><a href="implementation/autowisp.evaluator.html#autowisp.evaluator.Evaluator">Evaluator (class in autowisp.evaluator)</a>
+</li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.exception_class">exception_class (autowisp.database.data_model.Error attribute)</a>
 </li>
       <li>
     exclude-mask
@@ -3615,6 +3897,8 @@
         <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext.exitRule">(autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_terms_setContext method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.export_survey_to_json">export_survey_to_json() (in module autowisp.database.user_interface)</a>
+</li>
       <li>
     exposure-seconds
 
@@ -3662,6 +3946,12 @@
 
       <ul>
         <li><a href="implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.extra_header">(autowisp.image_calibration.calibrator.Calibrator attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator.extra_header_expressions">extra_header_expressions (autowisp.image_calibration.Calibrator attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.extra_header_expressions">(autowisp.image_calibration.calibrator.Calibrator attribute)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending.extract_target_lc">extract_target_lc() (in module autowisp.processing_steps.lc_detrending)</a>
@@ -3725,7 +4015,7 @@
 </li>
       <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.find_outliers">find_outliers() (in module autowisp.catalog)</a>
 </li>
-      <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager.find_processing_outputs">find_processing_outputs() (autowisp.database.image_processing.ImageProcessingManager method)</a>
+      <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.find_processing_outputs">find_processing_outputs() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.find_ra_dec">find_ra_dec() (in module autowisp.astrometry.astrometry)</a>
 </li>
@@ -3741,6 +4031,8 @@
         <li><a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress.finished">(autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.finished">(autowisp.database.data_model.LightCurveProcessingProgress attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.finished">(autowisp.database.data_model.PipelineRun attribute)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap.fit">fit() (autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap method)</a>
@@ -3767,10 +4059,10 @@
 </li>
       <li><a href="implementation/autowisp.processing_steps.fit_magnitudes.html#autowisp.processing_steps.fit_magnitudes.fit_magnitudes">fit_magnitudes() (in module autowisp.processing_steps.fit_magnitudes)</a>
 </li>
-      <li><a href="implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection.fit_points_filter_expression">fit_points_filter_expression (autowisp.light_curves.epd_correction.EPDCorrection attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.light_curves.epd_correction.html#autowisp.light_curves.epd_correction.EPDCorrection.fit_points_filter_expression">fit_points_filter_expression (autowisp.light_curves.epd_correction.EPDCorrection attribute)</a>
+</li>
       <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.fit_polynomial">fit_polynomial() (autowisp.fit_expression.FitTermsParser.FitTermsParser method)</a>
 
       <ul>
@@ -3862,13 +4154,6 @@
       <li><a href="implementation/autowisp.magnitude_fitting.util.html#autowisp.magnitude_fitting.util.format_master_catalog">format_master_catalog() (in module autowisp.magnitude_fitting.util)</a>
 </li>
       <li>
-    frame-center-estimate
-
-      <ul>
-        <li><a href="wisp_options.html#cmdoption-arg-frame-center-estimate">command line option</a>
-</li>
-      </ul></li>
-      <li>
     frame-fov-estimate
 
       <ul>
@@ -3881,6 +4166,20 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    gaia-password
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-gaia-password">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    gaia-user
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-gaia-user">command line option</a>
+</li>
+      </ul></li>
       <li>
     gain
 
@@ -3900,15 +4199,15 @@
 </li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_attribute">get_attribute() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
-      <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.get_catalog_config">get_catalog_config() (in module autowisp.processing_steps.manual_util)</a>
+      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.get_catalog_config">get_catalog_config() (in module autowisp.catalog)</a>
 </li>
       <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.get_catalog_info">get_catalog_info() (in module autowisp.catalog)</a>
 </li>
-      <li><a href="implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_center_background">get_center_background() (in module autowisp.processing_steps.calculate_photref_merit)</a>
+      <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.get_center_background">get_center_background() (in module autowisp.processing_steps.fit_star_shape)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_center_zenith_distance">get_center_zenith_distance() (in module autowisp.processing_steps.calculate_photref_merit)</a>
 </li>
-      <li><a href="implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.get_code_version_str">get_code_version_str() (in module autowisp.multiprocessing_util)</a>
+      <li><a href="implementation/autowisp.miscellaneous.html#autowisp.miscellaneous.get_code_version_str">get_code_version_str() (in module autowisp.miscellaneous)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.collect_light_curves.html#autowisp.light_curves.collect_light_curves.get_combined_sources">get_combined_sources() (in module autowisp.light_curves.collect_light_curves)</a>
 </li>
@@ -3938,6 +4237,8 @@
 </li>
       <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_db_configuration">get_db_configuration() (in module autowisp.database.user_interface)</a>
 </li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.get_db_engine">get_db_engine() (in module autowisp.database.interface)</a>
+</li>
       <li><a href="implementation/autowisp.database.initialize_data_reduction_structure.html#autowisp.database.initialize_data_reduction_structure.get_default_data_reduction_structure">get_default_data_reduction_structure() (in module autowisp.database.initialize_data_reduction_structure)</a>
 </li>
       <li><a href="implementation/autowisp.database.initialize_light_curve_structure.html#autowisp.database.initialize_light_curve_structure.get_default_light_curve_structure">get_default_light_curve_structure() (in module autowisp.database.initialize_light_curve_structure)</a>
@@ -3955,7 +4256,11 @@
       <ul>
         <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_dtype">(autowisp.hdf5_file.HDF5File method)</a>
 </li>
+        <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.get_dtype">(autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
+</li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_editable_attributes">get_editable_attributes() (in module autowisp.database.user_interface)</a>
+</li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_element_path">get_element_path() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.get_element_type">get_element_type() (autowisp.hdf5_file.HDF5File class method)</a>
@@ -3975,6 +4280,8 @@
       <li><a href="implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_frame_merit_info">get_frame_merit_info() (in module autowisp.processing_steps.calculate_photref_merit)</a>
 </li>
       <li><a href="implementation/autowisp.miscellaneous.html#autowisp.miscellaneous.get_hat_source_id_str">get_hat_source_id_str() (in module autowisp.miscellaneous)</a>
+</li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_human_name">get_human_name() (in module autowisp.database.user_interface)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.get_initial_corr">get_initial_corr() (in module autowisp.astrometry.astrometry)</a>
 </li>
@@ -4014,6 +4321,8 @@
         <li><a href="implementation/autowisp.processing_steps.calculate_photref_merit.html#autowisp.processing_steps.calculate_photref_merit.get_matched_sources">(in module autowisp.processing_steps.calculate_photref_merit)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.get_max_abs_corner_xi_eta">get_max_abs_corner_xi_eta() (in module autowisp.catalog)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.get_num_apertures">get_num_apertures() (autowisp.data_reduction.data_reduction_file.DataReductionFile method)</a>
@@ -4024,17 +4333,7 @@
         <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.get_num_magfit_iterations">(autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.get_observatory">get_observatory() (in module autowisp.processing_steps.add_images_to_db)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves.get_observatory">(in module autowisp.processing_steps.create_lightcurves)</a>
-</li>
-      </ul></li>
-      <li><a href="implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.get_or_create_observing_session">get_or_create_observing_session() (in module autowisp.processing_steps.add_images_to_db)</a>
-</li>
-      <li><a href="implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.get_or_create_target">get_or_create_target() (in module autowisp.processing_steps.add_images_to_db)</a>
+      <li><a href="implementation/autowisp.processing_steps.create_lightcurves.html#autowisp.processing_steps.create_lightcurves.get_observatory">get_observatory() (in module autowisp.processing_steps.create_lightcurves)</a>
 </li>
       <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.get_param_values">get_param_values() (autowisp.database.processing.ProcessingManager method)</a>
 </li>
@@ -4062,9 +4361,13 @@
 </li>
       <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.get_progress_lightcurves">get_progress_lightcurves() (in module autowisp.database.user_interface)</a>
 </li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.get_project_home">get_project_home() (in module autowisp.database.interface)</a>
+</li>
       <li><a href="implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.get_psf_param">get_psf_param() (in module autowisp.processing_steps.fit_source_extracted_psf_map)</a>
 </li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.get_raw_header">get_raw_header() (in module autowisp.image_calibration.fits_util)</a>
+</li>
+      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.get_result">get_result() (autowisp.catalog.WISPGaia method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.correction.html#autowisp.light_curves.correction.Correction.get_result_dtype">get_result_dtype() (autowisp.light_curves.correction.Correction static method)</a>
 </li>
@@ -4212,14 +4515,14 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link.hdf5_structure_version_id">(autowisp.database.data_model.HDF5Link attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute">HDF5Attribute (class in autowisp.database.data_model)</a>
 
       <ul>
         <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute">(class in autowisp.database.data_model.hdf5_attributes)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet">HDF5DataSet (class in autowisp.database.data_model)</a>
 
       <ul>
@@ -4229,8 +4532,6 @@
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File">HDF5File (class in autowisp.hdf5_file)</a>
 </li>
       <li><a href="implementation/autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure">HDF5FileDatabaseStructure (class in autowisp.database.hdf5_file_structure)</a>
-</li>
-      <li><a href="implementation/autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.HDF5LayoutError">HDF5LayoutError</a>
 </li>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5Link">HDF5Link (class in autowisp.database.data_model)</a>
 
@@ -4261,25 +4562,19 @@
         <li><a href="wisp_options.html#cmdoption-arg-high-flat-master-fname">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress.host">host (autowisp.database.data_model.image.ImageProcessingProgress attribute)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.host">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.host">host (autowisp.database.data_model.PipelineRun attribute)</a>
 </li>
-        <li><a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress.host">(autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress attribute)</a>
-</li>
-        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.host">(autowisp.database.data_model.LightCurveProcessingProgress attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.id">id (autowisp.database.data_model.base.DataModelBase attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.AlternateParameterName.id">id (autowisp.database.data_model.AlternateParameterName attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.id">(autowisp.database.data_model.base.DataModelBase attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Condition.id">(autowisp.database.data_model.Condition attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition.id">(autowisp.database.data_model.condition.Condition attribute)</a>
@@ -4291,6 +4586,10 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Configuration.id">(autowisp.database.data_model.Configuration attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration.id">(autowisp.database.data_model.configuration.Configuration attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType.id">(autowisp.database.data_model.DiagnosticType attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.id">(autowisp.database.data_model.Error attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.id">(autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
 </li>
@@ -4322,6 +4621,8 @@
 </li>
         <li><a href="implementation/autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType.id">(autowisp.database.data_model.image_type.ImageType attribute)</a>
 </li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.id">(autowisp.database.data_model.ImageDiagnostics attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.id">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageType.id">(autowisp.database.data_model.ImageType attribute)</a>
@@ -4351,6 +4652,10 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.id">(autowisp.database.data_model.ObservingSession attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Parameter.id">(autowisp.database.data_model.Parameter attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.id">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.id">(autowisp.database.data_model.PipelineRun attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.id">(autowisp.database.data_model.ProcessedImages attribute)</a>
 </li>
@@ -4412,6 +4717,8 @@
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.id">(autowisp.database.data_model.StepDependencies attribute)</a>
 </li>
+        <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName.id">(autowisp.database.data_model.steps_and_parameters.AlternateParameterName attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter.id">(autowisp.database.data_model.steps_and_parameters.Parameter attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step.id">(autowisp.database.data_model.steps_and_parameters.Step attribute)</a>
@@ -4423,6 +4730,13 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    iers-auto-max-age
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-iers-auto-max-age">command line option</a>
+</li>
+      </ul></li>
       <li>
     ignore-unknown-image-types
 
@@ -4437,7 +4751,11 @@
       <ul>
         <li><a href="implementation/autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType.image">(autowisp.database.data_model.image_type.ImageType attribute)</a>
 </li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.image">(autowisp.database.data_model.ImageDiagnostics attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageType.image">(autowisp.database.data_model.ImageType attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.image">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.image">(autowisp.database.data_model.ProcessedImages attribute)</a>
 </li>
@@ -4469,9 +4787,17 @@
         <li><a href="wisp_options.html#cmdoption-arg-image-type">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages.image_id">image_id (autowisp.database.data_model.image.ProcessedImages attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.image_id">image_id (autowisp.database.data_model.Error attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages.image_id">(autowisp.database.data_model.image.ProcessedImages attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.image_id">(autowisp.database.data_model.ImageDiagnostics attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection.image_id">(autowisp.database.data_model.ImageMasterSelection attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.image_id">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.image_id">(autowisp.database.data_model.ProcessedImages attribute)</a>
 </li>
       </ul></li>
@@ -4511,7 +4837,9 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.image_type_id">(autowisp.database.data_model.ProcessingSequence attribute)</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.ImageMismatchError">ImageMismatchError</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics">ImageDiagnostics (class in autowisp.database.data_model)</a>
+</li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection">ImageMasterSelection (class in autowisp.database.data_model)</a>
 </li>
       <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.ImageProcessingManager">ImageProcessingManager (class in autowisp.database.image_processing)</a>
 </li>
@@ -4535,6 +4863,8 @@
         <li><a href="implementation/autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType">(class in autowisp.database.data_model.image_type)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.import_json_to_survey">import_json_to_survey() (in module autowisp.database.user_interface)</a>
+</li>
       <li>
     inclination
 
@@ -4542,9 +4872,11 @@
         <li><a href="wisp_options.html#cmdoption-arg-inclination">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.init_dr_process">init_dr_process() (in module autowisp.data_reduction.data_reduction_file)</a>
-</li>
       <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.init_processing">init_processing() (in module autowisp.database.initialize_database)</a>
+</li>
+      <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.initialize">initialize() (autowisp.data_reduction.data_reduction_file.DataReductionFile method)</a>
+</li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.initialize_cmdline_database">initialize_cmdline_database() (in module autowisp.database.interface)</a>
 </li>
       <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.initialize_database">initialize_database() (in module autowisp.database.initialize_database)</a>
 </li>
@@ -4596,10 +4928,16 @@
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.job_status">job_status() (autowisp.astrometry.astrometry_net_client.Client method)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Image.jd">jd (autowisp.database.data_model.Image attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image.jd">(autowisp.database.data_model.image.Image attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.job_status">job_status() (autowisp.astrometry.astrometry_net_client.Client method)</a>
+</li>
       <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.jobs_by_tag">jobs_by_tag() (autowisp.astrometry.astrometry_net_client.Client method)</a>
 </li>
       <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.json2python">json2python() (in module autowisp.astrometry.astrometry_net_client)</a>
@@ -4791,8 +5129,6 @@
         <li><a href="wisp_options.html#cmdoption-arg-lc-catalog-max-magnitude">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     lc-catalog-max-pointing-offset
 
@@ -4800,6 +5136,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-lc-catalog-max-pointing-offset">command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     lc-catalog-min-magnitude
 
@@ -4812,6 +5150,13 @@
 
       <ul>
         <li><a href="wisp_options.html#cmdoption-arg-lc-catalog-pointing-precision">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    lc-catalog-source-list
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-lc-catalog-source-list">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -4897,6 +5242,8 @@
       <li><a href="implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap.load">load() (autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap method)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.load_correction_statistics">load_correction_statistics() (in module autowisp.light_curves.apply_correction)</a>
+</li>
+      <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.local_solver_available">local_solver_available() (in module autowisp.astrometry.astrometry)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.base.html#autowisp.magnitude_fitting.base.MagnitudeFit.logger">logger (autowisp.magnitude_fitting.base.MagnitudeFit attribute)</a>
 </li>
@@ -5034,6 +5381,13 @@
 </li>
       </ul></li>
       <li>
+    magfit-catalog-source-list
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-magfit-catalog-source-list">command line option</a>
+</li>
+      </ul></li>
+      <li>
     magfit-stat-fname-format
 
       <ul>
@@ -5065,11 +5419,9 @@
 </li>
         <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.main">(in module autowisp.catalog)</a>
 </li>
-        <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.main">(in module autowisp.database.image_processing)</a>
-</li>
-        <li><a href="implementation/autowisp.database.lightcurve_processing.html#autowisp.database.lightcurve_processing.main">(in module autowisp.database.lightcurve_processing)</a>
-</li>
         <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.main">(in module autowisp.database.user_interface)</a>
+</li>
+        <li><a href="implementation/autowisp.magnitude_fitting.master_photref_collector_grcollect.html#autowisp.magnitude_fitting.master_photref_collector_grcollect.main">(in module autowisp.magnitude_fitting.master_photref_collector_grcollect)</a>
 </li>
         <li><a href="implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.main">(in module autowisp.processing_steps.calibrate)</a>
 </li>
@@ -5201,10 +5553,18 @@
         <li><a href="implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_bias">(autowisp.image_calibration.calibrator.Calibrator attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.master_config_json_to_settings">master_config_json_to_settings() (in module autowisp.database.user_interface)</a>
+</li>
       <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.Calibrator.master_dark">master_dark (autowisp.image_calibration.Calibrator attribute)</a>
 
       <ul>
         <li><a href="implementation/autowisp.image_calibration.calibrator.html#autowisp.image_calibration.calibrator.Calibrator.master_dark">(autowisp.image_calibration.calibrator.Calibrator attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.master_file_id">master_file_id (autowisp.database.data_model.Error attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection.master_file_id">(autowisp.database.data_model.ImageMasterSelection attribute)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType.master_files">master_files (autowisp.database.data_model.master_files.MasterType attribute)</a>
@@ -5235,9 +5595,11 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterFile.master_type">(autowisp.database.data_model.MasterFile attribute)</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes.master_type_id">master_type_id (autowisp.database.data_model.input_master_types.InputMasterTypes attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection.master_type_id">master_type_id (autowisp.database.data_model.ImageMasterSelection attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.input_master_types.html#autowisp.database.data_model.input_master_types.InputMasterTypes.master_type_id">(autowisp.database.data_model.input_master_types.InputMasterTypes attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.InputMasterTypes.master_type_id">(autowisp.database.data_model.InputMasterTypes attribute)</a>
 </li>
       </ul></li>
@@ -5324,6 +5686,13 @@
 </li>
       </ul></li>
       <li>
+    max-photref-separation
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-max-photref-separation">command line option</a>
+</li>
+      </ul></li>
+      <li>
     max-rej-iter
 
       <ul>
@@ -5364,7 +5733,7 @@
         <li><a href="wisp_options.html#cmdoption-arg-merit-function">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.metadata">metadata (autowisp.database.data_model.base.DataModelBase attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase.metadata">metadata (autowisp.database.data_model.base.DataModelSubBase attribute)</a>
 </li>
       <li>
     mid-transit
@@ -5668,8 +6037,6 @@
 </li>
         <li><a href="implementation/autowisp.piecewise_bicubic_psf_map.html#module-autowisp.piecewise_bicubic_psf_map">autowisp.piecewise_bicubic_psf_map</a>
 </li>
-        <li><a href="implementation/autowisp.pipeline_exceptions.html#module-autowisp.pipeline_exceptions">autowisp.pipeline_exceptions</a>
-</li>
         <li><a href="implementation/autowisp.processing_steps.html#module-autowisp.processing_steps">autowisp.processing_steps</a>
 </li>
         <li><a href="implementation/autowisp.processing_steps.add_images_to_db.html#module-autowisp.processing_steps.add_images_to_db">autowisp.processing_steps.add_images_to_db</a>
@@ -5846,9 +6213,11 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.name">name (autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType.name">name (autowisp.database.data_model.DiagnosticType attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.name">(autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5Attribute.name">(autowisp.database.data_model.HDF5Attribute attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType.name">(autowisp.database.data_model.image_type.ImageType attribute)</a>
@@ -5884,6 +6253,13 @@
         <li><a href="implementation/autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target.name">(autowisp.database.data_model.target.Target attribute)</a>
 </li>
         <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep.name">(autowisp.image_calibration.fits_util.TimeISOTNoSep attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    no-provenance
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-no-provenance">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -6141,8 +6517,6 @@
         <li><a href="wisp_options.html#cmdoption-arg-outlier-threshold">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.OutsideImageError">OutsideImageError</a>
-</li>
       <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.Client.overlay_plot">overlay_plot() (autowisp.astrometry.astrometry_net_client.Client method)</a>
 </li>
       <li>
@@ -6158,10 +6532,20 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Configuration.parameter">parameter (autowisp.database.data_model.Configuration attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.AlternateParameterName.param_id">param_id (autowisp.database.data_model.AlternateParameterName attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName.param_id">(autowisp.database.data_model.steps_and_parameters.AlternateParameterName attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.AlternateParameterName.parameter">parameter (autowisp.database.data_model.AlternateParameterName attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Configuration.parameter">(autowisp.database.data_model.Configuration attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration.parameter">(autowisp.database.data_model.configuration.Configuration attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName.parameter">(autowisp.database.data_model.steps_and_parameters.AlternateParameterName attribute)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Parameter">Parameter (class in autowisp.database.data_model)</a>
@@ -6199,7 +6583,7 @@
 </li>
         <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.parse_command_line">(in module autowisp.catalog)</a>
 </li>
-        <li><a href="implementation/autowisp.database.image_processing.html#autowisp.database.image_processing.parse_command_line">(in module autowisp.database.image_processing)</a>
+        <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.parse_command_line">(in module autowisp.database.user_interface)</a>
 </li>
         <li><a href="implementation/autowisp.processing_steps.add_images_to_db.html#autowisp.processing_steps.add_images_to_db.parse_command_line">(in module autowisp.processing_steps.add_images_to_db)</a>
 </li>
@@ -6234,9 +6618,15 @@
         <li><a href="implementation/autowisp.processing_steps.tfa.html#autowisp.processing_steps.tfa.parse_command_line">(in module autowisp.processing_steps.tfa)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.parse_config_overwrites">parse_config_overwrites() (in module autowisp.database.user_interface)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.lc_detrending_argument_parser.html#autowisp.processing_steps.lc_detrending_argument_parser.parse_fit_datasets">parse_fit_datasets() (in module autowisp.processing_steps.lc_detrending_argument_parser)</a>
+</li>
       <li><a href="implementation/autowisp.processing_steps.fit_star_shape.html#autowisp.processing_steps.fit_star_shape.parse_grid_arg">parse_grid_arg() (in module autowisp.processing_steps.fit_star_shape)</a>
 </li>
       <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.parse_hat_source_id">parse_hat_source_id() (autowisp.data_reduction.data_reduction_file.DataReductionFile method)</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.parse_iers_max_age">parse_iers_max_age() (in module autowisp.processing_steps.manual_util)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.calibrate.html#autowisp.processing_steps.calibrate.parse_overscan">parse_overscan() (in module autowisp.processing_steps.calibrate)</a>
 </li>
@@ -6349,6 +6739,23 @@
         <li><a href="wisp_options.html#cmdoption-arg-photometry-catalog-pointing-precision">command line option</a>
 </li>
       </ul></li>
+      <li>
+    photometry-catalog-source-list
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-photometry-catalog-source-list">command line option</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Image.photometry_diagnostics">photometry_diagnostics (autowisp.database.data_model.Image attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image.photometry_diagnostics">(autowisp.database.data_model.image.Image attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.photometry_id">photometry_id (autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics">PhotometryDiagnostics (class in autowisp.database.data_model)</a>
+</li>
       <li><a href="implementation/autowisp.piecewise_bicubic_psf_map.html#autowisp.piecewise_bicubic_psf_map.PiecewiseBicubicPSFMap">PiecewiseBicubicPSFMap (class in autowisp.piecewise_bicubic_psf_map)</a>
 </li>
       <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.pipeline_key">pipeline_key (autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
@@ -6369,12 +6776,18 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5Product.pipeline_key">(autowisp.database.data_model.HDF5Product attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.pipeline_run_id">pipeline_run_id (autowisp.database.data_model.Error attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun">PipelineRun (class in autowisp.database.data_model)</a>
+</li>
       <li><a href="implementation/autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.pixel_size">pixel_size (autowisp.database.data_model.provenance.camera_type.CameraType attribute)</a>
 
       <ul>
         <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.CameraType.pixel_size">(autowisp.database.data_model.provenance.CameraType attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.plural">plural() (in module autowisp.database.user_interface)</a>
+</li>
       <li><a href="implementation/autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.POLY_START">POLY_START (autowisp.fit_expression.FitTermsLexer.FitTermsLexer attribute)</a>
 
       <ul>
@@ -6384,8 +6797,6 @@
       <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext.POLY_START">POLY_START() (autowisp.fit_expression.FitTermsParser.FitTermsParser.Fit_polynomialContext method)</a>
 </li>
       <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.PolynomialImageSmoother">PolynomialImageSmoother (class in autowisp.image_smoothing)</a>
-</li>
-      <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.pool_init">pool_init() (in module autowisp.light_curves.apply_correction)</a>
 </li>
       <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.pop">pop() (autowisp.image_smoothing.ChainSmoother method)</a>
 </li>
@@ -6417,20 +6828,16 @@
         <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step.prerequisites">(autowisp.database.data_model.steps_and_parameters.Step attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.preserve_failed_processing">preserve_failed_processing (autowisp.tests.AutoWISPTestCase attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.preserve_processing_dir">preserve_processing_dir (autowisp.tests.AutoWISPTestCase attribute)</a>
+</li>
       <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.print_file_contents">print_file_contents() (in module autowisp.processing_steps.solve_astrometry)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.lc_data_io.html#autowisp.light_curves.lc_data_io.LCDataIO.print_organized_configurations">print_organized_configurations() (autowisp.light_curves.lc_data_io.LCDataIO class method)</a>
 </li>
-      <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress.process_id">process_id (autowisp.database.data_model.image.ImageProcessingProgress attribute)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.process_id">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.process_id">process_id (autowisp.database.data_model.PipelineRun attribute)</a>
 </li>
-        <li><a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress.process_id">(autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress attribute)</a>
-</li>
-        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.process_id">(autowisp.database.data_model.LightCurveProcessingProgress attribute)</a>
-</li>
-      </ul></li>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages">ProcessedImages (class in autowisp.database.data_model)</a>
 
       <ul>
@@ -6525,6 +6932,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-radius-splits">command line option</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.raise_config_parse_errors">raise_config_parse_errors() (in module autowisp.processing_steps.manual_util)</a>
+</li>
       <li>
     raw-hdu
 
@@ -6548,11 +6957,7 @@
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation.read_anmatch_transformation">read_anmatch_transformation() (autowisp.astrometry.anmatch_transformation.AnmatchTransformation method)</a>
-
-      <ul>
-        <li><a href="implementation/autowisp.astrometry.html#autowisp.astrometry.AnmatchTransformation.read_anmatch_transformation">(autowisp.astrometry.AnmatchTransformation method)</a>
 </li>
-      </ul></li>
       <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.read_catalog_file">read_catalog_file() (in module autowisp.catalog)</a>
 </li>
       <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.read_data">read_data() (autowisp.light_curves.light_curve_file.LightCurveFile method)</a>
@@ -6564,6 +6969,8 @@
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.read_fitsheader_from_dataset">read_fitsheader_from_dataset() (autowisp.hdf5_file.HDF5File method)</a>
 </li>
       <li><a href="implementation/autowisp.fits_utilities.html#autowisp.fits_utilities.read_image_components">read_image_components() (in module autowisp.fits_utilities)</a>
+</li>
+      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.read_source_id_list">read_source_id_list() (in module autowisp.catalog)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.manual_util.html#autowisp.processing_steps.manual_util.read_subpixmap">read_subpixmap() (in module autowisp.processing_steps.manual_util)</a>
 </li>
@@ -6577,8 +6984,6 @@
       </ul></li>
       <li><a href="implementation/autowisp.light_curves.apply_correction.html#autowisp.light_curves.apply_correction.recalculate_correction_statistics">recalculate_correction_statistics() (in module autowisp.light_curves.apply_correction)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.light_curves.reconstructive_correction_transit.html#autowisp.light_curves.reconstructive_correction_transit.ReconstructiveCorrectionTransit">ReconstructiveCorrectionTransit (class in autowisp.light_curves.reconstructive_correction_transit)</a>
 </li>
       <li>
@@ -6590,13 +6995,23 @@
       </ul></li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.refine_transformation">refine_transformation() (in module autowisp.astrometry.astrometry)</a>
 </li>
-      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.registry">registry (autowisp.database.data_model.base.DataModelBase attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase.registry">registry (autowisp.database.data_model.base.DataModelSubBase attribute)</a>
 </li>
       <li>
     rej-level
 
       <ul>
         <li><a href="wisp_options.html#cmdoption-arg-rej-level">command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.related_file_kind">related_file_kind (autowisp.data_reduction.data_reduction_file.DataReductionFile attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.related_file_kind">(autowisp.hdf5_file.HDF5File attribute)</a>, <a href="implementation/autowisp.hdf5_file.html#id0">[1]</a>
+</li>
+        <li><a href="implementation/autowisp.light_curves.light_curve_file.html#autowisp.light_curves.light_curve_file.LightCurveFile.related_file_kind">(autowisp.light_curves.light_curve_file.LightCurveFile attribute)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.remove">remove() (autowisp.image_smoothing.ChainSmoother method)</a>
@@ -6617,6 +7032,10 @@
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.astrometry.astrometry_net_client.html#autowisp.astrometry.astrometry_net_client.RequestError">RequestError</a>
+</li>
+      <li><a href="implementation/autowisp.processing_steps.lc_detrending.html#autowisp.processing_steps.lc_detrending.resolve_fit_datasets">resolve_fit_datasets() (in module autowisp.processing_steps.lc_detrending)</a>
+</li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.resolved">resolved (autowisp.database.data_model.Error attribute)</a>
 </li>
       <li>
     reuse-transformation-key
@@ -6641,6 +7060,26 @@
 
       <ul>
         <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.FitTermsParser.ruleNames">(autowisp.fit_expression.FitTermsParser.FitTermsParser attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress.run">run (autowisp.database.data_model.image.ImageProcessingProgress attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.run">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress.run">(autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.run">(autowisp.database.data_model.LightCurveProcessingProgress attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress.run_id">run_id (autowisp.database.data_model.image.ImageProcessingProgress attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.run_id">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress.run_id">(autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.run_id">(autowisp.database.data_model.LightCurveProcessingProgress attribute)</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.run_step">run_step() (autowisp.tests.AutoWISPTestCase method)</a>
@@ -6728,6 +7167,8 @@
         <li><a href="implementation/autowisp.fit_expression.FitTermsParser.html#autowisp.fit_expression.FitTermsParser.serializedATN">(in module autowisp.fit_expression.FitTermsParser)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.WISPGaia.set_credentials">set_credentials() (autowisp.catalog.WISPGaia class method)</a>
+</li>
       <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.set_dark">set_dark() (autowisp.fake_image.FakeRawImage method)</a>
 
       <ul>
@@ -6754,6 +7195,8 @@
         <li><a href="implementation/autowisp.database.processing.html#autowisp.database.processing.ProcessingManager.set_pending">(autowisp.database.processing.ProcessingManager method)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.set_project_home">set_project_home() (in module autowisp.database.interface)</a>
+</li>
       <li><a href="implementation/autowisp.fake_image.html#autowisp.fake_image.FakeRawImage.set_sky">set_sky() (autowisp.fake_image.FakeRawImage method)</a>
 
       <ul>
@@ -6769,7 +7212,11 @@
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.setUp">setUp() (autowisp.tests.AutoWISPTestCase method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.setUp">(autowisp.tests.test_find_stars.TestStarlessFrameHandling method)</a>
 </li>
+      </ul></li>
       <li><a href="implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.setup_process">setup_process() (in module autowisp.multiprocessing_util)</a>
 </li>
       <li><a href="implementation/autowisp.multiprocessing_util.html#autowisp.multiprocessing_util.setup_process_map">setup_process_map() (in module autowisp.multiprocessing_util)</a>
@@ -6924,6 +7371,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.HDF5DataSet.shuffle">(autowisp.database.data_model.HDF5DataSet attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.sidecar_path">sidecar_path (autowisp.database.data_model.Error attribute)</a>
+</li>
       <li>
     single-photref-dr-fname
 
@@ -6951,6 +7400,8 @@
       <li><a href="implementation/autowisp.processing_steps.fit_source_extracted_psf_map.html#autowisp.processing_steps.fit_source_extracted_psf_map.smooth_srcextract_psf">smooth_srcextract_psf() (in module autowisp.processing_steps.fit_source_extracted_psf_map)</a>
 </li>
       <li><a href="implementation/autowisp.image_smoothing.html#autowisp.image_smoothing.ChainSmoother.smoothing_chain">smoothing_chain (autowisp.image_smoothing.ChainSmoother attribute)</a>
+</li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.snapshot_row">snapshot_row() (in module autowisp.database.interface)</a>
 </li>
       <li><a href="implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.solve_astrometry">solve_astrometry() (in module autowisp.processing_steps.solve_astrometry)</a>
 </li>
@@ -6994,10 +7445,10 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.MasterType.split_expressions">(autowisp.database.data_model.MasterType attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.split_sources.html#autowisp.split_sources.SplitSources">SplitSources (class in autowisp.split_sources)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.astrometry.healpix_utilities.html#autowisp.astrometry.healpix_utilities.square_query_vertices">square_query_vertices() (in module autowisp.astrometry.healpix_utilities)</a>
 </li>
       <li>
@@ -7086,6 +7537,10 @@
         <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.MasterMaker.stacking_options">(autowisp.image_calibration.MasterMaker attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.processing_steps.stack_to_master.html#autowisp.processing_steps.stack_to_master.stacking_related_files">stacking_related_files() (in module autowisp.processing_steps.stack_to_master)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.stage_catalog_cache">stage_catalog_cache (autowisp.tests.AutoWISPTestCase attribute)</a>
+</li>
       <li>
     stamp-fraction
 
@@ -7203,6 +7658,8 @@
         <li><a href="implementation/autowisp.image_calibration.html#autowisp.image_calibration.MasterFlatMaker.stamp_statistics_config">(autowisp.image_calibration.MasterFlatMaker attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.interface.html#autowisp.database.interface.start_db_session">start_db_session() (in module autowisp.database.interface)</a>
+</li>
       <li><a href="implementation/autowisp.source_finder_util.html#autowisp.source_finder_util.start_fistar">start_fistar() (in module autowisp.source_finder_util)</a>
 </li>
       <li><a href="implementation/autowisp.source_finder_util.html#autowisp.source_finder_util.start_hatphot">start_hatphot() (in module autowisp.source_finder_util)</a>
@@ -7221,6 +7678,15 @@
         <li><a href="implementation/autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress.started">(autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.LightCurveProcessingProgress.started">(autowisp.database.data_model.LightCurveProcessingProgress attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.started">(autowisp.database.data_model.PipelineRun attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    stat-rej-level
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-stat-rej-level">command line option</a>
 </li>
       </ul></li>
       <li><a href="implementation/autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages.status">status (autowisp.database.data_model.image.ProcessedImages attribute)</a>
@@ -7282,6 +7748,8 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessingSequence.step_id">(autowisp.database.data_model.ProcessingSequence attribute)</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.step_name">step_name (autowisp.database.data_model.Error attribute)</a>
+</li>
       <li><a href="implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.StepCreator">StepCreator (class in autowisp.database.initialize_database)</a>
 </li>
       <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies">StepDependencies (class in autowisp.database.data_model)</a>
@@ -7329,7 +7797,7 @@
         <li><a href="wisp_options.html#cmdoption-arg-subpixmap">command line option</a>
 </li>
       </ul></li>
-      <li><a href="implementation/autowisp.tests.html#autowisp.tests.AutoWISPTestCase.successful_test">successful_test (autowisp.tests.AutoWISPTestCase attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.subprocess_id">subprocess_id (autowisp.database.data_model.Error attribute)</a>
 </li>
       <li><a href="implementation/autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.symbolicNames">symbolicNames (autowisp.fit_expression.FitTermsLexer.FitTermsLexer attribute)</a>
 
@@ -7373,6 +7841,13 @@
 
       <ul>
         <li><a href="wisp_options.html#cmdoption-arg-target-id">command line option</a>
+</li>
+      </ul></li>
+      <li>
+    target-match-tolerance
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-target-match-tolerance">command line option</a>
 </li>
       </ul></li>
       <li>
@@ -7462,6 +7937,13 @@
       </ul></li>
       <li><a href="implementation/autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles">TempAstrometryFiles (class in autowisp.astrometry.astrometry)</a>
 </li>
+      <li>
+    tempstore-dir
+
+      <ul>
+        <li><a href="wisp_options.html#cmdoption-arg-tempstore-dir">command line option</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.TERM">TERM (autowisp.fit_expression.FitTermsLexer.FitTermsLexer attribute)</a>
 
       <ul>
@@ -7522,7 +8004,11 @@
 </li>
       <li><a href="implementation/autowisp.tests.test_measure_aperture_photometry.html#autowisp.tests.test_measure_aperture_photometry.TestMeasureAperturePhotometry.test_measure_aperture_photometry">test_measure_aperture_photometry() (autowisp.tests.test_measure_aperture_photometry.TestMeasureAperturePhotometry method)</a>
 </li>
+      <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_no_sources_marks_frame_failed">test_no_sources_marks_frame_failed() (autowisp.tests.test_find_stars.TestStarlessFrameHandling method)</a>
+</li>
       <li><a href="implementation/autowisp.tests.test_calibrate.html#autowisp.tests.test_calibrate.TestCalibrate.test_object_calibration">test_object_calibration() (autowisp.tests.test_calibrate.TestCalibrate method)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling.test_other_failures_still_propagate">test_other_failures_still_propagate() (autowisp.tests.test_find_stars.TestStarlessFrameHandling method)</a>
 </li>
       <li><a href="implementation/autowisp.magnitude_fitting.tests.test_mphotref_collector.html#autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector.test_rotatestars">test_rotatestars() (autowisp.magnitude_fitting.tests.test_mphotref_collector.TestMphotrefCollector method)</a>
 </li>
@@ -7561,6 +8047,8 @@
       <li><a href="implementation/autowisp.tests.test_solve_astrometry.html#autowisp.tests.test_solve_astrometry.TestSolveAstrometry">TestSolveAstrometry (class in autowisp.tests.test_solve_astrometry)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_stack_to_master.html#autowisp.tests.test_stack_to_master.TestStackToMaster">TestStackToMaster (class in autowisp.tests.test_stack_to_master)</a>
+</li>
+      <li><a href="implementation/autowisp.tests.test_find_stars.html#autowisp.tests.test_find_stars.TestStarlessFrameHandling">TestStarlessFrameHandling (class in autowisp.tests.test_find_stars)</a>
 </li>
       <li><a href="implementation/autowisp.tests.test_tfa.html#autowisp.tests.test_tfa.TestTFA">TestTFA (class in autowisp.tests.test_tfa)</a>
 </li>
@@ -7622,8 +8110,6 @@
         <li><a href="wisp_options.html#cmdoption-arg-tfa-max-rms">command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tfa-min-observations-fraction
 
@@ -7659,6 +8145,8 @@
         <li><a href="wisp_options.html#cmdoption-arg-tfa-selected-plots">command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tfa-sqrt-num-templates
 
@@ -7677,9 +8165,13 @@
 </li>
       <li><a href="implementation/autowisp.image_calibration.fits_util.html#autowisp.image_calibration.fits_util.TimeISOTNoSep">TimeISOTNoSep (class in autowisp.image_calibration.fits_util)</a>
 </li>
-      <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.timestamp">timestamp (autowisp.database.data_model.base.DataModelBase attribute)</a>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.AlternateParameterName.timestamp">timestamp (autowisp.database.data_model.AlternateParameterName attribute)</a>
 
       <ul>
+        <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase.timestamp">(autowisp.database.data_model.base.DataModelBase attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase.timestamp">(autowisp.database.data_model.base.DataModelSubBase attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Condition.timestamp">(autowisp.database.data_model.Condition attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition.timestamp">(autowisp.database.data_model.condition.Condition attribute)</a>
@@ -7691,6 +8183,10 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Configuration.timestamp">(autowisp.database.data_model.Configuration attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration.timestamp">(autowisp.database.data_model.configuration.Configuration attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.DiagnosticType.timestamp">(autowisp.database.data_model.DiagnosticType attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.timestamp">(autowisp.database.data_model.Error attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.hdf5_attributes.html#autowisp.database.data_model.hdf5_attributes.HDF5Attribute.timestamp">(autowisp.database.data_model.hdf5_attributes.HDF5Attribute attribute)</a>
 </li>
@@ -7722,6 +8218,10 @@
 </li>
         <li><a href="implementation/autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType.timestamp">(autowisp.database.data_model.image_type.ImageType attribute)</a>
 </li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.timestamp">(autowisp.database.data_model.ImageDiagnostics attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageMasterSelection.timestamp">(autowisp.database.data_model.ImageMasterSelection attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageProcessingProgress.timestamp">(autowisp.database.data_model.ImageProcessingProgress attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageType.timestamp">(autowisp.database.data_model.ImageType attribute)</a>
@@ -7751,6 +8251,10 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ObservingSession.timestamp">(autowisp.database.data_model.ObservingSession attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Parameter.timestamp">(autowisp.database.data_model.Parameter attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.timestamp">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PipelineRun.timestamp">(autowisp.database.data_model.PipelineRun attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ProcessedImages.timestamp">(autowisp.database.data_model.ProcessedImages attribute)</a>
 </li>
@@ -7812,6 +8316,8 @@
 </li>
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.StepDependencies.timestamp">(autowisp.database.data_model.StepDependencies attribute)</a>
 </li>
+        <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.AlternateParameterName.timestamp">(autowisp.database.data_model.steps_and_parameters.AlternateParameterName attribute)</a>
+</li>
         <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter.timestamp">(autowisp.database.data_model.steps_and_parameters.Parameter attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step.timestamp">(autowisp.database.data_model.steps_and_parameters.Step attribute)</a>
@@ -7819,6 +8325,44 @@
         <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Target.timestamp">(autowisp.database.data_model.Target attribute)</a>
 </li>
         <li><a href="implementation/autowisp.database.data_model.target.html#autowisp.database.data_model.target.Target.timestamp">(autowisp.database.data_model.target.Target attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Camera.to_dict">to_dict() (autowisp.database.data_model.provenance.Camera method)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera.to_dict">(autowisp.database.data_model.provenance.camera.Camera method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel.to_dict">(autowisp.database.data_model.provenance.camera_channel.CameraChannel method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType.to_dict">(autowisp.database.data_model.provenance.camera_type.CameraType method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.CameraChannel.to_dict">(autowisp.database.data_model.provenance.CameraChannel method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.CameraType.to_dict">(autowisp.database.data_model.provenance.CameraType method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Mount.to_dict">(autowisp.database.data_model.provenance.Mount method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.mount.html#autowisp.database.data_model.provenance.mount.Mount.to_dict">(autowisp.database.data_model.provenance.mount.Mount method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.mount_type.html#autowisp.database.data_model.provenance.mount_type.MountType.to_dict">(autowisp.database.data_model.provenance.mount_type.MountType method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.MountType.to_dict">(autowisp.database.data_model.provenance.MountType method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Observatory.to_dict">(autowisp.database.data_model.provenance.Observatory method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.observatory.html#autowisp.database.data_model.provenance.observatory.Observatory.to_dict">(autowisp.database.data_model.provenance.observatory.Observatory method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Observer.to_dict">(autowisp.database.data_model.provenance.Observer method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.observer.html#autowisp.database.data_model.provenance.observer.Observer.to_dict">(autowisp.database.data_model.provenance.observer.Observer method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.Telescope.to_dict">(autowisp.database.data_model.provenance.Telescope method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.telescope.html#autowisp.database.data_model.provenance.telescope.Telescope.to_dict">(autowisp.database.data_model.provenance.telescope.Telescope method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.telescope_type.html#autowisp.database.data_model.provenance.telescope_type.TelescopeType.to_dict">(autowisp.database.data_model.provenance.telescope_type.TelescopeType method)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.TelescopeType.to_dict">(autowisp.database.data_model.provenance.TelescopeType method)</a>
 </li>
       </ul></li>
       <li>
@@ -7860,6 +8404,12 @@
         <li><a href="wisp_options.html#cmdoption-arg-tweak-order">command line option</a>
 </li>
       </ul></li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.type_">type_ (autowisp.database.data_model.ImageDiagnostics attribute)</a>
+
+      <ul>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.type_">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
+</li>
+      </ul></li>
       <li><a href="implementation/autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile.type_id">type_id (autowisp.database.data_model.master_files.MasterFile attribute)</a>
 
       <ul>
@@ -7890,6 +8440,8 @@
 </li>
       <li><a href="implementation/autowisp.light_curves.hashable_array.html#autowisp.light_curves.hashable_array.HashableArray.unwrap">unwrap() (autowisp.light_curves.hashable_array.HashableArray method)</a>
 </li>
+      <li><a href="implementation/autowisp.database.user_interface.html#autowisp.database.user_interface.update_db_entry">update_db_entry() (in module autowisp.database.user_interface)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.fits_utilities.html#autowisp.fits_utilities.update_stack_header">update_stack_header() (in module autowisp.fits_utilities)</a>
@@ -7910,6 +8462,8 @@
 </li>
       <li><a href="implementation/autowisp.fit_expression.used_var_finder.html#autowisp.fit_expression.used_var_finder.UsedVarFinder">UsedVarFinder (class in autowisp.fit_expression.used_var_finder)</a>
 </li>
+      <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.Error.user_message">user_message (autowisp.database.data_model.Error attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -7920,6 +8474,10 @@
 
       <ul>
         <li><a href="implementation/autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration.value">(autowisp.database.data_model.configuration.Configuration attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.ImageDiagnostics.value">(autowisp.database.data_model.ImageDiagnostics attribute)</a>
+</li>
+        <li><a href="implementation/autowisp.database.data_model.html#autowisp.database.data_model.PhotometryDiagnostics.value">(autowisp.database.data_model.PhotometryDiagnostics attribute)</a>
 </li>
       </ul></li>
       <li>
@@ -7958,6 +8516,8 @@
         <li><a href="implementation/autowisp.database.data_model.provenance.html#autowisp.database.data_model.provenance.TelescopeType.version">(autowisp.database.data_model.provenance.TelescopeType attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.fit_expression.count_terms_visitor.html#autowisp.fit_expression.count_terms_visitor.CountTermsVisitor.visitFit_polynomial">visitFit_polynomial() (autowisp.fit_expression.count_terms_visitor.CountTermsVisitor method)</a>
 
       <ul>
@@ -7966,8 +8526,6 @@
         <li><a href="implementation/autowisp.fit_expression.process_terms_visitor.html#autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor.visitFit_polynomial">(autowisp.fit_expression.process_terms_visitor.ProcessTermsVisitor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.fit_expression.evaluate_terms_visitor.html#autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor.visitFit_term">visitFit_term() (autowisp.fit_expression.evaluate_terms_visitor.EvaluateTermsVisitor method)</a>
 
       <ul>
@@ -8025,6 +8583,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="implementation/autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File.write_fitsheader_to_dataset">write_fitsheader_to_dataset() (autowisp.hdf5_file.HDF5File method)</a>
+</li>
+      <li><a href="implementation/autowisp.catalog.html#autowisp.catalog.write_query_to_file">write_query_to_file() (in module autowisp.catalog)</a>
 </li>
       <li><a href="implementation/autowisp.fit_expression.FitTermsLexer.html#autowisp.fit_expression.FitTermsLexer.FitTermsLexer.WS">WS (autowisp.fit_expression.FitTermsLexer.FitTermsLexer attribute)</a>
 

@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -120,7 +140,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for autowisp.data_reduction.data_reduction_file</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a class for worknig with data reduction files.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Define a class for working with data reduction files.&quot;&quot;&quot;</span>
 
 <span class="c1"># pylint: disable=too-many-lines</span>
 
@@ -132,25 +152,15 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process_map</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.hat.file_parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_anmatch_transformation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">RECOGNIZED_HAT_ID_PREFIXES</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.hdf5_file_structure</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDF5FileDatabaseStructure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileKind</span>
 
-<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: cd2a6c9ea1521813bb0f625ac3878ee3291e7f99 $&quot;</span>
+<span class="n">git_id</span> <span class="o">=</span> <span class="s2">&quot;$Id: 74fd49cde5cfce617ede935b69454be145acd10c $&quot;</span>
 
 <span class="c1"># TODO: Add missed attributes: bg.cfg.annulus, bg.cfg.zero.</span>
-
-
-<div class="viewcode-block" id="init_dr_process">
-<a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.init_dr_process">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">init_dr_process</span><span class="p">(</span><span class="n">configuration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the process with the given configuration.&quot;&quot;&quot;</span>
-
-    <span class="n">DataReductionFile</span><span class="o">.</span><span class="n">fname_template</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;data_reduction_fname&quot;</span><span class="p">]</span>
-    <span class="n">setup_process_map</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span></div>
-
 
 
 <span class="c1"># The class has to satisfy many needs, hence many public methods.</span>
@@ -180,6 +190,7 @@
 
     <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="n">fname_template</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">related_file_kind</span> <span class="o">=</span> <span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span>
 
 <div class="viewcode-block" id="DataReductionFile._product">
 <a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile._product">[docs]</a>
@@ -325,7 +336,7 @@
 
         <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_data</span> <span class="ow">in</span> <span class="n">iter_data</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">ascii_columns</span> <span class="ow">or</span> <span class="n">column_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s2">&quot;SUO&quot;</span><span class="p">:</span>
-                <span class="n">column_data</span> <span class="o">=</span> <span class="n">column_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string_&quot;</span><span class="p">)</span>
+                <span class="n">column_data</span> <span class="o">=</span> <span class="n">column_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">parse_ids</span> <span class="ow">and</span> <span class="n">column_name</span> <span class="o">==</span> <span class="s2">&quot;ID&quot;</span><span class="p">:</span>
                 <span class="n">id_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_hat_source_id</span><span class="p">(</span><span class="n">column_data</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">id_part</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">]:</span>
@@ -516,12 +527,24 @@
         <span class="p">]</span><span class="o">.</span><span class="n">len</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="DataReductionFile.add_frame_header">
-<a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_frame_header">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_frame_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the header of the corresponding FITS frame to DR file.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DataReductionFile.initialize">
+<a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.initialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">observing_session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the FITS header and (optionally) provenance to the DR file.</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_fitsheader_to_dataset</span><span class="p">(</span><span class="s2">&quot;fitsheader&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">            header:                The FITS primary header to embed.</span>
+<span class="sd">            observing_session:     If supplied, its instrument/observer/target</span>
+<span class="sd">                attributes are written to ``/Provenance`` via</span>
+<span class="sd">                :meth:`add_provenance`. If ``None``, the ``/Provenance`` group</span>
+<span class="sd">                is left untouched.</span>
+<span class="sd">            **substitutions:       Path substitutions forwarded to</span>
+<span class="sd">                :meth:`write_fitsheader_to_dataset`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_fitsheader_to_dataset</span><span class="p">(</span><span class="s2">&quot;fitsheader&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">observing_session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_provenance</span><span class="p">(</span><span class="n">observing_session</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile.get_frame_header">
@@ -530,6 +553,67 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the header of the corresponding FITS frame.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fitsheader_from_dataset</span><span class="p">(</span><span class="s2">&quot;fitsheader&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">substitutions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataReductionFile.add_provenance">
+<a class="viewcode-back" href="../../../implementation/autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile.add_provenance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_provenance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observing_session</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write instrument and observer provenance attributes to the DR file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observing_session:    The ORM ObservingSession linked to the image</span>
+<span class="sd">                whose DR file this is.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">cam</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">camera</span>
+        <span class="n">tel</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">telescope</span>
+        <span class="n">mnt</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">mount</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">observatory</span>
+        <span class="n">who</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">observer</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">cam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.camera.serial&quot;</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.camera.make&quot;</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.camera.model&quot;</span><span class="p">,</span> <span class="n">cam</span><span class="o">.</span><span class="n">camera_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">tel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.telescope.serial&quot;</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.telescope.make&quot;</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.telescope.model&quot;</span><span class="p">,</span> <span class="n">tel</span><span class="o">.</span><span class="n">telescope_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">mnt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.mount.serial&quot;</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">serial_number</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.mount.make&quot;</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">mount_type</span><span class="o">.</span><span class="n">make</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.mount.model&quot;</span><span class="p">,</span> <span class="n">mnt</span><span class="o">.</span><span class="n">mount_type</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observatory.latitude&quot;</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observatory.longitude&quot;</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observatory.altitude&quot;</span><span class="p">,</span> <span class="n">obs</span><span class="o">.</span><span class="n">altitude</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">who</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.observer.name&quot;</span><span class="p">,</span> <span class="n">who</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="n">tgt</span> <span class="o">=</span> <span class="n">observing_session</span><span class="o">.</span><span class="n">target</span>
+        <span class="k">if</span> <span class="n">tgt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entries</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.target.name&quot;</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.target.ra&quot;</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">ra</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;provenance.cfg.target.dec&quot;</span><span class="p">,</span> <span class="n">tgt</span><span class="o">.</span><span class="n">dec</span><span class="p">),</span>
+            <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DataReductionFile.get_num_apertures">
@@ -1061,7 +1145,7 @@
 <span class="sd">        Add astrometry derived by fistar, and anmatch to the DR file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filanemes(dict):    The files containing the astrometry results.</span>
+<span class="sd">            filenames(dict):    The files containing the astrometry results.</span>
 <span class="sd">                Should have the following keys: `&#39;fistar&#39;`, `&#39;trans&#39;`,</span>
 <span class="sd">                `&#39;match&#39;`, `&#39;catalogue&#39;`.</span>
 

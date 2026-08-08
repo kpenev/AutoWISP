@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -122,17 +142,15 @@
   <h1>Source code for autowisp.magnitude_fitting.iterative_refit</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Interface for performing iterative magnitude fitting.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpid</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process_map</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_pool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileKind</span><span class="p">,</span> <span class="n">FitMagnitudesError</span><span class="p">,</span> <span class="n">RelatedFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.fits_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_stack_header</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.magnitude_fitting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LinearMagnitudeFit</span><span class="p">,</span>
@@ -162,6 +180,32 @@
 
 
 
+<div class="viewcode-block" id="_magfit_related_files">
+<a class="viewcode-back" href="../../../implementation/autowisp.magnitude_fitting.iterative_refit.html#autowisp.magnitude_fitting.iterative_refit._magfit_related_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_magfit_related_files</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">,</span> <span class="n">single_photref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">master_photref</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``related_files`` classifier for a magnitude-fit work item.</span>
+
+<span class="sd">    The item is the DR file being fit; the batch is fit against the single</span>
+<span class="sd">    photometric reference (and, once it exists, the master photometric</span>
+<span class="sd">    reference). Module-level so a ``partial`` binding the references is</span>
+<span class="sd">    picklable to the workers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">related</span> <span class="o">=</span> <span class="p">[</span><span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">single_photref</span><span class="p">:</span>
+        <span class="n">related</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">RelatedFile</span><span class="p">(</span><span class="n">FileKind</span><span class="o">.</span><span class="n">DR_FILE</span><span class="p">,</span> <span class="n">single_photref</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;single_photref&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">master_photref</span><span class="p">:</span>
+        <span class="n">related</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">RelatedFile</span><span class="p">(</span>
+                <span class="n">FileKind</span><span class="o">.</span><span class="n">MASTER_PHOTREF</span><span class="p">,</span> <span class="n">master_photref</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;master_photref&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">related</span></div>
+
+
+
 <span class="c1"># Could not come up with a sensible way to simplify</span>
 <span class="c1"># pylint: disable=too-many-arguments</span>
 <div class="viewcode-block" id="single_iteration">
@@ -186,19 +230,8 @@
 
     <span class="n">pool_magfit</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
         <span class="n">magfit</span><span class="p">,</span>
-        <span class="n">mark_start</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">partial</span><span class="p">(</span>
-                <span class="n">mark_start</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
-                <span class="ow">or</span> <span class="n">magfit_stat_collector</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="p">)</span>
-            <span class="k">else</span> <span class="n">partial</span><span class="p">(</span>
-                <span class="n">mark_end</span><span class="p">,</span>
-                <span class="n">status</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">],</span>
-                <span class="n">final</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">mark_start</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span>
+            <span class="n">mark_start</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span>
         <span class="p">),</span>
         <span class="n">mark_end</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span>
             <span class="n">mark_end</span><span class="p">,</span>
@@ -209,18 +242,24 @@
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">num_parallel_processes</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">configuration</span><span class="o">.</span><span class="n">parent_pid</span> <span class="o">=</span> <span class="n">getpid</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span>
-            <span class="n">configuration</span><span class="o">.</span><span class="n">num_parallel_processes</span><span class="p">,</span>
-            <span class="n">initializer</span><span class="o">=</span><span class="n">setup_process_map</span><span class="p">,</span>
-            <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">configuration</span><span class="p">),),</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">magfit_pool</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">magfit_stat_collector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">magfit_pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">pool_magfit</span><span class="p">,</span> <span class="n">fit_dr_filenames</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">magfit_stat_collector</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
-                    <span class="n">magfit_pool</span><span class="o">.</span><span class="n">imap_unordered</span><span class="p">(</span><span class="n">pool_magfit</span><span class="p">,</span> <span class="n">fit_dr_filenames</span><span class="p">)</span>
-                <span class="p">)</span>
+        <span class="n">run_pool</span><span class="p">(</span>
+            <span class="n">pool_magfit</span><span class="p">,</span>
+            <span class="n">fit_dr_filenames</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="nb">vars</span><span class="p">(</span><span class="n">configuration</span><span class="p">),</span>
+            <span class="n">num_processes</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">num_parallel_processes</span><span class="p">,</span>
+            <span class="n">stream_consumer</span><span class="o">=</span><span class="p">(</span>
+                <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">magfit_stat_collector</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">magfit_stat_collector</span><span class="o">.</span><span class="n">add_input</span>
+            <span class="p">),</span>
+            <span class="n">related_files</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span>
+                <span class="n">_magfit_related_files</span><span class="p">,</span>
+                <span class="n">single_photref</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;single_photref_dr_fname&quot;</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="n">master_photref</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">master_photref_fname</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">magfit_stat_collector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">dr_fname</span> <span class="ow">in</span> <span class="n">fit_dr_filenames</span><span class="p">:</span>
             <span class="n">pool_magfit</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
@@ -313,10 +352,9 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">magfit_stat_collector</span><span class="p">,</span>
         <span class="n">old_reference</span><span class="p">,</span>
-        <span class="n">source_id_parser</span><span class="p">,</span>
         <span class="n">num_photometries</span><span class="p">,</span>
         <span class="n">fname_substitutions</span><span class="p">,</span>
-        <span class="n">common_header</span><span class="p">,</span>
+        <span class="n">sphotref_header</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the next iteration photometric reference or None if converged.</span>
@@ -347,10 +385,11 @@
                 <span class="n">master_reference_fname</span><span class="o">=</span><span class="n">master_reference_fname</span><span class="p">,</span>
                 <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
                 <span class="n">fit_terms_expression</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">mphotref_scatter_fit_terms</span><span class="p">,</span>
-                <span class="n">parse_source_id</span><span class="o">=</span><span class="n">source_id_parser</span><span class="p">,</span>
-                <span class="n">extra_header</span><span class="o">=</span><span class="n">common_header</span><span class="p">,</span>
+                <span class="n">extra_header</span><span class="o">=</span><span class="n">sphotref_header</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="c1"># Catch only the master-photref generation failure, so an unrelated</span>
+        <span class="c1"># error inside generate_master surfaces instead of being swallowed.</span>
+        <span class="k">except</span> <span class="n">FitMagnitudesError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">new_reference</span> <span class="o">=</span> <span class="n">get_master_photref</span><span class="p">(</span><span class="n">master_reference_fname</span><span class="p">)</span>
 
@@ -406,8 +445,8 @@
     <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">DataReductionFile</span><span class="p">(</span><span class="n">single_photref_dr_fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">photref_dr</span><span class="p">:</span>
-        <span class="n">common_header</span> <span class="o">=</span> <span class="n">photref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
-        <span class="n">fname_substitutions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">common_header</span><span class="p">)</span>
+        <span class="n">sphotref_header</span> <span class="o">=</span> <span class="n">photref_dr</span><span class="o">.</span><span class="n">get_frame_header</span><span class="p">()</span>
+        <span class="n">fname_substitutions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sphotref_header</span><span class="p">)</span>
         <span class="n">fname_substitutions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">path_substitutions</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">continue_from_iteration</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">master_reference_fname</span> <span class="o">=</span> <span class="p">(</span>
@@ -426,48 +465,48 @@
     <span class="n">num_photometries</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">photref</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
 
     <span class="n">photref_fname</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">common_header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mphotref&quot;</span>
-    <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">mphotref_collect_tmp_dir</span><span class="p">:</span>
-        <span class="k">while</span> <span class="p">(</span>
-            <span class="n">photref</span>
-            <span class="ow">and</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span>
-            <span class="o">&lt;</span> <span class="n">configuration</span><span class="o">.</span><span class="n">max_magfit_iterations</span>
-        <span class="p">):</span>
-            <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">sphotref_header</span><span class="p">[</span><span class="s2">&quot;IMAGETYP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mphotref&quot;</span>
+    <span class="k">while</span> <span class="p">(</span>
+        <span class="n">photref</span>
+        <span class="ow">and</span> <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span>
+        <span class="o">&lt;</span> <span class="n">configuration</span><span class="o">.</span><span class="n">max_magfit_iterations</span>
+    <span class="p">):</span>
+        <span class="n">path_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">fname_substitutions</span><span class="p">[</span><span class="s2">&quot;magfit_iteration&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
-            <span class="k">assert</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">photref</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">num_photometries</span>
+        <span class="k">assert</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">photref</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="s2">&quot;mag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">num_photometries</span>
 
-            <span class="n">stat_fname</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">magfit_stat_fname_format</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
-                <span class="n">fname_substitutions</span>
-            <span class="p">)</span>
+        <span class="n">stat_fname</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">magfit_stat_fname_format</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span>
+            <span class="n">fname_substitutions</span>
+        <span class="p">)</span>
 
-            <span class="n">magfit_stat_collector</span> <span class="o">=</span> <span class="n">MasterPhotrefCollector</span><span class="p">(</span>
-                <span class="n">stat_fname</span><span class="p">,</span>
-                <span class="n">num_photometries</span><span class="p">,</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">fit_dr_filenames</span><span class="p">),</span>
-                <span class="n">mphotref_collect_tmp_dir</span><span class="p">,</span>
-                <span class="n">source_name_format</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">source_name_format</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">magfit_stat_collector</span> <span class="o">=</span> <span class="n">MasterPhotrefCollector</span><span class="p">(</span>
+            <span class="n">stat_fname</span><span class="p">,</span>
+            <span class="n">num_photometries</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">fit_dr_filenames</span><span class="p">),</span>
+            <span class="n">source_name_format</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">source_name_format</span><span class="p">,</span>
+            <span class="n">tempstore_dir</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">tempstore_dir</span><span class="p">,</span>
+            <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">stat_rej_level</span><span class="p">,</span>
+        <span class="p">)</span>
 
-            <span class="n">single_iteration</span><span class="p">(</span>
-                <span class="n">fit_dr_filenames</span><span class="p">,</span>
-                <span class="n">photref</span><span class="o">=</span><span class="n">photref</span><span class="p">,</span>
-                <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
-                <span class="n">path_substitutions</span><span class="o">=</span><span class="n">path_substitutions</span><span class="p">,</span>
-                <span class="n">mark_start</span><span class="o">=</span><span class="n">mark_start</span><span class="p">,</span>
-                <span class="n">mark_end</span><span class="o">=</span><span class="n">mark_end</span><span class="p">,</span>
-                <span class="n">magfit_stat_collector</span><span class="o">=</span><span class="n">magfit_stat_collector</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">single_iteration</span><span class="p">(</span>
+            <span class="n">fit_dr_filenames</span><span class="p">,</span>
+            <span class="n">photref</span><span class="o">=</span><span class="n">photref</span><span class="p">,</span>
+            <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+            <span class="n">path_substitutions</span><span class="o">=</span><span class="n">path_substitutions</span><span class="p">,</span>
+            <span class="n">mark_start</span><span class="o">=</span><span class="n">mark_start</span><span class="p">,</span>
+            <span class="n">mark_end</span><span class="o">=</span><span class="n">mark_end</span><span class="p">,</span>
+            <span class="n">magfit_stat_collector</span><span class="o">=</span><span class="n">magfit_stat_collector</span><span class="p">,</span>
+        <span class="p">)</span>
 
-            <span class="n">photref</span><span class="p">,</span> <span class="n">photref_fname</span> <span class="o">=</span> <span class="n">update_photref</span><span class="p">(</span>
-                <span class="n">magfit_stat_collector</span><span class="o">=</span><span class="n">magfit_stat_collector</span><span class="p">,</span>
-                <span class="n">old_reference</span><span class="o">=</span><span class="n">photref</span><span class="p">,</span>
-                <span class="n">source_id_parser</span><span class="o">=</span><span class="n">photref_dr</span><span class="o">.</span><span class="n">parse_hat_source_id</span><span class="p">,</span>
-                <span class="n">num_photometries</span><span class="o">=</span><span class="n">num_photometries</span><span class="p">,</span>
-                <span class="n">fname_substitutions</span><span class="o">=</span><span class="n">fname_substitutions</span><span class="p">,</span>
-                <span class="n">common_header</span><span class="o">=</span><span class="n">common_header</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">photref</span><span class="p">,</span> <span class="n">photref_fname</span> <span class="o">=</span> <span class="n">update_photref</span><span class="p">(</span>
+            <span class="n">magfit_stat_collector</span><span class="o">=</span><span class="n">magfit_stat_collector</span><span class="p">,</span>
+            <span class="n">old_reference</span><span class="o">=</span><span class="n">photref</span><span class="p">,</span>
+            <span class="n">num_photometries</span><span class="o">=</span><span class="n">num_photometries</span><span class="p">,</span>
+            <span class="n">fname_substitutions</span><span class="o">=</span><span class="n">fname_substitutions</span><span class="p">,</span>
+            <span class="n">sphotref_header</span><span class="o">=</span><span class="n">sphotref_header</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mark_start</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">mark_end</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">fit_dr_fname</span> <span class="ow">in</span> <span class="n">fit_dr_filenames</span><span class="p">:</span>
         <span class="n">mark_end</span><span class="p">(</span>
             <span class="n">fit_dr_fname</span><span class="p">,</span>

@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -127,24 +147,23 @@
 <span id="autowisp-hdf5-file-module"></span><h1>autowisp.hdf5_file module<a class="headerlink" href="#module-autowisp.hdf5_file" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-1c80484ff294b407cb60f067cb0d536613e101ef.png" alt="Inheritance diagram of ABC, BytesIO, HDF5File, HDF5LayoutError" usemap="#inheritance1beec7b053" class="inheritance graphviz" /></div>
-<map id="inheritance1beec7b053" name="inheritance1beec7b053">
+<div class="graphviz"><img src="../_images/inheritance-0ca4109a99ad525df8f17cf258b0665f7500217c.png" alt="Inheritance diagram of ABC, BytesIO, HDF5File, HDF5LayoutError, RelatedFile, count" usemap="#inheritancefe4ace4b3d" class="inheritance graphviz" /></div>
+<map id="inheritancefe4ace4b3d" name="inheritancefe4ace4b3d">
 <area shape="rect" id="node2" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="80,453,155,480"/>
-<area shape="rect" id="node3" href="#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="86,528,272,555"/>
-<area shape="rect" id="node5" href="autowisp.pipeline_exceptions.html#autowisp.pipeline_exceptions.HDF5LayoutError" target="_top" title="Error caused by invalid specification of HDF5 layout." alt="" coords="765,5,1062,32"/>
-<area shape="rect" id="node6" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
+<area shape="rect" id="node7" href="#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="86,528,272,555"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="386,80,556,107"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="390,155,552,181"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="224,5,369,32"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="393,5,549,32"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="572,5,740,32"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="257,229,464,256"/>
 </map><p>Define a class for working with HDF5 files.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.hdf5_file.</span></span><span class="sig-name descname"><span class="pre">HDF5File</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></p>
-<div class="graphviz"><img src="../_images/inheritance-eb0900aac23996b3f16ccee65ac9f075988072e4.png" alt="Inheritance diagram of autowisp.hdf5_file.HDF5File" usemap="#inheritancea386fa9591" class="inheritance graphviz" /></div>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.hdf5_file.</span></span><span class="sig-name descname"><span class="pre">HDF5File</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></p>
+<div class="graphviz"><img src="../_images/inheritance-58db0a15b88b41fdae87e19c430260a78872488f.png" alt="Inheritance diagram of autowisp.hdf5_file.HDF5File" usemap="#inheritancea386fa9591" class="inheritance graphviz" /></div>
 <map id="inheritancea386fa9591" name="inheritancea386fa9591">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="80,453,155,480"/>
 <area shape="rect" id="node2" href="#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="86,528,272,555"/>
@@ -160,6 +179,15 @@ from this one, by overwriting the relevant properties and
 <a class="reference internal" href="#autowisp.hdf5_file.HDF5File._get_root_tag_name" title="autowisp.hdf5_file.HDF5File._get_root_tag_name"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_get_root_tag_name()</span></code></a>.</p>
 <p>Implements backwards compatibility for different versions of the structure
 of files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.related_file_kind">
+<span class="sig-name descname"><span class="pre">related_file_kind</span></span><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.related_file_kind" title="Link to this definition"></a></dt>
+<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">FileKind</span></code> this product is
+reported as when it is attached to an error (see
+<a class="reference internal" href="#autowisp.hdf5_file.HDF5File.__enter__" title="autowisp.hdf5_file.HDF5File.__enter__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__enter__()</span></code></a>). <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) attaches nothing,
+so a product only participates once it declares its kind.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File._file_structure">
 <span class="sig-name descname"><span class="pre">_file_structure</span></span><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._file_structure" title="Link to this definition"></a></dt>
@@ -184,6 +212,43 @@ dataset.</p>
 <dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.__enter__">
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.__enter__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.__enter__" title="Link to this definition"></a></dt>
+<dd><p>Open the file <em>and</em> attach it to any error raised while open.</p>
+<p>Every pipeline product opened through a <code class="docutils literal notranslate"><span class="pre">with</span></code> block therefore
+names itself on errors raised below it, without each call site
+having to scope it explicitly. Files with no name on disk (the
+<code class="docutils literal notranslate"><span class="pre">memory_only</span></code> in-memory products) attach nothing.</p>
+<p>The scope is entered <em>before</em> delegating, so a failure in the
+underlying <code class="docutils literal notranslate"><span class="pre">__enter__</span></code> is covered too. Note this does not
+extend to the file <em>open</em> itself: <code class="docutils literal notranslate"><span class="pre">h5py.File</span></code> opens in the
+constructor, which runs before any of this (the open-failure path
+names the file in its <code class="docutils literal notranslate"><span class="pre">HDF5LayoutError</span></code> instead).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>This file. Returned as <code class="docutils literal notranslate"><span class="pre">self</span></code> rather than as</dt><dd><p>whatever <code class="docutils literal notranslate"><span class="pre">super().__enter__()</span></code> hands back (which is the
+same object) so static analysis keeps seeing the concrete
+product type instead of <code class="docutils literal notranslate"><span class="pre">h5py.File</span></code>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#autowisp.hdf5_file.HDF5File" title="autowisp.hdf5_file.HDF5File">HDF5File</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.__exit__">
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">exception</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.__exit__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.__exit__" title="Link to this definition"></a></dt>
+<dd><p>Close the file, then drop it from the ambient error context.</p>
+<p>The scope is released <em>after</em> the close so a failure while
+flushing or closing still carries the file it was closing.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -227,19 +292,25 @@ attribute parent is a group.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File._get_root_tag_name">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_root_tag_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._get_root_tag_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._get_root_tag_name" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_root_tag_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._get_root_tag_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._get_root_tag_name" title="Link to this definition"></a></dt>
 <dd><p>The name of the root tag in the layout configuration.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File._product">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_product</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._product" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_product</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._product" title="Link to this definition"></a></dt>
 <dd><p>The pipeline key of the product held in this type of HDF5 files.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File._release_error_scope">
+<span class="sig-name descname"><span class="pre">_release_error_scope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">exception</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._release_error_scope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._release_error_scope" title="Link to this definition"></a></dt>
+<dd><p>Exit the innermost error scope this file entered, if any.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File._replace_nonfinite">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_replace_nonfinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_nonfinite</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._replace_nonfinite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._replace_nonfinite" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_replace_nonfinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_nonfinite</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File._replace_nonfinite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File._replace_nonfinite" title="Link to this definition"></a></dt>
 <dd><p>Return (copy of) data with non-finite values replaced.</p>
 </dd></dl>
 
@@ -313,7 +384,7 @@ attribute. In the latter case the result is None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.add_dataset">
-<span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">if_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'overwrite'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unlimited</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.add_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.add_dataset" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">if_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'overwrite'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unlimited</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.add_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.add_dataset" title="Link to this definition"></a></dt>
 <dd><p>Adds a single dataset to self.</p>
 <p>If the target dataset already exists, it is deleted first and the
 name of the dataset is added to the root level Repack attribute.</p>
@@ -325,9 +396,9 @@ name of the dataset is added to the root level Repack attribute.</p>
 an appropriate data type or None if an empty dataset should be
 created.</p></li>
 <li><p><strong>if_exists</strong> – See same name argument to add_attribute.</p></li>
-<li><p><strong>unlimited</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Should the first dimension of the dataset be
+<li><p><strong>unlimited</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Should the first dimension of the dataset be
 unlimited (i.e. data can be added later)?</p></li>
-<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>,</em><em>...</em><em>)</em>) – The shape of the dataset to create if data
+<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>,</em><em>...</em><em>)</em>) – The shape of the dataset to create if data
 is None, otherwise the shape of the data is used. Just like if
 data is specified, the first dimension will be ignored if
 unlimited is True. It is an error to specify both data and
@@ -386,10 +457,10 @@ for how the value con be determined or None if the link was not
 created (not defined in current file structure).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.13)"><strong>IOError</strong></a> – if an object with the same name as the link exists,
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – if an object with the same name as the link exists,
     but is not a link or is a link, but does not point to the
     configured target and if_exists == ‘error’.</p>
 </dd>
@@ -415,9 +486,9 @@ path. Only required if must_exist == True.</p></li>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.13)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
     or does not identify a dataset.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.13)"><strong>IOError</strong></a> – If the dataset does not exist but the must_exist argument is
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the dataset does not exist but the must_exist argument is
     True.</p></li>
 </ul>
 </dd>
@@ -426,7 +497,7 @@ path. Only required if must_exist == True.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.collect_columns">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collect_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.collect_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.collect_columns" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collect_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.collect_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.collect_columns" title="Link to this definition"></a></dt>
 <dd><p>If dataset is 1D and name starts and ends as given, add to destination.</p>
 <p>This function is intended to be passed to h5py.Group.visititems() after
 fixing the first 3 arguments using functools.partial.</p>
@@ -436,11 +507,11 @@ fixing the first 3 arguments using functools.partial.</p>
 <li><p><strong>destination</strong> (<em>pandas.DataFrame</em>) – The DataFrame to add matching
 datasets to. Datasets are added with column names given by the
 part of the name between <cite>name_head</cite> and <cite>name_tail</cite>.</p></li>
-<li><p><strong>name_head</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Only datasets whose names start with this will be
+<li><p><strong>name_head</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Only datasets whose names start with this will be
 included.</p></li>
-<li><p><strong>name_tail</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Only datasets whose names end with this will be
+<li><p><strong>name_tail</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Only datasets whose names end with this will be
 included.</p></li>
-<li><p><strong>dset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the dataset.</p></li>
+<li><p><strong>dset_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name of the dataset.</p></li>
 <li><p><strong>values</strong> (<em>array-like</em>) – The values to potentially add as the new
 column.</p></li>
 </ul>
@@ -475,7 +546,7 @@ column.</p></li>
 <dd class="field-even"><p>Was a dataset actually deleted?</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>Error.HDF5</strong> – if an entry already exists at the target dataset’s location
@@ -510,14 +581,14 @@ which case an empty dataset is created.</p></li>
 <dd class="field-even"><p>Was the dataset actually created?</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>)</p>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.elements">
-<em class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elements</span></span><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.elements" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elements</span></span><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.elements" title="Link to this definition"></a></dt>
 <dd><p>Identifying strings for the recognized elements of the HDF5 file.</p>
 <p>Shoul be a dictionary-like object with values being a set of strings
 containing the identifiers of the HDF5 elements and keys:</p>
@@ -566,9 +637,9 @@ attribute rasies IOError.</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.13)"><strong>KeyError</strong></a> – If no attribute with the given key is defined in the current
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If no attribute with the given key is defined in the current
     files structure or if it does not correspond to an attribute.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.13)"><strong>IOError</strong></a> – If the requested dataset is not found and no default value was
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the requested dataset is not found and no default value was
     given.</p></li>
 </ul>
 </dd>
@@ -601,9 +672,9 @@ the HDF5 file.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.13)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the specified key is not in the currently set file structure
     or does not identify a dataset.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.13)"><strong>IOError</strong></a> – If the dataset does not exist, and no default_value was
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.14)"><strong>IOError</strong></a> – If the dataset does not exist, and no default_value was
     specified</p></li>
 </ul>
 </dd>
@@ -617,7 +688,8 @@ the HDF5 file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset_key</strong> – The key identifying the dataset to delete.</p></li>
+<li><p><strong>dataset_key</strong> – The key identifying the dataset to
+get creation args for.</p></li>
 <li><p><strong>path_substitutions</strong> – In theory the dataset creation arguments can
 depend on the full dataset path (c.f. srcextract.sources).</p></li>
 </ul>
@@ -627,7 +699,7 @@ depend on the full dataset path (c.f. srcextract.sources).</p></li>
 except: name, shape and data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,14 +729,14 @@ If none are given, the path is returned without substitutions.</p>
 <dd class="field-even"><p>A string giving the path the element does/will have in the file.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.get_element_type">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_element_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.get_element_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.get_element_type" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_element_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.get_element_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.get_element_type" title="Link to this definition"></a></dt>
 <dd><p>Return the type of HDF5 entry that corresponds to the given ID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -686,7 +758,7 @@ HDF5 file.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.get_file_structure">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.get_file_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.get_file_structure" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.get_file_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.get_file_structure" title="Link to this definition"></a></dt>
 <dd><p>Return the layout structure with the given version of the file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -706,14 +778,14 @@ same as version if version is not None.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>)</p>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.hdf5_class_string">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hdf5_class_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.hdf5_class_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.hdf5_class_string" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hdf5_class_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.hdf5_class_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.hdf5_class_string" title="Link to this definition"></a></dt>
 <dd><p>Return a string identifier of the given hdf5 class.</p>
 </dd></dl>
 
@@ -730,7 +802,8 @@ same as version if version is not None.</p>
 <p>The inverse of <a class="reference internal" href="#autowisp.hdf5_file.HDF5File.write_fitsheader_to_dataset" title="autowisp.hdf5_file.HDF5File.write_fitsheader_to_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write_fitsheader_to_dataset()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>h5dset</strong> – The dataset containing the header to read.</p>
+<dd class="field-odd"><p><strong>dataset_key</strong> – The key identifying the dataset
+containing the header.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The FITS header contained in the given dataset.</p>
@@ -741,6 +814,11 @@ same as version if version is not None.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">related_file_kind</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.hdf5_file.HDF5File.write_fitsheader_to_dataset">
 <span class="sig-name descname"><span class="pre">write_fitsheader_to_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitsheader</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/hdf5_file.html#HDF5File.write_fitsheader_to_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.hdf5_file.HDF5File.write_fitsheader_to_dataset" title="Link to this definition"></a></dt>
@@ -748,7 +826,7 @@ same as version if version is not None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The key identifying the dataset to add the
+<li><p><strong>dataset_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The key identifying the dataset to add the
 header to.</p></li>
 <li><p><strong>fitsheader</strong> (<em>fits.Header</em>) – The header to save.</p></li>
 <li><p><strong>kwargs</strong> – Passed directly to <a class="reference internal" href="#autowisp.hdf5_file.HDF5File._write_text_to_dataset" title="autowisp.hdf5_file.HDF5File._write_text_to_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_write_text_to_dataset()</span></code></a>.</p></li>

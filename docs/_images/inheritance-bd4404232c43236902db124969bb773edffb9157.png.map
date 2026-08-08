@@ -1,0 +1,5 @@
+<map id="inheritancea35f9709e3" name="inheritancea35f9709e3">
+<area shape="rect" id="node1" title="Base class for every AutoWISP&#45;raised exception." alt="" coords="13,5,247,32"/>
+<area shape="rect" id="node3" title="Failure in the orchestration layer (not &quot;the algorithm&quot;)." alt="" coords="21,80,239,107"/>
+<area shape="rect" id="node2" title="Invalid or inconsistent pipeline configuration." alt="" coords="5,155,255,181"/>
+</map>

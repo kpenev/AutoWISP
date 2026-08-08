@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -122,7 +142,7 @@
   <h1>Source code for autowisp.database.initialize_database</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 
-<span class="sd">&quot;&quot;&quot;Create all datbase tables and define default configuration.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Create all database tables and define default configuration.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -130,15 +150,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">configargparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">DefaultsFormatter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sql</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">delete</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">,</span> <span class="n">update</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">db_engine</span><span class="p">,</span> <span class="n">Session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_db_engine</span><span class="p">,</span>
+    <span class="n">start_db_session</span><span class="p">,</span>
+    <span class="n">initialize_cmdline_database</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModelBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaults</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_data_reduction_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_default_data_reduction_structure</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.initialize_light_curve_structure</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_default_light_curve_structure</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">processing_steps</span>
 
 <span class="c1"># false positive due to unusual importing</span>
@@ -148,244 +167,19 @@
     <span class="n">Step</span><span class="p">,</span>
     <span class="n">StepDependencies</span><span class="p">,</span>
     <span class="n">Parameter</span><span class="p">,</span>
+    <span class="n">AlternateParameterName</span><span class="p">,</span>
     <span class="n">Configuration</span><span class="p">,</span>
     <span class="n">Condition</span><span class="p">,</span>
     <span class="n">ConditionExpression</span><span class="p">,</span>
     <span class="n">ProcessingSequence</span><span class="p">,</span>
     <span class="n">MasterType</span><span class="p">,</span>
     <span class="n">InputMasterTypes</span><span class="p">,</span>
+    <span class="n">DiagnosticType</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-<span class="n">master_info</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;mask&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;CAMSN&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;master-mask&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;A bit mask indicating hot/dead/... bad pixels.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;zero&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;CAMSN&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;master-bias&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;OBS_SESN&quot;</span><span class="p">,)),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;An estimate of the zero level of a camera.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;dark&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;CAMSN&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;master-dark&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;OBS_SESN&quot;</span><span class="p">,)),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;An estimate of the dark current of a camera.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;highflat&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;CAMSN&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;INTSN&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;master-flat&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;stack_to_master_flat&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;OBS_SESN&quot;</span><span class="p">,)),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;An estimate of the relative sensitivity of image &quot;</span>
-        <span class="s2">&quot;pixels to light from infinity entering the telescope. Constructed from&quot;</span>
-        <span class="s2">&quot; flat frames with high (but not saturated) light.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;lowflat&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;CAMSN&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;INTSN&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;low-flat-master-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;stack_to_master_flat&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;OBS_SESN&quot;</span><span class="p">,)),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;An estimate of the relative sensitivity of image &quot;</span>
-        <span class="s2">&quot;pixels to light from infinity entering the telescope. Constructed from&quot;</span>
-        <span class="s2">&quot; flat frames with low light.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;single_photref&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;single-photref-dr-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;generate_epd_statistics&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;generate_tfa_statistics&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The reference image to use to start magnitude &quot;</span>
-        <span class="s2">&quot;fitting. Subsequently replaced by average of the corrected &quot;</span>
-        <span class="s2">&quot;brightnes of each star.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;master_photref&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;master-photref-dr-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The master photometric reference to use for magnitude &quot;</span>
-        <span class="s2">&quot;fitting if available.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;magfit_stat&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;magfit-stat-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The statistics file generated during magnitude fitting.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;magfit_catalog&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;magfit-catalog-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The catalog file generated during magnitude fitting.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;lightcurve_catalog&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;lightcurve-catalog-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;generate_epd_statistics&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;generate_tfa_statistics&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The catalog file generated for collecting lightcurves.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;epd_stat&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;epd-statistics-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The statistics file showing the performance after EPD.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;tfa_stat&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;must_match&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;FIELD&quot;</span><span class="p">,</span> <span class="s2">&quot;CLRCHNL&quot;</span><span class="p">,</span> <span class="s2">&quot;EXPTIME&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;config_name&quot;</span><span class="p">:</span> <span class="s2">&quot;tfa-statistics-fname&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;split_by&quot;</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(),</span>
-        <span class="s2">&quot;used_by&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The statistics file showing the performance after TFA.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-<span class="p">}</span>
-
-
-<span class="n">step_dependencies</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s2">&quot;add_images_to_db&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]),</span>
-    <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-    <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">)]),</span>
-    <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">)]),</span>
-    <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">)]),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;calibrate&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;stack_to_master_flat&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">)]),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;calibrate&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;zero&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;stack_to_master&quot;</span><span class="p">,</span> <span class="s2">&quot;dark&quot;</span><span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;find_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)]),</span>
-    <span class="p">(</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;find_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)]),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;fit_star_shape&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;measure_aperture_photometry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;fit_star_shape&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;fit_source_extracted_psf_map&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;find_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_star_shape&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;measure_aperture_photometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_source_extracted_psf_map&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_star_shape&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;measure_aperture_photometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_source_extracted_psf_map&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;calculate_photref_merit&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;calibrate&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;find_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;solve_astrometry&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_star_shape&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_source_extracted_psf_map&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;epd&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;generate_epd_statistics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;tfa&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;epd&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;generate_epd_statistics&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;fit_magnitudes&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;generate_tfa_statistics&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-        <span class="p">[(</span><span class="s2">&quot;create_lightcurves&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;tfa&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">)],</span>
-    <span class="p">),</span>
-<span class="p">]</span>
 
 
 <div class="viewcode-block" id="get_command_line_parser">
@@ -431,31 +225,6 @@
 
 
 
-<div class="viewcode-block" id="add_default_hdf5_structures">
-<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.add_default_hdf5_structures">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">add_default_hdf5_structures</span><span class="p">(</span><span class="n">data_reduction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">light_curve</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a default HDF5 structure to the database.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        data_reduction(bool):    Should the structure of data reduction files be</span>
-<span class="sd">            initialized?</span>
-
-<span class="sd">        light_curve(bool):    Should the structure of light curve files be</span>
-<span class="sd">            initialized?</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># False positivie</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
-        <span class="k">if</span> <span class="n">data_reduction</span><span class="p">:</span>
-            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">get_default_data_reduction_structure</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">light_curve</span><span class="p">:</span>
-            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">get_default_light_curve_structure</span><span class="p">(</span><span class="n">db_session</span><span class="p">))</span></div>
-
-
-
 <span class="c1"># This is meant to function as callable</span>
 <span class="c1"># pylint: disable=too-few-public-methods</span>
 <div class="viewcode-block" id="StepCreator">
@@ -468,10 +237,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get ready to add steps to the database.&quot;&quot;&quot;</span>
 
-        <span class="c1"># False positivie</span>
-        <span class="c1"># pylint: disable=no-member</span>
-        <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-            <span class="c1"># pylint: enable=no-member</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_step_id</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_parameters</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -523,6 +289,7 @@
                     <span class="s2">&quot;config-file&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;extra-config-file&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;split-channels&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;project-home&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-only-if&quot;</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-version&quot;</span><span class="p">)</span>
@@ -550,6 +317,17 @@
                     <span class="p">)</span>
                     <span class="c1"># pylint: enable=not-callable</span>
                     <span class="n">configuration</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+
+                    <span class="k">for</span> <span class="n">alt_name</span> <span class="ow">in</span> <span class="n">default_step_config</span><span class="p">[</span>
+                        <span class="s2">&quot;alternate_argument_names&quot;</span>
+                    <span class="p">][</span><span class="n">param</span><span class="p">]:</span>
+                        <span class="n">alt_name_entry</span> <span class="o">=</span> <span class="n">AlternateParameterName</span><span class="p">(</span>
+                            <span class="n">alt_name</span><span class="o">=</span><span class="n">alt_name</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_db_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">alternate_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">alt_name_entry</span>
+                        <span class="p">)</span>
+
                     <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">configuration</span><span class="p">)</span>
 
                 <span class="n">new_step</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_parameters</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
@@ -565,7 +343,7 @@
 
 <div class="viewcode-block" id="add_master_dependencies">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.add_master_dependencies">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">add_master_dependencies</span><span class="p">(</span><span class="n">db_session</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_master_dependencies</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">master_info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill the master_types table.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_imtype_id</span><span class="p">(</span><span class="n">imtype_name</span><span class="p">):</span>
@@ -622,7 +400,7 @@
                 <span class="n">next_condition_id</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">db_master_type</span> <span class="o">=</span> <span class="n">MasterType</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">master_type</span><span class="p">,</span>
-            <span class="n">condition_id</span><span class="o">=</span><span class="n">condition_ids</span><span class="p">[</span><span class="n">master_config</span><span class="p">[</span><span class="s2">&quot;must_match&quot;</span><span class="p">]],</span>
+            <span class="n">condition_id</span><span class="o">=</span><span class="n">condition_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">master_config</span><span class="p">[</span><span class="s2">&quot;must_match&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
             <span class="n">maker_step_id</span><span class="o">=</span><span class="p">(</span>
                 <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">master_config</span><span class="p">[</span><span class="s2">&quot;created_by&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -656,7 +434,7 @@
 <span class="c1"># pylint: disable=too-many-locals</span>
 <div class="viewcode-block" id="init_processing">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.init_processing">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">init_processing</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_processing</span><span class="p">(</span><span class="n">step_dependencies</span><span class="p">,</span> <span class="n">master_info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the tables controlling how processing is to be done.&quot;&quot;&quot;</span>
 
     <span class="n">image_type_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -669,10 +447,7 @@
 
     <span class="n">add_processing_step</span> <span class="o">=</span> <span class="n">StepCreator</span><span class="p">()</span>
 
-    <span class="c1"># False positivie</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">image_type_id</span><span class="p">,</span> <span class="n">image_type</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">image_type_list</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ImageType</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">image_type_id</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">image_type</span><span class="p">))</span>
         <span class="n">db_steps</span> <span class="o">=</span> <span class="p">{}</span>
@@ -694,7 +469,9 @@
                         <span class="p">),</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">for</span> <span class="n">required_step</span><span class="p">,</span> <span class="n">required_imtype</span> <span class="ow">in</span> <span class="n">dependencies</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dependency</span> <span class="ow">in</span> <span class="n">dependencies</span><span class="p">:</span>
+                <span class="n">required_step</span><span class="p">,</span> <span class="n">required_imtype</span> <span class="o">=</span> <span class="n">dependency</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">allow_pending</span> <span class="o">=</span> <span class="n">dependency</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dependency</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">False</span>
                 <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                     <span class="n">StepDependencies</span><span class="p">(</span>
                         <span class="n">blocked_step_id</span><span class="o">=</span><span class="n">db_steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
@@ -705,9 +482,10 @@
                             <span class="n">required_imtype</span>
                         <span class="p">)</span>
                         <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="n">allow_pending</span><span class="o">=</span><span class="n">allow_pending</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-        <span class="n">add_master_dependencies</span><span class="p">(</span><span class="n">db_session</span><span class="p">)</span></div>
+        <span class="n">add_master_dependencies</span><span class="p">(</span><span class="n">db_session</span><span class="p">,</span> <span class="n">master_info</span><span class="p">)</span></div>
 
 
 
@@ -721,11 +499,11 @@
 
     <span class="k">if</span> <span class="n">pattern</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">()</span>
-        <span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">db_engine</span><span class="p">)</span>
-        <span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="n">db_engine</span><span class="p">)</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">get_db_engine</span><span class="p">())</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span><span class="n">get_db_engine</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">(</span>
-            <span class="n">db_engine</span><span class="p">,</span>
+            <span class="n">get_db_engine</span><span class="p">(),</span>
             <span class="nb">filter</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">table</span><span class="p">:</span> <span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
                 <span class="nb">reversed</span><span class="p">(</span><span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">),</span>
@@ -734,32 +512,38 @@
 
 
 
-<div class="viewcode-block" id="_overwrite_defaults">
-<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._overwrite_defaults">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_overwrite_defaults</span><span class="p">(</span><span class="n">new_defaults</span><span class="p">):</span>
+<div class="viewcode-block" id="_overwrite_default_config">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._overwrite_default_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_overwrite_default_config</span><span class="p">(</span><span class="n">new_default_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Overwrite default values from what is defined in the steps.&quot;&quot;&quot;</span>
 
     <span class="n">db_conditions</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">db_expressions</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="c1"># False positivie</span>
-    <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">with</span> <span class="n">Session</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
-        <span class="c1"># pylint: enable=no-member</span>
-        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">all_values</span> <span class="ow">in</span> <span class="n">new_defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">all_values</span> <span class="ow">in</span> <span class="n">new_default_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">alternate</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">AlternateParameterName</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">alt_name</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">alternate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">param</span> <span class="o">=</span> <span class="n">alternate</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">name</span>
             <span class="n">param_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
                 <span class="n">select</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
             <span class="p">)</span>
+            <span class="k">assert</span> <span class="n">param_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Parameter </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> not found in DB&quot;</span>
             <span class="n">delete_default</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">for</span> <span class="n">condition_expressions</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">all_values</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">condition_expressions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                             <span class="n">update</span><span class="p">(</span><span class="n">Configuration</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">parameter_id</span> <span class="o">==</span> <span class="n">param_id</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="n">Configuration</span><span class="o">.</span><span class="n">parameter_id</span>  <span class="c1"># pylint: disable=no-member</span>
+                                <span class="o">==</span> <span class="n">param_id</span>
+                            <span class="p">)</span>
                             <span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
                         <span class="p">)</span><span class="o">.</span><span class="n">rowcount</span>
                         <span class="o">==</span> <span class="mi">1</span>
-                    <span class="p">)</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Failed to update default for </span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s2"> to </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span>
                     <span class="n">delete_default</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">condition_expressions</span><span class="p">:</span>
@@ -785,20 +569,25 @@
 
                     <span class="k">if</span> <span class="n">condition_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">condition_id</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
-                            <span class="n">select</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">Condition</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="n">select</span><span class="p">(</span>
+                                <span class="n">sql</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+                                    <span class="n">Condition</span><span class="o">.</span><span class="n">id</span>  <span class="c1"># pylint: disable=no-member</span>
+                                <span class="p">)</span>
+                                <span class="o">+</span> <span class="mi">1</span>
+                            <span class="p">)</span>
                         <span class="p">)</span>
                         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;New condition id: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">condition_id</span><span class="p">)</span>
 
                         <span class="k">for</span> <span class="n">expression_id</span> <span class="ow">in</span> <span class="n">expression_set</span><span class="p">:</span>
                             <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                                <span class="n">Condition</span><span class="p">(</span>
+                                <span class="n">Condition</span><span class="p">(</span>  <span class="c1"># pylint: disable=not-callable</span>
                                     <span class="nb">id</span><span class="o">=</span><span class="n">condition_id</span><span class="p">,</span> <span class="n">expression_id</span><span class="o">=</span><span class="n">expression_id</span>
                                 <span class="p">)</span>
                             <span class="p">)</span>
                             <span class="n">db_session</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
                         <span class="n">db_conditions</span><span class="p">[</span><span class="n">expression_set</span><span class="p">]</span> <span class="o">=</span> <span class="n">condition_id</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                        <span class="n">Configuration</span><span class="p">(</span>
+                        <span class="n">Configuration</span><span class="p">(</span>  <span class="c1"># pylint: disable=not-callable</span>
                             <span class="n">parameter_id</span><span class="o">=</span><span class="n">param_id</span><span class="p">,</span>
                             <span class="n">condition_id</span><span class="o">=</span><span class="n">condition_id</span><span class="p">,</span>
                             <span class="n">version</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -809,9 +598,12 @@
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="n">db_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                         <span class="n">delete</span><span class="p">(</span><span class="n">Configuration</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                            <span class="n">Configuration</span><span class="o">.</span><span class="n">parameter_id</span> <span class="o">==</span> <span class="n">param_id</span><span class="p">,</span>
-                            <span class="n">Configuration</span><span class="o">.</span><span class="n">condition_id</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span>
-                            <span class="n">Configuration</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+                            <span class="n">Configuration</span><span class="o">.</span><span class="n">parameter_id</span>  <span class="c1"># pylint: disable=no-member</span>
+                            <span class="o">==</span> <span class="n">param_id</span><span class="p">,</span>
+                            <span class="n">Configuration</span><span class="o">.</span><span class="n">condition_id</span>  <span class="c1"># pylint: disable=no-member</span>
+                            <span class="o">==</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="n">Configuration</span><span class="o">.</span><span class="n">version</span>  <span class="c1"># pylint: disable=no-member</span>
+                            <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">rowcount</span>
                     <span class="o">==</span> <span class="mi">1</span>
@@ -819,9 +611,115 @@
 
 
 
+<div class="viewcode-block" id="_init_diagnostic_types">
+<a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database._init_diagnostic_types">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_diagnostic_types</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-populate the diagnostic_names table with known diagnostics.&quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;num_extracted_src&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The number of extracted stars in the image&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;The smoothed source extraction </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> parameter &quot;</span>
+                    <span class="s2">&quot;at the center of the image&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_map_residual&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;RMS difference between source extraction </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="s2">&quot;and smoothed {param.upper()} map&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;bg_center&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The smoothed background level at the center of the image&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;bg_map_residual&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RMS difference between background and smoothed background &quot;</span>
+                    <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_center&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">descr</span><span class="si">}</span><span class="s2"> the center of the image according &quot;</span>
+                    <span class="s2">&quot;to the astrometric solution&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">descr</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="s2">&quot;ra&quot;</span><span class="p">,</span> <span class="s2">&quot;right ascension of&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;dec&quot;</span><span class="p">,</span> <span class="s2">&quot;declination of&quot;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;zenith distance of&quot;</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The mean angular distance from the image center to its &quot;</span>
+                    <span class="s2">&quot;four corners on the sky, used as a scale-independent &quot;</span>
+                    <span class="s2">&quot;measure of the field of view&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;pointing_offset&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The angular distance between the target and the center of &quot;</span>
+                    <span class="s2">&quot;the image according to the astrometric solution&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;matched_fraction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The fraction of extracted sources that were matched to &quot;</span>
+                    <span class="s2">&quot;the reference catalog&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;astrom_residual&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The RMS distance between matched extracted sources and &quot;</span>
+                    <span class="s2">&quot;their projected positions&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;srcextract_mag_zeropt&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The zeropoint of the transformation between source &quot;</span>
+                    <span class="s2">&quot;extraction flux and catalog magnitude (the magnitude &quot;</span>
+                    <span class="s2">&quot;corresponding to a flux of 1 ADU)&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;magfit_residual&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The RMS difference between best fit correction using the &quot;</span>
+                    <span class="s2">&quot;final master photometric reference.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;photometry_mag_offset&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The best-fit offset between the image magnitude and &quot;</span>
+                    <span class="s2">&quot;the reference magnitude in magnitude fit.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;mag_fit_num_stars&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;The number of stars used in the last magnitude fit &quot;</span>
+                    <span class="s2">&quot;iteration for this image&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">db_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">DiagnosticType</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">))</span></div>
+
+
+
 <div class="viewcode-block" id="initialize_database">
 <a class="viewcode-back" href="../../../implementation/autowisp.database.initialize_database.html#autowisp.database.initialize_database.initialize_database">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">initialize_database</span><span class="p">(</span><span class="n">cmdline_args</span><span class="p">,</span> <span class="n">overwrite_defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">initialize_database</span><span class="p">(</span>
+    <span class="n">cmdline_args</span><span class="p">,</span>
+    <span class="n">step_dependencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">master_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite_default_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the database as specified on the command line.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">drop_hdf5_structure_tables</span><span class="p">:</span>
@@ -829,14 +727,17 @@
     <span class="k">if</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">drop_all_tables</span><span class="p">:</span>
         <span class="n">drop_tables_matching</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;.*&quot;</span><span class="p">))</span>
 
-    <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">db_engine</span><span class="p">)</span>
-    <span class="n">add_default_hdf5_structures</span><span class="p">()</span>
+    <span class="n">DataModelBase</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">get_db_engine</span><span class="p">())</span>
+    <span class="n">initialize_cmdline_database</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cmdline_args</span><span class="o">.</span><span class="n">drop_all_tables</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="n">init_processing</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">overwrite_defaults</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">overwrite_defaults</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">init_processing</span><span class="p">(</span>
+        <span class="n">step_dependencies</span> <span class="ow">or</span> <span class="n">defaults</span><span class="o">.</span><span class="n">step_dependencies</span><span class="p">,</span>
+        <span class="n">master_info</span> <span class="ow">or</span> <span class="n">defaults</span><span class="o">.</span><span class="n">master_info</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">overwrite_default_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">overwrite_default_config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">param</span><span class="p">:</span> <span class="p">[((</span><span class="s2">&quot;False&quot;</span><span class="p">,),</span> <span class="kc">None</span><span class="p">)]</span>
             <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span>
                 <span class="s2">&quot;srcfind-tool&quot;</span><span class="p">,</span>
@@ -845,7 +746,8 @@
                 <span class="s2">&quot;srcextract-max-sources&quot;</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">}</span>
-    <span class="n">_overwrite_defaults</span><span class="p">(</span><span class="n">overwrite_defaults</span><span class="p">)</span></div>
+    <span class="n">_overwrite_default_config</span><span class="p">(</span><span class="n">overwrite_default_config</span><span class="p">)</span>
+    <span class="n">_init_diagnostic_types</span><span class="p">()</span></div>
 
 
 

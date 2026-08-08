@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bringing your own data &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Example: processing the test data one command line step at a time" href="test_data.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Bringing your own data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/bringing_your_own_data.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bringing-your-own-data">
+<h1>Bringing your own data<a class="headerlink" href="#bringing-your-own-data" title="Link to this heading"></a></h1>
+<p>The test data arrives with every decision already made for it: the images
+are sorted, the camera and lens it was taken with are described, and the
+settings that tell AutoWISP how to read the FITS headers were written by
+the people who produced it. Your own images come with none of that
+settled, and the pipeline cannot start until it is.</p>
+<p>There are four things to arrange, and they are worth doing in this order:</p>
+<ol class="arabic simple">
+<li><p>sort the images by what kind of frame each one is;</p></li>
+<li><p>describe the equipment that took them;</p></li>
+<li><p>tell AutoWISP how to find, in your headers, the handful of quantities
+it needs;</p></li>
+<li><p>decide which calibration frames you have, and what makes two frames
+similar enough to share a master.</p></li>
+</ol>
+<p>All of it is done through the browser interface, and the built-in
+tutorial (see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>) shows where each part lives. This page
+explains what the choices mean, which the tutorial does not stop to do.</p>
+<section id="sort-the-images-by-type">
+<h2>Sort the images by type<a class="headerlink" href="#sort-the-images-by-type" title="Link to this heading"></a></h2>
+<p>AutoWISP recognises four kinds of frame, and the simplest arrangement –
+the one the test data uses – is a directory per kind:</p>
+<ul class="simple">
+<li><p><strong>zero</strong> – bias frames: exposures as near zero length as the camera
+allows, measuring the level every pixel starts from before any light
+falls on it.</p></li>
+<li><p><strong>dark</strong> – exposures as long as your science frames but with no light
+reaching the detector, measuring the charge that collects in each pixel
+by itself.</p></li>
+<li><p><strong>flat</strong> – images of something as uniformly bright as you can manage,
+measuring how sensitive the system is to light arriving from each
+direction.</p></li>
+<li><p><strong>object</strong> – the images of the sky you actually want photometry from.</p></li>
+</ul>
+<p>Sorting them before you start is a great deal easier than untangling them
+afterwards. You do not have to sort them by hand, though. What decides an
+image’s type is <a class="reference internal" href="wisp_options.html#cmdoption-arg-image-type"><code class="xref std std-option docutils literal notranslate"><span class="pre">image-type</span></code></a>: an expression evaluated against the
+header, whose value is the name of one of the types above. If your camera
+records the kind of frame in a keyword, <code class="docutils literal notranslate"><span class="pre">IMAGETYP.lower()</span></code> is often all
+it takes.</p>
+<p>A single expression need not cover every case. Like any other setting,
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-image-type"><code class="xref std std-option docutils literal notranslate"><span class="pre">image-type</span></code></a> can be given different values under different
+conditions, so frames that have to be recognised by different means –
+one batch identified by a keyword, another by exposure length, a third by
+which directory it came from – can each get the expression that suits
+them.</p>
+<p>Whatever the expression produces is compared, in lower case, against the
+types the project actually has. Anything else is an error, on the
+principle that a frame nobody can identify is more likely to be a mistake
+in the expression than a frame worth skipping. Set
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-ignore-unknown-image-types"><code class="xref std std-option docutils literal notranslate"><span class="pre">ignore-unknown-image-types</span></code></a> if you would rather such frames were
+passed over quietly.</p>
+</section>
+<section id="describe-the-equipment">
+<h2>Describe the equipment<a class="headerlink" href="#describe-the-equipment" title="Link to this heading"></a></h2>
+<p>AutoWISP keeps a record of the instruments a project uses – the
+<strong>survey</strong> – and every image is tied to entries in it. This is what lets
+the pipeline tell two cameras apart when deciding which master bias
+belongs to which frame, and it is why a project will not accept images
+from hardware it has never been told about.</p>
+<p>The survey holds five kinds of entry: <strong>Cameras</strong>, <strong>Telescopes</strong>,
+<strong>Mounts</strong>, <strong>Observers</strong> and <strong>Observatories</strong>. Cameras, telescopes and
+mounts are described twice over: once as a model (make, model, focal
+length, pixel size and so forth) and then as one or more <strong>devices</strong> –
+the individual physical units, each with a serial number. The serial
+number is the part that matters most, because that is what your image
+headers are matched against.</p>
+<p>Despite the name, it need not be the manufacturer’s serial number, or a
+number at all. It is simply a label that tells one unit of a kind apart
+from the others in the project, and any string will do as long as it is
+unique among the devices of that kind and your headers can be made to
+produce it. If the real serial number is recorded in your images, using
+it saves inventing anything; if it is not – which is common – pick a
+name that means something to you.</p>
+<p>You can build the survey in the browser interface under <strong>Edit Survey</strong>,
+or write it as JSON and import it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">survey</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project</span><span class="o">/</span><span class="n">home</span> <span class="kn">import</span><span class="w"> </span><span class="o">-</span><span class="n">f</span> <span class="n">survey_instruments</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>The same command exports what a project already has, which is the easiest
+way to see the format and to copy a survey between projects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wisp</span><span class="o">-</span><span class="n">survey</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project</span><span class="o">/</span><span class="n">home</span> <span class="n">export</span> <span class="o">-</span><span class="n">f</span> <span class="n">survey_instruments</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>A camera entry additionally describes its <strong>channels</strong>. A monochrome
+detector has one; a colour sensor has one per colour in its filter
+mosaic, each defined by which pixels belong to it – an offset and a step
+in x and in y. Every stage of the pipeline runs on each channel
+separately, which is why results are labelled by channel throughout, and
+why a colour camera produces several light curves per star rather than
+one.</p>
+<p>If your images were taken with equipment whose serial number is not
+recorded anywhere in the header – which is common – give the device any
+serial number you like in the survey and have the expression in the next
+section produce that same string.</p>
+</section>
+<section id="tell-autowisp-how-to-read-your-headers">
+<h2>Tell AutoWISP how to read your headers<a class="headerlink" href="#tell-autowisp-how-to-read-your-headers" title="Link to this heading"></a></h2>
+<p>FITS headers agree on very little between one camera and the next, so
+AutoWISP does not assume keyword names. Instead each quantity it needs is
+configured as an expression evaluated against the header, and the
+defaults are simply the keywords that happened to suit the cameras it was
+first used with:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34.0%" />
+<col style="width: 66.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Default expression</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-camera-serial-number"><code class="xref std std-option docutils literal notranslate"><span class="pre">camera-serial-number</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CAMSN</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-telescope-serial-number"><code class="xref std std-option docutils literal notranslate"><span class="pre">telescope-serial-number</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">INTSN</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-mount-serial-number"><code class="xref std std-option docutils literal notranslate"><span class="pre">mount-serial-number</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OBSERVER</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-observer"><code class="xref std std-option docutils literal notranslate"><span class="pre">observer</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ORIGIN</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-observatory-location"><code class="xref std std-option docutils literal notranslate"><span class="pre">observatory-location</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LAT_OBS</span></code>, <code class="docutils literal notranslate"><span class="pre">LONG_OBS</span></code>, <code class="docutils literal notranslate"><span class="pre">ALT_OBS</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-target-ra"><code class="xref std std-option docutils literal notranslate"><span class="pre">target-ra</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RA_MNT</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-target-dec"><code class="xref std std-option docutils literal notranslate"><span class="pre">target-dec</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DEC_MNT</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-target-name"><code class="xref std std-option docutils literal notranslate"><span class="pre">target-name</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FIELD</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-exposure-start-utc"><code class="xref std std-option docutils literal notranslate"><span class="pre">exposure-start-utc</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DATE_OBS</span> <span class="pre">+</span> <span class="pre">&quot;T&quot;</span> <span class="pre">+</span> <span class="pre">TIME_OBS</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wisp_options.html#cmdoption-arg-exposure-seconds"><code class="xref std std-option docutils literal notranslate"><span class="pre">exposure-seconds</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EXPTIME</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>An expression is not limited to naming a keyword. It is ordinary Python
+evaluated with the header keywords as variables, so anything you can
+compute from them is available. These are all from a working project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exposure</span><span class="o">-</span><span class="n">start</span><span class="o">-</span><span class="n">utc</span> <span class="o">=</span> <span class="n">IMAGEID</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">mount</span><span class="o">-</span><span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="n">SEQID</span><span class="p">[</span><span class="n">SEQID</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;PAN&#39;</span><span class="p">):</span><span class="n">SEQID</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;PAN&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+<span class="n">observatory</span><span class="o">-</span><span class="n">location</span> <span class="o">=</span> <span class="p">[</span><span class="n">LAT_OBS</span><span class="p">,</span> <span class="n">LONG_OBS</span><span class="p">,</span> <span class="n">ELEV_OBS</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The first pulls a timestamp out of a compound identifier; the second digs
+a mount name out of the middle of a sequence identifier; the third is
+there only because that camera writes <code class="docutils literal notranslate"><span class="pre">ELEV_OBS</span></code> where the default
+expects <code class="docutils literal notranslate"><span class="pre">ALT_OBS</span></code>.</p>
+<p>The serial numbers and the observer are matched against the survey, and
+the values your expressions produce have to be entries that already
+exist. An observatory can be given by name instead
+(<a class="reference internal" href="wisp_options.html#cmdoption-arg-observatory"><code class="xref std std-option docutils literal notranslate"><span class="pre">observatory</span></code></a>), in which case the location is not consulted; if
+you go by location, the matching observatory has to be within about
+100 km.</p>
+<p>If you own one camera, one lens and one mount – much the commonest
+situation – there is nothing to tell apart and the matching has no work
+to do. You can switch it off by having the expression ignore the header
+and return a fixed string, which then only has to agree with the name you
+gave that device in the survey. In the browser interface, type the name
+into the field <em>with quotes around it</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;my camera&#39;</span>
+</pre></div>
+</div>
+<p>Writing it in a configuration file instead takes two sets of quotes, one
+of which is stripped when the file is read:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">camera</span><span class="o">-</span><span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="s2">&quot;&#39;my camera&#39;&quot;</span>
+</pre></div>
+</div>
+<p>The quotes are not decoration. These settings are expressions, not
+plain text, so a bare <code class="docutils literal notranslate"><span class="pre">my</span> <span class="pre">camera</span></code> is read as the name of a header
+keyword; no such keyword exists and evaluation fails. Quoted, it is a
+string, and the same string for every image.</p>
+<p>Getting these right is the fiddliest part of setting up a project, and
+the fastest way to do it is to open one of your own files and read its
+header before you start guessing.</p>
+</section>
+<section id="decide-which-calibrations-you-have">
+<h2>Decide which calibrations you have<a class="headerlink" href="#decide-which-calibrations-you-have" title="Link to this heading"></a></h2>
+<p>When a project is created you say which of the three calibration frame
+types you can supply. This is not merely a default that can be revisited
+later: the types you turn off are removed from the project altogether,
+along with the processing stages that would have produced them. A project
+created without flats has no flat image type and no flat master, and will
+not acquire them afterwards.</p>
+<p>Say no to all three and processing still works. The photometry will not
+be as good as it could have been, but for many applications – possibly
+most – collecting calibration data is impractical, and doing without is
+a perfectly ordinary way to use AutoWISP.</p>
+<p>For each type you keep, two lists of header expressions control how
+masters are matched to images, and they are easy to confuse:</p>
+<ul class="simple">
+<li><p><strong>split</strong> decides which frames are combined <em>into</em> one master. Frames
+differing in any of these expressions go into separate masters.
+Splitting the bias frames by observing session, for instance, gives one
+master bias per night rather than one for the whole campaign.</p></li>
+<li><p><strong>match</strong> decides which master is <em>applied to</em> a given image. A master
+is eligible for an image only if all of these expressions agree between
+them – the same camera and the same colour channel, typically.</p></li>
+</ul>
+<p>Both default to sensible choices and most projects never touch them. What
+they must not be is too narrow: split by something that varies from frame
+to frame and every master is built from a single image, which defeats the
+point of stacking.</p>
+<p>These choices, together, are what a project’s <code class="docutils literal notranslate"><span class="pre">master_config.json</span></code>
+records. The browser interface can export it from a project you have set
+up and load it into the next one, which saves repeating the whole
+exercise for every new project on the same instrument.</p>
+</section>
+<section id="registering-the-images">
+<h2>Registering the images<a class="headerlink" href="#registering-the-images" title="Link to this heading"></a></h2>
+<p>With the four decisions made, point the project at your images in the
+browser interface and import them: each file is read, classified, matched
+to its equipment, and recorded. From there processing proceeds exactly as
+the tutorial shows for the test data.</p>
+<p>Import a handful of frames first rather than the whole campaign. Nearly
+every mistake in this page’s subject matter surfaces on the first image
+– an expression naming a keyword that does not exist, a serial number
+with no matching device, two type checks true at once – and finding that
+out on ten images is quicker than on ten thousand.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="test_data.html" class="btn btn-neutral float-right" title="Example: processing the test data one command line step at a time" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

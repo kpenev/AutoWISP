@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -127,107 +147,16 @@
 <span id="autowisp-astrometry-package"></span><h1>autowisp.astrometry package<a class="headerlink" href="#module-autowisp.astrometry" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-ed67e05011f3b3976d1f9ecc1bd2bc14530fb32d.png" alt="Inheritance diagram of AnmatchTransformation, Transformation" usemap="#inheritance733cde2ebc" class="inheritance graphviz" /></div>
-<map id="inheritance733cde2ebc" name="inheritance733cde2ebc">
-<area shape="rect" id="node1" href="autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation" target="_top" title="A clas that applies transformations generated by anmatch." alt="" coords="5,5,431,32"/>
-<area shape="rect" id="node2" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="454,5,771,32"/>
+<div class="graphviz"><img src="../_images/inheritance-c61c108f959e1bde26eef6e789551cecbd34e828.png" alt="Inheritance diagram of Transformation" usemap="#inheritance82b2d5b1ca" class="inheritance graphviz" /></div>
+<map id="inheritance82b2d5b1ca" name="inheritance82b2d5b1ca">
+<area shape="rect" id="node1" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="5,5,322,32"/>
 </map><p>Module implementing the low-level astrometry.</p>
 </section>
 <dl class="py class">
-<dt class="sig sig-object py" id="autowisp.astrometry.AnmatchTransformation">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.</span></span><span class="sig-name descname"><span class="pre">AnmatchTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/anmatch_transformation.html#AnmatchTransformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.AnmatchTransformation" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-dd70cf837ed4e09a5d2780fa4dc2ef204690363f.png" alt="Inheritance diagram of autowisp.astrometry.AnmatchTransformation" usemap="#inheritanced484b9db2c" class="inheritance graphviz" /></div>
-<map id="inheritanced484b9db2c" name="inheritanced484b9db2c">
-<area shape="rect" id="node1" href="autowisp.astrometry.anmatch_transformation.html#autowisp.astrometry.anmatch_transformation.AnmatchTransformation" target="_top" title="A clas that applies transformations generated by anmatch." alt="" coords="5,5,431,32"/>
-</map><p>A clas that applies transformations generated by anmatch.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.astrometry.AnmatchTransformation.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_intermediate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/anmatch_transformation.html#AnmatchTransformation.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.AnmatchTransformation.__call__" title="Link to this definition"></a></dt>
-<dd><p>Return the x and y coordinates to which the given (ra, dec) project to.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sources</strong> – The sky position to project to frame coordinates. Should
-have keys named <cite>‘RA’</cite> and <cite>‘Dec’</cite> in degrees.</p></li>
-<li><p><strong>save_intermediate</strong> – Should the intermediate coordinates be saved.
-Those are the coordinates after apllying the sky projection and
-before applying the polynomial transformation.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The position in pixels relative to the lower left frame of the
-corner to which the given sky position projects under the
-currently defined transformation, as a numpy array with fields
-named <cite>‘x’</cite> and <cite>‘y’</cite>. If <cite>save_intermediate</cite> is True, the
-result also contains fields called <cite>‘xi’</cite> and <cite>‘eta’</cite> containing
-the intermediate coordinates.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.array(dtype=[(‘x’, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>), (‘y’, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>)])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.astrometry.AnmatchTransformation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/anmatch_transformation.html#AnmatchTransformation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.AnmatchTransformation.__init__" title="Link to this definition"></a></dt>
-<dd><p>Parse the transformation to apply from the given file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>trans_file</strong> – The transformation file contaning the transformation
-to apply. If this is the name of an existing file, it is opened
-and parsed, otherwise this should be a sequence of the lines
-contained in the transfomation file.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.astrometry.AnmatchTransformation.evaluate_polynomial">
-<span class="sig-name descname"><span class="pre">evaluate_polynomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/anmatch_transformation.html#AnmatchTransformation.evaluate_polynomial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.AnmatchTransformation.evaluate_polynomial" title="Link to this definition"></a></dt>
-<dd><p>Apply the currently defined polynomial transfomation to (xi, eta).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>projected</strong> – The projected (c.f. gnomonic_projection()) coordinates
-to transform. Should have <cite>‘xi’</cite> and <cite>‘eta’</cite> keys containing the
-projected coordinates to transform in degrees.</p></li>
-<li><p><strong>transformed</strong> – A numpy array with <cite>‘x’</cite> and <cite>‘y’</cite> fields to fill
-with the transformed coordinates (in pixels).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="autowisp.astrometry.AnmatchTransformation.read_anmatch_transformation">
-<span class="sig-name descname"><span class="pre">read_anmatch_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_lines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/anmatch_transformation.html#AnmatchTransformation.read_anmatch_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.AnmatchTransformation.read_anmatch_transformation" title="Link to this definition"></a></dt>
-<dd><p>Parse the transformation to apply from the given file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>trans_lines</strong> – A sequence of the individual lines of the trans file
-defining the transformation to apply.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="autowisp.astrometry.Transformation">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.</span></span><span class="sig-name descname"><span class="pre">Transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dr_path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/transformation.html#Transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.Transformation" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-c2b2f2074c4a9a39030dac2dcb659905d365b195.png" alt="Inheritance diagram of autowisp.astrometry.Transformation" usemap="#inheritance2514336cbd" class="inheritance graphviz" /></div>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.</span></span><span class="sig-name descname"><span class="pre">Transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dr_fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dr_path_substitutions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/transformation.html#Transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.Transformation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-6d33c1b2140b59bde029c4bf92093c4a340f749a.png" alt="Inheritance diagram of autowisp.astrometry.Transformation" usemap="#inheritance2514336cbd" class="inheritance graphviz" /></div>
 <map id="inheritance2514336cbd" name="inheritance2514336cbd">
 <area shape="rect" id="node1" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation" target="_top" title="A class that applies transformation stored in DR files." alt="" coords="5,5,322,32"/>
 </map><p>A class that applies transformation stored in DR files.</p>
@@ -266,10 +195,10 @@ pre-projected catalog -&gt; frame coordinates transformation.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sources</strong> (<em>structured numpy array</em><em> or </em><em>pandas.DataFrame</em>) – The
 catalogue sources to project.</p></li>
-<li><p><strong>save_intermediate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True, the result includes the
+<li><p><strong>save_intermediate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, the result includes the
 coordinate of the pre-projection, in addition to the final frame
 coordinates.</p></li>
-<li><p><strong>in_place</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True, the input <cite>sources</cite> are updated with the
+<li><p><strong>in_place</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, the input <cite>sources</cite> are updated with the
 projected coordinates (<cite>sources</cite> must allow setting entries for
 <cite>x</cite> and <cite>y</cite>  columns, also for <cite>xi</cite> and <cite>eta</cite> if
 <cite>save_intermediate</cite> is True).</p></li>
@@ -292,7 +221,7 @@ coordinates <cite>xi</cite> and <cite>eta</cite>. If <cite>in_place</cite> is Tr
 <dd><p>Prepare to apply the transformation stored in the given DR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dr_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename of the data reduction file to read a
+<dd class="field-odd"><p><strong>dr_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The filename of the data reduction file to read a
 transformation from. If not specified, read_transformation()
 must be called before using this class.</p>
 </dd>
@@ -304,7 +233,7 @@ must be called before using this class.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="autowisp.astrometry.Transformation._create_projected_arrays">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_create_projected_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_intermediate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/transformation.html#Transformation._create_projected_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.Transformation._create_projected_arrays" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_create_projected_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_intermediate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/transformation.html#Transformation._create_projected_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.Transformation._create_projected_arrays" title="Link to this definition"></a></dt>
 <dd><p>Create a numpy structured array to hold the projected sources.</p>
 </dd></dl>
 
@@ -351,6 +280,7 @@ must be called before using this class.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.TempAstrometryFiles.__init__"><code class="docutils literal notranslate"><span class="pre">TempAstrometryFiles.__init__()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry._ansvr_bash"><code class="docutils literal notranslate"><span class="pre">_ansvr_bash()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.create_config_file"><code class="docutils literal notranslate"><span class="pre">create_config_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.create_sources_file"><code class="docutils literal notranslate"><span class="pre">create_sources_file()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.estimate_transformation"><code class="docutils literal notranslate"><span class="pre">estimate_transformation()</span></code></a></li>
@@ -359,6 +289,7 @@ must be called before using this class.</p>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.get_initial_corr"><code class="docutils literal notranslate"><span class="pre">get_initial_corr()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.get_initial_corr_local"><code class="docutils literal notranslate"><span class="pre">get_initial_corr_local()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.get_initial_corr_web"><code class="docutils literal notranslate"><span class="pre">get_initial_corr_web()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.local_solver_available"><code class="docutils literal notranslate"><span class="pre">local_solver_available()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.refine_transformation"><code class="docutils literal notranslate"><span class="pre">refine_transformation()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.astrometry.html#autowisp.astrometry.astrometry.transformation_matrix"><code class="docutils literal notranslate"><span class="pre">transformation_matrix()</span></code></a></li>
 </ul>
@@ -422,6 +353,7 @@ must be called before using this class.</p>
 <li class="toctree-l3"><a class="reference internal" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.Transformation.set_transformation"><code class="docutils literal notranslate"><span class="pre">Transformation.set_transformation()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.compute_diagonal_fov"><code class="docutils literal notranslate"><span class="pre">compute_diagonal_fov()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.astrometry.transformation.html#autowisp.astrometry.transformation.parse_command_line"><code class="docutils literal notranslate"><span class="pre">parse_command_line()</span></code></a></li>
 </ul>

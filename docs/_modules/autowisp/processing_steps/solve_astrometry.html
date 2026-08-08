@@ -45,12 +45,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -72,23 +89,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../implementation/autowisp.html">autowisp package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../implementation/autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -126,17 +146,36 @@
 
 <span class="sd">&quot;&quot;&quot;Fit for a transformation between sky and image coordinates.&quot;&quot;&quot;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Lock</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">traceback</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_exc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">getpid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkyCoord</span><span class="p">,</span> <span class="n">EarthLocation</span><span class="p">,</span> <span class="n">AltAz</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.multiprocessing_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_context</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">capture_for_queue</span><span class="p">,</span>
+    <span class="n">decode_exit_signals</span><span class="p">,</span>
+    <span class="n">error_context</span><span class="p">,</span>
+    <span class="n">reraise_from_worker</span><span class="p">,</span>
+    <span class="n">forbid_nested_workers</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.error_cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli_entry_point</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Component</span><span class="p">,</span>
+    <span class="n">FileKind</span><span class="p">,</span>
+    <span class="n">RelatedFile</span><span class="p">,</span>
+    <span class="n">WorkerCrashedError</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.processing_steps.manual_util</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ManualStepArgumentParser</span><span class="p">,</span>
     <span class="n">ignore_progress</span><span class="p">,</span>
-    <span class="n">get_catalog_config</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.file_utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_dr_fnames</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -144,13 +183,31 @@
     <span class="n">refine_transformation</span><span class="p">,</span>
     <span class="n">Transformation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_catalog</span><span class="p">,</span> <span class="n">check_catalog_coverage</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.astrometry.transformation</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_diagonal_fov</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ensure_catalog</span><span class="p">,</span>
+    <span class="n">check_catalog_coverage</span><span class="p">,</span>
+    <span class="n">get_catalog_config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">select</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.data_reduction.data_reduction_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataReductionFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_db_session</span>
+
+<span class="c1"># False positive due to unusual importing</span>
+<span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservingSession</span><span class="p">,</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">autowisp.database.data_model.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Observatory</span>
+
+<span class="c1"># pylint: enable=no-name-in-module</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">input_type</span> <span class="o">=</span> <span class="s2">&quot;dr&quot;</span>
+<span class="c1">#: This step records only &quot;started&quot; before it finishes, so that is</span>
+<span class="c1">#: the only state an interrupted run can leave behind.</span>
+<span class="n">allowed_interrupted_status_values</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
 <span class="n">fail_reasons</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;failed to converge&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
     <span class="s2">&quot;few matched&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
@@ -169,7 +226,18 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--anet-indices&quot;</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;/data/anet_indices/narrow&quot;</span><span class="p">,</span> <span class="s2">&quot;/data/anet_indices/wide&quot;</span><span class="p">),</span>
+        <span class="n">env_var</span><span class="o">=</span><span class="s2">&quot;AUTOWISP_ANET_INDICES&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="sa">rf</span><span class="s2">&quot;C:\Users\</span><span class="si">{</span><span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">rf</span><span class="s2">&quot;\AppData\Local\cygwin_ansvr&quot;</span>
+                <span class="sa">rf</span><span class="s2">&quot;\usr\share\astrometry\data\narrow&quot;</span><span class="p">,</span>
+                <span class="sa">rf</span><span class="s2">&quot;C:\Users\</span><span class="si">{</span><span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">rf</span><span class="s2">&quot;\AppData\Local\cygwin_ansvr\usr\share\astrometry\data\wide&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span>
+            <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;/anet_indices/narrow&quot;</span><span class="p">,</span> <span class="s2">&quot;/anet_indices/wide&quot;</span><span class="p">)</span>
+        <span class="p">),</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Full paths to the narrow and wide astometry.net index files. If &quot;</span>
         <span class="s2">&quot;these directories are not found, the web solver is used instead.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -179,16 +247,6 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The astrometry.net API key to use if web solver is used to find &quot;</span>
         <span class="s2">&quot;initial match to catalog. You can get it by signing in to the web &quot;</span>
         <span class="s2">&quot;service and selecting ``Profile``.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--frame-center-estimate&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;RA * units.deg&quot;</span><span class="p">,</span> <span class="s2">&quot;DEC * units.deg&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The approximate right ascention and declination of the center of &quot;</span>
-        <span class="s2">&quot;the frame in degrees. Can be an expression involving header keywords. &quot;</span>
-        <span class="s2">&quot;If not specified, the center of the catalog is used (assuming the &quot;</span>
-        <span class="s2">&quot;catalog is not being generated on-the-fly).&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--frame-fov-estimate&quot;</span><span class="p">,</span>
@@ -338,7 +396,7 @@
 
 <div class="viewcode-block" id="save_trans_to_dr">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.save_trans_to_dr">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">save_trans_to_dr</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_trans_to_dr</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">trans_x</span><span class="p">,</span>
     <span class="n">trans_y</span><span class="p">,</span>
@@ -409,7 +467,7 @@
 <span class="c1"># TODO: Add catalog query configuration to DR</span>
 <div class="viewcode-block" id="save_to_dr">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.save_to_dr">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">save_to_dr</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_to_dr</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">cat_extracted_corr</span><span class="p">,</span>
     <span class="n">trans_x</span><span class="p">,</span>
@@ -478,7 +536,7 @@
 <div class="viewcode-block" id="transformation_from_raw">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.transformation_from_raw">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">transformation_from_raw</span><span class="p">(</span><span class="n">trans_x</span><span class="p">,</span> <span class="n">trans_y</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the transformation coefficients to pre-channel split coords.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the transformation coefficients from pre-channel split coords.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_place</span><span class="p">:</span>
         <span class="n">trans_x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">trans_x</span><span class="p">)</span>
@@ -522,7 +580,7 @@
 
 <div class="viewcode-block" id="find_final_transformation">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.find_final_transformation">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">find_final_transformation</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_final_transformation</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">header</span><span class="p">,</span> <span class="n">transformation_estimate</span><span class="p">,</span> <span class="n">xy_extracted</span><span class="p">,</span> <span class="n">web_lock</span><span class="p">,</span> <span class="n">configuration</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the final transformation for a given image.&quot;&quot;&quot;</span>
@@ -534,48 +592,66 @@
     <span class="n">frame_is_covered</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">project_to_frame</span> <span class="o">=</span> <span class="n">construct_transformation</span><span class="p">(</span><span class="n">transformation_estimate</span><span class="p">)</span>
     <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="ow">not</span> <span class="n">frame_is_covered</span><span class="p">:</span>
-        <span class="n">catalog</span><span class="p">,</span> <span class="n">catalog_header</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
-            <span class="n">transformation</span><span class="o">=</span><span class="n">project_to_frame</span><span class="p">,</span>
-            <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
-            <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;astrometry&quot;</span><span class="p">),</span>
-            <span class="n">lock</span><span class="o">=</span><span class="n">web_lock</span><span class="p">,</span>
-        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="p">(</span>
-            <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;trans_x&quot;</span><span class="p">],</span>
-            <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;trans_y&quot;</span><span class="p">],</span>
-            <span class="n">cat_extracted_corr</span><span class="p">,</span>
-            <span class="n">res_rms</span><span class="p">,</span>
-            <span class="n">ratio</span><span class="p">,</span>
-            <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;ra_cent&quot;</span><span class="p">],</span>
-            <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;dec_cent&quot;</span><span class="p">],</span>
-            <span class="n">success</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">=</span> <span class="n">refine_transformation</span><span class="p">(</span>
-            <span class="n">xy_extracted</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">,</span>
-            <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
-            <span class="n">x_frame</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">],</span>
-            <span class="n">y_frame</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">],</span>
-            <span class="n">astrometry_order</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;astrometry_order&quot;</span><span class="p">],</span>
-            <span class="n">max_srcmatch_distance</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_srcmatch_distance&quot;</span><span class="p">],</span>
-            <span class="n">max_iterations</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_astrom_iter&quot;</span><span class="p">],</span>
-            <span class="n">trans_threshold</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;trans_threshold&quot;</span><span class="p">],</span>
-            <span class="n">min_source_safety_factor</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;min_source_safety_factor&quot;</span><span class="p">],</span>
-            <span class="o">**</span><span class="n">transformation_estimate</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">project_to_frame</span> <span class="o">=</span> <span class="n">construct_transformation</span><span class="p">(</span><span class="n">transformation_estimate</span><span class="p">)</span>
-        <span class="n">frame_is_covered</span> <span class="o">=</span> <span class="n">check_catalog_coverage</span><span class="p">(</span>
-            <span class="n">header</span><span class="p">,</span>
-            <span class="n">project_to_frame</span><span class="p">,</span>
-            <span class="n">catalog_header</span><span class="p">,</span>
-            <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;astrometry_catalog_fov_safety_margin&quot;</span><span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">iteration</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;Attempting to ensure catalog coverage seems to be in an &quot;</span>
-                <span class="s2">&quot;infinite loop!&quot;</span>
+    <span class="c1"># Each pass may resolve a *different* catalog as the transformation is</span>
+    <span class="c1"># refined, and the coverage failure below is precisely a question of</span>
+    <span class="c1"># which ones were tried -- so the scopes accumulate rather than</span>
+    <span class="c1"># replacing one another, and every catalog used is named on the error.</span>
+    <span class="c1"># Repeats (the same catalog resolved twice) are merged out when the</span>
+    <span class="c1"># error is stamped.</span>
+    <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">catalog_scopes</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">frame_is_covered</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">catalog_header</span><span class="p">),</span> <span class="n">_</span><span class="p">,</span> <span class="n">catalog_fname</span> <span class="o">=</span> <span class="n">ensure_catalog</span><span class="p">(</span>
+                <span class="n">transformation</span><span class="o">=</span><span class="n">project_to_frame</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+                <span class="n">configuration</span><span class="o">=</span><span class="n">get_catalog_config</span><span class="p">(</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;astrometry&quot;</span><span class="p">),</span>
+                <span class="n">lock</span><span class="o">=</span><span class="n">web_lock</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="n">catalog_scopes</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
+                <span class="n">error_context</span><span class="p">(</span>
+                    <span class="n">related_files</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">RelatedFile</span><span class="p">(</span>
+                            <span class="n">FileKind</span><span class="o">.</span><span class="n">CATALOG</span><span class="p">,</span> <span class="n">catalog_fname</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;input&quot;</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="p">(</span>
+                <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;trans_x&quot;</span><span class="p">],</span>
+                <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;trans_y&quot;</span><span class="p">],</span>
+                <span class="n">cat_extracted_corr</span><span class="p">,</span>
+                <span class="n">res_rms</span><span class="p">,</span>
+                <span class="n">ratio</span><span class="p">,</span>
+                <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;ra_cent&quot;</span><span class="p">],</span>
+                <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;dec_cent&quot;</span><span class="p">],</span>
+                <span class="n">success</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">refine_transformation</span><span class="p">(</span>
+                <span class="n">xy_extracted</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">,</span>
+                <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
+                <span class="n">x_frame</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">],</span>
+                <span class="n">y_frame</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">],</span>
+                <span class="n">astrometry_order</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;astrometry_order&quot;</span><span class="p">],</span>
+                <span class="n">max_srcmatch_distance</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_srcmatch_distance&quot;</span><span class="p">],</span>
+                <span class="n">max_iterations</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;max_astrom_iter&quot;</span><span class="p">],</span>
+                <span class="n">trans_threshold</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;trans_threshold&quot;</span><span class="p">],</span>
+                <span class="n">min_source_safety_factor</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span>
+                    <span class="s2">&quot;min_source_safety_factor&quot;</span>
+                <span class="p">],</span>
+                <span class="o">**</span><span class="n">transformation_estimate</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">project_to_frame</span> <span class="o">=</span> <span class="n">construct_transformation</span><span class="p">(</span><span class="n">transformation_estimate</span><span class="p">)</span>
+            <span class="n">frame_is_covered</span> <span class="o">=</span> <span class="n">check_catalog_coverage</span><span class="p">(</span>
+                <span class="n">header</span><span class="p">,</span>
+                <span class="n">project_to_frame</span><span class="p">,</span>
+                <span class="n">catalog_header</span><span class="p">,</span>
+                <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;astrometry_catalog_fov_safety_margin&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">iteration</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Attempting to ensure catalog coverage seems to be in an &quot;</span>
+                    <span class="s2">&quot;infinite loop!&quot;</span>
+                <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">transformation_estimate</span><span class="p">,</span>
@@ -605,10 +681,145 @@
 
 
 
-<span class="c1"># pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="_compute_zenith_distance">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._compute_zenith_distance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_zenith_distance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">ra_cent</span><span class="p">,</span> <span class="n">dec_cent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the zenith distance of the image center (None if unavailable).&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">observatory</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Observatory</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ObservingSession</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OBSSSNID&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">EarthLocation</span><span class="p">(</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">observatory</span><span class="o">.</span><span class="n">latitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">observatory</span><span class="o">.</span><span class="n">longitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="n">observatory</span><span class="o">.</span><span class="n">altitude</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">obs_time</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;JD-OBS&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
+        <span class="n">source_coords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+            <span class="n">ra</span><span class="o">=</span><span class="n">ra_cent</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">dec</span><span class="o">=</span><span class="n">dec_cent</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">alt</span> <span class="o">=</span> <span class="n">source_coords</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span>
+            <span class="n">AltAz</span><span class="p">(</span><span class="n">obstime</span><span class="o">=</span><span class="n">obs_time</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">alt</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">alt</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot compute zenith distance.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_compute_pointing_offset">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._compute_pointing_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_pointing_offset</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">ra_cent</span><span class="p">,</span> <span class="n">dec_cent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return angular distance in degrees between target and image center.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">start_db_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_session</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">db_session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="n">select</span><span class="p">(</span><span class="n">Target</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ObservingSession</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ObservingSession</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;OBSSSNID&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ra</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">target</span><span class="o">.</span><span class="n">dec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+            <span class="n">ra</span><span class="o">=</span><span class="n">ra_cent</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">dec</span><span class="o">=</span><span class="n">dec_cent</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">target_coords</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span>
+            <span class="n">ra</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">ra</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">dec</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">dec</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;icrs&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">center</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">target_coords</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot compute pointing offset.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_compute_mag_zeropt">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._compute_mag_zeropt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_mag_zeropt</span><span class="p">(</span><span class="n">catalog</span><span class="p">,</span> <span class="n">cat_extracted_corr</span><span class="p">,</span> <span class="n">dr_file</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the source extraction magnitude zeropoint, or None.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="n">dr_file</span><span class="o">.</span><span class="n">get_sources</span><span class="p">(</span>
+            <span class="s2">&quot;srcextract.sources&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;srcextract_column_name&quot;</span><span class="p">,</span>
+            <span class="n">srcextract_version</span><span class="o">=</span><span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_version&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">cat_mags</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">&quot;magnitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">cat_extracted_corr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">ext_flux</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">cat_extracted_corr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">positive</span> <span class="o">=</span> <span class="n">ext_flux</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">positive</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">(</span>
+                <span class="n">cat_mags</span><span class="p">[</span><span class="n">positive</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ext_flux</span><span class="p">[</span><span class="n">positive</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot compute magnitude zeropoint.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="_collect_astrometry_diagnostics">
+<a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry._collect_astrometry_diagnostics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_astrometry_diagnostics</span><span class="p">(</span>
+    <span class="n">transformation_estimate</span><span class="p">,</span> <span class="n">solve_diagnostics</span><span class="p">,</span> <span class="n">header</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a list of (name, value) diagnostic tuples.&quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;ra_center&quot;</span><span class="p">,</span> <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;ra_cent&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;dec_center&quot;</span><span class="p">,</span> <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;dec_cent&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;matched_fraction&quot;</span><span class="p">,</span> <span class="n">solve_diagnostics</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="s2">&quot;astrom_residual&quot;</span><span class="p">,</span> <span class="n">solve_diagnostics</span><span class="p">[</span><span class="s2">&quot;rms&quot;</span><span class="p">]),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;diagonal_fov&quot;</span><span class="p">,</span>
+            <span class="n">compute_diagonal_fov</span><span class="p">(</span>
+                <span class="n">construct_transformation</span><span class="p">(</span><span class="n">transformation_estimate</span><span class="p">),</span> <span class="n">header</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">z_center</span> <span class="o">=</span> <span class="n">_compute_zenith_distance</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span>
+        <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;ra_cent&quot;</span><span class="p">],</span>
+        <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;dec_cent&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">z_center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;z_center&quot;</span><span class="p">,</span> <span class="n">z_center</span><span class="p">))</span>
+
+    <span class="n">pointing_offset</span> <span class="o">=</span> <span class="n">_compute_pointing_offset</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span>
+        <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;ra_cent&quot;</span><span class="p">],</span>
+        <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;dec_cent&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pointing_offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;pointing_offset&quot;</span><span class="p">,</span> <span class="n">pointing_offset</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="s2">&quot;mag_zeropt&quot;</span> <span class="ow">in</span> <span class="n">solve_diagnostics</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;srcextract_mag_zeropt&quot;</span><span class="p">,</span> <span class="n">solve_diagnostics</span><span class="p">[</span><span class="s2">&quot;mag_zeropt&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
 <div class="viewcode-block" id="solve_image">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.solve_image">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">solve_image</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_image</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="n">dr_fname</span><span class="p">,</span>
     <span class="n">transformation_estimate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -631,8 +842,8 @@
 <span class="sd">            ``solve_field`` from astrometry.net is used to find iniitial</span>
 <span class="sd">            estimates.</span>
 
-<span class="sd">        web_lock(multiprocessing.Lock):    A lock that is held hile a</span>
-<span class="sd">            catalog file is checked and/or created.</span>
+<span class="sd">        web_lock(multiprocessing.Lock):    A lock held while submitting a</span>
+<span class="sd">            plate-solve request to the astrometry.net web API.</span>
 
 <span class="sd">        mark_start(callable):    Called before anything is written to the DR</span>
 <span class="sd">            file if successful transformation is found.</span>
@@ -682,18 +893,7 @@
             <span class="n">dr_file</span><span class="p">,</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;srcextract_version&quot;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">transformation_estimate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">transformation_estimate</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">key</span><span class="p">:</span> <span class="n">dr_eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">expression</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s2">&quot;ra_cent&quot;</span><span class="p">,</span> <span class="s2">&quot;dec_cent&quot;</span><span class="p">],</span>
-                    <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;frame_center_estimate&quot;</span><span class="p">],</span>
-                <span class="p">)</span>
-            <span class="p">}</span>
-            <span class="p">(</span>
-                <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;trans_x&quot;</span><span class="p">],</span>
-                <span class="n">transformation_estimate</span><span class="p">[</span><span class="s2">&quot;trans_y&quot;</span><span class="p">],</span>
-                <span class="n">status</span><span class="p">,</span>
-            <span class="p">)</span> <span class="o">=</span> <span class="n">estimate_transformation</span><span class="p">(</span>
+            <span class="n">transformation_estimate</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">estimate_transformation</span><span class="p">(</span>
                 <span class="n">dr_file</span><span class="o">=</span><span class="n">dr_file</span><span class="p">,</span>
                 <span class="n">xy_extracted</span><span class="o">=</span><span class="n">xy_extracted</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="p">{</span>
@@ -703,9 +903,13 @@
                         <span class="n">fov_estimate</span> <span class="o">/</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;image_scale_factor&quot;</span><span class="p">],</span>
                         <span class="n">fov_estimate</span> <span class="o">*</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;image_scale_factor&quot;</span><span class="p">],</span>
                     <span class="p">),</span>
-                    <span class="s2">&quot;anet_indices&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;anet_indices&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;anet_indices&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="n">fname</span><span class="o">.</span><span class="n">format_map</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;anet_indices&quot;</span><span class="p">]</span>
+                    <span class="p">],</span>
                     <span class="s2">&quot;anet_api_key&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="s2">&quot;anet_api_key&quot;</span><span class="p">],</span>
-                    <span class="o">**</span><span class="n">transformation_estimate</span><span class="p">,</span>
+                    <span class="s2">&quot;x_cent&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS1&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="s2">&quot;y_cent&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;NAXIS2&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
                 <span class="n">web_lock</span><span class="o">=</span><span class="n">web_lock</span><span class="p">,</span>
@@ -739,6 +943,9 @@
                 <span class="n">xy_extracted</span><span class="p">,</span>
                 <span class="n">web_lock</span><span class="p">,</span>
                 <span class="n">configuration</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">diagnostics</span><span class="p">[</span><span class="s2">&quot;mag_zeropt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_compute_mag_zeropt</span><span class="p">(</span>
+                <span class="n">catalog</span><span class="p">,</span> <span class="n">cat_extracted_corr</span><span class="p">,</span> <span class="n">dr_file</span><span class="p">,</span> <span class="n">configuration</span>
             <span class="p">)</span>
         <span class="c1"># pylint: disable=bare-except</span>
         <span class="k">except</span><span class="p">:</span>
@@ -775,7 +982,14 @@
                     <span class="n">dr_file</span><span class="o">=</span><span class="n">dr_file</span><span class="p">,</span>
                     <span class="n">catalog</span><span class="o">=</span><span class="n">catalog</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">mark_end</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+                <span class="n">mark_end</span><span class="p">(</span>
+                    <span class="n">dr_fname</span><span class="p">,</span>
+                    <span class="n">diagnostics</span><span class="o">=</span><span class="n">_collect_astrometry_diagnostics</span><span class="p">(</span>
+                        <span class="n">transformation_estimate</span><span class="p">,</span>
+                        <span class="n">diagnostics</span><span class="p">,</span>
+                        <span class="n">header</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
                 <span class="n">result</span><span class="p">[</span><span class="s2">&quot;saved&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">transformation_to_raw</span><span class="p">(</span>
@@ -807,12 +1021,9 @@
 
 
 
-<span class="c1"># pylint: enable=too-many-locals</span>
-
-
 <div class="viewcode-block" id="astrometry_process">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.astrometry_process">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">astrometry_process</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">astrometry_process</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
     <span class="n">task_queue</span><span class="p">,</span>
     <span class="n">result_queue</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -826,8 +1037,12 @@
     <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;solve&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">configuration</span><span class="p">)</span>
     <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting astrometry solving process.&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">transformation_estimate</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">task_queue</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="s2">&quot;STOP&quot;</span><span class="p">):</span>
-        <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
-            <span class="n">solve_image</span><span class="p">(</span>
+        <span class="c1"># No explicit related-files scope: ``solve_image`` opens the DR as</span>
+        <span class="c1"># its first action and does everything inside that block, so the</span>
+        <span class="c1"># file attaches itself and travels out on the exception for</span>
+        <span class="c1"># ``capture_for_queue`` to stamp.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">solve_image</span><span class="p">(</span>
                 <span class="n">dr_fname</span><span class="p">,</span>
                 <span class="n">transformation_estimate</span><span class="p">,</span>
                 <span class="n">web_lock</span><span class="o">=</span><span class="n">web_lock</span><span class="p">,</span>
@@ -835,7 +1050,20 @@
                 <span class="n">mark_end</span><span class="o">=</span><span class="n">mark_end</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">configuration</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Unexpected exception solving astrometry for </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">dr_fname</span><span class="p">,</span>
+                <span class="n">format_exc</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">capture_for_queue</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">),</span>
+                    <span class="s2">&quot;dr_fname&quot;</span><span class="p">:</span> <span class="n">dr_fname</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Astrometry solving process finished.&quot;</span><span class="p">)</span></div>
 
 
@@ -867,7 +1095,9 @@
 <span class="c1"># pylint: disable=too-many-branches</span>
 <div class="viewcode-block" id="manage_astrometry">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.manage_astrometry">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">manage_astrometry</span><span class="p">(</span><span class="n">pending</span><span class="p">,</span> <span class="n">task_queue</span><span class="p">,</span> <span class="n">result_queue</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">manage_astrometry</span><span class="p">(</span>
+    <span class="n">pending</span><span class="p">,</span> <span class="n">task_queue</span><span class="p">,</span> <span class="n">result_queue</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="p">()</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Manege solving all frames until they solve or fail hopelessly.&quot;&quot;&quot;</span>
 
     <span class="n">num_queued</span> <span class="o">=</span> <span class="mi">0</span>
@@ -880,8 +1110,31 @@
     <span class="k">while</span> <span class="n">pending</span> <span class="ow">or</span> <span class="n">num_queued</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pending: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">pending</span><span class="p">))</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Number scheduled: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">num_queued</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># queue.Empty</span>
+                <span class="k">if</span> <span class="n">workers</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">):</span>
+                    <span class="c1"># The empty-queue timeout is control flow, not the</span>
+                    <span class="c1"># cause; the cause is the workers dying -&gt; ``from None``.</span>
+                    <span class="c1"># ``exit_signal`` matches the Scheme-A representation so a</span>
+                    <span class="c1"># crash report reads it the same way (SIGKILL/OOM vs. a</span>
+                    <span class="c1"># native crash, portably decoded).</span>
+                    <span class="k">raise</span> <span class="n">WorkerCrashedError</span><span class="p">(</span>
+                        <span class="s2">&quot;All astrometry worker processes died unexpectedly &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="n">num_queued</span><span class="si">}</span><span class="s2"> task(s) still in flight.&quot;</span><span class="p">,</span>
+                        <span class="n">details</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;exit_signal&quot;</span><span class="p">:</span> <span class="n">decode_exit_signals</span><span class="p">(</span>
+                                <span class="n">p</span><span class="o">.</span><span class="n">exitcode</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">workers</span>
+                            <span class="p">),</span>
+                            <span class="s2">&quot;num_in_flight&quot;</span><span class="p">:</span> <span class="n">num_queued</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="n">num_queued</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">reraise_from_worker</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="s2">&quot;raw_transformation&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;saved&quot;</span><span class="p">]:</span>
@@ -942,8 +1195,10 @@
     <span class="n">dr_collection</span><span class="p">,</span> <span class="n">start_status</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the (RA, Dec) -&gt; (x, y) transformation for the given DR files.&quot;&quot;&quot;</span>
-
-    <span class="k">assert</span> <span class="n">start_status</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="c1"># ``start_status`` is part of the signature the manager calls</span>
+    <span class="c1"># with; the values this step accepts are declared in</span>
+    <span class="c1"># ``allowed_start_status_values`` and checked there.</span>
+    <span class="c1"># pylint: disable=unused-argument</span>
 
     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
         <span class="s2">&quot;Solving astrometry for </span><span class="si">%d</span><span class="s2"> DR files with configuration </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -960,6 +1215,8 @@
             <span class="n">pending</span><span class="p">[</span><span class="n">reuse_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">dr_fname</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pending</span><span class="p">[</span><span class="n">reuse_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dr_fname</span><span class="p">)</span>
+
+    <span class="n">forbid_nested_workers</span><span class="p">()</span>
 
     <span class="n">task_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
     <span class="n">result_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
@@ -985,14 +1242,23 @@
         <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting astrometry on </span><span class="si">%d</span><span class="s2"> pending frame sets&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pending</span><span class="p">))</span>
 
-    <span class="n">manage_astrometry</span><span class="p">(</span><span class="n">pending</span><span class="p">,</span> <span class="n">task_queue</span><span class="p">,</span> <span class="n">result_queue</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">)</span>
-
-    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Stopping astrometry solving processes.&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
-        <span class="n">task_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;STOP&quot;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
-        <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">manage_astrometry</span><span class="p">(</span>
+            <span class="n">pending</span><span class="p">,</span> <span class="n">task_queue</span><span class="p">,</span> <span class="n">result_queue</span><span class="p">,</span> <span class="n">mark_start</span><span class="p">,</span> <span class="n">mark_end</span><span class="p">,</span> <span class="n">workers</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Stopping astrometry solving processes.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
+            <span class="n">task_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;STOP&quot;</span><span class="p">)</span>
+        <span class="c1"># Drain unread results while waiting for workers to exit so the pipe</span>
+        <span class="c1"># buffer does not fill up and prevent workers from stopping cleanly.</span>
+        <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># queue.Empty</span>
+                    <span class="k">pass</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
 
 
 
@@ -1001,9 +1267,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_interrupted</span><span class="p">(</span><span class="n">interrupted</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete any astrometry datasets left over from prior interrupted run.&quot;&quot;&quot;</span>
 
-    <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span>
-
+    <span class="k">for</span> <span class="n">dr_fname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">interrupted</span><span class="p">:</span>
         <span class="n">path_substitutions</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">substitution</span><span class="p">:</span> <span class="n">configuration</span><span class="p">[</span><span class="n">substitution</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">substitution</span> <span class="ow">in</span> <span class="p">[</span>
@@ -1043,11 +1307,12 @@
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../implementation/autowisp.processing_steps.solve_astrometry.html#autowisp.processing_steps.solve_astrometry.main">[docs]</a>
+<span class="nd">@cli_entry_point</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">Component</span><span class="o">.</span><span class="n">STEP</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the step from the command line.&quot;&quot;&quot;</span>
 
     <span class="n">cmdline_config</span> <span class="o">=</span> <span class="n">parse_command_line</span><span class="p">()</span>
-    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;manage&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
+    <span class="n">setup_process</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">cmdline_config</span><span class="p">)</span>
 
     <span class="n">solve_astrometry</span><span class="p">(</span>
         <span class="nb">list</span><span class="p">(</span>

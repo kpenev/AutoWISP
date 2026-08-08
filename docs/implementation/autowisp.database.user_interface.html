@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,37 +148,41 @@
 <span id="autowisp-database-user-interface-module"></span><h1>autowisp.database.user_interface module<a class="headerlink" href="#module-autowisp.database.user_interface" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-9d52f2bddb1ab52e62d70aa5da08ce8fb0e7058f.png" alt="Inheritance diagram of Camera, CameraChannel, CameraType, Condition, ConditionExpression, Configuration, DataReductionFile, Image, ImageProcessingProgress, ImageType, LightCurveProcessingProgress, MasterFile, MasterType, ObservingSession, Parameter, ProcessedImages, ProcessingSequence, Step" usemap="#inheritancea4d4b31f29" class="inheritance graphviz" /></div>
-<map id="inheritancea4d4b31f29" name="inheritancea4d4b31f29">
+<div class="graphviz"><img src="../_images/inheritance-d0aaf68770b6b1e31e5600a7874b490e6af58389.png" alt="Inheritance diagram of ArgumentParser, Camera, CameraChannel, CameraType, ColumnProperty, Condition, ConditionExpression, Configuration, ConfigurationError, DataReductionFile, DefaultsFormatter, Image, ImageProcessingProgress, ImageType, LightCurveProcessingProgress, MasterFile, MasterType, ObservingSession, Parameter, ProcessedImages, ProcessingSequence, Step, StepDependencies" usemap="#inheritance3167d79c55" class="inheritance graphviz" /></div>
+<map id="inheritance3167d79c55" name="inheritance3167d79c55">
 <area shape="rect" id="node1" href="https://docs.python.org/3/library/abc.html#abc.ABC" target="_top" title="Helper class that provides a standard way to create an ABC using" alt="" coords="112,453,186,480"/>
-<area shape="rect" id="node23" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
-<area shape="rect" id="node2" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
-<area shape="rect" id="node3" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
-<area shape="rect" id="node4" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="3805,229,4136,256"/>
-<area shape="rect" id="node6" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="534,304,850,331"/>
-<area shape="rect" id="node7" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="874,304,1326,331"/>
-<area shape="rect" id="node8" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="1349,304,1709,331"/>
-<area shape="rect" id="node9" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="1733,304,2013,331"/>
-<area shape="rect" id="node10" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="2037,304,2434,331"/>
-<area shape="rect" id="node11" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2458,304,2808,331"/>
-<area shape="rect" id="node12" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="2832,304,3173,331"/>
-<area shape="rect" id="node13" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="3197,304,3776,331"/>
-<area shape="rect" id="node14" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="3800,304,4141,331"/>
-<area shape="rect" id="node15" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4166,304,4514,331"/>
-<area shape="rect" id="node16" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4538,304,4961,331"/>
-<area shape="rect" id="node17" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="4985,304,5444,331"/>
-<area shape="rect" id="node18" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="5467,304,5836,331"/>
-<area shape="rect" id="node19" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="5861,304,6330,331"/>
-<area shape="rect" id="node20" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="6354,304,6784,331"/>
-<area shape="rect" id="node21" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="6808,304,7210,331"/>
-<area shape="rect" id="node22" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="7234,304,7603,331"/>
-<area shape="rect" id="node25" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="419,80,589,107"/>
-<area shape="rect" id="node29" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="423,155,584,181"/>
-<area shape="rect" id="node26" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="256,5,402,32"/>
-<area shape="rect" id="node27" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="426,5,582,32"/>
-<area shape="rect" id="node28" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="605,5,773,32"/>
-<area shape="rect" id="node30" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="288,229,496,256"/>
-<area shape="rect" id="node37" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="3918,5,4023,32"/>
+<area shape="rect" id="node29" href="autowisp.hdf5_file.html#autowisp.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="117,528,304,555"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentDefaultsHelpFormatter" target="_top" title="Help message formatter which adds default values to argument help." alt="" coords="1907,80,2170,107"/>
+<area shape="rect" id="node4" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" target="_top" title="Object for parsing command line strings into Python objects." alt="" coords="3312,5,3482,32"/>
+<area shape="rect" id="node5" href="autowisp.data_reduction.data_reduction_file.html#autowisp.data_reduction.data_reduction_file.DataReductionFile" target="_top" title="Interface for working with the pipeline data reduction (DR) files." alt="" coords="17,677,404,704"/>
+<area shape="rect" id="node6" href="autowisp.database.hdf5_file_structure.html#autowisp.database.hdf5_file_structure.HDF5FileDatabaseStructure" target="_top" title="HDF5 file with structure specified through the database." alt="" coords="5,603,416,629"/>
+<area shape="rect" id="node7" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="3824,304,4154,331"/>
+<area shape="rect" id="node11" href="autowisp.database.data_model.condition.html#autowisp.database.data_model.condition.Condition" target="_top" title="The table describing the Conditions for given configuration to apply." alt="" coords="368,379,685,405"/>
+<area shape="rect" id="node12" href="autowisp.database.data_model.condition_expression.html#autowisp.database.data_model.condition_expression.ConditionExpression" target="_top" title="The table describing the Condition Expressions" alt="" coords="709,379,1160,405"/>
+<area shape="rect" id="node13" href="autowisp.database.data_model.configuration.html#autowisp.database.data_model.configuration.Configuration" target="_top" title="Table recording the values of the pipeline configuration parameters." alt="" coords="1184,379,1544,405"/>
+<area shape="rect" id="node14" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.Image" target="_top" title="The table describing the image specified" alt="" coords="1568,379,1848,405"/>
+<area shape="rect" id="node15" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ImageProcessingProgress" target="_top" title="The table describing the Image Processing Progress" alt="" coords="1872,379,2269,405"/>
+<area shape="rect" id="node16" href="autowisp.database.data_model.image.html#autowisp.database.data_model.image.ProcessedImages" target="_top" title="The table describing the processed images/channels by each step." alt="" coords="2293,379,2642,405"/>
+<area shape="rect" id="node17" href="autowisp.database.data_model.image_type.html#autowisp.database.data_model.image_type.ImageType" target="_top" title="The table describing the different image types." alt="" coords="2667,379,3007,405"/>
+<area shape="rect" id="node18" href="autowisp.database.data_model.light_curve_processing_progress.html#autowisp.database.data_model.light_curve_processing_progress.LightCurveProcessingProgress" target="_top" title="The table describing the light curve processing progress" alt="" coords="3032,379,3611,405"/>
+<area shape="rect" id="node19" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterFile" target="_top" title="The table tracking master files generated and used by the pipeline." alt="" coords="3634,379,3976,405"/>
+<area shape="rect" id="node20" href="autowisp.database.data_model.master_files.html#autowisp.database.data_model.master_files.MasterType" target="_top" title="The table tracking the types of master files used by the pipeline." alt="" coords="4000,379,4349,405"/>
+<area shape="rect" id="node21" href="autowisp.database.data_model.observing_session.html#autowisp.database.data_model.observing_session.ObservingSession" target="_top" title="The table describing the observing session" alt="" coords="4372,379,4796,405"/>
+<area shape="rect" id="node22" href="autowisp.database.data_model.processing_sequence.html#autowisp.database.data_model.processing_sequence.ProcessingSequence" target="_top" title="The sequence of steps/image type to be processed by the pipeline." alt="" coords="4820,379,5278,405"/>
+<area shape="rect" id="node23" href="autowisp.database.data_model.provenance.camera.html#autowisp.database.data_model.provenance.camera.Camera" target="_top" title="The table describing the camera specified" alt="" coords="5302,379,5671,405"/>
+<area shape="rect" id="node24" href="autowisp.database.data_model.provenance.camera_channel.html#autowisp.database.data_model.provenance.camera_channel.CameraChannel" target="_top" title="The table describing each of the channels of a type of camera." alt="" coords="5696,379,6165,405"/>
+<area shape="rect" id="node25" href="autowisp.database.data_model.provenance.camera_type.html#autowisp.database.data_model.provenance.camera_type.CameraType" target="_top" title="The table describing the different &#160;camera types" alt="" coords="6189,379,6618,405"/>
+<area shape="rect" id="node26" href="autowisp.database.data_model.step_dependencies.html#autowisp.database.data_model.step_dependencies.StepDependencies" target="_top" title="The table describing the prerequisites for a step to run" alt="" coords="6643,379,7074,405"/>
+<area shape="rect" id="node27" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Parameter" target="_top" title="Table describing the configuration parameters needed by the pipeline." alt="" coords="7098,379,7499,405"/>
+<area shape="rect" id="node28" href="autowisp.database.data_model.steps_and_parameters.html#autowisp.database.data_model.steps_and_parameters.Step" target="_top" title="The table describing the processing steps constituting the pipeline" alt="" coords="7524,379,7892,405"/>
+<area shape="rect" id="node9" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="4007,229,4360,256"/>
+<area shape="rect" id="node34" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Collection" target="_top" title="collections.abc.Collection" alt="" coords="411,80,581,107"/>
+<area shape="rect" id="node38" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" target="_top" title="A Mapping is a generic container for associating key/value" alt="" coords="415,155,576,181"/>
+<area shape="rect" id="node35" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sized" target="_top" title="collections.abc.Sized" alt="" coords="248,5,394,32"/>
+<area shape="rect" id="node36" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" target="_top" title="collections.abc.Iterable" alt="" coords="418,5,574,32"/>
+<area shape="rect" id="node37" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Container" target="_top" title="collections.abc.Container" alt="" coords="597,5,765,32"/>
+<area shape="rect" id="node39" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" target="_top" title="A MutableMapping is a generic container for associating" alt="" coords="280,229,488,256"/>
+<area shape="rect" id="node48" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="4131,5,4236,32"/>
 </map><p>Define interface to the pipeline database.</p>
 </section>
 <dl class="py function">
@@ -205,7 +229,7 @@ specifies the value for the parameter .</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -223,9 +247,96 @@ specifies the value for the parameter .</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.add_camera_type_channels">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">add_camera_type_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_type_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#add_camera_type_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.add_camera_type_channels" title="Link to this definition"></a></dt>
+<dd><p>Add channels to the given camera type and return partial channel entries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>camera_type_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The ID of the camera type to which to add
+channels.</p></li>
+<li><p><strong>properties</strong> (<em>dict-like</em>) – The information being changed for the survey.
+For each channel to add there should be exactly two keywords:
+<code class="docutils literal notranslate"><span class="pre">&quot;channel-{channel_id}-name&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&quot;channel-{channel_id}-slice&quot;</span></code>. Where <code class="docutils literal notranslate"><span class="pre">{channel_id}</span></code> should be
+either an int specifying the identifier of the channel in the
+database or <code class="docutils literal notranslate"><span class="pre">&quot;new&quot;</span></code> specifying a new channel to add.
+<code class="docutils literal notranslate"><span class="pre">{channel_id}``entries</span> <span class="pre">should</span> <span class="pre">be</span> <span class="pre">unique</span> <span class="pre">(for</span> <span class="pre">example</span> <span class="pre">only</span> <span class="pre">one</span> <span class="pre">new</span>
+<span class="pre">channel</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">added).</span> <span class="pre">Channel</span> <span class="pre">slices</span> <span class="pre">have</span> <span class="pre">the</span> <span class="pre">format:</span>
+<span class="pre">``&quot;{x_offset}:{x_step};{y_offset}:{y_step}&quot;</span></code>. Anything not related
+to channels is ignored.</p></li>
+<li><p><strong>db_session</strong> – The database session to use for updating.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The channel ID and property (one of <code class="docutils literal notranslate"><span class="pre">&quot;name&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;slice&quot;</span></code>)
+which is not fully specified or is mal-formatted. If more than one,
+the one wit the lowest ID is returned. If the new channel is
+unspecified, the channel returned is <code class="docutils literal notranslate"><span class="pre">None</span></code>. If everything is
+fully specified <code class="docutils literal notranslate"><span class="pre">None,</span> <span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or None, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.apply_master_config">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">apply_master_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#apply_master_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.apply_master_config" title="Link to this definition"></a></dt>
+<dd><p>Apply user-supplied master settings to the default step / master info.</p>
+<p>This is the pure-Python core of what the BUI uses to take the user’s
+chosen master configuration and produce the <code class="docutils literal notranslate"><span class="pre">step_dependencies</span></code> /
+<code class="docutils literal notranslate"><span class="pre">master_info</span></code> arguments for
+<a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.initialize_database" title="autowisp.database.initialize_database.initialize_database"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.initialize_database.initialize_database()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>master_settings</strong> – <p>Mapping keyed by <code class="docutils literal notranslate"><span class="pre">&quot;master-&lt;type&gt;-&lt;param&gt;&quot;</span></code>,
+with values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;&lt;type&gt;-enabled&quot;</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;always&quot;</span></code> or an int-as-string
+(<code class="docutils literal notranslate"><span class="pre">&quot;0&quot;</span></code> to disable, <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code> to enable).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;&lt;type&gt;-split&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;&lt;type&gt;-match&quot;</span></code>: iterables of header
+expressions.</p></li>
+</ul>
+<p>Both plain <code class="docutils literal notranslate"><span class="pre">dict</span></code> and Django <code class="docutils literal notranslate"><span class="pre">QueryDict</span></code> are accepted; the
+list-valued keys are read via <code class="docutils literal notranslate"><span class="pre">.getlist(...)</span></code> when available
+and otherwise via <code class="docutils literal notranslate"><span class="pre">mapping[key]</span></code>.</p>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>deep copies of the
+<code class="docutils literal notranslate"><span class="pre">database.defaults</span></code> values with disabled masters pruned and the
+<code class="docutils literal notranslate"><span class="pre">must_match</span></code> / <code class="docutils literal notranslate"><span class="pre">split_by</span></code> sets replaced from <code class="docutils literal notranslate"><span class="pre">master_settings</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of (step_dependencies, master_info)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.export_survey_to_json">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">export_survey_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">limit_to</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#export_survey_to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.export_survey_to_json" title="Link to this definition"></a></dt>
+<dd><p>Create JSON file storing selected survey information.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.user_interface.get_db_configuration">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">get_db_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_version_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#get_db_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.get_db_configuration" title="Link to this definition"></a></dt>
 <dd><p>Return list of Configuration instances given version.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.get_editable_attributes">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">get_editable_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#get_editable_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.get_editable_attributes" title="Link to this definition"></a></dt>
+<dd><p>List the user-editable attributes for the given component DB class.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.get_human_name">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">get_human_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#get_human_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.get_human_name" title="Link to this definition"></a></dt>
+<dd><p>Return human friendly name for the given column.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -236,10 +347,17 @@ specifies the value for the parameter .</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.user_interface.get_processing_sequence">
-<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">get_processing_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#get_processing_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.get_processing_sequence" title="Link to this definition"></a></dt>
-<dd><p>Return the sequence of steps in the pipeline.</p>
-<p>For image processing this will be a sequence of step/image type pairs, and
-for lightcurves it will just be a sequence of steps.</p>
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">get_processing_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lc_postprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#get_processing_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.get_processing_sequence" title="Link to this definition"></a></dt>
+<dd><p>Return the sequence of (step, image type) the pipeline can run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_session</strong> – The database session to issue queries.</p></li>
+<li><p><strong>no_lc_postprocessing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If True, any steps which are blocked by
+<code class="docutils literal notranslate"><span class="pre">create_lightcurves</span></code> are not included.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -278,7 +396,7 @@ flagged as in final state for the given step.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -287,6 +405,12 @@ flagged as in final state for the given step.</p>
 <dt class="sig sig-object py" id="autowisp.database.user_interface.get_progress_lightcurves">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">get_progress_lightcurves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_type_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#get_progress_lightcurves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.get_progress_lightcurves" title="Link to this definition"></a></dt>
 <dd><p>Same as <cite>get_progress_images()</cite> but for lightcurve steps.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.import_json_to_survey">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">import_json_to_survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#import_json_to_survey"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.import_json_to_survey" title="Link to this definition"></a></dt>
+<dd><p>Add to the survey configuration from given JSON encoding string.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -304,13 +428,91 @@ flagged as in final state for the given step.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.user_interface.main">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.main" title="Link to this definition"></a></dt>
-<dd><p>Avoid polluting the global namespace.</p>
+<dd><p>Run the import or export action specified on the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.master_config_json_to_settings">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">master_config_json_to_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#master_config_json_to_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.master_config_json_to_settings" title="Link to this definition"></a></dt>
+<dd><p>Translate a <code class="docutils literal notranslate"><span class="pre">master_config.json</span></code> structure into master settings.</p>
+<p>The JSON has the shape
+<code class="docutils literal notranslate"><span class="pre">{master_type:</span> <span class="pre">{&quot;enabled&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;split&quot;:</span> <span class="pre">[...],</span> <span class="pre">&quot;match&quot;:</span> <span class="pre">[...]},</span> <span class="pre">...}</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">master_type</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;zero&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;dark&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;flat&quot;</span></code>, etc. The
+returned mapping uses <code class="docutils literal notranslate"><span class="pre">&quot;master-&lt;type&gt;-&lt;param&gt;&quot;</span></code> keys for every
+<code class="docutils literal notranslate"><span class="pre">(type,</span> <span class="pre">param)</span></code> pair iterated over by the BUI – <code class="docutils literal notranslate"><span class="pre">master_info</span></code> is
+the canonical iteration order, with both <code class="docutils literal notranslate"><span class="pre">highflat</span></code> and <code class="docutils literal notranslate"><span class="pre">lowflat</span></code>
+collapsed onto <code class="docutils literal notranslate"><span class="pre">flat</span></code> so the keys produced here match what the BUI’s
+session storage uses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_obj</strong> – The result of <code class="docutils literal notranslate"><span class="pre">json.load(...)</span></code> on a master-config file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Suitable as <code class="docutils literal notranslate"><span class="pre">master_settings</span></code> for
+<a class="reference internal" href="#autowisp.database.user_interface.apply_master_config" title="autowisp.database.user_interface.apply_master_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_master_config()</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.parse_command_line">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">parse_command_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#parse_command_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.parse_command_line" title="Link to this definition"></a></dt>
+<dd><p>Return the parsed command line configuration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.parse_config_overwrites">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">parse_config_overwrites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#parse_config_overwrites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.parse_config_overwrites" title="Link to this definition"></a></dt>
+<dd><p>Parse plain-text configuration lines into an overwrites dict.</p>
+<p>Each non-blank, non-comment, non-section line is parsed as <code class="docutils literal notranslate"><span class="pre">key</span></code> or
+<code class="docutils literal notranslate"><span class="pre">key</span> <span class="pre">=</span> <span class="pre">value</span></code> (<code class="docutils literal notranslate"><span class="pre">:</span></code> is also accepted as the separator). Trailing
+<code class="docutils literal notranslate"><span class="pre">#</span></code> comments are stripped. <code class="docutils literal notranslate"><span class="pre">;</span></code> is <em>not</em> a comment marker –
+semicolons in unquoted values are preserved as data. Quoted values
+keep their inner content (the surrounding quotes are removed).
+Section headers (<code class="docutils literal notranslate"><span class="pre">[name]</span></code>) and blank lines are skipped.</p>
+<p>Keys that are never valid as DB parameter overrides are silently
+dropped, mirroring what the BUI’s
+<code class="docutils literal notranslate"><span class="pre">static/home/js/create.project.js</span></code> does before populating the
+textarea: <code class="docutils literal notranslate"><span class="pre">project-home</span></code> (the project directory itself) and
+<code class="docutils literal notranslate"><span class="pre">split-channels</span></code> (generated from camera information). The list is
+a subset of what
+<a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.StepCreator" title="autowisp.database.initialize_database.StepCreator"><code class="xref py py-class docutils literal notranslate"><span class="pre">autowisp.database.initialize_database.StepCreator</span></code></a> already
+refuses to insert as a Parameter row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lines</strong> – Iterable of strings, one per config line. Trailing
+newlines are tolerated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Suitable for the <code class="docutils literal notranslate"><span class="pre">overwrite_default_config</span></code> argument of
+<a class="reference internal" href="autowisp.database.initialize_database.html#autowisp.database.initialize_database.initialize_database" title="autowisp.database.initialize_database.initialize_database"><code class="xref py py-func docutils literal notranslate"><span class="pre">autowisp.database.initialize_database.initialize_database()</span></code></a>.
+Keys without a value are stored as <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[None, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.plural">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">plural</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#plural"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.plural" title="Link to this definition"></a></dt>
+<dd><p>Mostly working pluralization.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="autowisp.database.user_interface.save_json_config">
 <span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">save_json_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#save_json_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.save_json_config" title="Link to this definition"></a></dt>
 <dd><p>Save configuration provided in JSON format to the database.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="autowisp.database.user_interface.update_db_entry">
+<span class="sig-prename descclassname"><span class="pre">autowisp.database.user_interface.</span></span><span class="sig-name descname"><span class="pre">update_db_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/database/user_interface.html#update_db_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.database.user_interface.update_db_entry" title="Link to this definition"></a></dt>
+<dd><p>Add/update a survey component or type, return its ID and what to autofocus.</p>
 </dd></dl>
 
 </section>

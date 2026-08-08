@@ -48,12 +48,29 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the Tests (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example Usage: Processing the test data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end),-enter-it,-and-get-its-path">Create a temporary directory to work in (remember to delete it at the end), enter it, and get its path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
@@ -75,23 +92,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../processing_steps.html">Pipeline Steps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#split-raw-frames-by-type">Split Raw Frames by Type:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#image-calibration">1. Image Calibration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#find-stars">2. Find Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#astrometry">3. Astrometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#prf-psf-fitting">4. PRF/PSF Fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#aperture-photometry">5. Aperture Photometry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#fit-psf-map-to-extracted-stars">6. Fit PSF Map to Extracted Stars</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#magnitude-fitting">7. Magnitude fitting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#creating-lightcurves">8. Creating Lightcurves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#external-parameter-decorrelation-epd">9. External Parameter Decorrelation (EPD)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../processing_steps.html#trend-filtering-algorithm-tfa">10. Trend Filtering Algorithm (TFA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../wisp_options.html">Configuration Options</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="autowisp.html">autowisp package</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="autowisp.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="autowisp.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autowisp.html#submodules">Submodules</a></li>
 </ul>
@@ -128,26 +148,26 @@
 <span id="autowisp-astrometry-astrometry-net-client-module"></span><h1>autowisp.astrometry.astrometry_net_client module<a class="headerlink" href="#module-autowisp.astrometry.astrometry_net_client" title="Link to this heading"></a></h1>
 <section id="class-inheritance-diagram">
 <h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading"></a></h2>
-<div class="graphviz"><img src="../_images/inheritance-79ae6b4cbdb43167f8d1c556e4e0461c92d27ff2.png" alt="Inheritance diagram of Client, HTTPError, MIMEApplication, MIMEBase, MIMEMultipart, MalformedResponse, Request, RequestError, URLError" usemap="#inheritance500495080a" class="inheritance graphviz" /></div>
-<map id="inheritance500495080a" name="inheritance500495080a">
+<div class="graphviz"><img src="../_images/inheritance-73e2f033e98f120d4e64b1a7863e60fdb3aadd63.png" alt="Inheritance diagram of Client, HTTPError, MIMEApplication, MIMEBase, MIMEMultipart, MalformedResponse, Request, RequestError, SolveAstrometryError, URLError" usemap="#inheritancef801be5d7b" class="inheritance graphviz" /></div>
+<map id="inheritancef801be5d7b" name="inheritancef801be5d7b">
 <area shape="rect" id="node1" href="#autowisp.astrometry.astrometry_net_client.Client" target="_top" title="autowisp.astrometry.astrometry_net_client.Client" alt="" coords="5,5,311,32"/>
-<area shape="rect" id="node2" href="#autowisp.astrometry.astrometry_net_client.MalformedResponse" target="_top" title="autowisp.astrometry.astrometry_net_client.MalformedResponse" alt="" coords="334,5,726,32"/>
-<area shape="rect" id="node3" href="#autowisp.astrometry.astrometry_net_client.RequestError" target="_top" title="autowisp.astrometry.astrometry_net_client.RequestError" alt="" coords="749,5,1098,32"/>
-<area shape="rect" id="node4" href="https://docs.python.org/3/library/email.compat32-message.html#email.message.Message" target="_top" title="Basic message object." alt="" coords="1122,5,1288,32"/>
-<area shape="rect" id="node7" href="https://docs.python.org/3/library/email.mime.html#email.mime.base.MIMEBase" target="_top" title="Base class for MIME specializations." alt="" coords="1110,80,1299,107"/>
-<area shape="rect" id="node5" href="https://docs.python.org/3/library/email.mime.html#email.mime.application.MIMEApplication" target="_top" title="Class for generating application/* MIME documents." alt="" coords="937,229,1195,256"/>
-<area shape="rect" id="node6" href="https://docs.python.org/3/library/email.mime.html#email.mime.nonmultipart.MIMENonMultipart" target="_top" title="Base class for MIME non&#45;multipart type messages." alt="" coords="928,155,1204,181"/>
-<area shape="rect" id="node8" href="https://docs.python.org/3/library/email.mime.html#email.mime.multipart.MIMEMultipart" target="_top" title="Base class for MIME multipart/* type messages." alt="" coords="1228,155,1459,181"/>
-<area shape="rect" id="node9" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.HTTPError" target="_top" title="Raised when HTTP error occurs, but also acts like non&#45;error return" alt="" coords="1567,229,1712,256"/>
-<area shape="rect" id="node10" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" target="_top" title="urllib.error.URLError" alt="" coords="1483,155,1620,181"/>
-<area shape="rect" id="node11" href="https://docs.python.org/3/library/urllib.request.html#urllib.response.addinfourl" target="_top" title="class to add info() and geturl() methods to an open file." alt="" coords="1645,155,1810,181"/>
-<area shape="rect" id="node12" href="https://docs.python.org/3/library/urllib.request.html#urllib.request.Request" target="_top" title="urllib.request.Request" alt="" coords="1830,5,1979,32"/>
+<area shape="rect" id="node2" href="#autowisp.astrometry.astrometry_net_client.MalformedResponse" target="_top" title="The astrometry.net server returned an unparseable response." alt="" coords="58,229,450,256"/>
+<area shape="rect" id="node4" href="#autowisp.astrometry.astrometry_net_client.RequestError" target="_top" title="The astrometry.net server reported an error for a request." alt="" coords="473,229,822,256"/>
+<area shape="rect" id="node7" href="https://docs.python.org/3/library/email.compat32-message.html#email.message.Message" target="_top" title="Basic message object." alt="" coords="1030,5,1196,32"/>
+<area shape="rect" id="node10" href="https://docs.python.org/3/library/email.mime.html#email.mime.base.MIMEBase" target="_top" title="Base class for MIME specializations." alt="" coords="1018,80,1207,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/email.mime.html#email.mime.application.MIMEApplication" target="_top" title="Class for generating application/* MIME documents." alt="" coords="845,229,1103,256"/>
+<area shape="rect" id="node9" href="https://docs.python.org/3/library/email.mime.html#email.mime.nonmultipart.MIMENonMultipart" target="_top" title="Base class for MIME non&#45;multipart type messages." alt="" coords="836,155,1112,181"/>
+<area shape="rect" id="node11" href="https://docs.python.org/3/library/email.mime.html#email.mime.multipart.MIMEMultipart" target="_top" title="Base class for MIME multipart/* type messages." alt="" coords="1136,155,1367,181"/>
+<area shape="rect" id="node12" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.HTTPError" target="_top" title="Raised when HTTP error occurs, but also acts like non&#45;error return" alt="" coords="1475,229,1620,256"/>
+<area shape="rect" id="node13" href="https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError" target="_top" title="urllib.error.URLError" alt="" coords="1391,155,1528,181"/>
+<area shape="rect" id="node14" href="https://docs.python.org/3/library/urllib.request.html#urllib.response.addinfourl" target="_top" title="class to add info() and geturl() methods to an open file." alt="" coords="1553,155,1718,181"/>
+<area shape="rect" id="node15" href="https://docs.python.org/3/library/urllib.request.html#urllib.request.Request" target="_top" title="urllib.request.Request" alt="" coords="1738,5,1887,32"/>
 </map></section>
 <dl class="py class">
 <dt class="sig sig-object py" id="autowisp.astrometry.astrometry_net_client.Client">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_net_client.</span></span><span class="sig-name descname"><span class="pre">Client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apiurl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'https://nova.astrometry.net/api/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_net_client.html#Client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_net_client.Client" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<div class="graphviz"><img src="../_images/inheritance-ee15740c4e2a3dd5772e5a053c244e68f4987fea.png" alt="Inheritance diagram of autowisp.astrometry.astrometry_net_client.Client" usemap="#inheritanceed41317424" class="inheritance graphviz" /></div>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_net_client.</span></span><span class="sig-name descname"><span class="pre">Client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apiurl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'https://nova.astrometry.net/api/'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_net_client.html#Client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_net_client.Client" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<div class="graphviz"><img src="../_images/inheritance-805adcf060cfea2817d05c3ac7c21ae44997c343.png" alt="Inheritance diagram of autowisp.astrometry.astrometry_net_client.Client" usemap="#inheritanceed41317424" class="inheritance graphviz" /></div>
 <map id="inheritanceed41317424" name="inheritanceed41317424">
 <area shape="rect" id="node1" href="#autowisp.astrometry.astrometry_net_client.Client" target="_top" title="autowisp.astrometry.astrometry_net_client.Client" alt="" coords="5,5,311,32"/>
 </map><dl class="py method">
@@ -239,14 +259,16 @@ args: dict</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="autowisp.astrometry.astrometry_net_client.MalformedResponse">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_net_client.</span></span><span class="sig-name descname"><span class="pre">MalformedResponse</span></span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_net_client.html#MalformedResponse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_net_client.MalformedResponse" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_net_client.</span></span><span class="sig-name descname"><span class="pre">MalformedResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_net_client.html#MalformedResponse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_net_client.MalformedResponse" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SolveAstrometryError</span></code></p>
+<p>The astrometry.net server returned an unparseable response.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="autowisp.astrometry.astrometry_net_client.RequestError">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_net_client.</span></span><span class="sig-name descname"><span class="pre">RequestError</span></span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_net_client.html#RequestError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_net_client.RequestError" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autowisp.astrometry.astrometry_net_client.</span></span><span class="sig-name descname"><span class="pre">RequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autowisp/astrometry/astrometry_net_client.html#RequestError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autowisp.astrometry.astrometry_net_client.RequestError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SolveAstrometryError</span></code></p>
+<p>The astrometry.net server reported an error for a request.</p>
 </dd></dl>
 
 <dl class="py function">

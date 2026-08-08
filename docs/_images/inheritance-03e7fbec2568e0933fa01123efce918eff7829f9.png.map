@@ -1,0 +1,10 @@
+<map id="inheritance252b8d8b02" name="inheritance252b8d8b02">
+<area shape="rect" id="node1" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelBase" target="_top" title="The base class for all table classes." alt="" coords="224,304,554,331"/>
+<area shape="rect" id="node5" href="autowisp.database.data_model.provenance.mount_access.html#autowisp.database.data_model.provenance.mount_access.MountAccess" target="_top" title="The table describing the mount access." alt="" coords="166,379,612,405"/>
+<area shape="rect" id="node2" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="5,229,384,256"/>
+<area shape="rect" id="node3" href="autowisp.database.data_model.base.html#autowisp.database.data_model.base.DataModelSubBase" target="_top" title="The base class for all table classes, except without &#39;id&#39; column." alt="" coords="407,229,760,256"/>
+<area shape="rect" id="node4" title="Base class used for declarative class definitions." alt="" coords="452,155,716,181"/>
+<area shape="rect" id="node6" title="A helper class for &#39;concrete&#39; declarative mappings." alt="" coords="30,155,359,181"/>
+<area shape="rect" id="node7" title="define a class as inspectable." alt="" coords="474,80,694,107"/>
+<area shape="rect" id="node8" href="https://docs.python.org/3/library/typing.html#typing.Generic" target="_top" title="Abstract base class for generic types." alt="" coords="531,5,636,32"/>
+</map>
