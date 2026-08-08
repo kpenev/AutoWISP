@@ -2,8 +2,14 @@
 Low Level Astrometry Interface
 ******************************
 
+.. note::
+
+   A design note, describing how the astrometric solution was intended to
+   be found rather than the code as it stands. Check it against the code
+   before relying on any detail.
+
 Given calibrated FITS frames of the night sky produced as described in
-:doc:`low_level_image_calibration`, this module finds an astrometric solution
+``low_level_image_calibration``, this module finds an astrometric solution
 defining how (RA, Dec) coordinates on the sky are mapped to image (x, y). The
 transformations are done in two steps:
 

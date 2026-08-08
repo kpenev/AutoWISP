@@ -2,9 +2,14 @@
 Low Level Master Stack Interface
 ********************************
 
-Given a user-specified set of calibrated FITS frames produced as described in
-:doc:`low_level_image_calibration`, this module stacks them to create master
-frames. The stacking procedure and example usage for each master types is as
+.. note::
+
+   A design note, describing how master stacking was intended to work
+   rather than the code as it stands. Check it against the code before
+   relying on any detail.
+
+Given a user-specified set of calibrated FITS frames, this module stacks
+them to create master frames. The stacking procedure and example usage for each master types is as
 follows:
 
 Master Bias/Dark

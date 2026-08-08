@@ -19,8 +19,6 @@ Welcome to AutoWISP's documentation!
     wisp_options
     implementation/autowisp
 
-..    PythonModules/contents
-
 Indices and tables
 ==================
 

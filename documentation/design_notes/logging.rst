@@ -2,6 +2,15 @@
 Logging
 *******
 
+.. note::
+
+   A design note, recording the reasoning behind the logging scheme rather
+   than describing what the code does now. Some of it was settled and
+   holds -- a logger per module named after it, feeding a common tree --
+   while the sections on what contextual information to attach were left
+   open at the time of writing and were not resolved here. Check the code
+   before relying on any of it.
+
 Design considerations
 =====================
 
