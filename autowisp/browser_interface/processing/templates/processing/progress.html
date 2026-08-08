@@ -211,7 +211,7 @@ Processing Progress
                     <td colspan=2 class="tooltip">
                         <span class="tooltiptext">
                             {% if step.0 == 'calibrate' %}
-                            Review cilabration diagnostics
+                            Review calibration diagnostics
                             {% url 'diagnostics:display_image_diagnostics' diagnostic_name='quantiles' as diagnostic_url %}
                             {% elif step.0 == 'find' and step.1 == 'stars' %}
                             Review star finding diagnostics
@@ -221,7 +221,7 @@ Processing Progress
                             Review astrometry diagnostics
                             {% url 'diagnostics:display_image_diagnostics' diagnostic_name='pointing_offset' as diagnostic_url %}
                             {% elif step.0 == 'fit' and step.1 == 'star' and step.2 == 'shape' %}
-                            Review star shepe fit diagnostics
+                            Review star shape fit diagnostics
                             {% url 'diagnostics:display_image_diagnostics' diagnostic_name='bg_center' as diagnostic_url %}
                             {% elif step.0 == 'measure' and step.1 == 'aperture' and step.2 == 'photometry' %}
                             Review aperture photometry diagnostics
