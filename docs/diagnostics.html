@@ -1,0 +1,608 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnostics &mdash; AutoWISP  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/unlimited_width.css?v=eea1f72d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Looking at the light curves" href="results.html" />
+    <link rel="prev" title="How a setting gets its value" href="configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AutoWISP
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-released-version">Installing the released version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#what-you-just-installed">What you just installed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#a-ready-made-setup-for-windows">A ready-made setup for Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-from-source">Installing from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#plate-solving">Plate solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#gaia-archive-access">Gaia archive access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-the-tests-optional">Run the tests (optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bringing_your_own_data.html">Bringing your own data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#sort-the-images-by-type">Sort the images by type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#describe-the-equipment">Describe the equipment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#tell-autowisp-how-to-read-your-headers">Tell AutoWISP how to read your headers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#decide-which-calibrations-you-have">Decide which calibrations you have</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bringing_your_own_data.html#registering-the-images">Registering the images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test_data.html">Example: processing the test data one command line step at a time</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-temporary-directory-to-work-in-(remember-to-delete-it-at-the-end)-and-enter-it">Create a temporary directory to work in (remember to delete it at the end) and enter it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Download-the-test-data">Download the test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#How-the-images-are-organized,-and-what-processing-produces">How the images are organized, and what processing produces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Adjust-test.cfg-before-you-start">Adjust <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code> before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-zero-frames">Perform the calibration for the zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-bias-by-stacking-the-calibrated-zero-frames">Create a master bias by stacking the calibrated zero frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-the-calibration-for-the-dark-frames">Perform the calibration for the dark frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-a-master-dark-by-stacking-the-calibrated-dark-images">Create a master dark by stacking the calibrated dark images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-flat-frames">Perform calibration for flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Build-a-master-flat-out-of-the-individual-calibrated-flat-frames">Build a master flat out of the individual calibrated flat frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-calibration-for-object-frames">Perform calibration for object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Find-stars-in-the-calibrated-object-frames">Find stars in the calibrated object frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-astrometry-on-DR-files">Perform astrometry on DR files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-PSF/PRF-fitting">Perform PSF/PRF fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-aperture-photometry">Perform aperture photometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Run-fit-source-extracted-PSF-map">Run fit source extracted PSF map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-magnitude-fitting">Perform magnitude fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Create-light-curves">Create light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-EPD-on-light-curves">Perform EPD on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-EPD-statistics-file-for-light-curves">Generate EPD statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Perform-TFA-on-light-curves">Perform TFA on light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Generate-TFA-statistics-file-for-light-curves">Generate TFA statistics file for light curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_data.html#Extract-brightness-vs-time-from-lightcurves">Extract brightness vs time from lightcurves</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">How a setting gets its value</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-belong-to-the-project">Settings belong to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-value-and-when-it-applies">A value, and when it applies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#where-the-values-come-from-and-what-no-value-means">Where the values come from, and what “no value” means</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#carrying-configuration-between-projects">Carrying configuration between projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#settings-you-will-not-find-in-your-configuration">Settings you will not find in your configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#what-the-values-themselves-are">What the values themselves are</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#a-note-on-versions">A note on versions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Diagnostics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-gets-measured">What gets measured</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#looking-at-them">Looking at them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-pipeline-does-with-them">What the pipeline does with them</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="results.html">Looking at the light curves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="results.html#the-first-plot">The first plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#comparing-what-detrending-did">Comparing what detrending did</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#plotting-other-things">Plotting other things</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#overlaying-a-transit-model">Overlaying a transit model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="results.html#the-figure-itself">The figure itself</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="when_things_go_wrong.html">When something goes wrong</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-error-log">The error log</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#picking-up-after-an-interrupted-run">Picking up after an interrupted run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#the-logs">The logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#sending-a-crash-report">Sending a crash report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="when_things_go_wrong.html#keeping-the-log-from-growing">Keeping the log from growing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wisp_options.html">Configuration Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation/autowisp.html">autowisp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation/autowisp.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoWISP</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Diagnostics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/diagnostics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="diagnostics">
+<h1>Diagnostics<a class="headerlink" href="#diagnostics" title="Link to this heading"></a></h1>
+<p>Processing records more than its results. As each stage works through an
+image it also measures a handful of numbers describing how that stage
+went – how many stars were found, how well the astrometric solution fit,
+how bright the sky was – and files them in the project’s database
+against the image and colour channel they came from.</p>
+<p>These are worth knowing about for three reasons. They are the quickest
+way to see whether a night’s data is any good; they are what the pipeline
+itself consults when it has to choose one image out of many; and when
+something looks wrong in the final light curves, they are usually where
+the explanation is.</p>
+<section id="what-gets-measured">
+<h2>What gets measured<a class="headerlink" href="#what-gets-measured" title="Link to this heading"></a></h2>
+<p>Each value is stored against one image, one colour channel and one named
+diagnostic, so every number below exists separately for every channel of
+every frame.</p>
+<section id="from-calibration">
+<h3>From calibration<a class="headerlink" href="#from-calibration" title="Link to this heading"></a></h3>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">pixel_qNNN</span></code></dt><dd><p>Quantiles of the calibrated pixel values, ignoring masked pixels –
+<code class="docutils literal notranslate"><span class="pre">pixel_q999</span></code> is the 0.999 quantile, and so on. Which quantiles are
+recorded is configurable, and the names are created as needed, so this
+is the one family whose members are not fixed in advance. Taken
+together they describe the brightness distribution of the frame, which
+is the fastest way to spot cloud, moonlight or a badly wrong exposure.</p>
+<p>For example, the median of the pixel values (quantile 0.5) is usually a
+good measure of the brightness of the sky, since less than half of the
+pixels in your image should be covered by stars. A perfectly clear sky is
+darker than clouds, which can reflect light coming from the ground or the
+moon. Clouds also usually move around, causing the brightness to change over
+time. So if you see a graph of the median that jumps up and down a lot,
+that is a good indication that you were not observing in a clear sky.</p>
+<p>If you are using a color camera, another thing that can indicate clouds is
+the color of the sky. Clouds are white, while the sky is blue (even at
+night). So if you see that the ratio of the median of the red channel to
+the blue channel is increasing, that can also indicate clouds. The graph
+below is an example of a night where clouds were present most of the time,
+but it cleared up near the end.</p>
+<a class="reference internal image-reference" href="_images/cloudy_sky_median.svg"><img alt="_images/cloudy_sky_median.svg" src="_images/cloudy_sky_median.svg" style="width: 600px;" />
+</a>
+<p>One thing to keep in mind though is that the brightness and color of the sky
+is not uniform. The horizon is brighter and could also be less blue than
+zenith due to light pollution. As you get closer to daylight the brightness
+can similarly change. As a result, as your telescope tracks the field of sky
+you are observing it will move further and closer to the horizon, which will
+also lead to changes in the brightness and color of the sky that can be
+similar to what clouds do. However, those changes are slow and smooth,
+unlike clouds. The graph of the median below is an example of observations
+that happened during a clear night, where dawn is approaching at the end.</p>
+<a class="reference internal image-reference" href="_images/clear_sky_median.svg"><img alt="_images/clear_sky_median.svg" src="_images/clear_sky_median.svg" style="width: 600px;" />
+</a>
+</dd>
+</dl>
+</section>
+<section id="from-finding-stars">
+<h3>From finding stars<a class="headerlink" href="#from-finding-stars" title="Link to this heading"></a></h3>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">num_extracted_src</span></code></dt><dd><p>How many sources the extraction found.</p>
+<p>There is no good absolute value to compare against – it depends
+entirely on your field, your optics and how deep your exposures go.
+What matters is how it behaves relative to the other frames of the
+same field. A frame with far fewer stars than its neighbours had
+something in the way like clouds or stray light drowning out the stars.</p>
+<p>A count far above the usual is the more misleading case, because more
+sources sounds like better data. Often it can mean that the detection
+threshold has been set low enough to start finding noise, in which
+case the extra “stars” will not match the catalog – which is what
+<code class="docutils literal notranslate"><span class="pre">matched_fraction</span></code> below will tell you.</p>
+</dd>
+</dl>
+</section>
+<section id="from-plate-solving">
+<h3>From plate solving<a class="headerlink" href="#from-plate-solving" title="Link to this heading"></a></h3>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">ra_center</span></code>, <code class="docutils literal notranslate"><span class="pre">dec_center</span></code></dt><dd><p>Where the middle of the frame actually points, according to the
+astrometric solution, as opposed to where the mount believed it was
+pointing.</p>
+<p>Plotted against time these trace how the field wandered over a run.  A slow
+crawl in one direction is ordinary tracking error; a sudden step means
+something moved the telescope, or the mount flipped sides of the pier.
+Either matters more than it might seem, because your telescope + camera
+system has different sensitivity to light coming from different directions,
+and as stars wander around the image their brightness will appear to change.
+This is what flat field corrections are meant to mitigate – see
+<a class="reference internal" href="bringing_your_own_data.html"><span class="doc">Bringing your own data</span></a> for what the calibration frame types are and
+what doing without them costs you – so this gets even more important if you
+are not using calibration data.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">z_center</span></code></dt><dd><p>The zenith distance of the frame centre – how far from straight
+overhead the telescope was looking, and so how much atmosphere the
+light came through. Recorded only when the header says enough about
+where and when the image was taken.</p>
+<p>This is the most useful thing to plot other diagnostics <em>against</em>.  Almost
+everything that degrades with airmass – fainter stars, brighter sky,
+greater scatter – will show it as a trend with zenith distance, and
+separating “the target was low in the sky” from “conditions were poor” is a
+question you will want to answer often.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">pointing_offset</span></code></dt><dd><p>How far the frame centre is from the target that was meant to be
+observed.</p>
+<p>Where <code class="docutils literal notranslate"><span class="pre">ra_center</span></code> and <code class="docutils literal notranslate"><span class="pre">dec_center</span></code> tell you where you were
+looking, this tells you how wrong it was, in one number you can sort
+and threshold.</p>
+<p>A jump in the value indicates your mount pointing suddenly shifted (e.g. if
+you accidentally bumped it). Smooth changes up and down can be caused by
+imperfect polar alignment, your mount not being powerful enough for the
+weight of the telescope you have on it, or not well balanced.</p>
+<p>A consistently large value from the very first frame usually means the
+target coordinates or the header keywords they were read from are not what
+you think.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">diagonal_fov</span></code></dt><dd><p>The mean angular distance from the centre of the image to its four
+corners, as a measure of the field of view that does not depend on
+the shape of the detector.</p>
+<p>For a fixed instrument this should be very nearly constant, which is
+what makes it useful: it is a check rather than a measurement. A
+frame whose field of view differs from its neighbours’ has either
+been refocused or fitted with different optics, or – far more
+likely – has a plate solution that is quietly wrong.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">matched_fraction</span></code></dt><dd><p>The fraction of extracted sources that were matched to catalog stars.</p>
+<p>The single most useful indicator that plate solving actually
+succeeded, as opposed to merely finishing. A solution is rejected
+outright below <a class="reference internal" href="wisp_options.html#cmdoption-arg-min-match-fraction"><code class="xref std std-option docutils literal notranslate"><span class="pre">min-match-fraction</span></code></a> (0.8 by default), so
+everything you see recorded passed that bar; what is worth attention
+is a frame sitting just above it, or a run where the fraction is
+drifting downward.</p>
+<p>Read it together with <code class="docutils literal notranslate"><span class="pre">num_extracted_src</span></code>: if the source count
+climbed while the matched fraction fell, the extra detections are
+noise rather than stars.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">astrom_residual</span></code></dt><dd><p>The RMS distance, in pixels, between matched sources and the
+positions the solution predicts for them.</p>
+<p>This is how tightly the solution fits. Solutions worse than
+<a class="reference internal" href="wisp_options.html#cmdoption-arg-max-rms-distance"><code class="xref std std-option docutils literal notranslate"><span class="pre">max-rms-distance</span></code></a> (0.5 pixels by default) are rejected, that
+default being chosen as a little more than the accuracy with which
+source extraction can place a star’s centre.</p>
+<p>A small residual on its own is not proof of a good solution – a
+handful of stars can always be fit well – so read it alongside
+<code class="docutils literal notranslate"><span class="pre">matched_fraction</span></code>. The combination to trust is many matches
+fitting tightly; the combination to distrust is a tight fit to few.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">srcextract_mag_zeropt</span></code></dt><dd><p>The magnitude that corresponds to an extracted flux of one ADU, taken
+as the median of catalog magnitude plus 2.5 log₁₀(flux) over the
+matched stars.</p>
+<p>It is a measure of how much light is reaching the detector, so it
+responds to transparency, cloud, dew, and anything else that dims the
+whole frame at once. <strong>Larger means more light</strong>: for a fixed star,
+more flux gives a larger zeropoint. Falling values through a night
+mean conditions closing in.</p>
+<p>Since it is a per-frame number derived before any photometric
+calibration, it is the earliest warning that a frame is not
+comparable to its neighbours – available long before magnitude
+fitting has an opinion.</p>
+</dd>
+</dl>
+</section>
+<section id="from-fitting-star-shapes">
+<h3>From fitting star shapes<a class="headerlink" href="#from-fitting-star-shapes" title="Link to this heading"></a></h3>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">bg_center</span></code></dt><dd><p>The smoothed background level at the centre of the frame: sky
+brightness as the photometry actually sees it, after calibration and
+with the stars taken out. This is usually a higher quality measure of the
+sky brightness than the median pixel quantile discussed above, because it
+explicitly excludes the stars.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">bg_map_residual</span></code></dt><dd><p>How far the background departs from its own smooth model across the
+frame.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code> says how bright the sky was; this says how <em>evenly</em>.
+A uniformly bright sky – moonlight, say – raises the first and
+leaves the second alone. Broken cloud, a passing headlight or stray
+light entering the optics puts structure into the background that the
+smooth model cannot follow, and shows up here.</p>
+<p>A frame with a modest background but a large residual deserves more
+suspicion than one with a bright but smooth sky, because uneven
+background biases stars differently depending on where they sit.</p>
+</dd>
+</dl>
+</section>
+<section id="from-the-source-extracted-psf-map">
+<h3>From the source extracted PSF map<a class="headerlink" href="#from-the-source-extracted-psf-map" title="Link to this heading"></a></h3>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">s_center</span></code>, <code class="docutils literal notranslate"><span class="pre">d_center</span></code>, <code class="docutils literal notranslate"><span class="pre">k_center</span></code></dt><dd><p>The shape parameters of the smoothed PSF/PRF map evaluated at the
+centre of the frame. <code class="docutils literal notranslate"><span class="pre">s</span></code> is the one to watch: it measures how
+concentrated the stars are, so it stands in for focus and seeing. Keep
+in mind that large <code class="docutils literal notranslate"><span class="pre">s</span></code> means sharper stars – the light is spread
+over fewer pixels – so it moves in the opposite direction to the star
+size you might picture.</p>
+<p>Its practical use is as a stand-in for image quality over a run.
+Falling <code class="docutils literal notranslate"><span class="pre">s</span></code> means the stars are spreading out: focus drifting as the
+telescope cools, worsening seeing, or the field sinking toward the
+horizon. Since it is also the first term in the default rule for
+picking the photometric reference described below, it is worth knowing
+which way it points before changing that rule.</p>
+<p><code class="docutils literal notranslate"><span class="pre">d</span></code> and <code class="docutils literal notranslate"><span class="pre">k</span></code> describe how far the stars depart from round, and in
+which direction. <code class="docutils literal notranslate"><span class="pre">d</span></code> measures elongation along the detector’s x and
+y axes; <code class="docutils literal notranslate"><span class="pre">k</span></code> measures it along the two diagonals. Both near zero
+means round stars, which is what you want.</p>
+<p>They have to be read as a pair, because between them they cover every
+direction: stars trailed along a diagonal show up in <code class="docutils literal notranslate"><span class="pre">k</span></code> with <code class="docutils literal notranslate"><span class="pre">d</span></code>
+near zero, and stars trailed along a detector axis do the reverse.
+Neither on its own tells you whether the stars are round – it is the
+two together that do.</p>
+<p>The direction is worth attention, because it points at different
+causes. Elongation that stays put in the same direction frame after
+frame is usually the instrument: a drive error along one axis, or
+aberrations in the optics. Elongation whose direction turns steadily
+through the night is the field rotating, which is what an alt-az mount
+without a derotator does. Elongation that comes and goes with no
+pattern is more likely wind or a mount being pushed beyond what it can
+hold steady.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">s_map_residual</span></code>, <code class="docutils literal notranslate"><span class="pre">d_map_residual</span></code>, <code class="docutils literal notranslate"><span class="pre">k_map_residual</span></code></dt><dd><p>How much the individual sources scatter about the smooth map of the
+corresponding parameter.</p>
+<p>Where the <code class="docutils literal notranslate"><span class="pre">_center</span></code> values say what the stars look like in the
+middle of the frame, these say how well a single smooth model
+describes the whole frame. A small residual means the star shapes vary
+gently across the field, as they should; a large one means they vary
+in ways the map cannot follow.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">s</span></code> that usually means part of the frame is out of focus
+relative to the rest – a tilted detector or a curved field. For <code class="docutils literal notranslate"><span class="pre">d</span></code>
+and <code class="docutils literal notranslate"><span class="pre">k</span></code> it means the elongation varies across the frame, which is
+the signature of optical aberrations growing toward the corners rather
+than of trailing, since trailing tends to affect the whole frame
+alike. A residual that is large in all three at once is more often a
+fit spoiled by bad inputs: saturated stars, blended pairs, or too few
+sources to constrain the map.</p>
+</dd>
+</dl>
+</section>
+<section id="from-magnitude-fitting">
+<h3>From magnitude fitting<a class="headerlink" href="#from-magnitude-fitting" title="Link to this heading"></a></h3>
+<p>These three are recorded per photometry rather than per image, because
+each aperture is fit separately, so there is a value for every aperture
+of every frame.</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">magfit_residual</span></code></dt><dd><p>The RMS of the correction against the final master photometric
+reference: how well this frame’s photometry agrees with the ensemble
+once the fit has done what it can.</p>
+<p>This is the closest thing to a single number for “how good is this
+frame photometrically”, and it is the one to sort by when deciding
+which frames to look at or discard. Unlike the diagnostics above it
+is measured after the correction, so it reflects what is left over –
+the part of the frame’s behaviour that the fit could not explain and
+therefore could not remove.</p>
+<p>Comparing it between apertures is informative in its own right. The
+aperture with the lowest residual across a run is generally the one
+to trust for that data, and where the minimum falls tells you
+something about the size of the stars.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">photometry_mag_offset</span></code></dt><dd><p>The best fit offset between the frame’s magnitudes and the
+reference’s: how much brighter or fainter everything in the frame
+came out, as a single shift.</p>
+<p>This is the bulk correction magnitude fitting applied, so it tracks the same
+conditions <code class="docutils literal notranslate"><span class="pre">srcextract_mag_zeropt</span></code> does, but measured after full
+photometry rather than from extraction, so it should be much more reliable.
+It is interpreted the same way: an indicator of how transparent the
+atmosphere was at the time the image was taken.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mag_fit_num_stars</span></code></dt><dd><p>How many stars survived to the last iteration of the fit.</p>
+<p>This is the sample size behind the two numbers above, and it is what
+makes them trustworthy or not. Magnitude fitting rejects outliers as
+it iterates, so a frame ending on far fewer stars than its
+neighbours had a lot of its photometry thrown out.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="looking-at-them">
+<h2>Looking at them<a class="headerlink" href="#looking-at-them" title="Link to this heading"></a></h2>
+<section id="getting-there">
+<h3>Getting there<a class="headerlink" href="#getting-there" title="Link to this heading"></a></h3>
+<p>The way in is the processing progress page, which is more of a hub than
+its name suggests: most of what you can see on that table is a link, and
+hovering over any of them says where it goes.</p>
+<p>Each row is a stage, and the three parts of it lead to three different
+places:</p>
+<p><strong>The name of the stage</strong> opens its configuration – the settings that
+stage uses, with the editor already narrowed to them. Convenient, but
+remember from <a class="reference internal" href="configuration.html"><span class="doc">How a setting gets its value</span></a> that narrowing the editor does not
+narrow the effect: many settings are shared, and changing one there
+changes it for every stage that uses it.</p>
+<p><strong>The image type beside it</strong> depends on the stage and its state:</p>
+<ul class="simple">
+<li><p>if the stage has recorded errors, it turns red with a warning sign and
+goes to those errors;</p></li>
+<li><p>otherwise, for finding stars, it opens the sandbox for tuning source
+extraction, where thresholds can be tried against real frames instead
+of guessed at;</p></li>
+<li><p>otherwise, for magnitude fitting, it opens the page for choosing the
+photometric reference – the frame everything else is calibrated
+against, and the one place diagnostics are used to make a decision
+rather than to inform one;</p></li>
+<li><p>for every other stage it is plain text and goes nowhere.</p></li>
+</ul>
+<p>Errors take precedence, so a red cell where you expected the tuning
+sandbox means there are failures to deal with first.</p>
+<p><strong>The progress bars</strong>, one per image type and channel, open the
+diagnostics for that stage – “Review astrometry diagnostics”, and so on.</p>
+<p>Each stage lands you on the diagnostic that is usually the most telling
+for it, which is as good a hint as any about which to look at first:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Clicking the progress bar for</p></th>
+<th class="head"><p>opens</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>calibration</p></td>
+<td><p>the pixel quantiles</p></td>
+</tr>
+<tr class="row-odd"><td><p>finding stars</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">num_extracted_src</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>plate solving</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pointing_offset</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>fitting star shapes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>aperture photometry</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bg_center</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>the source extracted PSF map</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s_center</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>magnitude fitting, EPD or TFA</p></td>
+<td><p>the detrending diagnostics</p></td>
+</tr>
+</tbody>
+</table>
+<p>That is only where you arrive. Once on the page you can switch to any
+other diagnostic, or to a plot of one against another, so the starting
+point matters less than knowing the door is on the progress page. Stages
+with nothing to report – those that record no diagnostics – have plain
+progress bars that do not lead anywhere.</p>
+</section>
+<section id="three-kinds-of-plot">
+<h3>Three kinds of plot<a class="headerlink" href="#three-kinds-of-plot" title="Link to this heading"></a></h3>
+<p>The interface plots them three ways, and which one to reach for depends
+on the question.</p>
+<p><strong>One diagnostic across a run</strong> answers “when did this go wrong”: pick a
+diagnostic and see it for every image in order, with the channels
+distinguished. A night of cloud, a focus drift, the moon rising – all
+have shapes you learn to recognise here.</p>
+<p><strong>One diagnostic against another</strong> answers “why”: scatter any two against
+each other, and the relationship shows the cause. Residuals rising with
+zenith distance is airmass; scatter rising with background is moonlight.</p>
+<p><strong>Detrending diagnostics</strong> work at the level of the light curves rather
+than the images, showing the scatter left after magnitude fitting, EPD
+and TFA. That is where you see whether the detrending stages actually
+improved anything, and by how much, rather than assuming they did.</p>
+</section>
+<section id="every-point-is-a-link">
+<h3>Every point is a link<a class="headerlink" href="#every-point-is-a-link" title="Link to this heading"></a></h3>
+<p>A diagnostic is a summary, and a summary can be read wrongly. So the
+points are not just marks on a plot: clicking one opens the thing it
+came from, which is how you check that your reading of the plot is
+right.</p>
+<p>On both of the per-image plots – against time and against another
+diagnostic alike, since they draw the same points the same way – a point
+takes you to the frame it was measured from. If the median pixel value
+jumped for three frames in the middle of a run, you do not have to take
+cloud on trust: click one of them and look. The frame is shown
+calibrated, as the pipeline saw it rather than as it came off the camera.</p>
+<p>This is what makes the diagnostic-against-diagnostic plot more than a
+correlation. Having found the handful of points that sit away from the
+trend, you can go straight from each outlier to the frame responsible for
+it.</p>
+<p>That page can do more than show you the image. It will overlay:</p>
+<ul class="simple">
+<li><p><strong>the stars that were extracted</strong>, so you can see whether the
+detections follow real stars or are scattered over noise;</p></li>
+<li><p><strong>the stars that were projected</strong> there from the catalog, and
+<strong>those that were matched</strong> between the two, which together turn
+<code class="docutils literal notranslate"><span class="pre">matched_fraction</span></code> from a number into a picture – a bad plate
+solution looks like two sets of points that do not line up;</p></li>
+<li><p><strong>the pixels below the background</strong>, and <strong>the pixels below each
+recorded quantile</strong>, colouring the frame by brightness. This is the
+companion to the <code class="docutils literal notranslate"><span class="pre">pixel_qNNN</span></code> diagnostics: where those tell you the
+sky got brighter, this shows you whether it did so evenly, as moonlight
+does, or in patches, as cloud does.</p></li>
+</ul>
+<p>On the detrending plots, where each point is a star rather than a frame,
+clicking goes to that star’s light curve instead – which is the natural
+question there, since a point sitting above the crowd is asking to be
+looked at.</p>
+</section>
+</section>
+<section id="what-the-pipeline-does-with-them">
+<h2>What the pipeline does with them<a class="headerlink" href="#what-the-pipeline-does-with-them" title="Link to this heading"></a></h2>
+<p>Diagnostics are not only for looking at. Choosing the single photometric
+reference – the frame every other frame’s photometry is calibrated
+against – is decided by scoring the candidates on their diagnostics.</p>
+<p>The score is an expression you can change, and it can use any diagnostic
+in two derived forms: <code class="docutils literal notranslate"><span class="pre">qnt_&lt;name&gt;</span></code> is the frame’s rank among the
+candidates for that diagnostic, from 0 to 1, and <code class="docutils literal notranslate"><span class="pre">std_&lt;name&gt;</span></code> is the
+spread of that diagnostic across them. Ranks are usually what you want,
+since they do not care what units the diagnostic is in. The default is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.0</span> <span class="o">/</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">qnt_s_center</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">qnt_bg_center</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which reads, once unpacked, as <em>prefer the frame with the smallest stars
+and the darkest sky</em> – the sharpest image on the least contaminated
+background, which is what makes a reference other frames can be measured
+against.</p>
+<p>Because the ranking is only over the candidates in hand, a reference is
+always the best of what was actually observed. It is worth looking at the
+diagnostics of the frame that gets chosen: if the best available frame is
+poor, everything calibrated against it inherits that.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configuration.html" class="btn btn-neutral float-left" title="How a setting gets its value" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="results.html" class="btn btn-neutral float-right" title="Looking at the light curves" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Kaloyan Penev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
