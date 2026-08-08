@@ -15,6 +15,8 @@ Welcome to AutoWISP's documentation!
     bringing_your_own_data
     test_data
     configuration
+    diagnostics
+    results
     when_things_go_wrong
     wisp_options
     implementation/autowisp
