@@ -16,6 +16,7 @@ Welcome to AutoWISP's documentation!
     test_data
     configuration
     diagnostics
+    photometric_reference
     results
     when_things_go_wrong
     wisp_options
