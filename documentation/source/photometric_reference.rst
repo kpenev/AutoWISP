@@ -2,11 +2,9 @@
 Choosing the photometric reference
 **********************************
 
-Magnitude fitting works by comparing every frame against one chosen
-frame, correcting each to agree with it. That chosen frame is the
-photometric reference, and everything downstream inherits whatever is
-wrong with it. It is the one point in processing where the pipeline stops
-and asks you to decide.
+Magnitude fitting works by correcting every frame to agree with a
+reference. You choose the frame it starts from, and it is the one point
+in processing where the pipeline stops and asks you to decide.
 
 It asks because the decision cannot be made from numbers alone, which is
 the whole reason this page exists.
@@ -19,18 +17,105 @@ it does not have. On the progress page, the image type beside the
 magnitude fitting row becomes a link -- hovering says "select reference
 image" -- and that is the way in.
 
+A starting point, not the final standard
+========================================
+
+Worth knowing before you agonise over the choice: the frame you pick is
+where magnitude fitting begins, not what it ultimately measures against.
+
+Once every frame has been corrected to agree with your choice, the fit
+averages each star's corrected magnitudes across all the frames in the
+group. That average becomes a new reference -- one assembled from the
+whole group rather than from any single frame -- and everything is fitted
+again against it. The cycle repeats until two successive references stop
+differing appreciably, or until :option:`max-magfit-iterations` (five by
+default) is reached.
+
+So a slightly imperfect choice is not fatal. The ensemble pulls the
+standard towards itself, and a frame that is merely unremarkable will
+converge to much the same place as the best one.
+
+What the choice still decides is where that convergence starts from -- a
+bad enough starting frame can leave the iteration somewhere worse than it
+needed to be -- and, through the pointing limit described below, which
+frames are allowed to take part at all. That second one does not wash out
+with iteration: frames excluded at the start are excluded for good.
+
 One reference per group
 =======================
 
 You do not choose one frame for the whole project. A reference is only
-comparable to frames taken of the same field, in the same colour channel,
-with the same exposure time, so the frames are divided into groups on
-exactly those three things and each group gets its own.
+comparable to frames that resemble it, so the frames are divided into
+groups and each group gets its own. By default a group is one field, one
+colour channel and one exposure time.
 
 The first page lists the groups still waiting, what defines each of them,
 and how many candidate frames it has to choose from. A group with very
 few candidates deserves more care than one with hundreds, since there may
 be nothing good to fall back on.
+
+What defines a group is configuration, not a fixed rule
+-------------------------------------------------------
+
+The three things above are the default, not a law. The grouping is the
+set of expressions the project matches photometric references on, and it
+is yours to set -- along with the rest of the master configuration, when
+the project is created. :doc:`bringing_your_own_data` covers where that
+is done and what else it decides.
+
+It is worth thinking about before you start, because the sensible answer
+depends on the project. With more than one camera, for instance, the
+choice is whether to include the camera in the grouping:
+
+* **Include it** and each camera gets its own reference. Every camera is
+  then calibrated against a frame of its own, which is the safer choice
+  when the cameras differ enough that a frame from one is a poor standard
+  for another -- different optics, different filters, different
+  sensitivity.
+* **Leave it out** and all the cameras are fitted to a single reference.
+  That puts every camera on one magnitude scale, so their measurements of
+  the same star can be combined directly rather than each floating on its
+  own zero point.
+
+Neither is right in general. Separate references keep each camera
+internally consistent but leave the cameras independent of one another;
+a shared reference ties them together, at the cost of asking one camera's
+frame to serve as the standard for the rest. The same question arises
+wherever frames fall into natural batches -- observing seasons, sites,
+filters -- and the answer is the one that matches what you intend to
+compare with what.
+
+Small groups are usually not worth a reference
+----------------------------------------------
+
+Because each group is calibrated against its own reference, each ends up
+on its own magnitude zero point. Combining groups into one light curve
+therefore means putting them onto a common scale first, and the usual way
+to do that is to subtract each group's own median before stitching them
+together.
+
+That subtraction is only as good as the median it removes. Over many
+frames the median is a fair estimate of the star's usual brightness and
+taking it out aligns the groups properly. Over a handful of frames it is
+mostly noise -- and if the star varies, it is partly signal, so removing
+it takes a piece of the variation with it. Either way the group arrives
+on the common scale with an offset of its own, which is worse than not
+having it at all.
+
+There is a second reason, from the iteration described above. The
+reference the fit builds for itself is an average over the frames in the
+group, so a group with few frames has little to average: the ensemble
+never becomes much better determined than the one frame you started from,
+and the iteration has nothing to converge towards. A large group ends up
+measured against itself; a small one stays measured against whichever
+frame you happened to pick, quirks and all.
+
+So a group with only a few frames is generally better left without a
+reference: its frames then stay out of magnitude fitting, rather than
+joining the light curve carrying an offset nobody can measure. How few is
+too few depends on how much the star varies and how precise the
+photometry is, but a group whose median rests on a handful of points is
+not contributing anything you would want to trust.
 
 Start at the top, then look
 ===========================
@@ -96,6 +181,11 @@ Choosing a frame registers it as the reference for its group and binds
 the group's frames to it, after which the group disappears from the list.
 When none are left, processing can carry on into magnitude fitting.
 
-If you want to revisit a choice, or the ranking rule turns out not to
-suit your data, the merit function can be changed on the group list and
-the candidates re-ranked.
+**Take the time to be sure before you choose.** The choice is one-way:
+there is at present no way to undefine a reference or swap it for another
+short of editing the project database by hand. A frame you regret picking
+stays the standard everything in its group is measured against.
+
+If the ranking rule itself does not suit your data, the merit function
+can be changed on the group list and the candidates re-ranked -- but that
+only helps for groups you have not decided yet.
